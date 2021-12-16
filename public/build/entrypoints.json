@@ -1,0 +1,20 @@
+{
+  "entrypoints": {
+    "main": {
+      "css": [
+        "/dibe/public/build/main.879e3614.css"
+      ],
+      "js": [
+        "/dibe/public/build/main.92c449f0.js"
+      ]
+    },
+    "charter-search": {
+      "css": [
+        "/dibe/public/build/charter-search.0298f990.css"
+      ],
+      "js": [
+        "/dibe/public/build/charter-search.ffbe0d73.js"
+      ]
+    }
+  }
+}
