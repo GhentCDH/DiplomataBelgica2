@@ -69,7 +69,7 @@ class CharterSearchService extends AbstractSearchService
         return $result;
     }
 
-    protected function sanitizeSearchParameters(array $params): array
+    protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
         // convert orderBy field to elastic field expression
         if (isset($params['orderBy'])) {
