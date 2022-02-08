@@ -62,12 +62,15 @@ import VueFormGenerator from 'vue-form-generator'
 import AbstractField from '../Components/FormFields/AbstractField'
 import AbstractSearch from '../Components/Search/AbstractSearch'
 import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
+import PersistentConfig from "../Components/Shared/PersistentConfig"
+
 
 export default {
     mixins: [
+        PersistentConfig('CharterSearchConfig'),
         AbstractField,
         AbstractSearch,
-        CollapsibleGroups('charter-search-groups')
+        CollapsibleGroups
     ],
     props: {
     },
