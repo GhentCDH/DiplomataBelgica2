@@ -29,7 +29,7 @@
                     ref="resultTable"
                     :columns="tableColumns"
                     :options="tableOptions"
-                    :url="urls['text_search_api']"
+                    :url="urls['charter_search_api']"
                     @data="onData"
                     @loaded="onLoaded"
             >
