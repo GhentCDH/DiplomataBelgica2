@@ -5,6 +5,8 @@ namespace App\Model;
 /**
  * Class Language
  *
+ * @property int language_id
+ * @property string name
  * @package App\Model
  */
 class Language extends IdNameMultilangModel
