@@ -2,12 +2,7 @@
 
 namespace App\Controller;
 
-use App\Model\Charter;
-use App\Resource\ElasticCharterResource;
-use App\Resource\TextResource;
-use App\Service\ElasticSearch\AbstractSearchService;
 use App\Service\ElasticSearch\CharterSearchService;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -15,8 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
-
-use App\Repository\CharterRepository;
 
 class CharterController extends BaseController
 {
@@ -36,7 +29,7 @@ class CharterController extends BaseController
     /**
      * @Route("/charter/search", name="charter_search", methods={"GET"})
      * @param Request $request
-     * @param CharterSearchService $elasticservice
+     * @param CharterSearchService $elasticService
      * @return Response
      */
     public function search(
@@ -91,7 +84,6 @@ class CharterController extends BaseController
     public function getSingle(int $id, Request $request, ContainerInterface $container)
     {
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
-            //$this->denyAccessUnlessGranted('ROLE_EDITOR_VIEW');
             try {
                 $service = $container->get('charter_index_service');
                 $resource = $service->get($id);
@@ -103,7 +95,6 @@ class CharterController extends BaseController
             }
             return new JsonResponse($resource);
         } else {
-            // Let the 404 page handle the not found exception
             $service = $container->get('charter_index_service');
             $resource = $service->get($id);
 
