@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueCookies from 'vue-cookies'
 
-var _merge = require('lodash.merge');
+const _merge = require('lodash.merge');
 
 Vue.use(VueCookies)
 
@@ -15,9 +15,9 @@ export default function(cookieName) {
         },
         watch: {
             config: {
-                handler: function (val, oldVal) {
-                    this.setCookie(this.configCookieName, val)
-                    this.$emit('config-changed')
+                handler: function (newConfig, oldConfig) {
+                    this.setCookie(this.configCookieName, newConfig)
+                    this.$emit('config-changed', newConfig)
                 },
                 deep: true
             },
@@ -31,7 +31,7 @@ export default function(cookieName) {
                     let ret
                     ret = this.$cookies.get(name)
                     if (ret) {
-                        _merge(ret, defaultValue)
+                        ret = _merge({}, defaultValue, ret)
                         return ret
                     }
                 } catch(error) {
