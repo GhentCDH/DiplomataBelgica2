@@ -153,12 +153,12 @@ export default {
             // filter dependency
             if (field.hasOwnProperty('dependency')) {
                 switch (field.dependency) {
-                case 'regionWithParents':
-                    locations = locations.filter((location) => location.regionWithParents.id === model.regionWithParents.id)
-                    break
-                case 'institution':
-                    locations = locations.filter((location) => ( location.institution != null && location.institution.id === model.institution.id))
-                    break
+                    case 'regionWithParents':
+                        locations = locations.filter((location) => location.regionWithParents.id === model.regionWithParents.id)
+                        break
+                    case 'institution':
+                        locations = locations.filter((location) => ( location.institution != null && location.institution.id === model.institution.id))
+                        break
                 }
             }
 
@@ -167,12 +167,12 @@ export default {
 
             // filter null values
             switch (modelName) {
-            case 'institution':
-                locations = locations.filter((location) => location.institution != null)
-                break
-            case 'collection':
-                locations = locations.filter((location) => location.collection != null)
-                break
+                case 'institution':
+                    locations = locations.filter((location) => location.institution != null)
+                    break
+                case 'collection':
+                    locations = locations.filter((location) => location.collection != null)
+                    break
             }
 
             let values = locations
@@ -182,21 +182,21 @@ export default {
                         locationId: location.id
                     }
                     switch (modelName) {
-                    case 'regionWithParents':
-                        fieldInfo.id = location.regionWithParents.id
-                        fieldInfo.name = location.regionWithParents.name
-                        fieldInfo.individualName = location.regionWithParents.individualName
-                        fieldInfo.historicalName = location.regionWithParents.historicalName
-                        fieldInfo.individualHistoricalName = location.regionWithParents.individualHistoricalName
-                        break
-                    case 'institution':
-                        fieldInfo.id = location.institution.id
-                        fieldInfo.name = location.institution.name
-                        break
-                    case 'collection':
-                        fieldInfo.id = location.collection.id
-                        fieldInfo.name = location.collection.name
-                        break
+                        case 'regionWithParents':
+                            fieldInfo.id = location.regionWithParents.id
+                            fieldInfo.name = location.regionWithParents.name
+                            fieldInfo.individualName = location.regionWithParents.individualName
+                            fieldInfo.historicalName = location.regionWithParents.historicalName
+                            fieldInfo.individualHistoricalName = location.regionWithParents.individualHistoricalName
+                            break
+                        case 'institution':
+                            fieldInfo.id = location.institution.id
+                            fieldInfo.name = location.institution.name
+                            break
+                        case 'collection':
+                            fieldInfo.id = location.collection.id
+                            fieldInfo.name = location.collection.name
+                            break
                     }
                     return fieldInfo
                 })
