@@ -11,6 +11,6 @@ namespace App\Model;
  */
 class Language extends IdNameMultilangModel
 {
-    protected $hidden = ['name_nl', 'name_en', 'name_fr'];
+    protected $hidden = ['name_nl', 'name_fr', 'name_en'];
     protected $localizedAttributes = ['name'];
 }

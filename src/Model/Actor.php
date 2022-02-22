@@ -17,7 +17,7 @@ use ReflectionException;
  */
 class Actor extends AbstractModel
 {
-    protected $hidden = ['order_nl','order_en','order_fr'];
+    protected $hidden = ['order_nl', 'order_fr', 'order_en'];
     protected $localizedAttributes = ['order'];
     protected $with = ['place', 'name']; //default relations to load
 

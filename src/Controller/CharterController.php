@@ -101,16 +101,14 @@ class CharterController extends BaseController
             return $this->render(
                 $this->templateFolder. '/detail.html.twig',
                 [
-                    'urls' => json_encode([
+                    'urls' => [
                         // @codingStandardsIgnoreStart Generic.Files.LineLength
                         'charter_search' => $this->generateUrl('charter_search'),
                         'charter_search_api' => $this->generateUrl('charter_search_api'),
                         'charter_get_single' => $this->generateUrl('charter_get_single', ['id' => 'charter_id']),
                         // @codingStandardsIgnoreEnd
-                    ]),
-                    'data' => json_encode([
-                        'charter' => $resource
-                    ])
+                    ],
+                    'charter' => $resource
                 ]
             );
         }

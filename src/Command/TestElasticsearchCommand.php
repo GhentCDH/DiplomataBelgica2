@@ -38,7 +38,7 @@ class TestElasticsearchCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         /** @var $repository CharterRepository */
-        $repository = $this->container->get('charter_repository' );
+        $repository = $this->container->get('charter_repository');
 
         /** @var $service CharterIndexService */
         $service = $this->container->get('charter_index_service');

@@ -26,17 +26,17 @@ class Charter extends AbstractModel
 
     // hide properties in toArray conversion
     protected $hidden = [
-        'summary_nl','summary_fr','summary_en',
-        'authenticity_nl','authenticity_fr', 'authenticity_en',
-        'nature_nl','nature_fr', 'nature_en',
+        'summary_nl', 'summary_fr', 'summary_en',
+        'authenticity_nl', 'authenticity_fr', 'authenticity_en',
+        'nature_nl', 'nature_fr', 'nature_en',
     ];
+
+    protected $localizedAttributes = ['summary', 'nature', 'authenticity']; // translatable attributes
 
     // autoload relations
     protected $with = [
         'languages', 'place', 'actors'
     ];
-
-    protected $localizedAttributes = ['summary', 'nature', 'authenticity']; // translatable attributes
 
     /**
      * @return BelongsToMany|Collection|Language[]
