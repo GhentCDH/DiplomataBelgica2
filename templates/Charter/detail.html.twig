@@ -3,10 +3,17 @@
 
 {% block content %}
     <div id="text-view-app">
-{#        <charter-view-app#}
-{#            init-urls="{{ urls }}"#}
-{#            init-data="{{ data }}"#}
-{#        />#}
+        <h2>Full text</h2>
+        <p>
+            {{ charter.full_text }}
+        </p>
+        <h2>Place found name</h2>
+        <p>
+            {{ charter.place_found_name }}
+        </p>
+        <pre>
+            {{ charter|json_encode(constant('JSON_PRETTY_PRINT')) }}
+        </pre>
     </div>
 {% endblock %}
 
