@@ -9,12 +9,12 @@ use ReflectionException;
 
 /**
  * @property int charter_id
+ * @property string summary
  * @property string full_text
  * @property string full_text_annotated
  * @property string full_text_stripped
- * @property string summary
- * @property string authenticity
  * @property int published
+ * @property string place_found_name
  *
  * @package App\Model
  */
@@ -26,26 +26,18 @@ class Charter extends AbstractModel
 
     // hide properties in toArray conversion
     protected $hidden = [
-        'summary_nl', 'summary_fr', 'summary_en',
-        'authenticity_nl', 'authenticity_fr', 'authenticity_en',
-        'nature_nl', 'nature_fr', 'nature_en',
+        'summary_nl', 'summary_fr', 'summary_en'
     ];
 
-    protected $localizedAttributes = ['summary', 'nature', 'authenticity']; // translatable attributes
+    // translatable attributes
+    protected $localizedAttributes = [
+        'summary',
+    ];
 
     // autoload relations
     protected $with = [
-        'languages', 'place', 'actors'
+        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'languages', 'actors'
     ];
-
-    /**
-     * @return BelongsToMany|Collection|Language[]
-     * @throws ReflectionException
-     */
-    public function languages(): BelongsToMany
-    {
-        return $this->belongsToMany(Language::class, 'charter_language');
-    }
 
     /**
      * @return BelongsTo|Place
@@ -53,7 +45,52 @@ class Charter extends AbstractModel
      */
     public function place(): BelongsTo
     {
-        return $this->belongsTo(Place::class, 'charter_place_id', 'place_id');
+        return $this->belongsTo(Place::class);
+    }
+
+    /**
+     * @return BelongsTo|EditionIndication
+     * @throws ReflectionException
+     */
+    public function edition_indication(): BelongsTo
+    {
+        return $this->belongsTo(EditionIndication::class);
+    }
+
+    /**
+     * @return BelongsTo|Edition
+     * @throws ReflectionException
+     */
+    public function edition(): BelongsTo
+    {
+        return $this->belongsTo(Edition::class);
+    }
+
+    /**
+     * @return BelongsTo|CharterAuthenticity
+     * @throws ReflectionException
+     */
+    public function authenticity(): BelongsTo
+    {
+        return $this->belongsTo(CharterAuthenticity::class);
+    }
+
+    /**
+     * @return BelongsTo|CharterNature
+     * @throws ReflectionException
+     */
+    public function nature(): BelongsTo
+    {
+        return $this->belongsTo(CharterNature::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|CharterLanguage[]
+     * @throws ReflectionException
+     */
+    public function languages(): BelongsToMany
+    {
+        return $this->belongsToMany(CharterLanguage::class);
     }
 
     /**
@@ -62,7 +99,6 @@ class Charter extends AbstractModel
      */
     public function actors(): BelongsToMany
     {
-        return $this->belongsToMany(Actor::class, 'charter_actor');
+        return $this->belongsToMany(Actor::class);
     }
-
 }

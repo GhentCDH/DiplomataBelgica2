@@ -14,9 +14,12 @@ use ReflectionException;
  *
  * @package App\Model
  */
-class Name extends AbstractModel
+class ActorName extends AbstractModel
 {
-    protected $hidden = ['full_name_nl', 'full_name_fr', 'full_name_en'];
-    protected $localizedAttributes = ['full_name'];
-
+    protected $hidden = [
+        'full_name_nl', 'full_name_fr', 'full_name_en'
+    ];
+    protected $localizedAttributes = [
+        'full_name'
+    ];
 }

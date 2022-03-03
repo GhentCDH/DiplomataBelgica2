@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use App\Model\Charter;
 use App\Repository\CharterRepository;
 use App\Resource\ElasticCommunicativeGoalResource;
 use App\Resource\ElasticCharterResource;
@@ -44,7 +45,9 @@ class TestElasticsearchCommand extends Command
         $service = $this->container->get('charter_index_service');
         $service->setup();
 
-        $charter = $repository->find(7029);
+        /** @var $charter Charter */
+        $charter = $repository->find(5648);//7029);
+
         $res = new ElasticCharterResource($charter->translate('en'));
         $service->add($res);
 

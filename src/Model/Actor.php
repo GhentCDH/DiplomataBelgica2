@@ -17,9 +17,17 @@ use ReflectionException;
  */
 class Actor extends AbstractModel
 {
-    protected $hidden = ['order_nl', 'order_fr', 'order_en'];
-    protected $localizedAttributes = ['order'];
-    protected $with = ['place', 'name']; //default relations to load
+    protected $hidden = [
+        'order_nl', 'order_fr', 'order_en'
+    ];
+    protected $localizedAttributes = [
+        'order'
+    ];
+
+    //default relations to load
+    protected $with = [
+        'place', 'name'
+    ];
 
     /**
      * @return BelongsTo|Collection|Place
@@ -31,12 +39,11 @@ class Actor extends AbstractModel
     }
 
     /**
-     * @return BelongsTo|Collection|Name
+     * @return BelongsTo|Collection|ActorName
      * @throws ReflectionException
      */
     public function name(): BelongsTo
     {
-        return $this->belongsTo(Name::class, 'actor_name_id');
+        return $this->belongsTo(ActorName::class, 'actor_name_id');
     }
-
 }
