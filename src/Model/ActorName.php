@@ -3,14 +3,15 @@
 namespace App\Model;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;
 
 /**
- * @property int name_id
+ * @property int actor_name_id
  * @property int published
- * @property int full_name
+ * @property string full_name
  *
  * @package App\Model
  */
@@ -22,4 +23,18 @@ class ActorName extends AbstractModel
     protected $localizedAttributes = [
         'full_name'
     ];
+
+    //default relations to load
+    protected $with = [
+        'standardized_name'
+    ];
+
+    /**
+     * @return BelongsTo|ActorStandardizedName
+     * @throws ReflectionException
+     */
+    public function standardized_name(): BelongsTo
+    {
+        return $this->belongsTo(ActorStandardizedName::class);
+    }
 }

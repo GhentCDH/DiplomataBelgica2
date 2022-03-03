@@ -46,7 +46,7 @@ class TestElasticsearchCommand extends Command
         $service->setup();
 
         /** @var $charter Charter */
-        $charter = $repository->find(5648);//7029);
+        $charter = $repository->find(1);//7029);
 
         $res = new ElasticCharterResource($charter->translate('en'));
         $service->add($res);

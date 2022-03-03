@@ -5,6 +5,8 @@ namespace App\Model;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use ReflectionException;
 
 /**
@@ -36,7 +38,7 @@ class Charter extends AbstractModel
 
     // autoload relations
     protected $with = [
-        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'languages', 'actors'
+        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'language', 'type', 'actors', 'udt'
     ];
 
     /**
@@ -85,12 +87,21 @@ class Charter extends AbstractModel
     }
 
     /**
-     * @return BelongsToMany|Collection|CharterLanguage[]
+     * @return BelongsTo|CharterLanguage
      * @throws ReflectionException
      */
-    public function languages(): BelongsToMany
+    public function language(): BelongsTo
     {
-        return $this->belongsToMany(CharterLanguage::class);
+        return $this->belongsTo(CharterLanguage::class);
+    }
+
+    /**
+     * @return BelongsTo|CharterType
+     * @throws ReflectionException
+     */
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(CharterType::class);
     }
 
     /**
@@ -100,5 +111,14 @@ class Charter extends AbstractModel
     public function actors(): BelongsToMany
     {
         return $this->belongsToMany(Actor::class);
+    }
+
+    /**
+     * @return HasOne|CharterUdt
+     * @throws ReflectionException
+     */
+    public function udt(): HasOne
+    {
+        return $this->hasOne(CharterUdt::class);
     }
 }
