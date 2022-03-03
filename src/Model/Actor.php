@@ -11,39 +11,58 @@ use ReflectionException;
 /**
  * @property int actor_id
  * @property int published
- * @property string order
  *
  * @package App\Model
  */
 class Actor extends AbstractModel
 {
-    protected $hidden = [
-        'order_nl', 'order_fr', 'order_en'
-    ];
-    protected $localizedAttributes = [
-        'order'
-    ];
-
     //default relations to load
     protected $with = [
-        'place', 'name'
+        'capacity', 'name', 'place', 'order', 'place_institute'
     ];
 
     /**
-     * @return BelongsTo|Collection|Place
+     * @return BelongsTo|ActorCapacity
      * @throws ReflectionException
      */
-    public function place(): BelongsTo
+    public function capacity(): BelongsTo
     {
-        return $this->belongsTo(Place::class, 'actor_place_id');
+        return $this->belongsTo(ActorCapacity::class);
     }
 
     /**
-     * @return BelongsTo|Collection|ActorName
+     * @return BelongsTo|ActorName
      * @throws ReflectionException
      */
     public function name(): BelongsTo
     {
-        return $this->belongsTo(ActorName::class, 'actor_name_id');
+        return $this->belongsTo(ActorName::class);
+    }
+
+    /**
+     * @return BelongsTo|Place
+     * @throws ReflectionException
+     */
+    public function place(): BelongsTo
+    {
+        return $this->belongsTo(Place::class);
+    }
+
+    /**
+     * @return BelongsTo|ActorOrder
+     * @throws ReflectionException
+     */
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(ActorOrder::class);
+    }
+
+    /**
+     * @return BelongsTo|ActorPlaceInstitute
+     * @throws ReflectionException
+     */
+    public function place_institute(): BelongsTo
+    {
+        return $this->belongsTo(ActorPlaceInstitute::class);
     }
 }

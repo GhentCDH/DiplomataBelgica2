@@ -40,14 +40,14 @@ class Place extends AbstractModel
 
     // autoload relations
     protected $with = [
-        'place_localisation'
+        'localisation'
     ];
 
     /**
      * @return BelongsTo|PlaceLocalisation
-     * @throws ReflectionException|\ReflectionException
+     * @throws ReflectionException
      */
-    public function place_localisation(): BelongsTo
+    public function localisation(): BelongsTo
     {
         return $this->belongsTo(PlaceLocalisation::class);
     }
