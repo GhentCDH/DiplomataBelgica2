@@ -21,6 +21,9 @@ use ReflectionException;
  * @package App\Model
  */
 
+//TODO edition_indication vs edition_indication_edition?? Also, charter.edition_indication_id vs charter__edition_indication_id?
+//TODO charter_actor_role?
+
 class Charter extends AbstractModel
 {
     // append extra properties
@@ -38,7 +41,7 @@ class Charter extends AbstractModel
 
     // autoload relations
     protected $with = [
-        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'language', 'type', 'actors', 'udt'
+        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'language', 'type', 'udt', 'actors', 'codexes', 'edition_indications', 'secondary_literature_indications'
     ];
 
     /**
@@ -105,6 +108,15 @@ class Charter extends AbstractModel
     }
 
     /**
+     * @return HasOne|CharterUdt
+     * @throws ReflectionException
+     */
+    public function udt(): HasOne
+    {
+        return $this->hasOne(CharterUdt::class);
+    }
+
+    /**
      * @return BelongsToMany|Collection|Actor[]
      * @throws ReflectionException
      */
@@ -114,11 +126,29 @@ class Charter extends AbstractModel
     }
 
     /**
-     * @return HasOne|CharterUdt
+     * @return BelongsToMany|Collection|Codex[]
      * @throws ReflectionException
      */
-    public function udt(): HasOne
+    public function codexes(): BelongsToMany
     {
-        return $this->hasOne(CharterUdt::class);
+        return $this->belongsToMany(Codex::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|EditionIndication[]
+     * @throws ReflectionException
+     */
+    public function edition_indications(): BelongsToMany
+    {
+        return $this->belongsToMany(EditionIndication::class);
+    }
+
+    /**
+     * @return BelongsToMany|Collection|SecondaryLiteratureIndication[]
+     * @throws ReflectionException
+     */
+    public function secondary_literature_indications(): BelongsToMany
+    {
+        return $this->belongsToMany(SecondaryLiteratureIndication::class);
     }
 }

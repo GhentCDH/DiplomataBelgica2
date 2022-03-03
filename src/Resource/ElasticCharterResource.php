@@ -31,9 +31,12 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret['authenticity'] = new ElasticBaseResource($charter->authenticity);
         $ret['nature'] = new ElasticBaseResource($charter->nature);
         $ret['language'] = new ElasticIdNameResource($charter->language);
-        $ret['actors'] = ElasticBaseResource::collection($charter->actors);
         $ret['type'] = new ElasticBaseResource($charter->type);
         $ret['udt'] = new ElasticBaseResource($charter->udt);
+        $ret['actors'] = ElasticBaseResource::collection($charter->actors);
+        $ret['codexes'] = ElasticBaseResource::collection($charter->codexes);
+        $ret['edition_indications'] = ElasticBaseResource::collection($charter->edition_indications);
+        $ret['secondary_literature_indications'] = ElasticBaseResource::collection($charter->secondary_literature_indications);
 
         return $ret;
     }

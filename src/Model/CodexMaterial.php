@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Model;
+
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use ReflectionException;
+
+/**
+ * @property int codex_material_id
+ * @property int name
+ *
+ * @package App\Model
+ */
+
+class CodexMaterial extends AbstractModel
+{
+    // hide properties in toArray conversion
+    protected $hidden = [
+        'name_nl', 'name_fr', 'name_en'
+    ];
+
+    // translatable attributes
+    protected $localizedAttributes = [
+        'name'
+    ];
+}
