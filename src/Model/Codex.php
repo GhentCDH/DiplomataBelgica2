@@ -16,7 +16,7 @@ use ReflectionException;
  * @property string redaction_date
  * @property string pages
  * @property int published
- * @property int repository_reference_number
+ * @property string repository_reference_number
  * @property string name_author
  *
  * @package App\Model

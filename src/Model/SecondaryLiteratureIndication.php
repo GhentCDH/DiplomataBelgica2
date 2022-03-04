@@ -4,6 +4,7 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;
@@ -21,7 +22,7 @@ use ReflectionException;
 class SecondaryLiteratureIndication extends AbstractModel
 {
     protected $with = [
-        'secondary_literature'
+        'secondary_literature', 'urls'
     ];
 
     /**
@@ -31,5 +32,14 @@ class SecondaryLiteratureIndication extends AbstractModel
     public function secondary_literature(): BelongsTo
     {
         return $this->belongsTo(SecondaryLiterature::class);
+    }
+
+    /**
+     * @return HasMany|Collection|SecondaryLiteratureIndicationUrl[]
+     * @throws ReflectionException
+     */
+    public function urls(): HasMany
+    {
+        return $this->hasMany(SecondaryLiteratureIndicationUrl::class);
     }
 }

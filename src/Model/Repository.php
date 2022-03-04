@@ -21,9 +21,6 @@ use ReflectionException;
 
 class Repository extends AbstractModel
 {
-    // append extra properties
-    //protected $appends = [];
-
     // hide properties in toArray conversion
     protected $hidden = [
         'name_nl', 'name_fr', 'name_en',
@@ -37,4 +34,18 @@ class Repository extends AbstractModel
         'location',
         'class'
     ];
+
+    // autoload relations
+    protected $with = [
+        'urls'
+    ];
+
+    /**
+     * @return HasMany|Collection|RepositoryUrl[]
+     * @throws ReflectionException
+     */
+    public function urls(): HasMany
+    {
+        return $this->hasMany(RepositoryUrl::class);
+    }
 }

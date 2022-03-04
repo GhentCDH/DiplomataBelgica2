@@ -4,6 +4,7 @@ namespace App\Model;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;
@@ -21,7 +22,7 @@ use ReflectionException;
 class EditionIndication extends AbstractModel
 {
     protected $with = [
-        'edition'
+        'edition', 'urls'
     ];
 
     /**
@@ -31,5 +32,14 @@ class EditionIndication extends AbstractModel
     public function edition(): BelongsTo
     {
         return $this->belongsTo(Edition::class);
+    }
+
+    /**
+     * @return HasMany|Collection|EditionIndicationUrl
+     * @throws ReflectionException
+     */
+    public function urls(): HasMany
+    {
+        return $this->hasMany(EditionIndicationUrl::class);
     }
 }

@@ -23,6 +23,7 @@ use ReflectionException;
 
 //TODO edition_indication vs edition_indication_edition?? Also, charter.edition_indication_id vs charter__edition_indication_id?
 //TODO charter_actor_role?
+//TODO vidimus: A > B and B > A or only A > B?
 
 class Charter extends AbstractModel
 {
@@ -41,7 +42,7 @@ class Charter extends AbstractModel
 
     // autoload relations
     protected $with = [
-        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'language', 'type', 'udt', 'actors', 'codexes', 'edition_indications', 'secondary_literature_indications'
+        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'language', 'type', 'udt', 'actors', 'codexes', 'edition_indications', 'secondary_literature_indications', 'copies', 'datations', 'originals', 'vidimuses'
     ];
 
     /**
@@ -150,5 +151,41 @@ class Charter extends AbstractModel
     public function secondary_literature_indications(): BelongsToMany
     {
         return $this->belongsToMany(SecondaryLiteratureIndication::class);
+    }
+
+    /**
+     * @return HasMany|Collection|Copy[]
+     * @throws ReflectionException
+     */
+    public function copies(): HasMany
+    {
+        return $this->hasMany(Copy::class);
+    }
+
+    /**
+     * @return HasMany|Collection|Datation[]
+     * @throws ReflectionException
+     */
+    public function datations(): HasMany
+    {
+        return $this->hasMany(Datation::class);
+    }
+
+    /**
+     * @return HasMany|Collection|Original[]
+     * @throws ReflectionException
+     */
+    public function originals(): HasMany
+    {
+        return $this->hasMany(Original::class);
+    }
+
+    /**
+     * @return HasMany|Collection|Vidimus[]
+     * @throws ReflectionException
+     */
+    public function vidimuses(): HasMany
+    {
+        return $this->hasMany(Vidimus::class);
     }
 }

@@ -37,6 +37,9 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret['codexes'] = ElasticBaseResource::collection($charter->codexes);
         $ret['edition_indications'] = ElasticBaseResource::collection($charter->edition_indications);
         $ret['secondary_literature_indications'] = ElasticBaseResource::collection($charter->secondary_literature_indications);
+        $ret['copies'] = ElasticBaseResource::collection($charter->copies);
+        $ret['originals'] = ElasticBaseResource::collection($charter->originals);
+        $ret['vidimuses'] = ElasticBaseResource::collection($charter->vidimuses);
 
         return $ret;
     }
