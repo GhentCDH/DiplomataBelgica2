@@ -11,25 +11,27 @@ use ReflectionException;
  * @property int month
  * @property int day
  * @property string interpretation
- * @property int published
- * @property string comments
+ * @property boolean published
+ * @property int datation_id
+ * @property string datation_comments
+ * @property boolean datation_published
+ * @property int datation_time_originality_id
  *
  * @package App\Model
  */
 
 class DatationTime extends AbstractModel
 {
-    // hide properties in toArray conversion
     protected $hidden = [
         'datation_comments_nl', 'datation_comments_fr', 'datation_comments_en'
     ];
-
-    // translatable attributes
     protected $localizedAttributes = [
         'datation_comments'
     ];
-
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean',
+        'datation_published' => 'boolean'
+    ];
     protected $with = [
         'originality'
     ];

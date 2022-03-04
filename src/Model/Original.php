@@ -11,17 +11,26 @@ use ReflectionException;
 
 /**
  * @property int original_id
- * @property int published
- * @property string codex_pof
- * @property string codex_sequence_number
+ * @property boolean published
+ * @property int charter_id
+ * @property boolean charter_published
+ * @property int codex_id
+ * @property boolean codex_published
+ * @property int repository_id
  * @property string repository_reference_number
+ * @property boolean repository_published
  *
  * @package App\Model
  */
 
 class Original extends AbstractModel
 {
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean',
+        'charter_published' => 'boolean',
+        'codex_published' => 'boolean',
+        'repository_published' => 'boolean'
+    ];
     protected $with = [
         'codex', 'repository', 'images', 'external_image_urls', 'urls'
     ];

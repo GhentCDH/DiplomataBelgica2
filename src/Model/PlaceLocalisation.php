@@ -6,16 +6,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 
 /**
- * Class PlaceLocalisation
- *
- * @package App\Model
  * @property int place_localisation_id
  * @property string echelon_1
  * @property string echelon_2
  * @property string echelon_3
  * @property string echelon_4
  * @property string echelon_5
- * @property int published
+ * @property boolean published
+ * @property int place_localisation_land_id
+ *
+ * @package App\Model
  */
 class PlaceLocalisation extends AbstractModel
 {
@@ -33,8 +33,9 @@ class PlaceLocalisation extends AbstractModel
         'echelon_4',
         'echelon_5'
     ];
-
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean'
+    ];
     protected $with = [
         'land'
     ];

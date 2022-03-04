@@ -6,9 +6,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use ReflectionException;
 
 /**
- * Class CharterLanguage
- *
- * @package App\Model
  * @property int place_id
  * @property string name
  * @property string name_regio
@@ -19,7 +16,11 @@ use ReflectionException;
  * @property string principality_name
  * @property string principality_explanation
  * @property string url
- * @property int published
+ * @property boolean published
+ * @property int place_localisation_id
+ * @property boolean place_localisation_published
+ *
+ * @package App\Model
  */
 class Place extends AbstractModel
 {
@@ -37,8 +38,10 @@ class Place extends AbstractModel
         'principality_name',
         'principality_explanation'
     ];
-
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean',
+        'place_localisation_published' => 'boolean'
+    ];
     protected $with = [
         'localisation'
     ];

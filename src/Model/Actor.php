@@ -10,13 +10,26 @@ use ReflectionException;
 
 /**
  * @property int actor_id
- * @property int published
+ * @property boolean published
+ * @property int actor_capacity_id
+ * @property boolean actor_capacity_published
+ * @property int actor_name_id
+ * @property boolean actor_name_published
+ * @property int place_id
+ * @property boolean place_published
+ * @property int actor_order_id
+ * @property int actor_place_institute_id
  *
  * @package App\Model
  */
 class Actor extends AbstractModel
 {
-    //default relations to load
+    protected $casts = [
+        'published' => 'boolean',
+        'actor_capacity_published' => 'boolean',
+        'actor_name_published' => 'boolean',
+        'place_published' => 'boolean'
+    ];
     protected $with = [
         'capacity', 'name', 'place', 'order', 'place_institute'
     ];

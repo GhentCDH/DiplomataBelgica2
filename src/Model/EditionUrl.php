@@ -10,6 +10,7 @@ use ReflectionException;
 
 /**
  * @property int edition_url_id
+ * @property int edition_id
  * @property string url
  *
  * @package App\Model

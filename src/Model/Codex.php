@@ -15,8 +15,10 @@ use ReflectionException;
  * @property string title
  * @property string redaction_date
  * @property string pages
- * @property int published
+ * @property boolean published
+ * @property int repository_id
  * @property string repository_reference_number
+ * @property boolean repository_published
  * @property string name_author
  *
  * @package App\Model
@@ -24,22 +26,18 @@ use ReflectionException;
 
 class Codex extends AbstractModel
 {
-    // append extra properties
-    //protected $appends = [];
-
-    // hide properties in toArray conversion
     protected $hidden = [
         'title_nl', 'title_fr', 'title_en',
         'redaction_date_nl', 'redaction_date_fr', 'redaction_date_en'
     ];
-
-    // translatable attributes
     protected $localizedAttributes = [
         'title',
         'redaction_date'
     ];
-
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean',
+        'repository_published' => 'boolean'
+    ];
     protected $with = [
         'repository', 'external_image_urls', 'interested_institutions', 'materials', 'urls'
     ];

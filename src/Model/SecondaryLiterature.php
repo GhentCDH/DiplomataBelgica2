@@ -17,12 +17,15 @@ use ReflectionException;
  * @property int date_of_publication_month
  * @property int date_of_publication_day
  * @property string comments
- * @property int published
+ * @property boolean published
  *
  * @package App\Model
  */
 class SecondaryLiterature extends AbstractModel
 {
+    protected $casts = [
+        'published' => 'boolean'
+    ];
     protected $with = [
         'urls'
     ];

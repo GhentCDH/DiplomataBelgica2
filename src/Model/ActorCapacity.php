@@ -9,7 +9,8 @@ use ReflectionException;
 
 /**
  * @property int actor_capacity_id
- * @property int published
+ * @property string capacity
+ * @property boolean published
  *
  * @package App\Model
  */
@@ -20,5 +21,8 @@ class ActorCapacity extends AbstractModel
     ];
     protected $localizedAttributes = [
         'capacity'
+    ];
+    protected $casts = [
+        'published' => 'boolean'
     ];
 }

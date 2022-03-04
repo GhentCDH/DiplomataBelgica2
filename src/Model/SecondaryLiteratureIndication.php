@@ -15,12 +15,18 @@ use ReflectionException;
  * @property string nr
  * @property string pages
  * @property string comments
- * @property int published
+ * @property boolean published
+ * @property int secondary_literature_id
+ * @property boolean secondary_literature_published
  *
  * @package App\Model
  */
 class SecondaryLiteratureIndication extends AbstractModel
 {
+    protected $casts = [
+        'published' => 'boolean',
+        'secondary_literature_published' => 'boolean'
+    ];
     protected $with = [
         'secondary_literature', 'urls'
     ];

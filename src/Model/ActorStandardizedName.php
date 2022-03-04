@@ -17,7 +17,6 @@ use ReflectionException;
  */
 class ActorStandardizedName extends AbstractModel
 {
-    //default relations to load
     protected $with = [
         'name_variants'
     ];

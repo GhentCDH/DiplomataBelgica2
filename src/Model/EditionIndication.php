@@ -15,12 +15,18 @@ use ReflectionException;
  * @property string nr
  * @property string pages
  * @property string comments
- * @property int published
+ * @property boolean published
+ * @property int edition_id
+ * @property boolean edition_published
  *
  * @package App\Model
  */
 class EditionIndication extends AbstractModel
 {
+    protected $casts = [
+        'published' => 'boolean',
+        'edition_published' => 'boolean'
+    ];
     protected $with = [
         'edition', 'urls'
     ];

@@ -10,8 +10,10 @@ use ReflectionException;
 
 /**
  * @property int actor_name_id
- * @property int published
  * @property string full_name
+ * @property boolean published
+ * @property int actor_standardized_name_id
+ * @property boolean actor_standardized_name_published
  *
  * @package App\Model
  */
@@ -23,8 +25,10 @@ class ActorName extends AbstractModel
     protected $localizedAttributes = [
         'full_name'
     ];
-
-    //default relations to load
+    protected $casts = [
+        'published' => 'boolean',
+        'actor_standardized_name_published' => 'boolean'
+    ];
     protected $with = [
         'standardized_name'
     ];

@@ -18,12 +18,9 @@ use ReflectionException;
 
 class DatationTimeOriginality extends AbstractModel
 {
-    // hide properties in toArray conversion
     protected $hidden = [
         'name_nl', 'name_fr', 'name_en'
     ];
-
-    // translatable attributes
     protected $localizedAttributes = [
         'name'
     ];

@@ -12,26 +12,31 @@ use ReflectionException;
  * @property int image_id
  * @property string image_file
  * @property string description
- * @property int published
+ * @property boolean published
+ * @property int original_id
  * @property int original_sequence_number
- * @property int original_published
+ * @property boolean original_published
  * @property int copy_id
- * @property int copy_published
+ * @property int copy_sequence_number
+ * @property boolean copy_published
  * @property int codex_id
  * @property int codex_sequence_number
- * @property int codex_published
+ * @property boolean codex_published
  *
  * @package App\Model
  */
 class Image extends AbstractModel
 {
-    // hide properties in toArray conversion
     protected $hidden = [
         'description_nl', 'description_fr', 'description_en'
     ];
-
-    // translatable attributes
     protected $localizedAttributes = [
         'description'
+    ];
+    protected $casts = [
+        'published' => 'boolean',
+        'original_published' => 'boolean',
+        'copy_published' => 'boolean',
+        'codex_published' => 'boolean'
     ];
 }

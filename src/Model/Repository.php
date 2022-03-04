@@ -14,28 +14,26 @@ use ReflectionException;
  * @property string name
  * @property string location
  * @property string class
- * @property int published
+ * @property boolean published
  *
  * @package App\Model
  */
 
 class Repository extends AbstractModel
 {
-    // hide properties in toArray conversion
     protected $hidden = [
         'name_nl', 'name_fr', 'name_en',
         'location_nl', 'location_fr', 'location_en',
         'class_nl', 'class_fr', 'class_en'
     ];
-
-    // translatable attributes
     protected $localizedAttributes = [
         'name',
         'location',
         'class'
     ];
-
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean'
+    ];
     protected $with = [
         'urls'
     ];

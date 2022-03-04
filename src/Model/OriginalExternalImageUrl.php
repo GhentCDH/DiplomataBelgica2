@@ -10,6 +10,7 @@ use ReflectionException;
 
 /**
  * @property int original_external_image_url_id
+ * @property int original_id
  * @property string url
  *
  * @package App\Model

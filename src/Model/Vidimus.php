@@ -12,10 +12,13 @@ use ReflectionException;
  * @property int vidimus_id
  * @property int charter_id
  * @property int related_charter_id
- * @property int published
+ * @property boolean published
  *
  * @package App\Model
  */
 class Vidimus extends AbstractModel
 {
+    protected $casts = [
+        'published' => 'boolean'
+    ];
 }

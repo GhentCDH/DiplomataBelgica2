@@ -15,34 +15,49 @@ use ReflectionException;
  * @property string full_text
  * @property string full_text_annotated
  * @property string full_text_stripped
- * @property int published
+ * @property boolean published
+ * @property int place_id
  * @property string place_found_name
+ * @property boolean place_published
+ * @property int edition_indication_id
+ * @property int edition_id
+ * @property boolean edition_indication_published
+ * @property int charter_user_id
+ * @property int charter_authenticity_id
+ * @property int charter_nature_id
+ * @property int charter_language_id
+ * @property int charter_type_id
  *
  * @package App\Model
  */
 
 //TODO edition_indication vs edition_indication_edition?? Also, charter.edition_indication_id vs charter__edition_indication_id?
-//TODO charter_actor_role?
+//TODO charter_user
+//TODO charter__actor.charter_actor_role
+//TODO charter__codex.published
+//TODO charter__codex_url.url
+//TODO charter__edition_indication.published (and .edition_id)
+//TODO charter__secondary_literature_indication.published (and .secondary_literature_id)
 //TODO vidimus: A > B and B > A or only A > B?
 
 class Charter extends AbstractModel
 {
-    // append extra properties
-    //protected $appends = [];
-
-    // hide properties in toArray conversion
     protected $hidden = [
         'summary_nl', 'summary_fr', 'summary_en'
     ];
-
-    // translatable attributes
     protected $localizedAttributes = [
         'summary',
     ];
-
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean',
+        'place_published' => 'boolean',
+        'edition_indication_published' => 'boolean'
+    ];
     protected $with = [
-        'place', 'edition_indication', 'edition', 'authenticity', 'nature', 'language', 'type', 'udt', 'actors', 'codexes', 'edition_indications', 'secondary_literature_indications', 'copies', 'datations', 'originals', 'vidimuses'
+        'place', 'edition_indication', 'edition', 'authenticity',
+        'nature', 'language', 'type', 'udt', 'actors', 'codexes',
+        'edition_indications', 'secondary_literature_indications',
+        'copies', 'datations', 'originals', 'vidimuses'
     ];
 
     /**

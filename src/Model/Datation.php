@@ -13,14 +13,19 @@ use ReflectionException;
  * @property int datation_id
  * @property string researcher
  * @property int preference
- * @property int published
+ * @property boolean published
+ * @property int charter_id
+ * @property boolean charter_published
  *
  * @package App\Model
  */
 
 class Datation extends AbstractModel
 {
-    // autoload relations
+    protected $casts = [
+        'published' => 'boolean',
+        'charter_published' => 'boolean'
+    ];
     protected $with = [
         'time'
     ];
