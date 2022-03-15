@@ -33,12 +33,12 @@ use ReflectionException;
 
 //TODO edition_indication vs edition_indication_edition?? Also, charter.edition_indication_id vs charter__edition_indication_id?
 //TODO charter_user
-//TODO charter__actor.charter_actor_role
+//TODO charter__actor.charter_actor_role -> pivot
 //TODO charter__codex.published
 //TODO charter__codex_url.url
 //TODO charter__edition_indication.published (and .edition_id)
 //TODO charter__secondary_literature_indication.published (and .secondary_literature_id)
-//TODO vidimus: A > B and B > A or only A > B?
+//TODO vidimus: A > B and B > A -> correct assumption
 
 class Charter extends AbstractModel
 {
@@ -46,7 +46,7 @@ class Charter extends AbstractModel
         'summary_nl', 'summary_fr', 'summary_en'
     ];
     protected $localizedAttributes = [
-        'summary',
+        'summary'
     ];
     protected $casts = [
         'published' => 'boolean',
@@ -138,7 +138,7 @@ class Charter extends AbstractModel
      */
     public function actors(): BelongsToMany
     {
-        return $this->belongsToMany(Actor::class);
+        return $this->belongsToMany(Actor::class, 'charter__actor')->using(CharterActor::class);
     }
 
     /**
