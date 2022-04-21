@@ -90,12 +90,34 @@ CREATE PROCEDURE MigrateTranslatedField(
 	IN field_type VARCHAR(255)
 )
 BEGIN
+   	DECLARE CONTINUE HANDLER FOR SQLSTATE '42000' BEGIN END;
 	SET @full_name_id = CONCAT(new_name, "_id");
 
+	-- drop new_table
+	SET @stmt = CONCAT("DROP TABLE IF EXISTS ", new_name);
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+	
+	-- drop full_name_id column
+
+	SET @stmt = CONCAT("ALTER TABLE ", table_name, " DROP FOREIGN KEY ", table_name, "__", @full_name_id, "_fk");
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+
+	SET @stmt = CONCAT("ALTER TABLE ", table_name, " DROP INDEX ", table_name, "__", @full_name_id, "_idx");
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+
+	SET @stmt = CONCAT("ALTER TABLE ", table_name, " DROP COLUMN ", @full_name_id);
+	PREPARE stmt FROM @stmt;
+	EXECUTE stmt;
+
+	-- add full_name_id column
 	SET @stmt = CONCAT("ALTER TABLE ", table_name, " ADD ", @full_name_id, " INT UNSIGNED NULL");
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
+	-- create new table
 	SET @stmt = CONCAT("CREATE TABLE ", new_name, " (",
 		"`", @full_name_id, "` INT UNSIGNED NOT NULL AUTO_INCREMENT, ",
 		"`name_nl` ", field_type, " NULL, ",
@@ -104,6 +126,7 @@ BEGIN
 		"PRIMARY KEY(`", @full_name_id, "`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
+
 
 	SET @stmt = CONCAT("CREATE INDEX `", table_name, "__", @full_name_id, "_idx` USING BTREE ",
 		"ON ", table_name, "(", @full_name_id, ")");
@@ -116,9 +139,14 @@ BEGIN
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
+	SET @stmt = CONCAT("UPDATE ", table_name, " SET ",
+		field_name, "_nl = NULLIF(TRIM(", field_name, "_nl), ''), ",
+		field_name, "_en = NULLIF(TRIM(", field_name, "_en), ''), ",
+		field_name, "_fr = NULLIF(TRIM(", field_name, "_fr), '')");
+	
 	SET @stmt = CONCAT("INSERT INTO ", new_name, "(name_nl, name_fr, name_en) ",
 		"SELECT DISTINCT ", field_name, "_nl, ", field_name, "_fr, ", field_name, "_en FROM ", table_name,
-		" WHERE ", field_name, "_nl IS NOT NULL OR ", field_name, "_fr IS NOT NULL OR ", field_name, "_en IS NOT NULL");
+		" WHERE NOT (", field_name, "_nl IS NULL AND ", field_name, "_fr IS NULL AND ", field_name, "_en IS NULL)");
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
@@ -128,9 +156,10 @@ BEGIN
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
-	SET @stmt = CONCAT("ALTER TABLE ", table_name, " MODIFY COLUMN ", @full_name_id, " INT UNSIGNED NOT NULL");
-	PREPARE stmt FROM @stmt;
-	EXECUTE stmt;
+	-- foreign keys can be null!
+    -- SET @stmt = CONCAT("ALTER TABLE ", table_name, " MODIFY COLUMN ", @full_name_id, " INT UNSIGNED NOT NULL");
+	-- PREPARE stmt FROM @stmt;
+	-- EXECUTE stmt;
 
 	SET @stmt = CONCAT("ALTER TABLE ", table_name, " DROP COLUMN ", field_name, "_nl, ",
 		"DROP COLUMN ", field_name, "_fr, DROP COLUMN ", field_name, "_en");
