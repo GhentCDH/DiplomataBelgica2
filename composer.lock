@@ -4,8 +4,54 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "47267f7adafafde7b79e4b1896b9bfb5",
+    "content-hash": "70ab06af2c9938d3f211d38aa1d59eaa",
     "packages": [
+        {
+            "name": "ajcastro/eager-load-pivot-relations",
+            "version": "v0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ajcastro/eager-load-pivot-relations.git",
+                "reference": "55ffe9423d538aa5a0d35ddbb335556f6fe3fdfa"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ajcastro/eager-load-pivot-relations/zipball/55ffe9423d538aa5a0d35ddbb335556f6fe3fdfa",
+                "reference": "55ffe9423d538aa5a0d35ddbb335556f6fe3fdfa",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [],
+                    "aliases": []
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AjCastro\\EagerLoadPivotRelations\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arjon Jason Castro",
+                    "email": "ajcastro29@gmail.com"
+                }
+            ],
+            "description": "Eager load pivot relations for Laravel Eloquent's BelongsToMany relation.",
+            "support": {
+                "issues": "https://github.com/ajcastro/eager-load-pivot-relations/issues",
+                "source": "https://github.com/ajcastro/eager-load-pivot-relations/tree/v0.2.2"
+            },
+            "time": "2019-09-25T00:08:16+00:00"
+        },
         {
             "name": "composer/package-versions-deprecated",
             "version": "1.11.99.1",
@@ -4898,16 +4944,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.12.2",
+            "version": "v1.18.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "e472606b4b3173564f0edbca8f5d32b52fc4f2c9"
+                "reference": "130851b90c1ea615ac5be6fce827971f4f55afbf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/e472606b4b3173564f0edbca8f5d32b52fc4f2c9",
-                "reference": "e472606b4b3173564f0edbca8f5d32b52fc4f2c9",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/130851b90c1ea615ac5be6fce827971f4f55afbf",
+                "reference": "130851b90c1ea615ac5be6fce827971f4f55afbf",
                 "shasum": ""
             },
             "require": {
@@ -4916,16 +4962,13 @@
             },
             "require-dev": {
                 "composer/composer": "^1.0.2|^2.0",
-                "symfony/dotenv": "^4.4|^5.0",
-                "symfony/filesystem": "^4.4|^5.0",
-                "symfony/phpunit-bridge": "^4.4|^5.0",
-                "symfony/process": "^3.4|^4.4|^5.0"
+                "symfony/dotenv": "^4.4|^5.0|^6.0",
+                "symfony/filesystem": "^4.4|^5.0|^6.0",
+                "symfony/phpunit-bridge": "^4.4.12|^5.0|^6.0",
+                "symfony/process": "^4.4|^5.0|^6.0"
             },
             "type": "composer-plugin",
             "extra": {
-                "branch-alias": {
-                    "dev-main": "1.12-dev"
-                },
                 "class": "Symfony\\Flex\\Flex"
             },
             "autoload": {
@@ -4946,7 +4989,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v1.12.2"
+                "source": "https://github.com/symfony/flex/tree/v1.18.6"
             },
             "funding": [
                 {
@@ -4962,7 +5005,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-16T14:05:05+00:00"
+            "time": "2022-04-15T08:20:34+00:00"
         },
         {
             "name": "symfony/form",
@@ -9003,47 +9046,47 @@
         },
         {
             "name": "wouterj/eloquent-bundle",
-            "version": "2.1.1",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wouterj/WouterJEloquentBundle.git",
-                "reference": "72e41d9a89a3f8967639d94aeca6a3bb84be9781"
+                "reference": "10bbbad94c6eafa3004db08dee6d4b332f75e0f8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wouterj/WouterJEloquentBundle/zipball/72e41d9a89a3f8967639d94aeca6a3bb84be9781",
-                "reference": "72e41d9a89a3f8967639d94aeca6a3bb84be9781",
+                "url": "https://api.github.com/repos/wouterj/WouterJEloquentBundle/zipball/10bbbad94c6eafa3004db08dee6d4b332f75e0f8",
+                "reference": "10bbbad94c6eafa3004db08dee6d4b332f75e0f8",
                 "shasum": ""
             },
             "require": {
-                "illuminate/console": "^6.18 || ^7.15 || ^8.12",
-                "illuminate/database": "^6.18 || ^7.15 || ^8.12",
-                "illuminate/events": "^6.18 || ^7.15 || ^8.12",
+                "illuminate/console": "^6.18 || ^7.15 || ^8.12 || ^9.0",
+                "illuminate/database": "^6.18 || ^7.30.4 || ^8.40 || ^9.0",
+                "illuminate/events": "^6.18 || ^7.15 || ^8.12 || ^9.0",
                 "jdorn/sql-formatter": "^1.2.17",
                 "php": "^7.2 || ^8.0",
-                "symfony/dependency-injection": "^4.4 || ^5.0",
-                "symfony/framework-bundle": "^4.4 || ^5.0"
+                "symfony/dependency-injection": "^4.4 || ^5.0 || ^6.0",
+                "symfony/framework-bundle": "^4.4 || ^5.0 || ^6.0"
             },
             "require-dev": {
                 "doctrine/annotations": "1.*",
                 "mockery/mockery": "^1.3",
-                "psalm/plugin-symfony": "^1.5.0 || ^2.0",
-                "symfony/browser-kit": "^4.4 || ^5.0",
-                "symfony/console": "^4.4 || ^5.0",
-                "symfony/debug": "^4.4 || ^5.0",
-                "symfony/dom-crawler": "^4.4 || ^5.0",
-                "symfony/event-dispatcher": "^4.4 || ^5.0",
-                "symfony/finder": "^4.4 || ^5.0",
-                "symfony/form": "^4.4 || ^5.0",
-                "symfony/http-kernel": "^4.4 || ^5.0",
+                "psalm/plugin-symfony": "^1.5.0 || ^2.0 || ^3.0",
+                "symfony/browser-kit": "^4.4 || ^5.0 || ^6.0",
+                "symfony/console": "^4.4 || ^5.0 || ^6.0",
+                "symfony/debug": "^4.4 || ^5.0 || ^6.0",
+                "symfony/dom-crawler": "^4.4 || ^5.0 || ^6.0",
+                "symfony/event-dispatcher": "^4.4 || ^5.0 || ^6.0",
+                "symfony/finder": "^4.4 || ^5.0 || ^6.0",
+                "symfony/form": "^4.4 || ^5.0 || ^6.0",
+                "symfony/http-kernel": "^4.4 || ^5.0 || ^6.0",
                 "symfony/maker-bundle": "^1.20",
-                "symfony/phpunit-bridge": "^4.4 || ^5.0",
-                "symfony/security-bundle": "^4.4 || ^5.0",
-                "symfony/twig-bridge": "^4.4 || ^5.0",
-                "symfony/twig-bundle": "^4.4 || ^5.0",
-                "symfony/validator": "^4.4 || ^5.0",
-                "symfony/var-dumper": "^4.4 || ^5.0",
-                "symfony/yaml": "^4.4 || ^5.0",
+                "symfony/phpunit-bridge": "^4.4 || ^5.0 || ^6.0",
+                "symfony/security-bundle": "^4.4 || ^5.0 || ^6.0",
+                "symfony/twig-bridge": "^4.4 || ^5.0 || ^6.0",
+                "symfony/twig-bundle": "^4.4 || ^5.0 || ^6.0",
+                "symfony/validator": "^4.4 || ^5.0 || ^6.0",
+                "symfony/var-dumper": "^4.4 || ^5.0 || ^6.0",
+                "symfony/yaml": "^4.4 || ^5.0 || ^6.0",
                 "twig/twig": "^1.26 || ^2.0 || ^3.0",
                 "vimeo/psalm": "^3.18.2 || ^4.0"
             },
@@ -9066,9 +9109,9 @@
             "description": "Implementing the Eloquent ORM into Symfony",
             "support": {
                 "issues": "https://github.com/wouterj/WouterJEloquentBundle/issues",
-                "source": "https://github.com/wouterj/WouterJEloquentBundle/tree/2.1.1"
+                "source": "https://github.com/wouterj/WouterJEloquentBundle/tree/2.2.1"
             },
-            "time": "2021-07-03T11:18:43+00:00"
+            "time": "2022-04-11T15:54:54+00:00"
         }
     ],
     "packages-dev": [
@@ -9672,12 +9715,12 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.2.5",
+        "php": ">=7.4",
         "ext-ctype": "*",
         "ext-curl": "^7.4",
         "ext-iconv": "*",
         "ext-json": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.3.0"
 }
