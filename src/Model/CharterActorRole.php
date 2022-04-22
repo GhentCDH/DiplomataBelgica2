@@ -9,12 +9,6 @@ namespace App\Model;
  * @package App\Model
  */
 
-class CharterActorRole extends AbstractModel
+class CharterActorRole extends IdNameMultilangModel
 {
-    protected $hidden = [
-        'name_nl', 'name_fr', 'name_en'
-    ];
-    protected $localizedAttributes = [
-        'name'
-    ];
 }

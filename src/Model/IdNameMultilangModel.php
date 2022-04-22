@@ -12,6 +12,13 @@ use App\Model\AbstractModel;
  */
 class IdNameMultilangModel extends AbstractModel implements IdNameMultilangInterface
 {
+    protected $hidden = [
+        'name_nl', 'name_fr', 'name_en'
+    ];
+    protected $localizedAttributes = [
+        'name'
+    ];
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

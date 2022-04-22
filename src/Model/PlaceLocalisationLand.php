@@ -13,12 +13,6 @@ use ReflectionException;
  *
  * @package App\Model
  */
-class PlaceLocalisationLand extends AbstractModel
+class PlaceLocalisationLand extends IdNameMultilangModel
 {
-    protected $hidden = [
-        'name_nl', 'name_fr', 'name_en'
-    ];
-    protected $localizedAttributes = [
-        'name'
-    ];
 }

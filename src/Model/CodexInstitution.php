@@ -16,12 +16,6 @@ use ReflectionException;
  * @package App\Model
  */
 
-class CodexInstitution extends AbstractModel
+class CodexInstitution extends IdNameMultilangModel
 {
-    protected $hidden = [
-        'name_nl', 'name_fr', 'name_en'
-    ];
-    protected $localizedAttributes = [
-        'name'
-    ];
 }

@@ -16,12 +16,6 @@ use ReflectionException;
  * @package App\Model
  */
 
-class DatationTimeOriginality extends AbstractModel
+class DatationTimeOriginality extends IdNameMultilangModel
 {
-    protected $hidden = [
-        'name_nl', 'name_fr', 'name_en'
-    ];
-    protected $localizedAttributes = [
-        'name'
-    ];
 }

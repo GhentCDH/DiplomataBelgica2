@@ -13,12 +13,6 @@ use ReflectionException;
  *
  * @package App\Model
  */
-class ActorPlaceInstitute extends AbstractModel
+class ActorPlaceInstitute extends IdNameMultilangModel
 {
-    protected $hidden = [
-        'name_nl', 'name_fr', 'name_en'
-    ];
-    protected $localizedAttributes = [
-        'name'
-    ];
 }
