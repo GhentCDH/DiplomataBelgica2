@@ -55,7 +55,7 @@ class Charter extends AbstractModel
     ];
     protected $with = [
         'place', 'edition_indication', 'edition', 'authenticity',
-        'nature', 'language', 'type', 'udt', 'actors', 'codexes',
+        'nature', 'language', 'type', 'udt', 'actors', 'actors.pivot.role', 'codexes',
         'edition_indications', 'secondary_literature_indications',
         'copies', 'datations', 'originals', 'vidimuses'
     ];
@@ -138,7 +138,9 @@ class Charter extends AbstractModel
      */
     public function actors(): BelongsToMany
     {
-        return $this->belongsToMany(Actor::class, 'charter__actor')->using(CharterActor::class);
+        return $this->belongsToMany(Actor::class)
+            ->using(Charter_Actor::class)
+            ->withPivot('charter_actor_role_id');
     }
 
     /**

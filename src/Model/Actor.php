@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use ReflectionException;
+use AjCastro\EagerLoadPivotRelations\EagerLoadPivotTrait;
 
 /**
  * @property int actor_id
@@ -24,6 +25,8 @@ use ReflectionException;
  */
 class Actor extends AbstractModel
 {
+    use EagerLoadPivotTrait;
+
     protected $casts = [
         'published' => 'boolean',
         'actor_capacity_published' => 'boolean',
