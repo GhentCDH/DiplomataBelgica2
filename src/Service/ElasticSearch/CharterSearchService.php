@@ -24,28 +24,84 @@ class CharterSearchService extends AbstractSearchService
             // filter by languages.id
             'languages' => [
                 'type' => self::FILTER_OBJECT_ID,
-                // 'field' => 'languages.id' // field is derived from filter name 'languages'
+                'field' => 'languages.id'
             ],
             // filter by place.id
             'place' => [
                 'type' => self::FILTER_OBJECT_ID,
-                // 'field' => 'place.id' // field is derived from filter name 'place'
+                'field' => 'place.id'
             ],
-            // filter by actor property
-            'actor_place' => [
-                'type' => self::FILTER_NESTED_ID,
-                'nested_path' => 'actors',
-                'field' => 'actors.place.id'
+        ];
+
+        $searchFilters['actors'] = [
+            'type' => self::FILTER_NESTED_MULTIPLE,
+            'nested_path' => 'actors',
+            'filters' => [
+                'actor_place_name' => [
+                    'field' => 'place.name',
+                    'type' => self::FILTER_KEYWORD
+                ],
+                'actor_place_diocese' => [
+                    'field' => 'place.diocese_name',
+                    'type' => self::FILTER_KEYWORD
+                ],
+                'actor_place_principality' => [
+                    'field' => 'place.principality_name',
+                    'type' => self::FILTER_KEYWORD
+                ],
+                'actor_capacity' => [
+                    'field' => 'capacity.capacity',
+                    'type' => self::FILTER_KEYWORD
+                ],
+                'actor_role' => [
+                    'field' => 'role',
+                    'type' => self::FILTER_OBJECT_ID
+                ],
             ],
+            'innerHits' => [
+                'size' => 100
+            ]
         ];
 
         return $searchFilters;
     }
 
     protected function getAggregationConfig(): array {
+        $searchFilters = $this->getSearchFilterConfig();
+
         $aggregationFilters = [
             'languages' => ['type' => self::AGG_OBJECT_ID_NAME],
-            'place' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'actor_place_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'place.name',
+                'nested_path' => 'actors',
+                'filter' => $searchFilters['actors']
+            ],
+            'actor_place_diocese' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'place.diocese_name',
+                'nested_path' => 'actors',
+                'filter' => $searchFilters['actors']
+            ],
+            'actor_place_principality' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'place.principality_name',
+                'nested_path' => 'actors',
+                'filter' => $searchFilters['actors']
+            ],
+            'actor_capacity' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'capacity.capacity',
+                'nested_path' => 'actors',
+                'filter' => $searchFilters['actors']
+            ],
+            'actor_role' => [
+                'type' => self::AGG_OBJECT_ID_NAME,
+                'field' => 'role',
+                'nested_path' => 'actors',
+                'filter' => $searchFilters['actors']
+            ],
+
         ];
 
         return $aggregationFilters;
