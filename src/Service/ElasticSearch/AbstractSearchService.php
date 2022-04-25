@@ -590,6 +590,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                             case self::FILTER_OBJECT_ID:
                                 $aggFilterField .= '.id';
                                 break;
+                            case self::FILTER_KEYWORD:
+                                $aggFilterField .= '.keyword';
+                                break;
                         }
 
                         if ( is_array($filterValues[$queryFilterField]) ) {
@@ -806,6 +809,22 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         switch ($filterType) {
             case self::FILTER_OBJECT_ID:
                 $filterField .= '.id';
+                // If value == -1, select all entries without a value for a specific field
+                if ($filterValue === -1) {
+                    $query->addMustNot(
+                        new Query\Exists($filterField)
+                    );
+                    break;
+                }
+                if (is_array($filterValue)) {
+                    $filterQuery = new Query\Terms($filterField, $filterValue);
+                    $query->addMust($filterQuery);
+                } else {
+                    $filterQuery = new Query\Term();
+                    $filterQuery->setTerm($filterField, $filterValue);
+                    $query->addMust($filterQuery);
+                }
+                break;
             case self::FILTER_KEYWORD: // includes FILTER_OBJECT_ID
                 // If value == -1, select all entries without a value for a specific field
                 if ($filterValue === -1) {
@@ -814,7 +833,23 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                     break;
                 }
+                $filterField .= '.keyword';
+                if (is_array($filterValue)) {
+                    $filterQuery = new Query\Terms($filterField, $filterValue);
+                    $query->addMust($filterQuery);
+                } else {
+                    $filterQuery = new Query\Term();
+                    $filterQuery->setTerm($filterField, $filterValue);
+                    $query->addMust($filterQuery);
+                }
+                break;
             case self::FILTER_NUMERIC: // includes FILTER_OBJECT_ID & FILTER_KEYWORD
+                if ($filterValue === -1) {
+                    $query->addMustNot(
+                        new Query\Exists($filterField)
+                    );
+                    break;
+                }
                 if (is_array($filterValue)) {
                     $filterQuery = new Query\Terms($filterField, $filterValue);
                     $query->addMust($filterQuery);
