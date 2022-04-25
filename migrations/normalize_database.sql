@@ -181,6 +181,7 @@ ALTER TABLE `actor` RENAME COLUMN `actor_place_published` TO `place_published`;
 
 RENAME TABLE `capacity` TO `actor_capacity`;
 ALTER TABLE `actor_capacity` RENAME COLUMN `capacity_id` TO `actor_capacity_id`;
+CALL RenameTranslatedField("actor_capacity", "capacity", "name");
 
 RENAME TABLE `name` TO `actor_name`;
 ALTER TABLE `actor_name` RENAME COLUMN `name_id` TO `actor_name_id`;
