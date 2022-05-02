@@ -106,15 +106,6 @@ class Charter extends AbstractModel
     }
 
     /**
-     * @return BelongsTo|CharterLanguage
-     * @throws ReflectionException
-     */
-    public function language(): BelongsTo
-    {
-        return $this->belongsTo(CharterLanguage::class);
-    }
-
-    /**
      * @return BelongsTo|CharterType
      * @throws ReflectionException
      */
@@ -124,12 +115,21 @@ class Charter extends AbstractModel
     }
 
     /**
-     * @return HasOne|CharterUdt
+     * @return HasMany|CharterUdt
      * @throws ReflectionException
      */
-    public function udt(): HasOne
+    public function udt(): HasMany
     {
-        return $this->hasOne(CharterUdt::class);
+        return $this->hasMany(CharterUdt::class);
+    }
+
+    /**
+     * @return BelongsToMany|CharterLanguage
+     * @throws ReflectionException
+     */
+    public function language(): BelongsToMany
+    {
+        return $this->belongsToMany(CharterLanguage::class);
     }
 
     /**
