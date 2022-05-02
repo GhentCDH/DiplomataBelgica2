@@ -8,6 +8,7 @@ use App\Repository\CharterRepository;
 use App\Resource\ElasticCharterResource;
 use App\Service\ElasticSearch\CharterIndexService;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,14 +52,21 @@ class IndexElasticsearchCommand extends Command
                     $service = $this->container->get('charter_index_service');
                     $service->setup();
 
+                    $total = $repository->indexQuery()->count();
+
+                    $progressBar = new ProgressBar($output, $total);
+                    $progressBar->start();
+
                     $repository->indexQuery()->chunk(100,
-                        function($res) use ($service, &$count) {
+                        function($res) use ($service, &$count, $progressBar) {
                             /** @var Charter $charter */
                             foreach ($res as $charter) {
                                 $res = new ElasticCharterResource($charter->translate('en'));
                                 $service->add($res);
                                 $count++;
                             }
+
+                            $progressBar->advance(100);
                         });
 
                     break;
