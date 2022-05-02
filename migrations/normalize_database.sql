@@ -263,9 +263,9 @@ ALTER TABLE `charter__secondary_literature_indication` ADD COLUMN `charter__seco
 
 ALTER TABLE `charter_udt` RENAME COLUMN `cudt_dibe_id` TO `charter_id`;
 ALTER TABLE `charter_udt` RENAME COLUMN `udt_type` TO `type`;
-ALTER TABLE `charter_udt` RENAME COLUMN `udt_date_year` TO `date_year`;
-ALTER TABLE `charter_udt` RENAME COLUMN `udt_date_month` TO `date_month`;
-ALTER TABLE `charter_udt` RENAME COLUMN `udt_date_day` TO `date_day`;
+ALTER TABLE `charter_udt` RENAME COLUMN `udt_date_year` TO `year`;
+ALTER TABLE `charter_udt` RENAME COLUMN `udt_date_month` TO `month`;
+ALTER TABLE `charter_udt` RENAME COLUMN `udt_date_day` TO `day`;
 ALTER TABLE `charter_udt` DROP PRIMARY KEY;
 ALTER TABLE `charter_udt` ADD COLUMN `charter_udt_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT FIRST;
 
