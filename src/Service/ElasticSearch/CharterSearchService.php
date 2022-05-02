@@ -21,16 +21,28 @@ class CharterSearchService extends AbstractSearchService
         $searchFilters = [
             'id' => ['type' => self::FILTER_NUMERIC],
 
-            // filter by languages.id
-            'languages' => [
+            // filter by language.id
+            'charter_language' => [
                 'type' => self::FILTER_OBJECT_ID,
-                'field' => 'languages.id'
+                'field' => 'language.id' // redundant, filter type implies .id
             ],
-            // filter by place.id
-            'place' => [
-                'type' => self::FILTER_OBJECT_ID,
-                'field' => 'place.id'
+
+            'charter_place_name' => [
+                'type' => self::FILTER_KEYWORD,
+                'field' => 'place.name'
             ],
+
+            'dating_scholary_nested' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nested_path' => 'datations',
+                'filters' => [
+                    'dating_scholary' => [
+                        'type' => self::FILTER_DMY_RANGE,
+                        'field' => 'time'
+                    ]
+                ]
+            ]
+
         ];
 
         $searchFilters['actors'] = [
@@ -50,8 +62,8 @@ class CharterSearchService extends AbstractSearchService
                     'type' => self::FILTER_KEYWORD
                 ],
                 'actor_capacity' => [
-                    'field' => 'capacity.capacity',
-                    'type' => self::FILTER_KEYWORD
+                    'field' => 'capacity',
+                    'type' => self::FILTER_OBJECT_ID
                 ],
                 'actor_role' => [
                     'field' => 'role',
@@ -70,7 +82,14 @@ class CharterSearchService extends AbstractSearchService
         $searchFilters = $this->getSearchFilterConfig();
 
         $aggregationFilters = [
-            'languages' => ['type' => self::AGG_OBJECT_ID_NAME],
+            'charter_language' => [
+                'type' => self::AGG_OBJECT_ID_NAME,
+                'field' => 'language'
+            ],
+            'charter_place_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'place.name',
+            ],
             'actor_place_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.name',
@@ -90,8 +109,8 @@ class CharterSearchService extends AbstractSearchService
                 'filter' => $searchFilters['actors']
             ],
             'actor_capacity' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'capacity.capacity',
+                'type' => self::AGG_OBJECT_ID_NAME,
+                'field' => 'capacity',
                 'nested_path' => 'actors',
                 'filter' => $searchFilters['actors']
             ],
