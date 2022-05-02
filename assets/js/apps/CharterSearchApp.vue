@@ -84,7 +84,7 @@ export default {
                 groups: [
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Charter',
+                        legend: 'Identification',
                         fields: [
                             {
                                 type: 'input',
@@ -94,17 +94,45 @@ export default {
                             },
                             this.createMultiSelect('Language',
                                 {
-                                    model: 'languages'
+                                    model: 'charter_language'
                                 }
                             )
                         ]
                     },
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Actor',
+                        legend: 'Actor(s)',
                         fields: [
+                            this.createMultiSelect('Role', { model: 'actor_role' }),
+                            this.createMultiSelect('Function', { model: 'actor_capacity' }),
+                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality' }),
                         ]
                     },
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Datation',
+                        fields: [
+                            {
+                                type: 'DMYRange',
+                                model: 'dating_scholary',
+                                label: 'Scholary dating'
+                            },
+                            {
+                                type: 'checkbox',
+                                model: 'dating_scholary_preferential',
+                                label: 'preferential dates only'
+                            },
+                            {
+                                type: 'DMYRange',
+                                model: 'dating_charter',
+                                label: 'Date in the charter'
+                            },
+                            this.createMultiSelect('Place-date', { model: 'charter_place_name' }),
+                        ]
+                    },
+
                 ],
             },
             tableOptions: {
