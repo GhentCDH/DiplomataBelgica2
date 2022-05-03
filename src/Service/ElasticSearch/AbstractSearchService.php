@@ -27,6 +27,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     protected const FILTER_NESTED_MULTIPLE = "nested_multiple";
     protected const FILTER_DATE_RANGE = "date_range";
+    protected const FILTER_DMY_RANGE = "dmy_range";
     protected const FILTER_NUMERIC_RANGE_SLIDER = "numeric_range";
 
     protected const AGG_NUMERIC = "numeric";
@@ -141,6 +142,63 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
 
                 break;
+            case self::FILTER_DMY_RANGE:
+                $rangeFilter = [
+                    'from' => [],
+                    'till' => [],
+                    'has_from' => false,
+                    'has_till' => false
+                ];
+                $boolValid = false;
+
+                $dateParts = [
+                    'month',
+                    'day',
+                    'year',
+                ];
+
+                foreach( $dateParts as $datePart ) {
+                    $rangeFilter['from'][$datePart] = is_numeric($filterValue['from'][$datePart] ?? null) ? intval($filterValue['from'][$datePart]) : null;
+                    $rangeFilter['has_from'] = $rangeFilter['has_from'] || ($rangeFilter['from'][$datePart] !== null);
+                    $rangeFilter['till'][$datePart] = is_numeric($filterValue['till'][$datePart] ?? null) ? intval($filterValue['till'][$datePart]) : null;
+                    $rangeFilter['has_till'] = $rangeFilter['has_till'] || ($rangeFilter['till'][$datePart] !== null);
+                }
+
+                // create timestamp
+                /*
+                $dateParts = &$rangeFilter['from'];
+                if ( count($dateParts) &&
+                    checkdate($dateParts['m'] ?? null, $dateParts['d'] ?? null, $dateParts['y'] ?? null) ) {
+                    $dateParts['ts'] = mktime(0,0,0, $dateParts['m'], $dateParts['d'] , $dateParts['y']);
+                }
+
+                $dateParts = &$rangeFilter['till'];
+                if ( count($dateParts) &&
+                    checkdate($dateParts['m'] ?? null, $dateParts['d'] ?? null, $dateParts['y'] ?? null) ) {
+                    $dateParts['ts'] = mktime(0,0,0, $dateParts['m'], $dateParts['d'] , $dateParts['y']);
+                }
+                */
+
+                // check if valid range query
+                if ( $rangeFilter['has_from'] && $rangeFilter['has_till']
+                    && !array_diff_key(array_filter($rangeFilter['from'], fn($i) => $i != null), array_filter($rangeFilter['till'], fn($i) => $i != null))
+                    && !array_diff_key(array_filter($rangeFilter['till'], fn($i) => $i != null), array_filter($rangeFilter['from'], fn($i) => $i != null))
+                    && isset($rangeFilter['till']['month'])
+                ) {
+                    $rangeFilter['type'] = 'range';
+                    $boolValid = true;
+                } elseif ($rangeFilter['has_from']) {
+                    $rangeFilter['type'] = 'exact';
+                    $boolValid = true;
+                } else {
+                    $rangeFilter['type'] = 'invalid';
+                }
+
+                if ($boolValid) {
+                    $ret = $rangeFilter;
+                }
+
+                break;
             case self::FILTER_NUMERIC_RANGE_SLIDER:
                 $rangeFilter = [];
                 $ignore = $filterConfig['ignore'] ?? [];
@@ -213,7 +271,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 foreach ($filterConfig['filters'] as $subFilterName => $subFilterConfig) {
                     // filterValue = fixed value || query value || default value || false
                     $subFilterValue = $subFilterConfig['value'] ?? $params[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? false;
-                    if ($subFilterValue === false) continue;
+//                    if ($subFilterValue === false) continue;
                     if ($subFilterConfig)
                         $ret = $this->sanitizeSearchFilter($subFilterValue, $subFilterConfig, $subFilterName, $params);
                     if (!is_null($ret)) {
@@ -387,14 +445,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
 
         // Filtering
-//        dump($params);
+        dump($params);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if ( count($searchFilters) ) {
-//            dump($searchFilters);
+            dump($searchFilters);
             $searchQuery = $this->createSearchQuery($searchFilters);
             $query->setQuery($searchQuery);
             $query->setHighlight($this->createHighlight($searchFilters));
-//            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
+            dump(json_encode($query->toArray(), JSON_PRETTY_PRINT));
         }
 
         // Search
@@ -773,24 +831,29 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     }
 
     protected function addFieldQuery(Query\BoolQuery $query, array $filterConfig, array $filters) {
+        // nested filter?
+        $boolIsNestedFilter = $this->isNestedFilter($filterConfig);
+
         $filterName = $filterConfig['name'];
+        $filterField = $filterConfig['field'] ?? $filterName;
         $filterValue = $filterConfig['value'] ?? $filters[$filterName] ?? $filters['defaultValue'] ?? null; // filter can have fixed value
         $filterType = $filterConfig['type'];
-        $filterField = $filterConfig['field'] ?? $filterName;
-        $filterPath = $filterConfig['nested_path'] ?? $filterName;
+        $filterNestedPath = $boolIsNestedFilter ? ( $filterConfig['nested_path'] ?? $filterName ) : null;
+        $filterFieldPrefix = $filterConfig['field_prefix'] ?? $filterNestedPath ?? null;
+
+        // note: in nested query, field can be empty for dmy_range filter (filters on .month, .year etc)
+        $filterField = $filterFieldPrefix ? $filterFieldPrefix . ($filterField === '' ? '' : '.'.$filterField) : $filterField;
 
         // skip config if no subfilters and no filter value
         if ( !isset($filterConfig['filters']) && !$filterValue ) {
             return;
         }
 
-        $boolIsNestedFilter = $this->isNestedFilter($filterConfig);
+        // nested filter? add nested query
         if ( $boolIsNestedFilter ) {
-            $filterField = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$filterField : $filterField;
-
             $subquery = new Query\BoolQuery();
             $queryNested = (new Query\Nested())
-                ->setPath($filterPath)
+                ->setPath($filterNestedPath)
                 ->setQuery($subquery);
 
             // inner hits?
@@ -808,7 +871,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         switch ($filterType) {
             case self::FILTER_OBJECT_ID:
-                $filterField .= '.id';
+                $filterField = substr($filterField, -3) === '.id' ? $filterField : $filterField . '.id';
                 // If value == -1, select all entries without a value for a specific field
                 if ($filterValue === -1) {
                     $query->addMustNot(
@@ -875,7 +938,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             case self::FILTER_TEXT_MULTIPLE:
                 $subQuery = new Query\BoolQuery();
                 foreach ($filterValue as $field => $value) {
-                    $subQuery->addShould(self::constructTextQuery($field, $value));
+                    $subQuery->addShould( self::constructTextQuery($field, $value));
                 }
                 $query->addMust($subQuery);
                 break;
@@ -896,6 +959,62 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                 }
                 break;
+            case self::FILTER_DMY_RANGE:
+                dump($filterField);
+                if ( ( $filterValue['type'] ?? null ) === 'exact' ) {
+                    foreach( $filterValue['from'] as $datePart => $value) {
+                        // todo: add datepart field option
+                        if ( $value ) {
+                            $query->addMust(
+                                (new Query\Term())->setTerm($filterField.'.'.$datePart, $value)
+                            );
+                        }
+                    }
+                }
+                if ( ( $filterValue['type'] ?? null ) === 'range') {
+                    $dateParts = [ 'year', 'month', 'day' ];
+
+                    $count = count(array_filter($filterValue['from']));
+                    $fromCarry = [];
+                    $tillCarry = [];
+                    $i = 0;
+
+                    $fromQuery = new Query\BoolQuery();
+                    $tillQuery = new Query\BoolQuery();
+
+                    foreach( $dateParts as $datePart ) {
+                        if ( !is_null($filterValue['from'][$datePart] ?? null) && !is_null($filterValue['till'][$datePart] ?? null) ) {
+                            $fromQueryPart = new Query\BoolQuery();
+                            $tillQueryPart = new Query\BoolQuery();
+
+                            $i++;
+                            foreach($fromCarry as $carryDatePart ) {
+                                $fromQueryPart->addMust( (new Query\Term())->setTerm($filterField.'.'.$carryDatePart, $filterValue['from'][$carryDatePart]) );
+                                $tillQueryPart->addMust( (new Query\Term())->setTerm($filterField.'.'.$carryDatePart, $filterValue['till'][$carryDatePart]) );
+                            }
+                            $operator = ($i === $count) ? 'gte' : 'gt';
+                            $fromQueryPart->addMust( (new Query\Range())->addField($filterField.'.'.$datePart, [ $operator => $filterValue['from'][$datePart] ]) );
+                            $operator = ($i === $count) ? 'lte' : 'lt';
+                            $tillQueryPart->addMust( (new Query\Range())->addField($filterField.'.'.$datePart, [ $operator => $filterValue['till'][$datePart] ]) );
+                            $fromCarry[] = $datePart;
+
+                            $fromQuery->addShould($fromQueryPart);
+                            $tillQuery->addShould($tillQueryPart);
+                        }
+                    }
+
+                    $query->addMust($fromQuery);
+                    $query->addMust($tillQuery);
+
+                    /*
+                    year > from[year] or
+                    OR ( year == from[year] and ( month > from[month] )
+                    OR ( year == from[year] and ( month == from[month] ) and ( day >= from[day] )
+
+*/
+                }
+                break;
+
             case self::FILTER_DATE_RANGE:
                 // The data interval must exactly match the search interval
                 if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
@@ -1033,32 +1152,16 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
                 // add subfilters
                 if (count($subFilters)) {
-                    $subquery = new Query\BoolQuery();
                     foreach($subFilters as $subFilterName => $subFilterConfig) {
-//                        $subFilterValue = $subFilterConfig['value'] ?? $filters[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? null;
-                        $subFilterConfig['field'] = $subFilterConfig['field'] ?? $subFilterName;
-                        $subFilterConfig['field'] = isset($filterConfig['nested_path']) ? $filterConfig['nested_path'].'.'.$subFilterConfig['field'] : $subFilterConfig['field'];
-                        $subFilterConfig['type'] = $subFilterConfig['type'] ?? self::FILTER_KEYWORD;
+                        $subFilterValue = $subFilterConfig['value'] ?? $filters[$subFilterName] ?? $subFilterConfig['defaultValue'] ?? null;
+
                         $subFilterConfig['name'] = $subFilterName;
+                        $subFilterConfig['field'] = $subFilterConfig['field'] ?? $subFilterName;
+                        $subFilterConfig['field_prefix'] = $filterPath;
+                        $subFilterConfig['type'] = $subFilterConfig['type'] ?? self::FILTER_KEYWORD; // legacy?
 
-                        $this->addFieldQuery($subquery, $subFilterConfig, $filters);
+                        $this->addFieldQuery($query, $subFilterConfig, $filters);
                     }
-
-//                    // create nested query
-//                    $queryNested = (new Query\Nested())
-//                        ->setPath($filterPath)
-//                        ->setQuery($subquery);
-//
-//                    // inner hits?
-//                    if ($filterConfig['innerHits'] ?? false) {
-//                        $innerHits = new Query\InnerHits();
-//                        if ( $filterConfig['innerHits']['size'] ?? false ) {
-//                            $innerHits->setSize($filterConfig['innerHits']['size']);
-//                        }
-//                        $queryNested->setInnerHits($innerHits);
-//                    }
-
-                    $query->addMust($subquery);
                 }
                 break;
         }
