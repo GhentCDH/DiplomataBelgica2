@@ -90,6 +90,18 @@ export default {
                     month: null,
                     year: null
                 }
+            },
+            default: {
+                from: {
+                    day: null,
+                    month: null,
+                    year: null
+                },
+                till: {
+                    day: null,
+                    month: null,
+                    year: null
+                }
             }
         };
     },
@@ -97,22 +109,22 @@ export default {
         range: {
             deep: true,
             handler(val) {
+                console.log('range watch')
                 this.value = val
             }
         },
         value: {
             deep: true,
             handler(val) {
-                this.range = val
+                console.log('value watch')
+                if ( typeof val === 'object' ) {
+                    this.range = val
+                } else {
+                    this.range = this.default
+                }
             }
         }
     },
-    mounted() {
-        // this.$on('model-updated', function(newVal) {
-        //     console.log(newVal);
-        //     this.range = newVal
-        // })
-    }
 };
 </script>
 
