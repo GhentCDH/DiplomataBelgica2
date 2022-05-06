@@ -2,27 +2,18 @@
 {% extends 'base.html.twig' %}
 
 {% block content %}
-    <div id="text-view-app">
-        <h2>Full text</h2>
-        <p>
-            {{ charter.full_text }}
-        </p>
-        <h2>Place found name</h2>
-        <p>
-            {{ charter.place_found_name }}
-        </p>
-        <pre>
-            {{ charter|json_encode(constant('JSON_PRETTY_PRINT')) }}
-        </pre>
-    </div>
+    <charter-view-app id="charter-view-app"
+                   init-urls="{{ urls }}"
+                   init-data="{{ data }}"
+    />
 {% endblock %}
 
 {% block javascript %}
     {{ parent() }}
-{#    {{ encore_entry_script_tags('charter-view') }}#}
+    {{ encore_entry_script_tags('charter-view') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-{#    {{ encore_entry_link_tags('charter-view') }}#}
+    {{ encore_entry_link_tags('charter-view') }}
 {% endblock %}

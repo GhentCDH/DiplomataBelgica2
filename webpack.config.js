@@ -20,8 +20,7 @@ Encore
     .autoProvidejQuery()
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('charter-search', './assets/js/main/charter-search.js')
-    // uncomment to add extra apps (ex: charter-view app)
-    // .addEntry('charter-view', './assets/js/main/charter-view.js')
+    .addEntry('charter-view', './assets/js/main/charter-view.js')
 
     // allow sass/scss files to be processed
     .enableSassLoader()
