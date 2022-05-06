@@ -59,10 +59,10 @@
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator'
 
-import AbstractField from '../Components/FormFields/AbstractField'
-import AbstractSearch from '../Components/Search/AbstractSearch'
-import CollapsibleGroups from '../Components/Search/CollapsibleGroups'
-import PersistentConfig from "../Components/Shared/PersistentConfig"
+import AbstractField from '../components/FormFields/AbstractField'
+import AbstractSearch from '../components/Search/AbstractSearch'
+import CollapsibleGroups from '../components/Search/CollapsibleGroups'
+import PersistentConfig from "../components/Shared/PersistentConfig"
 
 
 export default {
@@ -130,6 +130,24 @@ export default {
                                 label: 'Date in the charter'
                             },
                             this.createMultiSelect('Place-date', { model: 'charter_place_name' }),
+                        ]
+                    },
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Analysis',
+                        fields: [
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                model: 'summary',
+                                label: 'Search in summary (in French only)'
+                            },
+                            {
+                                type: 'input',
+                                inputType: 'text',
+                                model: 'fulltext',
+                                label: 'Search in full text of charter'
+                            },
                         ]
                     },
 

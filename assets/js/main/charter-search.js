@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import CharterSearchApp from '../apps/CharterSearchApp'
 
-import fieldDMYRange from '../Components/FormFields/fieldDMYRange'
+import fieldDMYRange from '../components/FormFields/fieldDMYRange'
 
 Vue.component('fieldDMYRange', fieldDMYRange)
 
