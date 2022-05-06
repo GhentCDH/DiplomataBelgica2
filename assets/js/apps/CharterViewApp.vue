@@ -31,9 +31,9 @@
                     <div class="mbottom-default">{{ charter.summary }}</div>
                     <PropertyGroup>
                         <LabelValue label="Language" :value="charter.language" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Authenticity" :value="charter.authenticity.name" :inline="false"></LabelValue>
+                        <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name" :inline="false"></LabelValue>
                         <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Nature of the charter" :value="charter.nature.name" :inline="false"></LabelValue>
+                        <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" :inline="false"></LabelValue>
                     </PropertyGroup>
                 </Widget>
 
