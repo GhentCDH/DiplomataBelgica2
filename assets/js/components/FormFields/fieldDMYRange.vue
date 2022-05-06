@@ -105,20 +105,22 @@ export default {
             }
         };
     },
-    watch: {
+    _watch: {
         range: {
             deep: true,
             handler(val) {
-                console.log('range watch')
-                this.value = val
+                // console.log('range watch')
+                // console.log(val)
+                this.value = val;
             }
         },
         value: {
             deep: true,
             handler(val) {
-                console.log('value watch')
+                // console.log('value watch')
+                // console.log(val)
                 if ( typeof val === 'object' ) {
-                    this.range = val
+                    // this.range = JSON.parse(JSON.stringify(val));
                 } else {
                     this.range = this.default
                 }
