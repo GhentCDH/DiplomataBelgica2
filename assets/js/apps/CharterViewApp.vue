@@ -38,7 +38,9 @@
                 </Widget>
 
                 <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
-
+                    <div v-for="actor in charter.actors">
+                        <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                    </div>
                 </Widget>
 
                 <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
@@ -113,6 +115,9 @@ export default {
     computed: {
         charter: function() {
             return this.data.charter
+        },
+        issuers: function() {
+            return this.data.charter.actors.filter( actor => actor.role.id === 1 )
         },
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
