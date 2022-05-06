@@ -37,14 +37,15 @@
                     <b v-if="countRecords">{{ countRecords }}</b>
                 </template>
                 <template slot="id" slot-scope="props">
-                    <a :href="urls['charter_get_single'].replace('charter_id', props.row.id)">
+                    <a :href="getCharterUrl(props.row.id, props.index)">
                         {{ props.row.id }}
                     </a>
                 </template>
                 <template slot="summary" slot-scope="props">
-                    {{ props.row.summary }}
+                    <a :href="getCharterUrl(props.row.id, props.index)">
+                        {{ props.row.summary }}
+                    </a>
                 </template>
-
             </v-server-table>
         </article>
         <div
@@ -63,6 +64,7 @@ import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 import PersistentConfig from "../components/Shared/PersistentConfig"
+import SharedSearch from "../components/Search/SharedSearch";
 
 
 export default {
@@ -70,6 +72,7 @@ export default {
         PersistentConfig('CharterSearchConfig'),
         AbstractField,
         AbstractSearch,
+        SharedSearch,
         CollapsibleGroups
     ],
     props: {

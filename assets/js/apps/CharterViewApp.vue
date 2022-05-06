@@ -16,13 +16,13 @@
                 <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
                     <div class="row mbottom-default">
                         <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(1)">&laquo;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex - 1)">&lt;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">&laquo;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">&lt;</span>
                         </div>
                         <div class="col col-xs-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
                         <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex(context.searchIndex + 1)">&gt;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">&gt;</span>
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">&raquo;</span>
                         </div>
                     </div>
                 </Widget>
@@ -74,7 +74,7 @@ import axios from 'axios'
 import qs from 'qs'
 
 export default {
-    name: "TextViewApp",
+    name: "CharterViewApp",
     components: {
         Widget, LabelValue, PropertyGroup, CheckboxSwitch
     },
@@ -127,36 +127,34 @@ export default {
         getUrl(route) {
             return this.urls[route] ?? ''
         },
-        getTextUrl(id) {
-            let url = this.urls['text_get_single'].replace('text_id', id);
+        getCharterUrl(id) {
+            let url = this.getUrl('charter_get_single').replace('charter_id',id)
             if (this.isValidContext()) {
                 url += '#' + this.getContextHash()
             }
             return url
         },
-        loadText(id) {
+        loadCharter(id) {
             this.openRequests += 1
             let url = this.getUrl('charter_get_single').replace('charter_id',id)
             return axios.get(url).then( (response) => {
                 if (response.data) {
-                    this.data.text = response.data;
+                    this.data.charter = response.data;
                 }
                 this.openRequests -= 1
             })
         },
-        loadTextByIndex(index) {
+        loadCharterByIndex(index) {
             let that = this;
             if ( !this.resultSet.count ) return;
 
             let newIndex = Math.max(1, Math.min(index, this.resultSet.count))
             this.getResultSetIdByIndex(newIndex).then( function(id) {
-                that.loadText(id).then((response) => {
+                that.loadCharter(id).then((response) => {
                     // update context
                     that.context.searchIndex = newIndex
                     // update state
-                    window.history.replaceState({}, '', that.getTextUrl(id));
-                    // bind events
-                    that.bindEvents();
+                    window.history.replaceState({}, '', that.getCharterUrl(id));
                 });
             })
         },
