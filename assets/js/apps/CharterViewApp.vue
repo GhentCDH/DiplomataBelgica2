@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <article class="col-sm-9">
+        <article class="col-sm-8">
             <div class="scrollable scrollable--vertical">
                 <h1>{{ charter.title }}</h1>
 
@@ -10,7 +10,7 @@
                     {{ charter.full_text }}
             </div>
         </article>
-        <aside class="col-sm-3 scrollable scrollable--vertical">
+        <aside class="col-sm-4 scrollable scrollable--vertical">
             <div class="padding-default">
 
                 <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
@@ -25,6 +25,24 @@
                             <span class="btn btn-sm btn-primary" @click="loadTextByIndex( resultSet.count )">&raquo;</span>
                         </div>
                     </div>
+                </Widget>
+
+                <Widget title="Summary" :is-open.sync="config.widgets.summary.isOpen">
+                    <div class="mbottom-default">{{ charter.summary }}</div>
+                    <PropertyGroup>
+                        <LabelValue label="Language" :value="charter.language" type="id_name" :inline="false"></LabelValue>
+                        <LabelValue label="Authenticity" :value="charter.authenticity.name" :inline="false"></LabelValue>
+                        <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" :inline="false"></LabelValue>
+                        <LabelValue label="Nature of the charter" :value="charter.nature.name" :inline="false"></LabelValue>
+                    </PropertyGroup>
+                </Widget>
+
+                <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
+
+                </Widget>
+
+                <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
+
                 </Widget>
 
             </div>
@@ -82,6 +100,11 @@ export default {
                 search: {
                     useContext: true,
                 },
+                widgets: {
+                    summary: { isOpen: true },
+                    actors: { isOpen: true },
+                    date: { isOpen: true },
+                }
             },
             openRequests: false,
         }
@@ -153,7 +176,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-#text-view-app {
+#charter-view-app {
   display: flex;
   flex-direction: row;
   flex: 1;
