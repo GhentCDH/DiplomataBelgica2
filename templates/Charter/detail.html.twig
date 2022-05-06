@@ -1,6 +1,8 @@
 {# Remove comments to add a view app to the template #}
 {% extends 'base.html.twig' %}
 
+{% block body_class %}layout--fullscreen layout--compact{% endblock %}
+
 {% block content %}
     <charter-view-app id="charter-view-app"
                    init-urls="{{ urls }}"
