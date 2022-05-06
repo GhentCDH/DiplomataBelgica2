@@ -15,6 +15,9 @@ class CharterController extends BaseController
 {
     protected $templateFolder = 'Charter';
 
+    protected const searchServiceName = "charter_search_service";
+    protected const indexServiceName = "charter_index_service";
+
 
     /**
      * @Route("/charter", name="charter", methods={"GET"})
@@ -36,23 +39,14 @@ class CharterController extends BaseController
         Request $request,
         CharterSearchService $elasticService
     ) {
-        return $this->render(
-            $this->templateFolder. '/overview.html.twig',
+        return $this->_search(
+            $request,
             [
-                'urls' => json_encode([
-                    // @codingStandardsIgnoreStart Generic.Files.LineLength
-                    'charter_search_api' => $this->generateUrl('charter_search_api'),
-                    'charter_get_single' => $this->generateUrl('charter_get_single', ['id' => 'charter_id']),
-                    // @codingStandardsIgnoreEnd
-                ]),
-                'data' => json_encode(
-                    $elasticService->searchAndAggregate(
-                        $this->sanitize($request->query->all())
-                    )
-                ),
-                'identifiers' => json_encode([]),
-                'managements' => json_encode([]),
                 'title' => 'Charters'
+            ],
+            [
+                'search_api' => 'charter_search_api',
+                'paginate' => 'charter_paginate',
             ]
         );
     }
@@ -60,18 +54,23 @@ class CharterController extends BaseController
     /**
      * @Route("/charter/search_api", name="charter_search_api", methods={"GET"})
      * @param Request $request
-     * @param CharterSearchService $elasticService
      * @return JsonResponse
      */
     public function searchAPI(
-        Request $request,
-        CharterSearchService $elasticService
+        Request $request
     ) {
-        $result = $elasticService->searchAndAggregate(
-            $this->sanitize($request->query->all())
-        );
+        return $this->_searchAPI($request);
+    }
 
-        return new JsonResponse($result);
+    /**
+     * @Route("/charter/paginate", name="charter_paginate", methods={"GET"})
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function paginate(
+        Request $request
+    ) {
+        return $this->_paginate($request);
     }
 
     /**
@@ -83,10 +82,11 @@ class CharterController extends BaseController
      */
     public function getSingle(int $id, Request $request, ContainerInterface $container)
     {
+        $elasticService = $this->getContainer()->get(self::indexServiceName);
+
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
             try {
-                $service = $container->get('charter_index_service');
-                $resource = $service->get($id);
+                $resource = $elasticService->get($id);
             } catch (NotFoundHttpException $e) {
                 return new JsonResponse(
                     ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
@@ -95,20 +95,15 @@ class CharterController extends BaseController
             }
             return new JsonResponse($resource);
         } else {
-            $service = $container->get('charter_index_service');
-            $resource = $service->get($id);
+            $resource = $elasticService->get($id);
 
             return $this->render(
                 $this->templateFolder. '/detail.html.twig',
                 [
-                    'urls' => [
-                        // @codingStandardsIgnoreStart Generic.Files.LineLength
-                        'charter_search' => $this->generateUrl('charter_search'),
-                        'charter_search_api' => $this->generateUrl('charter_search_api'),
-                        'charter_get_single' => $this->generateUrl('charter_get_single', ['id' => 'charter_id']),
-                        // @codingStandardsIgnoreEnd
-                    ],
-                    'charter' => $resource
+                    'urls' => json_encode($this->getSharedAppUrls()),
+                    'data' => json_encode([
+                        'charter' => $resource
+                    ])
                 ]
             );
         }
