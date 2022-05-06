@@ -41,8 +41,13 @@ class CharterSearchService extends AbstractSearchService
                         'field' => 'time'
                     ]
                 ]
-            ]
+            ],
 
+            'dating_charter' => [
+                'type' => self::FILTER_DMY_RANGE,
+                'nested_path' => 'udt',
+                'field' => ''
+            ]
         ];
 
         $searchFilters['actors'] = [
