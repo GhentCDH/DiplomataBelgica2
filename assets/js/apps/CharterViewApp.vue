@@ -30,17 +30,46 @@
                 <Widget title="Summary" :is-open.sync="config.widgets.summary.isOpen">
                     <div class="mbottom-default">{{ charter.summary }}</div>
                     <PropertyGroup>
-                        <LabelValue label="Language" :value="charter.language" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Authenticity" :value="charter.authenticity.name" :inline="false"></LabelValue>
-                        <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Nature of the charter" :value="charter.nature.name" :inline="false"></LabelValue>
+                        <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
+                        <LabelValue label="Authenticity" :value="charter.authenticity.name"></LabelValue>
+                        <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
+                        <LabelValue label="Nature of the charter" :value="charter.nature.name"></LabelValue>
                     </PropertyGroup>
                 </Widget>
 
                 <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
-                    <div v-for="actor in charter.actors">
-                        <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                    <h2>Issuer(s)</h2>
+                    <h3>(= author)</h3>
+                    <div v-for="actor in issuers">
+                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
+                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
+                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
                     </div>
+
+                  <h2>Author(s) of the actio juridica</h2>
+                  <h3>(= disposer)</h3>
+                  <div v-for="actor in authors">
+                    <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
+                    <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                    <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                    <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
+                    <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                    <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                  </div>
+
+                  <h2>Benefiriary(ies)</h2>
+                  <h3>(= recipient)</h3>
+                  <div v-for="actor in beneficiaries">
+                    <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
+                    <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                    <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                    <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
+                    <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                    <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                  </div>
                 </Widget>
 
                 <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
@@ -117,7 +146,16 @@ export default {
             return this.data.charter
         },
         issuers: function() {
-            return this.data.charter.actors.filter( actor => actor.role.id === 1 )
+          return this.data.charter.actors.filter( actor => actor.role.id === 2 )
+        },
+        authors: function() {
+          return this.data.charter.actors.filter( actor => actor.role.id === 1 )
+        },
+        beneficiaries: function() {
+          return this.data.charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
+        },
+        geolocation: function(place) {
+          return place.name
         },
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
