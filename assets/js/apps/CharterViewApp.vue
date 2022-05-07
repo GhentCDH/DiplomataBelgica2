@@ -4,10 +4,18 @@
             <div class="scrollable scrollable--vertical">
                 <h1>{{ charter.title }}</h1>
 
-                    <!-- Text -->
-                    <h2>Full text of charter</h2>
+                <h2>Summary and description</h2>
+                <div class="mbottom-default">{{ charter.summary }}</div>
 
-                    {{ charter.full_text }}
+                <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
+                <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"></LabelValue>
+                <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
+                <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"></LabelValue>
+
+                <!-- Text -->
+                <h2>Full text of charter</h2>
+
+                {{ charter.full_text }}
             </div>
         </article>
         <aside class="col-sm-4 scrollable scrollable--vertical">
@@ -25,16 +33,6 @@
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">&raquo;</span>
                         </div>
                     </div>
-                </Widget>
-
-                <Widget title="Summary" :is-open.sync="config.widgets.summary.isOpen">
-                    <div class="mbottom-default">{{ charter.summary }}</div>
-                    <PropertyGroup>
-                        <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
-                        <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"></LabelValue>
-                        <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
-                        <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"></LabelValue>
-                    </PropertyGroup>
                 </Widget>
 
                 <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
@@ -150,7 +148,6 @@ export default {
                     useContext: true,
                 },
                 widgets: {
-                    summary: { isOpen: true },
                     actors: { isOpen: true },
                     date: { isOpen: true },
                 }
