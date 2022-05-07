@@ -42,9 +42,29 @@
                     </a>
                 </template>
                 <template slot="summary" slot-scope="props">
-                    <a :href="getCharterUrl(props.row.id, props.index)">
-                        {{ props.row.summary }}
-                    </a>
+                    <template v-if="issuers(props.row).length">
+                        <h5>Main issuer</h5>
+                        <div v-for="actor in issuers(props.row)" class="actor--issuer">
+                            <FormatValue :value="actor.name.full_name"></FormatValue> -
+                            <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
+                            <FormatValue :value="actor.place" type="id_name"></FormatValue>
+                        </div>
+                    </template>
+                    <template v-if="beneficiaries(props.row).length">
+                        <h5>Main beneficiary</h5>
+                        <div v-for="actor in issuers(props.row)" class="actor--issuer">
+                            <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
+                            <FormatValue :value="actor.place" type="id_name"></FormatValue> -
+                            <FormatValue :value="actor.name.full_name"></FormatValue>
+                        </div>
+                    </template>
+
+<!--                    <?php echo $values["beneficiary"]["capacity"];?> - <?php echo $values["beneficiary"]["place"]; ?> - <?php echo $values["beneficiary"]["name"]; ?>-->
+
+
+
+                    <h5>Summary</h5>
+                    {{ props.row.summary }}
                 </template>
             </v-server-table>
         </article>
@@ -66,6 +86,8 @@ import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 import PersistentConfig from "../components/Shared/PersistentConfig"
 import SharedSearch from "../components/Search/SharedSearch";
 
+import FormatValue from "../components/Sidebar/FormatValue";
+
 
 export default {
     mixins: [
@@ -75,6 +97,9 @@ export default {
         SharedSearch,
         CollapsibleGroups
     ],
+    components: {
+        FormatValue
+    },
     props: {
     },
     data() {
@@ -201,6 +226,15 @@ export default {
             // Don't create a new history item
             this.noHistory = true;
             this.$refs.resultTable.refresh();
+        },
+        issuers: function(charter) {
+            return charter.actors.filter( actor => actor.role.id === 2 )
+        },
+        authors: function(charter) {
+            return charter.actors.filter( actor => actor.role.id === 1 )
+        },
+        beneficiaries: function(charter) {
+            return charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
         },
     },
 }
