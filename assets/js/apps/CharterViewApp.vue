@@ -30,20 +30,65 @@
                 <Widget title="Summary" :is-open.sync="config.widgets.summary.isOpen">
                     <div class="mbottom-default">{{ charter.summary }}</div>
                     <PropertyGroup>
-                        <LabelValue label="Language" :value="charter.language" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" :inline="false"></LabelValue>
-                        <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" :inline="false"></LabelValue>
+                        <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
+                        <LabelValue label="Authenticity" :value="charter.authenticity.name"></LabelValue>
+                        <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
+                        <LabelValue label="Nature of the charter" :value="charter.nature.name"></LabelValue>
                     </PropertyGroup>
                 </Widget>
 
                 <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
-                    <div v-for="actor in charter.actors">
+                    <h2>Issuer(s)</h2>
+                    <h3>(= author)</h3>
+                    <div v-for="actor in issuers">
+                      <div class="actor">
+                        <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                         <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                        <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                        <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
+                        <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                      </div>
                     </div>
+
+                  <h2>Author(s) of the actio juridica</h2>
+                  <h3>(= disposer)</h3>
+                  <div v-for="actor in authors">
+                    <div class="actor">
+                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
+                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
+                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                    </div>
+                  </div>
+
+                  <h2>Benefiriary(ies)</h2>
+                  <h3>(= recipient)</h3>
+                  <div v-for="actor in beneficiaries">
+                    <div class="actor">
+                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
+                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
+                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
+                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                      </div>
+                  </div>
                 </Widget>
 
                 <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
+                  <h2>Scholarly dating</h2>
+                  <h3>(preferential)</h3>
+                  <div v-for="datation in preferentialDates">
+                    <FormatValue :value="getDatation(datation)"></FormatValue>
+                  </div>
+                  <h2>Scholarly dating</h2>
+                  <h3>(any)</h3>
+                  <div v-for="datation in charter.datations">
+                    <FormatValue :value="getDatation(datation)"></FormatValue>
+                  </div>
 
                 </Widget>
 
@@ -72,10 +117,12 @@ import SearchContext from "../components/Search/SearchContext";
 
 import axios from 'axios'
 import qs from 'qs'
+import FormatValue from "../components/Sidebar/FormatValue";
 
 export default {
     name: "CharterViewApp",
     components: {
+      FormatValue,
         Widget, LabelValue, PropertyGroup, CheckboxSwitch
     },
     mixins: [
@@ -117,7 +164,16 @@ export default {
             return this.data.charter
         },
         issuers: function() {
-            return this.data.charter.actors.filter( actor => actor.role.id === 1 )
+          return this.data.charter.actors.filter( actor => actor.role.id === 2 )
+        },
+        authors: function() {
+          return this.data.charter.actors.filter( actor => actor.role.id === 1 )
+        },
+        beneficiaries: function() {
+          return this.data.charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
+        },
+        preferentialDates: function() {
+          return this.data.charter.datations.filter( datation => datation.preference === 0 )
         },
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
@@ -160,8 +216,28 @@ export default {
         },
         isValidResultSet() {
             return this.context?.searchIndex && this.resultSet?.count
+        },
+        getDatation(datation) {
+          var res = '';
+          if(datation.time.year) {
+            res = datation.time.year;
+            if (datation.time.month) {
+              res = datation.time.month + '/' + res;
+              if (datation.time.day) {
+                res = datation.time.day + '/' + res;
+              }
+            }
+          }
+          if(datation.time.interpretation) {
+            res += ' (' + datation.time.interpretation;
+            if(datation.researcher) {
+              res += ' - ' + datation.researcher + ')';
+            } else {
+              res += ')';
+            }
+          }
+          return res;
         }
-
     },
     created() {
         // init context
