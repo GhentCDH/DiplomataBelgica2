@@ -3,7 +3,6 @@
 namespace App\Service\ElasticSearch;
 
 use Elastica\Mapping;
-use Elastica\Settings;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class CharterSearchService extends AbstractSearchService
@@ -142,7 +141,7 @@ class CharterSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'published', 'summary'];
+        $returnProps = ['id', 'published', 'summary', 'actors'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 
