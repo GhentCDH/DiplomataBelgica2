@@ -17,6 +17,11 @@
 
                 {{ charter.full_text }}
 
+                <template v-if="charter.edition">
+                  <h2>Source</h2>
+                  {{ formatSource(charter.edition) }}
+                </template>
+
                 <h2>Editions and secondary literature</h2>
 
                 <h3>Editions</h3>
@@ -239,6 +244,20 @@ export default {
         },
         isValidResultSet() {
             return this.context?.searchIndex && this.resultSet?.count
+        },
+        formatSource(edition) {
+          var res = [];
+          if(edition.names_editors) {
+            res.push(edition.names_editors);
+          }
+          if(edition.date_of_edition_year) {
+            res.push(edition.date_of_edition_year);
+          }
+          if(res.length > 0) {
+            return res.join(', ');
+          } else {
+            return null;
+          }
         },
         getDate(date) {
           var res = '';
