@@ -17,10 +17,9 @@
 
                 {{ charter.full_text }}
 
-
-              <h2>Editions and secondary literature</h2>
-              <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
-              <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
+                <h2>Editions and secondary literature</h2>
+                <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
+                <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
             </div>
         </article>
         <aside class="col-sm-4 scrollable scrollable--vertical">
@@ -155,8 +154,7 @@ export default {
                 widgets: {
                     actors: { isOpen: true },
                     date: { isOpen: true },
-                    tradition: { isOpen: true },
-                    editions: { isOpen: true }
+                    tradition: { isOpen: true }
                 }
             },
             openRequests: false,
