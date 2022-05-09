@@ -84,6 +84,12 @@
                   <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"></LabelValue>
                 </Widget>
 
+                <Widget title="Tradition" :is-open.sync="config.widgets.tradition.isOpen">
+                  <LabelValue v-if="charter.originals" label="Original" :value="getOriginals(charter.originals)"></LabelValue>
+                  <LabelValue v-else label="Original" value="No"></LabelValue>
+                  <LabelValue v-if="charter.codexes" label="Manuscripts" :value="getCodexes(charter.codexes)"></LabelValue>
+                </Widget>
+
             </div>
         </aside>
         <div
@@ -144,6 +150,7 @@ export default {
                 widgets: {
                     actors: { isOpen: true },
                     date: { isOpen: true },
+                    tradition: { isOpen: true }
                 }
             },
             openRequests: false,
@@ -265,6 +272,56 @@ export default {
             res += (res.length > 0 ? ' ' : '') + '(' + localisation.join(', ') + ')';
           }
           return res;
+        },
+        getOriginals(originals) {
+          var arr = [ 'Yes' ];
+          for(const original of originals) {
+            var res = [];
+            if(original.repository) {
+              if(original.repository.location) {
+                res.push(original.repository.location);
+              }
+              if(original.repository.name) {
+                res.push(original.repository.name);
+              }
+            }
+            if(original.repository_reference_number) {
+              res.push(original.repository_reference_number);
+            }
+            if(res.length > 0) {
+              arr.push(res.join(', '));
+            }
+          }
+          return arr;
+        },
+        getCodexes(codexes) {
+          var arr = [];
+          for(const codex of codexes) {
+            var res = [];
+            if(codex.repository) {
+              if(codex.repository.location) {
+                res.push(codex.repository.location);
+              }
+              if(codex.repository.name) {
+                res.push(codex.repository.name);
+              }
+            }
+            if(codex.repository_reference_number) {
+              res.push(codex.repository_reference_number);
+            }
+            var line = '';
+            if(res.length > 0) {
+              line = res.join(', ');
+              arr.push();
+            }
+            if(codex.redaction_date) {
+              line += (line.length > 0 ? ' ' : '') + '(' + codex.redaction_date + ')';
+            }
+            if(line.length > 0) {
+              arr.push(line);
+            }
+          }
+          return arr;
         }
     },
     created() {
