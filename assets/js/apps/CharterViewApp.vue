@@ -166,16 +166,16 @@ export default {
             return this.data.charter
         },
         issuers: function() {
-          return this.data.charter.actors.filter( actor => actor.role.id === 2 )
+          return this.charter.actors.filter( actor => actor.role.id === 2 )
         },
         authors: function() {
-          return this.data.charter.actors.filter( actor => actor.role.id === 1 )
+          return this.charter.actors.filter( actor => actor.role.id === 1 )
         },
         beneficiaries: function() {
-          return this.data.charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
+          return this.charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
         },
         preferentialDates: function() {
-          return this.data.charter.datations.filter( datation => datation.preference === 0 )
+          return this.charter.datations.filter( datation => datation.preference === 0 )
         },
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
