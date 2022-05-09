@@ -278,7 +278,7 @@ export default {
           return res;
         },
         getOriginals(originals) {
-          var arr = [ 'Yes' ];
+          var arr = [{ 'text': 'Yes' }];
           for(const original of originals) {
             var res = [];
             if(original.repository) {
@@ -293,7 +293,11 @@ export default {
               res.push(original.repository_reference_number);
             }
             if(res.length > 0) {
-              arr.push(res.join(', '));
+              if(original.id) {
+                arr.push({ 'text': res.join(', '), 'url': '/original/' + original.id });
+              } else {
+                arr.push({ 'text' : res.join(', ') });
+              }
             }
           }
           return arr;
@@ -322,7 +326,11 @@ export default {
               line += (line.length > 0 ? ' ' : '') + '(' + codex.redaction_date + ')';
             }
             if(line.length > 0) {
-              arr.push(line);
+              if(codex.id) {
+                arr.push({ 'text' : line, 'url' : '/codex/' + codex.id });
+              } else {
+                arr.push({ 'text' : line });
+              }
             }
           }
           return arr;
@@ -348,8 +356,31 @@ export default {
             if(edition.pages) {
               res.push(edition.pages);
             }
+            var urls = [];
+            if(edition.edition) {
+              if(edition.edition.urls) {
+                for(const url of edition.edition.urls) {
+                  if (url.url && url.url.length > 0) {
+                    urls.push(url.url);
+                  }
+                }
+              }
+            }
+            if(edition.urls) {
+              for (const url of edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  urls.push(url.url);
+                }
+              }
+            }
             if(res.length > 0) {
-              arr.push(res.join(', '));
+              if(urls.length > 0) {
+                arr.push({ 'text': res.join(', '), 'urls': urls });
+              } else {
+                arr.push({ 'text': res.join(', ') });
+              }
+            } else if(urls.length > 0) {
+              arr.push({ 'urls': urls });
             }
           }
           return arr;
@@ -375,8 +406,31 @@ export default {
             if(edition.pages) {
               res.push(edition.pages);
             }
+            var urls = [];
+            if(edition.secondary_literature) {
+              if(edition.secondary_literature.urls) {
+                for(const url of edition.secondary_literature.urls) {
+                  if (url.url && url.url.length > 0) {
+                    urls.push(url.url);
+                  }
+                }
+              }
+            }
+            if(edition.urls) {
+              for (const url of edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  urls.push(url.url);
+                }
+              }
+            }
             if(res.length > 0) {
-              arr.push(res.join(', '));
+              if(urls.length > 0) {
+                arr.push({ 'text': res.join(', '), 'urls': urls });
+              } else {
+                arr.push({'text': res.join(', ')});
+              }
+            } else {
+              arr.push({ 'urls': urls });
             }
           }
           return arr;
