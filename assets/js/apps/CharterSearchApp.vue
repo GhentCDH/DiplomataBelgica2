@@ -42,6 +42,7 @@
                     </a>
                 </template>
                 <template slot="summary" slot-scope="props">
+                    <span v-if="props.row.summary">{{ props.row.summary }}</span>
                     <template v-if="issuers(props.row).length">
                         <h5>Main issuer</h5>
                         <div v-for="actor in issuers(props.row)" class="actor--issuer">
@@ -52,7 +53,7 @@
                     </template>
                     <template v-if="beneficiaries(props.row).length">
                         <h5>Main beneficiary</h5>
-                        <div v-for="actor in issuers(props.row)" class="actor--issuer">
+                        <div v-for="actor in beneficiaries(props.row)" class="actor--issuer">
                             <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
                             <FormatValue :value="actor.place" type="id_name"></FormatValue> -
                             <FormatValue :value="actor.name.full_name"></FormatValue>
