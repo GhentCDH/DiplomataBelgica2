@@ -205,6 +205,8 @@ ALTER TABLE `charter` RENAME COLUMN `charter_place_published` TO `place_publishe
 ALTER TABLE `charter` RENAME COLUMN `charter_edition_indication_id` TO `edition_indication_id`;
 ALTER TABLE `charter` RENAME COLUMN `charter_edition_indication_published` TO `edition_indication_published`;
 ALTER TABLE `charter` DROP COLUMN `charter_person_accountname`;
+ALTER TABLE `charter` DROP COLUMN `edition_id`;
+ALTER TABLE `charter` DROP COLUMN `edition_indication_id`;
 CALL MigrateTranslatedField("charter", "authenticity", "charter_authenticity", "VARCHAR(255)");
 CALL MigrateTranslatedField("charter", "nature", "charter_nature", "VARCHAR(255)");
 

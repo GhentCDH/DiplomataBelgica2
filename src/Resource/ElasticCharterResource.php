@@ -27,8 +27,6 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret = $this->attributesToArray();
 
         $ret['place'] = new ElasticBaseResource($charter->place);
-        $ret['edition_indication'] = new ElasticBaseResource($charter->edition_indication);
-        $ret['edition'] = new ElasticBaseResource($charter->edition);
         $ret['authenticity'] = new ElasticBaseResource($charter->authenticity);
         $ret['nature'] = new ElasticBaseResource($charter->nature);
         $ret['type'] = new ElasticBaseResource($charter->type);

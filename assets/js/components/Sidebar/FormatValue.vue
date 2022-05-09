@@ -1,8 +1,15 @@
 <template>
     <span v-if="value != null">
-        <a v-if="url" :href="url">{{ formatValue(value) }}</a>
+        <template v-if="value.text">
+          <a v-if="value.url" :href="value.url">{{ formatValue(value.text) }}</a>
+          <template v-else>{{ formatValue(value.text) }}</template>
+        </template>
         <template v-else>
-        {{ formatValue(value) }}
+          <a v-if="url" :href="url">{{ formatValue(value) }}</a>
+          <template v-else>{{ formatValue(value) }}</template>
+        </template>
+        <template v-if="value.urls">
+          <a v-for="(item, index) in value.urls" :href="item" class="external-link">Link</a>
         </template>
     </span>
     <span v-else>
@@ -15,7 +22,7 @@ export default {
     name: "FormatValue",
     props: {
         value: {
-            type: String|Number
+            type: String|Number|Object
         },
         unknown: {
             type: String,
@@ -57,4 +64,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.external-link {
+  margin-left: 5px;
+}
 </style>
