@@ -24,7 +24,7 @@
                 <ul v-for="edition in editionsFormatted">
                     <li>
                         {{ edition.text }}
-                        <a :href="link" v-for="(index,link) in links">{{ index }}</a>
+                        <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
                     </li>
                 </ul>
 
@@ -33,12 +33,9 @@
                 <ul v-for="edition in secondaryLiteratureFormatted">
                     <li>
                         {{ edition.text }}
-                        <a :href="link" v-for="(index,link) in links">{{ index }}</a>
+                        <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
                     </li>
                 </ul>
-
-                <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
-                <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
             </div>
         </article>
         <aside class="col-sm-4 scrollable scrollable--vertical">
@@ -379,107 +376,21 @@ export default {
             if(edition.pages) {
                 parts.push(edition.pages);
             }
+            if(edition.edition && edition.edition.urls) {
+              for(const url of edition.edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
+            if(edition.urls) {
+              for (const url of edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
             return parts.length ? { text: parts.join(', '), links: links } : null
-        },
-        getEditions(editions) {
-          var arr = [];
-          for(const edition of editions) {
-            var res = [];
-            if(edition.edition) {
-              if(edition.edition.names_editors) {
-                res.push(edition.edition.names_editors);
-              }
-              if(edition.edition.full_title) {
-                res.push(edition.edition.full_title);
-              }
-            }
-            if(edition.bookpart) {
-              res.push(edition.bookpart);
-            }
-            if(edition.nr) {
-              res.push(edition.nr);
-            }
-            if(edition.pages) {
-              res.push(edition.pages);
-            }
-            var urls = [];
-            if(edition.edition) {
-              if(edition.edition.urls) {
-                for(const url of edition.edition.urls) {
-                  if (url.url && url.url.length > 0) {
-                    urls.push(url.url);
-                  }
-                }
-              }
-            }
-            if(edition.urls) {
-              for (const url of edition.urls) {
-                if (url.url && url.url.length > 0) {
-                  urls.push(url.url);
-                }
-              }
-            }
-            if(res.length > 0) {
-              if(urls.length > 0) {
-                arr.push({ 'text': res.join(', '), 'urls': urls });
-              } else {
-                arr.push({ 'text': res.join(', ') });
-              }
-            } else if(urls.length > 0) {
-              arr.push({ 'urls': urls });
-            }
-          }
-          return arr;
-        },
-        getSecondaryLiterature(editions) {
-          var arr = [];
-          for(const edition of editions) {
-            var res = [];
-            if(edition.secondary_literature) {
-              if(edition.secondary_literature.names_editors) {
-                res.push(edition.secondary_literature.names_editors);
-              }
-              if(edition.secondary_literature.full_title) {
-                res.push(edition.secondary_literature.full_title);
-              }
-            }
-            if(edition.bookpart) {
-              res.push(edition.bookpart);
-            }
-            if(edition.nr) {
-              res.push(edition.nr);
-            }
-            if(edition.pages) {
-              res.push(edition.pages);
-            }
-            var urls = [];
-            if(edition.secondary_literature) {
-              if(edition.secondary_literature.urls) {
-                for(const url of edition.secondary_literature.urls) {
-                  if (url.url && url.url.length > 0) {
-                    urls.push(url.url);
-                  }
-                }
-              }
-            }
-            if(edition.urls) {
-              for (const url of edition.urls) {
-                if (url.url && url.url.length > 0) {
-                  urls.push(url.url);
-                }
-              }
-            }
-            if(res.length > 0) {
-              if(urls.length > 0) {
-                arr.push({ 'text': res.join(', '), 'urls': urls });
-              } else {
-                arr.push({'text': res.join(', ')});
-              }
-            } else {
-              arr.push({ 'urls': urls });
-            }
-          }
-          return arr;
         },
         formatSecondaryLiterature(edition) {
             let parts = [];
@@ -501,9 +412,22 @@ export default {
             if(edition.pages) {
                 parts.push(edition.pages);
             }
+            if(edition.secondary_literature && edition.secondary_literature.urls) {
+              for(const url of edition.secondary_literature.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
+            if(edition.urls) {
+              for (const url of edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
             return parts.length ? { text: parts.join(', '), links: links } : null
         }
-
     },
     created() {
         // init context
@@ -542,6 +466,10 @@ export default {
     .widget {
       border-bottom: 1px solid #e9ecef;
     }
+  }
+
+  .external-link {
+    margin-left: 5px;
   }
 }
 </style>
