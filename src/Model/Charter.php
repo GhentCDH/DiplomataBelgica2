@@ -19,6 +19,8 @@ use ReflectionException;
  * @property int place_id
  * @property string place_found_name
  * @property boolean place_published
+ * @property int edition_indication_id
+ * @property int edition_id
  * @property boolean edition_indication_published
  * @property int charter_user_id
  * @property int charter_authenticity_id
@@ -52,7 +54,7 @@ class Charter extends AbstractModel
         'edition_indication_published' => 'boolean'
     ];
     protected $with = [
-        'place', 'authenticity',
+        'place', 'edition_indication', 'edition', 'authenticity',
         'nature', 'language', 'type', 'udt', 'actors', 'actors.pivot.role', 'codexes',
         'edition_indications', 'secondary_literature_indications',
         'copies', 'datations', 'originals', 'vidimuses'
@@ -65,6 +67,24 @@ class Charter extends AbstractModel
     public function place(): BelongsTo
     {
         return $this->belongsTo(Place::class);
+    }
+
+    /**
+     * @return BelongsTo|EditionIndication
+     * @throws ReflectionException
+     */
+    public function edition_indication(): BelongsTo
+    {
+        return $this->belongsTo(EditionIndication::class);
+    }
+
+    /**
+     * @return BelongsTo|Edition
+     * @throws ReflectionException
+     */
+    public function edition(): BelongsTo
+    {
+        return $this->belongsTo(Edition::class);
     }
 
     /**
