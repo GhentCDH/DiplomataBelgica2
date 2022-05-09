@@ -13,7 +13,7 @@
                 <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"></LabelValue>
 
                 <!-- Text -->
-                <h2>Full text of charter</h2>
+                <h2 v-if="charter.full_text">Full text of charter</h2>
 
                 {{ charter.full_text }}
 
@@ -59,8 +59,7 @@
                 </Widget>
 
                 <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
-                    <h2>Issuer(s)</h2>
-                    <h3>(= author)</h3>
+                    <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
                     <div v-for="actor in issuers">
                       <p>
                         <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
@@ -72,8 +71,7 @@
                       </p>
                     </div>
 
-                  <h2>Author(s) of the actio juridica</h2>
-                  <h3>(= disposer)</h3>
+                  <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
                   <div v-for="actor in authors">
                     <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
@@ -85,8 +83,7 @@
                     </p>
                   </div>
 
-                  <h2>Benefiriary(ies)</h2>
-                  <h3>(= recipient)</h3>
+                  <h3 v-if="beneficiaries.length > 0">Benefiriary(ies)<small>(= recipient)</small></h3>
                   <div v-for="actor in beneficiaries">
                     <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
