@@ -39,55 +39,49 @@
                     <h2>Issuer(s)</h2>
                     <h3>(= author)</h3>
                     <div v-for="actor in issuers">
-                      <div class="actor">
+                      <p>
                         <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                         <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
                         <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
                         <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
                         <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
                         <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                      </div>
+                      </p>
                     </div>
 
                   <h2>Author(s) of the actio juridica</h2>
                   <h3>(= disposer)</h3>
                   <div v-for="actor in authors">
-                    <div class="actor">
+                    <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
                       <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
                       <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
                       <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
                       <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                    </div>
+                    </p>
                   </div>
 
                   <h2>Benefiriary(ies)</h2>
                   <h3>(= recipient)</h3>
                   <div v-for="actor in beneficiaries">
-                    <div class="actor">
+                    <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
                       <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
                       <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
                       <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
                       <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                      </div>
+                    </p>
                   </div>
                 </Widget>
 
                 <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
-                  <h2>Scholarly dating</h2>
-                  <h3>(preferential)</h3>
-                  <div v-for="datation in preferentialDates">
-                    <FormatValue :value="getDatation(datation)"></FormatValue>
-                  </div>
-                  <h2>Scholarly dating</h2>
-                  <h3>(any)</h3>
-                  <div v-for="datation in charter.datations">
-                    <FormatValue :value="getDatation(datation)"></FormatValue>
-                  </div>
-
+                  <LabelValue label="Scholarly dating (preferential)" :value="getDatations(preferentialDates)"></LabelValue>
+                  <LabelValue label="Scholarly dating (any)" :value="getDatations(charter.datations)"></LabelValue>
+                  <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"></LabelValue>
+                  <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"></LabelValue>
+                  <LabelValue label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)"></LabelValue>
                 </Widget>
 
             </div>
@@ -214,24 +208,61 @@ export default {
         isValidResultSet() {
             return this.context?.searchIndex && this.resultSet?.count
         },
-        getDatation(datation) {
+        getDate(date) {
           var res = '';
-          if(datation.time.year) {
-            res = datation.time.year;
-            if (datation.time.month) {
-              res = datation.time.month + '/' + res;
-              if (datation.time.day) {
-                res = datation.time.day + '/' + res;
+          if (date.year) {
+            res = date.year;
+            if (date.month) {
+              res = date.month + '/' + res;
+              if (date.day) {
+                res = date.day + '/' + res;
               }
             }
           }
-          if(datation.time.interpretation) {
-            res += ' (' + datation.time.interpretation;
-            if(datation.researcher) {
-              res += ' - ' + datation.researcher + ')';
-            } else {
-              res += ')';
+          return res;
+        },
+        getDatations(datations) {
+          var arr = [];
+          for(const datation of datations) {
+            var res = this.getDate(datation.time);
+            if (datation.time.interpretation) {
+              res += ' (' + datation.time.interpretation;
+              if (datation.researcher) {
+                res += ' - ' + datation.researcher + ')';
+              } else {
+                res += ')';
+              }
             }
+            arr.push(res);
+          }
+          return arr;
+        },
+        getDates(dates) {
+          var arr = [];
+          for(const date of dates) {
+            arr.push(this.getDate(date));
+          }
+          return arr;
+        },
+        getNormalisedPlace(place) {
+          var res = '';
+          if(place.name) {
+            res = place.name;
+          }
+          var localisation = [];
+          if(place.localisation) {
+            if(place.localisation.land) {
+              localisation.push(place.localisation.land.name);
+            }
+            if(place.localisation.echelon_1) {
+              localisation.push(place.localisation.echelon_1);
+            }
+            if(place.localisation.echelon_2) {
+              localisation.push(place.localisation.echelon_2);
+            }
+          }
+          if(localisation.length > 0) {
+            res += (res.length > 0 ? ' ' : '') + '(' + localisation.join(', ') + ')';
           }
           return res;
         }
