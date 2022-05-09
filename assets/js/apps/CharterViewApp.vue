@@ -81,7 +81,7 @@
                   <LabelValue label="Scholarly dating (any)" :value="getDatations(charter.datations)"></LabelValue>
                   <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"></LabelValue>
                   <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"></LabelValue>
-                  <LabelValue label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)"></LabelValue>
+                  <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"></LabelValue>
                 </Widget>
 
             </div>
