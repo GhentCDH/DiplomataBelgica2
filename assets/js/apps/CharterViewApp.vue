@@ -18,6 +18,25 @@
                 {{ charter.full_text }}
 
                 <h2>Editions and secondary literature</h2>
+
+                <h3>Editions</h3>
+
+                <ul v-for="edition in editionsFormatted">
+                    <li>
+                        {{ edition.text }}
+                        <a :href="link" v-for="(index,link) in links">{{ index }}</a>
+                    </li>
+                </ul>
+
+                <h3>Secondary literature</h3>
+
+                <ul v-for="edition in secondaryLiteratureFormatted">
+                    <li>
+                        {{ edition.text }}
+                        <a :href="link" v-for="(index,link) in links">{{ index }}</a>
+                    </li>
+                </ul>
+
                 <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
                 <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
             </div>
@@ -180,6 +199,14 @@ export default {
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
         },
+        editionsFormatted() {
+            let res = [];
+            return this.charter.edition_indications.map( item => this.formatEdition(item) ).filter( item => item !== null);
+        },
+        secondaryLiteratureFormatted() {
+            let res = [];
+            return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
+        }
     },
     methods: {
         getUrl(route) {
@@ -327,6 +354,28 @@ export default {
           }
           return arr;
         },
+        formatEdition(edition) {
+            let parts = [];
+            let links = [];
+            if(edition.edition) {
+                if(edition.edition.names_editors) {
+                    parts.push(edition.edition.names_editors);
+                }
+                if(edition.edition.full_title) {
+                    parts.push(edition.edition.full_title);
+                }
+            }
+            if(edition.bookpart) {
+                parts.push(edition.bookpart);
+            }
+            if(edition.nr) {
+                parts.push(edition.nr);
+            }
+            if(edition.pages) {
+                parts.push(edition.pages);
+            }
+            return parts.length ? { text: parts.join(', '), links: links } : null
+        },
         getEditions(editions) {
           var arr = [];
           for(const edition of editions) {
@@ -380,6 +429,28 @@ export default {
             }
           }
           return arr;
+        },
+        formatSecondaryLiterature(edition) {
+            let parts = [];
+            let links = [];
+            if(edition.secondary_literature) {
+                if(edition.secondary_literature.names_editors) {
+                    parts.push(edition.secondary_literature.names_editors);
+                }
+                if(edition.secondary_literature.full_title) {
+                    parts.push(edition.secondary_literature.full_title);
+                }
+            }
+            if(edition.bookpart) {
+                parts.push(edition.bookpart);
+            }
+            if(edition.nr) {
+                parts.push(edition.nr);
+            }
+            if(edition.pages) {
+                parts.push(edition.pages);
+            }
+            return parts.length ? { text: parts.join(', '), links: links } : null
         }
 
     },
