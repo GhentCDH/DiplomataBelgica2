@@ -90,6 +90,11 @@
                   <LabelValue v-if="charter.codexes" label="Manuscripts" :value="getCodexes(charter.codexes)"></LabelValue>
                 </Widget>
 
+                <Widget title="Editions and secondary literature" :is-open.sync="config.widgets.tradition.isOpen">
+                  <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
+                  <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
+                </Widget>
+
             </div>
         </aside>
         <div
@@ -150,7 +155,8 @@ export default {
                 widgets: {
                     actors: { isOpen: true },
                     date: { isOpen: true },
-                    tradition: { isOpen: true }
+                    tradition: { isOpen: true },
+                    editions: { isOpen: true }
                 }
             },
             openRequests: false,
@@ -322,7 +328,62 @@ export default {
             }
           }
           return arr;
+        },
+        getEditions(editions) {
+          var arr = [];
+          for(const edition of editions) {
+            var res = [];
+            if(edition.edition) {
+              if(edition.edition.names_editors) {
+                res.push(edition.edition.names_editors);
+              }
+              if(edition.edition.full_title) {
+                res.push(edition.edition.full_title);
+              }
+            }
+            if(edition.bookpart) {
+              res.push(edition.bookpart);
+            }
+            if(edition.nr) {
+              res.push(edition.nr);
+            }
+            if(edition.pages) {
+              res.push(edition.pages);
+            }
+            if(res.length > 0) {
+              arr.push(res.join(', '));
+            }
+          }
+          return arr;
+        },
+        getSecondaryLiterature(editions) {
+          var arr = [];
+          for(const edition of editions) {
+            var res = [];
+            if(edition.secondary_literature) {
+              if(edition.secondary_literature.names_editors) {
+                res.push(edition.secondary_literature.names_editors);
+              }
+              if(edition.secondary_literature.full_title) {
+                res.push(edition.secondary_literature.full_title);
+              }
+            }
+            if(edition.bookpart) {
+              res.push(edition.bookpart);
+            }
+            if(edition.nr) {
+              res.push(edition.nr);
+            }
+            if(edition.pages) {
+              res.push(edition.pages);
+            }
+            if(res.length > 0) {
+              arr.push(res.join(', '));
+            }
+          }
+          return arr;
         }
+
     },
     created() {
         // init context
