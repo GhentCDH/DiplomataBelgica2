@@ -16,6 +16,11 @@
                 <h2>Full text of charter</h2>
 
                 {{ charter.full_text }}
+
+
+              <h2>Editions and secondary literature</h2>
+              <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
+              <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
             </div>
         </article>
         <aside class="col-sm-4 scrollable scrollable--vertical">
@@ -88,11 +93,6 @@
                   <LabelValue v-if="charter.originals" label="Original" :value="getOriginals(charter.originals)"></LabelValue>
                   <LabelValue v-else label="Original" value="No"></LabelValue>
                   <LabelValue v-if="charter.codexes" label="Manuscripts" :value="getCodexes(charter.codexes)"></LabelValue>
-                </Widget>
-
-                <Widget title="Editions and secondary literature" :is-open.sync="config.widgets.tradition.isOpen">
-                  <LabelValue v-if="charter.edition_indications" label="Editions" :value="getEditions(charter.edition_indications)"></LabelValue>
-                  <LabelValue v-if="charter.secondary_literature_indications" label="Secondary literature" :value="getSecondaryLiterature(charter.secondary_literature_indications)"></LabelValue>
                 </Widget>
 
             </div>
