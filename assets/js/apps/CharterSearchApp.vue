@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <aside class="col-sm-3">
+        <aside class="col-sm-4">
             <div class="bg-tertiary padding-default">
                 <div
                         v-if="showReset"
@@ -23,7 +23,7 @@
                 />
             </div>
         </aside>
-        <article class="col-sm-9 search-page">
+        <article class="col-sm-8 search-page">
             <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
             <v-server-table
                     ref="resultTable"
@@ -42,7 +42,6 @@
                     </a>
                 </template>
                 <template slot="summary" slot-scope="props">
-                    <span v-if="props.row.summary">{{ props.row.summary }}</span>
                     <template v-if="issuers(props.row).length">
                         <h5>Main issuer</h5>
                         <div v-for="actor in issuers(props.row)" class="actor--issuer">
