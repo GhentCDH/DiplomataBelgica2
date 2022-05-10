@@ -34,6 +34,7 @@ class CharterSearchService extends AbstractSearchService
             'dating_scholary_nested' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nested_path' => 'datations',
+                'aggregationFilter' => false, // filter can be applied before aggregations
                 'filters' => [
                     'dating_scholary' => [
                         'type' => self::FILTER_DMY_RANGE,
@@ -44,6 +45,7 @@ class CharterSearchService extends AbstractSearchService
 
             'dating_charter' => [
                 'type' => self::FILTER_DMY_RANGE,
+                'aggregationFilter' => false, // filter can be applied before aggregations
                 'nested_path' => 'udt',
                 'field' => ''
             ]
@@ -98,31 +100,36 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.name',
                 'nested_path' => 'actors',
-                'filter' => $searchFilters['actors']
+                'excludeFilter' => [ 'actors' ],
+                'filter' => $searchFilters['actors']['filters']
             ],
             'actor_place_diocese' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.diocese_name',
                 'nested_path' => 'actors',
-                'filter' => $searchFilters['actors']
+                'excludeFilter' => [ 'actors' ],
+                'filter' => $searchFilters['actors']['filters']
             ],
             'actor_place_principality' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.principality_name',
                 'nested_path' => 'actors',
-                'filter' => $searchFilters['actors']
+                'excludeFilter' => [ 'actors' ],
+                'filter' => $searchFilters['actors']['filters']
             ],
             'actor_capacity' => [
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'capacity',
                 'nested_path' => 'actors',
-                'filter' => $searchFilters['actors']
+                'excludeFilter' => [ 'actors' ],
+                'filter' => $searchFilters['actors']['filters']
             ],
             'actor_role' => [
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'role',
                 'nested_path' => 'actors',
-                'filter' => $searchFilters['actors']
+                'excludeFilter' => [ 'actors' ],
+                'filter' => $searchFilters['actors']['filters']
             ],
 
         ];

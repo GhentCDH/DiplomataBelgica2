@@ -546,7 +546,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::FILTER_NESTED_ID:
                 case self::FILTER_OBJECT_ID:
                 case self::FILTER_NESTED_MULTIPLE:
-                    if ( ($aggConfig['aggregationFilter'] ?? true) ) {
+                    if ( ($filterConfig['aggregationFilter'] ?? true) ) {
+                        $aggOrFilters[$filterName] = $filterConfig;
+                    }
+                    break;
+                default:
+                    if ( ($filterConfig['aggregationFilter'] ?? false) ) {
                         $aggOrFilters[$filterName] = $filterConfig;
                     }
                     break;
@@ -569,7 +574,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $filterValues = $this->sanitizeSearchFilters($filterValues);
 
         // get filters used in multiselect aggregations
+        // these filters don't filter the whole set, but filter the set for each aggregation
         $aggFilterConfigs = $this->getAggregationFilters($filterValues);
+        dump($aggFilterConfigs);
 
         // create global search query
         // exclude filters used in multiselect aggregations, will be added as aggregation filters
@@ -584,14 +591,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // walk aggregation configs
         foreach($aggConfigs as $aggName => $aggConfig) {
-            // aggregation type
-            $aggType = $aggConfig['type'];
-
-            // global aggregation
-            $aggIsGlobal = $this->isGlobalAggregation($aggConfig);
-
-            // aggregation field = field property or config name
-            $aggField = $aggConfig['field'] ?? $aggName;
+            $aggType = $aggConfig['type']; // aggregation type
+            $aggField = $aggConfig['field'] ?? $aggName; // aggregation field = field property or config name
+            $aggIsGlobal = $this->isGlobalAggregation($aggConfig); // global aggregation?
 
             // query root
             $aggParentQuery = $aggIsGlobal ? $aggGlobalQuery : $query;
@@ -616,6 +618,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
 
             // nested aggregation?
+            //
             $aggIsNested = $this->isNestedAggregation($aggConfig);
             if ( $aggIsNested ) {
                 // add nested path to filed
@@ -632,7 +635,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $filterCount = 0;
 
                 // aggregation has filter config?
+                dump('iere');
                 $aggNestedFilter = $aggConfig['filter'] ?? [];
+                dump($aggNestedFilter);
+                dump($aggName);
                 unset($aggNestedFilter[$aggName]); // do not filter myself
                 $aggNestedFilter = array_intersect_key($aggNestedFilter, $filterValues); // only add filters with values
 
@@ -738,7 +744,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         }
 
-//        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
+        dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
 
         // parse query result
         $searchResult = $this->getIndex()->search($query);
@@ -960,7 +966,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
                 break;
             case self::FILTER_DMY_RANGE:
-                dump($filterField);
                 if ( ( $filterValue['type'] ?? null ) === 'exact' ) {
                     foreach( $filterValue['from'] as $datePart => $value) {
                         // todo: add datepart field option
@@ -1003,9 +1008,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         }
                     }
 
-                    $query->addMust($fromQuery);
-                    $query->addMust($tillQuery);
-
+                    if ( $fromQuery->count() ) {
+                        $query->addMust($fromQuery);
+                    }
+                    if ( $tillQuery->count() ) {
+                        $query->addMust($tillQuery);
+                    }
                     /*
                     year > from[year] or
                     OR ( year == from[year] and ( month > from[month] )
