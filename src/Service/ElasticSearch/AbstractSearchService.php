@@ -117,7 +117,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 break;
             case self::FILTER_BOOLEAN:
                 if ($filterValue === false) break;
-                $ret = ($filterValue === '1');
+                $ret = ($filterValue === '1' || $filterValue === 'true');
                 break;
             case self::FILTER_DATE_RANGE:
                 $rangeFilter = [];
@@ -445,7 +445,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
 
         // Filtering
-        dump($params);
+//        dump($params);
         $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if ( count($searchFilters) ) {
             dump($searchFilters);
@@ -576,7 +576,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // get filters used in multiselect aggregations
         // these filters don't filter the whole set, but filter the set for each aggregation
         $aggFilterConfigs = $this->getAggregationFilters($filterValues);
-        dump($aggFilterConfigs);
+//        dump($aggFilterConfigs);
 
         // create global search query
         // exclude filters used in multiselect aggregations, will be added as aggregation filters
@@ -635,10 +635,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $filterCount = 0;
 
                 // aggregation has filter config?
-                dump('iere');
                 $aggNestedFilter = $aggConfig['filter'] ?? [];
-                dump($aggNestedFilter);
-                dump($aggName);
                 unset($aggNestedFilter[$aggName]); // do not filter myself
                 $aggNestedFilter = array_intersect_key($aggNestedFilter, $filterValues); // only add filters with values
 
@@ -929,10 +926,19 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
                 break;
             case self::FILTER_BOOLEAN:
-                $filterQuery = new Query\Term();
-                $filterQuery->setTerm($filterField, $filterValue);
+                if ( $filterConfig['only_filter_on_true'] ?? false ) {
+                    if ($filterValue) {
+                        $filterQuery = new Query\Term();
+                        $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['true_value'] ?? true : $filterConfig['false_value'] ?? false);
 
-                $query->addMust( $filterQuery );
+                        $query->addMust( $filterQuery );
+                    }
+                } else {
+                    $filterQuery = new Query\Term();
+                    $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['true_value'] ?? true : $filterConfig['false_value'] ?? false);
+
+                    $query->addMust( $filterQuery );
+                }
                 break;
             case self::FILTER_WILDCARD:
                 $filterQuery = new Query\Wildcard($filterField, $filterValue);
