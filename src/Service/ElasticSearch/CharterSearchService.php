@@ -39,6 +39,13 @@ class CharterSearchService extends AbstractSearchService
                     'dating_scholary' => [
                         'type' => self::FILTER_DMY_RANGE,
                         'field' => 'time'
+                    ],
+                    'dating_scholary_preferential' => [
+                        'type' => self::FILTER_BOOLEAN,
+                        'field' => 'preference',
+                        'filter_only_if_true' => true,
+                        'true_value' => 1,
+                        'false_value' => 0
                     ]
                 ]
             ],
