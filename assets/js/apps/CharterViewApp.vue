@@ -18,7 +18,7 @@
                 {{ charter.full_text }}
 
                 <template v-if="charter.edition">
-                  <h2>Source</h2>
+                  <h3>Source</h3>
                   {{ formatSource(charter.edition) }}
                 </template>
 
@@ -41,6 +41,23 @@
                         <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
                     </li>
                 </ul>
+
+
+                <h2>Tradition</h2>
+
+                <h3>Original</h3>
+                <p><LabelValue label="Original" :value="isOriginal"></LabelValue></p>
+                <div v-for="original in originals">
+                    <a v-if="original.link" :href="original.link">{{ original.text }}</a>
+                    <p v-else>{{ original.text }}</p>
+                </div>
+
+                <h3>Manuscripts</h3>
+                <div v-for="codex in codexes">
+                    <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
+                    <p v-else>{{ codex.text }}</p>
+                </div>
+
             </div>
         </article>
         <aside class="col-sm-4 scrollable scrollable--vertical">
@@ -106,12 +123,6 @@
                   <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"></LabelValue>
                 </Widget>
 
-                <Widget title="Tradition" :is-open.sync="config.widgets.tradition.isOpen">
-                  <LabelValue v-if="charter.originals" label="Original" :value="getOriginals(charter.originals)"></LabelValue>
-                  <LabelValue v-else label="Original" value="No"></LabelValue>
-                  <LabelValue v-if="charter.codexes" label="Manuscripts" :value="getCodexes(charter.codexes)"></LabelValue>
-                </Widget>
-
             </div>
         </aside>
         <div
@@ -171,8 +182,7 @@ export default {
                 },
                 widgets: {
                     actors: { isOpen: true },
-                    date: { isOpen: true },
-                    tradition: { isOpen: true }
+                    date: { isOpen: true }
                 }
             },
             openRequests: false,
@@ -198,12 +208,27 @@ export default {
         hasSearchContext() {
            return Object.keys(this.context.params ?? {} ).length > 0
         },
+        isOriginal() {
+            if(!this.charter.originals) {
+                return "No";
+            }
+            for(const original of this.charter.originals) {
+                if(original.charter_id === this.charter.id) {
+                    return "Yes";
+                }
+            }
+            return "No";
+        },
+        originals() {
+            return this.charter.originals.map( original => this.formatOriginal(original) ).filter( original => original !== null);
+        },
+        codexes() {
+            return this.charter.codexes.map( codex => this.formatCodex(codex) ).filter( codex => codex !== null);
+        },
         editionsFormatted() {
-            let res = [];
             return this.charter.edition_indications.map( item => this.formatEdition(item) ).filter( item => item !== null);
         },
         secondaryLiteratureFormatted() {
-            let res = [];
             return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
         }
     },
@@ -317,63 +342,58 @@ export default {
           }
           return res;
         },
-        getOriginals(originals) {
-          var arr = [{ 'text': 'Yes' }];
-          for(const original of originals) {
-            var res = [];
-            if(original.repository) {
-              if(original.repository.location) {
-                res.push(original.repository.location);
-              }
-              if(original.repository.name) {
-                res.push(original.repository.name);
-              }
+        formatOriginal(original) {
+          var res = [];
+          if(original.repository) {
+            if(original.repository.location) {
+              res.push(original.repository.location);
             }
-            if(original.repository_reference_number) {
-              res.push(original.repository_reference_number);
-            }
-            if(res.length > 0) {
-              if(original.id) {
-                arr.push({ 'text': res.join(', '), 'url': '/original/' + original.id });
-              } else {
-                arr.push({ 'text' : res.join(', ') });
-              }
+            if(original.repository.name) {
+              res.push(original.repository.name);
             }
           }
-          return arr;
+          if(original.repository_reference_number) {
+            res.push(original.repository_reference_number);
+          }
+          if(res.length > 0) {
+            if(original.id) {
+              return { 'text': res.join(', '), 'link': '/original/' + original.id };
+            } else {
+              return { 'text' : res.join(', ') };
+            }
+          } else {
+            return null;
+          }
         },
-        getCodexes(codexes) {
-          var arr = [];
-          for(const codex of codexes) {
-            var res = [];
-            if(codex.repository) {
-              if(codex.repository.location) {
-                res.push(codex.repository.location);
-              }
-              if(codex.repository.name) {
-                res.push(codex.repository.name);
-              }
+        formatCodex(codex) {
+          var res = [];
+          if(codex.repository) {
+            if(codex.repository.location) {
+              res.push(codex.repository.location);
             }
-            if(codex.repository_reference_number) {
-              res.push(codex.repository_reference_number);
-            }
-            var line = '';
-            if(res.length > 0) {
-              line = res.join(', ');
-              arr.push();
-            }
-            if(codex.redaction_date) {
-              line += (line.length > 0 ? ' ' : '') + '(' + codex.redaction_date + ')';
-            }
-            if(line.length > 0) {
-              if(codex.id) {
-                arr.push({ 'text' : line, 'url' : '/codex/' + codex.id });
-              } else {
-                arr.push({ 'text' : line });
-              }
+            if(codex.repository.name) {
+              res.push(codex.repository.name);
             }
           }
-          return arr;
+          if(codex.repository_reference_number) {
+            res.push(codex.repository_reference_number);
+          }
+          var line = '';
+          if(res.length > 0) {
+            line = res.join(', ');
+          }
+          if(codex.redaction_date) {
+            line += (line.length > 0 ? ' ' : '') + '(' + codex.redaction_date + ')';
+          }
+          if(line.length > 0) {
+            if(codex.id) {
+              return { 'text' : line, 'link' : '/codex/' + codex.id };
+            } else {
+              return { 'text' : line };
+            }
+          } else {
+            return null;
+          }
         },
         formatEdition(edition) {
             let parts = [];
