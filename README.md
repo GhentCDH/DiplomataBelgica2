@@ -33,7 +33,6 @@ SSH to vm
 
     sudo ./install/elasticsearch7.sh
     sudo ./install/mariadb-10.4.sh
-    sudo ./install/apache.sh
     sudo ./install/php7.4-fpm.sh
 
     # install build tools
@@ -50,7 +49,8 @@ SSH to vm
 
 ### Deploy code
 
-    [TODO] git clone git@github.ugent.be:GhentCDH/Dibe-web.git dibe
+    cd /vagrant/src/
+    git clone git@github.com:GhentCDH/DiplomataBelgica2.git dibe
     cd dibe
     # install php dependencies
     composer install
@@ -73,12 +73,16 @@ Create user and set permissions
 
     php bin/console app:elasticsearch:index charters
 
-### Test site
+### Run application
+
+Start the back-end dev server
+
+    symfony server:start --no-tls
 
 Site is available on these addresses:
 
-    http://dibe.local/dibe/public
-    http://localhost:8080/dibe/public/
+    http://dibe.vagrant:8000
+    http://localhost:8000
 
 ## Misc
 
