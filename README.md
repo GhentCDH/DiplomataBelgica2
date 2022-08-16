@@ -47,16 +47,6 @@ SSH to vm
 
     sudo update-alternatives --set php /usr/bin/php7.4    
 
-### Import database
-
-Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) and import using
-
-    sudo mysql < db_dibe.sql
-
-Create user and set permissions
-
-    sudo mysql < ./scripts/create-user.sql
-
 ### Deploy code
 
     git clone git@github.com:GhentCDH/DiplomataBelgica2.git dibe
@@ -67,6 +57,17 @@ Create user and set permissions
     composer dump-env dev
     # install node dependencies
     yarn install
+
+### Import database
+
+Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) and import using
+
+    echo "create database db_dibe" | sudo mysql
+    sudo mysql < db_dibe.sql
+
+Create user and set permissions
+
+    sudo mysql < ./scripts/create-user.sql
 
 ### Create/Update Elasticsearch index
 
@@ -83,7 +84,17 @@ Site is available on these addresses:
     http://dibe.vagrant:8000
     http://localhost:8000
 
+### Build js/css
+
+    encore dev --watch
+    
+If encore is not available, use
+
+    node_modules/.bin/encore dev
+
 ## Misc
+
+encore dev --watch
 
 ### Pull qas build
 
