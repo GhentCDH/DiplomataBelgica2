@@ -18,7 +18,7 @@
 
 ### Vagrant setup
 
-    [TODO] git clone git@github.ugent.be:GhentCDH/dibe-vagrant.git dibe_vagrant
+    git clone git@github.ugent.be:GhentCDH/dibe-vagrant.git dibe_vagrant
     cd dibe_vagrant
 
 Start virtual machine
@@ -47,18 +47,6 @@ SSH to vm
 
     sudo update-alternatives --set php /usr/bin/php7.4    
 
-### Deploy code
-
-    cd /vagrant/src/
-    git clone git@github.com:GhentCDH/DiplomataBelgica2.git dibe
-    cd dibe
-    # install php dependencies
-    composer install
-    # install node dependencies
-    composer dump-env dev
-    # dump .env.* to .env.local.php
-    yarn install
-
 ### Import database
 
 Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) and import using
@@ -67,7 +55,18 @@ Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) 
 
 Create user and set permissions
 
-    sudo mysql < ./dev/create-user.sql
+    sudo mysql < ./scripts/create-user.sql
+
+### Deploy code
+
+    git clone git@github.com:GhentCDH/DiplomataBelgica2.git dibe
+    cd dibe
+    # install php dependencies
+    composer install
+    # dump .env.* to .env.local.php
+    composer dump-env dev
+    # install node dependencies
+    yarn install
 
 ### Create/Update Elasticsearch index
 
