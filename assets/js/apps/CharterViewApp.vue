@@ -1,78 +1,120 @@
 <template>
     <div class="row">
         <article class="col-sm-8">
-            <div class="scrollable scrollable--vertical">
-                <h1>{{ charter.title }}</h1>
+            <div class="scrollable scrollable--vertical pbottom-large">
+                <h1 class="pbottom-default" id="detail-page-id">Charter {{ charter.id }}</h1>
 
                 <h2>Summary and description</h2>
                 <div class="mbottom-default">{{ charter.summary }}</div>
 
-                <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
-                <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"></LabelValue>
-                <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
-                <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"></LabelValue>
+                <div class="mbottom-default">
+                  <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
+                  <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"></LabelValue>
+                  <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
+                  <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"></LabelValue>
+                </div>
+                
 
                 <!-- Text -->
                 <h2 v-if="charter.full_text">Full text of charter</h2>
-
-                {{ charter.full_text }}
-
+                <div class="col-10 pbottom-small">
+                  <p class="charter-full-text">
+                    {{ charter.full_text }}
+                  </p>
+                </div>
+                
+                
                 <template v-if="charter.edition">
-                  <h3>Source</h3>
-                  {{ formatSource(charter.edition) }}
+                  <div class="pbottom-small mbottom-default border-bottom">
+                    <div class="row">
+                      <div class="col-3">
+                        <h3>Source</h3>
+                      </div>
+                      <div class="col-9">
+                        {{ formatSource(charter.edition) }}
+                      </div>
+                   </div>
+                  </div>   
                 </template>
 
-                <h2>Editions and secondary literature</h2>
+                <h2 class="pbottom-small">Editions and secondary literature</h2>
 
-                <h3>Editions</h3>
+                <div class="row">
+                  <div class="col-3">
+                    <h3>Editions</h3>
+                  </div>
+                  <div class="col-9">
+                    <ul class="list-unstyled" v-for="edition in editionsFormatted">
+                      <li>
+                          {{ edition.text }}
+                          <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
+                      </li>
+                    </ul>
+                  </div>
 
-                <ul v-for="edition in editionsFormatted">
+                  <div class="col-3">
+                    <h3>Secondary literature</h3>
+                  </div>
+                  <div class="col-9">
+                    <ul class="list-unstyled" v-for="edition in secondaryLiteratureFormatted">
                     <li>
                         {{ edition.text }}
                         <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
                     </li>
                 </ul>
-
-                <h3>Secondary literature</h3>
-
-                <ul v-for="edition in secondaryLiteratureFormatted">
-                    <li>
-                        {{ edition.text }}
-                        <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
-                    </li>
-                </ul>
-
+                  </div>
+                </div>
 
                 <h2>Tradition</h2>
+                <div class="row">
+                  <div class="col-3">
+                    <h3>Original</h3>
+                  </div>
 
-                <h3>Original</h3>
-                <p><LabelValue label="Original" :value="isOriginal"></LabelValue></p>
-                <div v-for="original in originals">
-                    <a v-if="original.link" :href="original.link">{{ original.text }}</a>
-                    <p v-else>{{ original.text }}</p>
+                  <div class="col-9">
+                    {{ isOriginal}}
+                    <div class="ptop-small" v-for="original in originals">
+                      <a v-if="original.link" :href="original.link">{{ original.text }}</a>
+                      <p v-else>{{ original.text }}</p>
+                    </div>
+                  </div>
+
+                  <div class="col-3">
+                    <h3>Manuscripts</h3>
+                  </div>
+
+                  <div class="col-9">
+                    <div v-for="codex in codexes">
+                      <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
+                      <p v-else>{{ codex.text }}</p>
+                    </div>
+                  </div>
                 </div>
-
-                <h3>Manuscripts</h3>
-                <div v-for="codex in codexes">
-                    <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
-                    <p v-else>{{ codex.text }}</p>
-                </div>
-
             </div>
         </article>
-        <aside class="col-sm-4 scrollable scrollable--vertical">
+        <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
             <div class="padding-default">
 
                 <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
                     <div class="row mbottom-default">
-                        <div class="col col-xs-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">&laquo;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">&lt;</span>
+                        <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)"> 
+                                <i class="fa-solid fa-angles-left"></i>
+                            </span>
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">
+                                <i class="fa-solid fa-angle-left"></i>
+                            </span>
                         </div>
-                        <div class="col col-xs-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
-                        <div class="col col-xs-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">&gt;</span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">&raquo;</span>
+
+                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
+                        <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
+                          
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
+                                <i class="fa-solid fa-angle-right"></i>
+                            </span>
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">
+                                <i class="fa-solid fa-angles-right"></i>
+                            </span>
                         </div>
                     </div>
                 </Widget>
@@ -500,7 +542,7 @@ export default {
   }
 
   aside {
-    background-color: #fafafa !important;
+    // background-color: #fafafa !important;
 
     .widget {
       border-bottom: 1px solid #e9ecef;
