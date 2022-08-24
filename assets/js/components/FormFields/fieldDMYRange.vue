@@ -1,12 +1,11 @@
 <template>
     <div>
-        <div class="input-group">
-            <div class="input-group-addon bg-light">
-                <span class="input-group-text" id="">From</span>
-            </div>
+        <div class="input-group mbottom-small">
+            <span class="input-group-text bg-primary text-white">From</span>
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.from.day"
                     :disabled="disabled"
@@ -14,8 +13,9 @@
                     :placeholder="placeholder.day"
                     :readonly="schema.readonly" >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.from.month"
                     :disabled="disabled"
@@ -23,8 +23,9 @@
                     :placeholder="placeholder.month"
                     :readonly="schema.readonly" >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="4"
                     v-model="range.from.year"
                     :disabled="disabled"
@@ -33,12 +34,11 @@
                     :readonly="schema.readonly" >
         </div>
         <div class="input-group">
-            <div class="input-group-addon bg-light">
-                <span class="input-group-text" id="">Till</span>
-            </div>
+            <span class="input-group-text bg-primary text-white">Till</span>
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.till.day"
                     :disabled="disabled"
@@ -46,8 +46,9 @@
                     :placeholder="placeholder.day"
                     :readonly="schema.readonly" >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.till.month"
                     :disabled="disabled"
@@ -55,8 +56,9 @@
                     :placeholder="placeholder.month"
                     :readonly="schema.readonly" >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="4"
                     v-model="range.till.year"
                     :disabled="disabled"
@@ -137,10 +139,15 @@ export default {
       & + .input-group {
         margin-top: 5px;
       }
+    
+        span {
+            min-width: 63px;
+            justify-content: center;
+        }
 
-      input {
-        width: auto;
-      }
+        input {
+            width: auto;
+        }
     }
 }
 </style>
