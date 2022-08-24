@@ -42,6 +42,12 @@ Encore
         test: /\.pug$/,
         loader: 'pug-plain-loader'
     })
+    
+    // copy files
+    .copyFiles({
+        from: './assets/images',
+        to: 'static/images/[name].[ext]'
+    })
 ;
 
 Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
@@ -49,12 +55,6 @@ Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
 // further config tweaking
 const config = Encore.getWebpackConfig();
 
-// Create symlinks using shell plugin
-config.plugins.push(new WebpackShellPlugin({
-    onBuildEnd: [
-        './copy_assets.sh',
-    ]
-}));
 
 // Make sure watch works
 // https://github.com/symfony/webpack-encore/issues/191
