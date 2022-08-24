@@ -1,0 +1,52 @@
+h1, .h1,
+h5, .h5,
+h6, .h6 {
+    color: $primary;
+}
+
+h1 {
+    &.logo {
+        font-family: $font-family-belgica;
+        color: $black;
+        font-weight: 100;
+        & b {
+            font-family: $font-family-rosarivo;
+            font-weight: 600;
+        }
+    }
+}
+
+h2, .h2,
+h3, .h3 {
+    color: $secondary;
+    font-family: $font-family-rosarivo;
+}
+
+h2, .h2 {
+    font-size: $font-size-md;
+}
+
+h3, .h3 {
+    font-size: $font-size-base;
+}
+
+h4, .h4 {
+    font-size: $font-size-base;
+    color: $alt-text-color;
+}
+
+.charter-full-text {
+    font-family: $font-family-rosarivo;
+    text-indent: 15px;
+    line-height: 25px;
+}
+
+.rosarivo {
+    font-family: $font-family-rosarivo;
+    line-height: $line-height-medium;
+    a {
+        &:hover {
+            color: $secondary;
+        }
+    }
+}

@@ -1,0 +1,46 @@
+.vue-form-generator {
+  .collapsible {
+
+    &.collapsed {
+      legend {
+      }
+    }
+
+    legend {
+      cursor: pointer;
+      font-size: $font-size-md;
+      border-bottom: 1px solid $border-color;
+      margin-bottom: $padding-default;
+    }
+
+  
+    legend::after {
+      content: '\f106';
+      font-family: 'fontawesome';
+      float: right;
+      font-size: 75%;
+      font-weight: normal;
+      transition: 0.3s;
+    }
+  
+    .form-group {
+      transition: 0.3s;
+    }
+  
+    &.collapsed {
+  
+      legend::after {
+        transform: rotate(180deg);
+      }
+  
+      .form-group {
+        display: block;
+        height: 0;
+        overflow: hidden;
+        opacity: 0;
+        padding: 0;
+        margin: 0;
+      }
+    }
+  }
+}

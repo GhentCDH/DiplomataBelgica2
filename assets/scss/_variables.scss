@@ -1,0 +1,95 @@
+// Color system
+
+$white: #fff;
+$black: #202020;
+$primary: #3c7386;
+$secondary: #CF1750;
+$tertiary: #EDF5F5;
+$alt-text-color: #2791A7;
+$gray: #ccc;
+$gray-light: #ddd;
+$warning: #fffae5;
+$valid: #198754;
+$invalid: #dc3545;
+$disabled: #b4b4b4;
+$border-color: rgba($primary, 25%);
+
+// Spacing
+
+$spacer: calc(20 / 16) * 1rem;
+
+// Grid
+
+$grid-gutter-width: 1.25rem;
+
+// Typography
+
+$font-family-base: "Verdana", "Lucida Sans Unicode", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-rosarivo: RosarivoRegular, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-belgica: "Raleway", sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-light: "Verdana", "Lucida Sans Unicode", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$input-font-family: $font-family-light;
+
+
+$font-size-base: calc(14 / 16) * 1rem;
+
+$font-size-sm: calc(10 / 16) * 1rem;
+$font-size-sm-plus: calc(13 / 16) * 1rem;
+$font-size-md: calc(18 / 16) * 1rem;
+$font-size-md-plus: calc(20 / 16) * 1rem;
+$font-size-lg-min: calc(30 / 16) * 1rem;
+$font-size-lg: calc(40 / 16) * 1rem;
+$input-font-size: $font-size-base;
+
+
+$line-height-base: calc(21/17);
+
+$line-height-small: calc(17/17);
+$line-height-medium: calc(25/17);
+$line-height-medium-caps: calc(30/17);
+$line-height-large: calc(40/17);
+
+// Component colors
+$text-color-default: $black;
+$text-color-dark: #646464;
+
+// Navbar
+
+$navbar-dark-color: $white;
+
+// Max-width
+
+// Padding
+
+$padding-xs: 5px;
+$padding-small: 10px;
+$padding-small-mobile: 10px;
+$padding-default: 20px;
+$padding-default-mobile: 20px;
+$padding-medium: 40px;
+$padding-large: 60px;
+$padding-large-mobile: 30px;
+
+// Margin
+
+$margin-default-horizontal: $padding-default;
+$margin-default-vertical: 30px;
+$margin-default-vertical-mobile: 25px;
+$margin-default-vertical-small: 20px;
+$margin-default-vertical-small-mobile: 22px;
+$margin-large: 60px;
+
+// Transition
+$transition-duration-default: .15s;
+$transition-ease-default: ease-in-out;
+
+// Forms
+$input-color: $black;
+$input-btn-focus-color: rgba($primary,75%);
+$input-btn-focus-color-opacity: 0.75;
+$input-btn-focus-width: 1px;
+$input-btn-focus-blur: 0.125rem;
+$form-select-indicator-color: $black;
+
+// Tooltip
+$tooltip-opacity: 1;

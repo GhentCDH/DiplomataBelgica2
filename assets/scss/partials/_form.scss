@@ -1,43 +1,48 @@
-.form-control {
-  &.listbox {
-    height: inherit;
-  }
+.form-label {
+    color: $black;
+    margin-bottom: 5px;
+    font-size: $font-size-base;
+    font-weight: 400;
+}
+.hidden-label {
+  display: none;
+}
+.form-select, 
+.form-control,
+.btn {
+  border-radius: 0;
+  font-family: $font-family-base;
 }
 
 .form-group {
-  .hint {
-    padding-top: .5em;
-  }
+  padding-bottom: $padding-small;
 
-  label {
-    user-select: none;
+  .btn-primary {
+    border-radius: 5px; 
   }
 }
 
-.radio-list {
-  label {
-    padding-left: 20px;
-    padding-right: 20px;
-
-    input {
-      margin-left: -20px;
-      position: absolute;
-    }
+.form-check {
+  padding-top: $padding-small;
+  padding-bottom: $padding-small;
+  font-size: $font-size-base; 
+  .form-check-input {
+    font-size: $font-size-md;
+    margin-left: 0;
+  }
+  .checkbox-label {
+    font-size: $font-size-base;
+    padding-top: 3px;
+    padding-left: 10px;
   }
 }
 
-.field-DMYRange .input-group .input-group-addon {
-  min-width: 75px;
+.input-group {
+  .date-input::placeholder {
+    text-align: center;
+  }
 }
 
-.field-DMYRange .input-group input {
-  width: auto;
-  margin-right: 5px;
+input::placeholder {
+  color: $border-color !important;
 }
-
-//.form-group.not(.form-inline) {
-//  .checkbox {
-//
-//  }
-//}
-

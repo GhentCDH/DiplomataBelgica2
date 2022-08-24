@@ -22,36 +22,16 @@
   }
 
   .VueTables {
-    th {
-      min-width: 120px;
-      width: auto;
-    }
+    .row:first-child {
+      display: block !important;
 
-    // vue-tables uses Glyphicons, so we overwrite these classes to utilise font awesome icons
-    .VueTables__sortable {
-      cursor: pointer;
+      .col-md-12:first-child {
+        min-height: 3.667em;
+      }
     }
 
     .VueTables__sort-icon {
-      color: $alt-text-color;
-      
-      &.glyphicon-chevron-up {
-        font-family: "fontawesome";
-        &::after {
-          content: '\f0de';
-        }
-      }
-
-      &.glyphicon-chevron-down {
-        font-family: "fontawesome";
-        &::after {
-          content: '\f0dd';
-        }
-      }
-    }
-    select.form-control {
-      appearance: auto;
-      padding-left: 3px;
+      color: #aaa;
     }
   }
 

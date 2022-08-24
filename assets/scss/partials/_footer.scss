@@ -1,16 +1,19 @@
-.page-footer {
-  .banner-img {
-    background-color: $brand-primary;
-  }
-
-  .app-logo-container {
-    text-align: center;
-  }
-
-  .app-logo {
-    width: 200px;
-    @media(min-width: $screen-sm-min) {
-      width: 300px;
+footer {
+    h1 {
+        font-family: $font-family-base;
+        color: $black;
     }
-  }
+    .sub-title {
+        font-family: $font-family-rosarivo;
+        color: $alt-text-color;
+        line-height: $line-height-base;
+        font-size: $font-size-base;
+    }
+    .issn {
+        text-align: right;
+        font-size: 11px;
+        color: $alt-text-color;
+        font-family: $font-family-light;
+        line-height: $line-height-small;
+    }
 }
