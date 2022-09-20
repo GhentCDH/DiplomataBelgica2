@@ -5,7 +5,7 @@ Encore
     // the project directory where all compiled assets will be stored
     .setOutputPath('public/build/')
 
-    .setManifestKeyPrefix('dibe/public/build')
+    .setManifestKeyPrefix('public/build')
 
     // enable asset versioning, so browser caches don't need to be cleared
     .enableVersioning()
