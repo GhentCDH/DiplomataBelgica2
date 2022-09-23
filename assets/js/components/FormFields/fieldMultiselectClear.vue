@@ -59,7 +59,7 @@
                 span.option__count {{ props.option.count }}
 </template>
 <script>
-import { abstractField } from 'vue-form-generator';
+import { abstractField } from 'vue-form-generator/dist/vfg-core.js';
 
 export default {
     mixins: [abstractField],
