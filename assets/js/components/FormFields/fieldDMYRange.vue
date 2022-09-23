@@ -11,7 +11,9 @@
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.day"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
                     class="form-control date-input"
                     type="text"
@@ -21,7 +23,9 @@
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.month"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
                     class="form-control date-input"
                     type="text"
@@ -31,7 +35,9 @@
                     :disabled="disabled"
                     :maxlength="4"
                     :placeholder="placeholder.year"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
         </div>
         <div class="input-group">
             <span class="input-group-text bg-primary text-white">Till</span>
@@ -44,7 +50,9 @@
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.day"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
                     class="form-control date-input"
                     type="text"
@@ -54,7 +62,9 @@
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.month"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
                     class="form-control date-input"
                     type="text"
@@ -64,7 +74,9 @@
                     :disabled="disabled"
                     :maxlength="4"
                     :placeholder="placeholder.year"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
         </div>
     </div>
 </template>
@@ -109,28 +121,31 @@ export default {
             }
         };
     },
-    _watch: {
-        range: {
-            deep: true,
-            handler(val) {
-                // console.log('range watch')
-                // console.log(val)
-                this.value = val;
-            }
-        },
+    watch: {
         value: {
             deep: true,
             handler(val) {
                 // console.log('value watch')
                 // console.log(val)
                 if ( typeof val === 'object' ) {
-                    // this.range = JSON.parse(JSON.stringify(val));
+                    this.range = JSON.parse(JSON.stringify(val));
                 } else {
-                    this.range = this.default
+                    this.range = JSON.parse(JSON.stringify(val))
                 }
             }
         }
     },
+    methods: {
+        formatValueToField(value) {
+            if (value === null || value == undefined) {
+                return JSON.parse(JSON.stringify(this.default))
+            }
+            return value;
+        },
+        onChange: _debounce(function(e) {
+            this.updateModelValue(this.range, this.value)
+        }, 300)
+    }
 };
 </script>
 
