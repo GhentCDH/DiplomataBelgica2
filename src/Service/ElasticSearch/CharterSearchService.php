@@ -23,7 +23,7 @@ class CharterSearchService extends AbstractSearchService
             // filter by language.id
             'charter_language' => [
                 'type' => self::FILTER_OBJECT_ID,
-                'field' => 'language.id' // redundant, filter type implies .id
+                'field' => 'language'
             ],
 
             'charter_place_name' => [
