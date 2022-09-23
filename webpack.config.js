@@ -14,7 +14,8 @@ Encore
     .setPublicPath(Encore.isProduction() ? '/build/' : '/build/')
 
     // allow pug templates in vue components
-    .enableVueLoader()
+    // .enableVueLoader()
+    .enableVueLoader(() => {}, { runtimeCompilerBuild: false })
 
     // Add javascripts
     .addEntry('main', './assets/js/main/main.js')
@@ -50,6 +51,11 @@ Encore
 ;
 
 Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
+
+if (process.env.NODE_ENV === 'analyze') {
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    Encore.addPlugin(new BundleAnalyzerPlugin())
+}
 
 // further config tweaking
 const config = Encore.getWebpackConfig();
