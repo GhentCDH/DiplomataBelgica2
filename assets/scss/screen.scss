@@ -1,11 +1,5 @@
-// Configuration
-@import "~bootstrap/scss/functions";
+@import "init";
 
-// Variable overrides
-@import "variables";
-
-// Configuration continued
-@import "~bootstrap/scss/variables";
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/maps";
 @import "~bootstrap/scss/utilities";
@@ -66,9 +60,11 @@
 @import "partials/form";
 @import "partials/labelvalue";
 @import "partials/loading";
-@import "partials/multiselect";
 @import "partials/pageheader";
 @import "partials/scrollable";
 @import "partials/search";
 @import "partials/tables";
-@import "partials/vue-form-generator";
+@import "partials/lists";
+@import "partials/vue-form-generator/collapsible-group";
+@import "partials/vue-form-generator/multiselect";
+@import "partials/vue-form-generator/fieldset";

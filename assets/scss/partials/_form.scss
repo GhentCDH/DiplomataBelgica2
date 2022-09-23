@@ -1,48 +1,68 @@
-.form-label {
-    color: $black;
-    margin-bottom: 5px;
-    font-size: $font-size-base;
-    font-weight: 400;
+label, dt {
+  font-family: $default-font-family, Arial, sans-serif;
 }
-.hidden-label {
-  display: none;
-}
-.form-select, 
-.form-control,
-.btn {
-  border-radius: 0;
-  font-family: $font-family-base;
+
+.form-control {
+  &.listbox {
+    height: inherit;
+  }
 }
 
 .form-group {
-  padding-bottom: $padding-small;
 
-  .btn-primary {
-    border-radius: 5px; 
+  margin-bottom: 15px;
+
+  .hint {
+    padding-top: .5em;
+  }
+
+  label {
+    user-select: none;
   }
 }
 
-.form-check {
-  padding-top: $padding-small;
-  padding-bottom: $padding-small;
-  font-size: $font-size-base; 
-  .form-check-input {
-    font-size: $font-size-md;
-    margin-left: 0;
-  }
-  .checkbox-label {
-    font-size: $font-size-base;
-    padding-top: 3px;
-    padding-left: 10px;
+.radio-list {
+  label {
+    padding-left: 20px;
+    padding-right: 20px;
+
+    input {
+      margin-left: -20px;
+      position: absolute;
+    }
   }
 }
 
-.input-group {
-  .date-input::placeholder {
-    text-align: center;
+.form-group-sm {
+  .form-control {
+    font-size: 100%;
   }
 }
 
-input::placeholder {
-  color: $border-color !important;
+.checkbox-switch .count {
+  background-color: white;
+  color: black;
+  display: inline-block;
+  border: 1px solid #d1d1d1;
+  padding: 3px 8px 2px 8px;
+  margin-left: 0.5em;
+  border-radius: 5px;
+  font-size: 80%;
+  line-height: 1;
+  min-width: 30px;
+  text-align: center;
+}
+
+.input-no-controls {
+  // Chrome, Safari, Edge, Opera
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin:0;
+  }
+
+  // Firefox
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
 }

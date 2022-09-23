@@ -5,6 +5,7 @@ h6, .h6 {
 }
 
 h1 {
+    font-weight: 600;
     &.logo {
         font-family: $font-family-belgica;
         color: $black;
@@ -16,22 +17,20 @@ h1 {
     }
 }
 
-h2, .h2,
-h3, .h3 {
-    color: $secondary;
-    font-family: $font-family-rosarivo;
-}
-
 h2, .h2 {
-    font-size: $font-size-md;
+    font-weight: 500;
+    color: $secondary;
+    margin-bottom: 20px;
 }
 
 h3, .h3 {
-    font-size: $font-size-base;
+    font-weight: 500;
+    color: $black;
+    margin-bottom: 15px;
 }
+
 
 h4, .h4 {
-    font-size: $font-size-base;
     color: $alt-text-color;
 }
 
@@ -48,5 +47,20 @@ h4, .h4 {
         &:hover {
             color: $secondary;
         }
+    }
+}
+
+a {
+    color: $black;
+    text-decoration-color: $secondary;
+    text-decoration-style: dotted;
+    text-decoration-line: underline;
+    text-decoration-thickness: .1em;
+    text-underline-offset: 2.5px;
+
+    &:hover {
+        color: $black;
+        text-decoration-style: solid;
+        text-decoration-color: $secondary;
     }
 }

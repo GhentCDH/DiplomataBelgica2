@@ -1,5 +1,4 @@
 // Color system
-
 $white: #fff;
 $black: #202020;
 $primary: #3c7386;
@@ -24,7 +23,7 @@ $grid-gutter-width: 1.25rem;
 
 // Typography
 
-$font-family-base: "Verdana", "Lucida Sans Unicode", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+$font-family-base: 'Open Sans', sans-serif;
 $font-family-rosarivo: RosarivoRegular, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-family-belgica: "Raleway", sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $font-family-light: "Verdana", "Lucida Sans Unicode", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
@@ -35,10 +34,27 @@ $font-size-base: calc(14 / 16) * 1rem;
 
 $font-size-sm: calc(10 / 16) * 1rem;
 $font-size-sm-plus: calc(13 / 16) * 1rem;
-$font-size-md: calc(18 / 16) * 1rem;
+$font-size-md: calc(16 / 16) * 1rem;
 $font-size-md-plus: calc(20 / 16) * 1rem;
-$font-size-lg-min: calc(30 / 16) * 1rem;
+$font-size-lg-min: calc(32 / 16) * 1rem;
 $font-size-lg: calc(40 / 16) * 1rem;
+
+$h1-font-size:                $font-size-lg-min;
+$h2-font-size:                $font-size-md;
+$h3-font-size:                $font-size-base;
+$h4-font-size:                $font-size-base;
+$h5-font-size:                $font-size-base;
+$h6-font-size:                $font-size-base;
+
+$link-color: $alt-text-color;
+$link-decoration: underline;
+$link-hover-color: $primary;
+$link-hover-decoration: underline;
+
+
+
+
+
 $input-font-size: $font-size-base;
 
 
@@ -85,6 +101,8 @@ $transition-ease-default: ease-in-out;
 
 // Forms
 $input-color: $black;
+$input-border-radius: 0;
+$input-placeholder-color: $gray;
 $input-btn-focus-color: rgba($primary,75%);
 $input-btn-focus-color-opacity: 0.75;
 $input-btn-focus-width: 1px;

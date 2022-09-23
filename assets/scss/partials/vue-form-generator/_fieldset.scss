@@ -1,0 +1,23 @@
+.vue-form-generator {
+  fieldset {
+    legend {
+      @extend .h2;
+      border: 0;
+      float: none;
+    }
+
+    legend + * {
+      margin-top: 20px;
+    }
+  }
+
+  fieldset + fieldset {
+    margin-top: 10px;
+  }
+
+  .form-group {
+    label {
+      margin-bottom: 4px;
+    }
+  }
+}
