@@ -3,14 +3,12 @@ window.axios = require('axios')
 import qs from 'qs'
 
 import Vue from 'vue'
-import VueFormGenerator from 'vue-form-generator'
+import VueFormGenerator from 'vue-form-generator/dist/vfg-core.js'
 import VueMultiselect from 'vue-multiselect'
 import VueTables from 'vue-tables-2'
-import * as uiv from 'uiv'
 
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
 
-Vue.use(uiv)
 Vue.use(VueFormGenerator)
 Vue.use(VueTables.ServerTable)
 
