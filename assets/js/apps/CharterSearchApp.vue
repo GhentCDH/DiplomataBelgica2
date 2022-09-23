@@ -80,10 +80,10 @@ import SharedSearch from "../components/Search/SharedSearch";
 import FormatValue from "../components/Sidebar/FormatValue";
 
 import fieldDMYRange from '../components/FormFields/fieldDMYRange';
-import fieldB5Checkbox from '../components/FormFields/fieldB5Checkbox';
+import fieldCheckbox from '../components/FormFields/fieldCheckbox';
 
 Vue.component('fieldDMYRange', fieldDMYRange);
-Vue.component('fieldB5Checkbox', fieldB5Checkbox);
+Vue.component('fieldCheckboxBS5', fieldCheckbox);
 
 export default {
     mixins: [
@@ -147,10 +147,10 @@ export default {
                                 labelClasses: 'form-label'
                             },
                             {
-                                type: 'B5Checkbox',
+                                type: 'checkboxBS5',
                                 model: 'dating_scholary_preferential',
                                 label: 'Preferential dates only',
-                                labelClasses: 'hidden-label'
+                                labelClasses: 'd-none'
                             },
                             {
                                 type: 'DMYRange',
