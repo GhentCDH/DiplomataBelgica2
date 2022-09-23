@@ -15,6 +15,7 @@
 !var/SymfonyRequirements.php
 /vendor/
 /public/bundles/
+/public/build
 bower_components
 node_modules
 /images/

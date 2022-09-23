@@ -1,74 +1,90 @@
 <template>
     <div>
-        <div class="input-group">
-            <div class="input-group-addon bg-light">
-                <span class="input-group-text" id="">From</span>
-            </div>
+        <div class="input-group mbottom-small">
+            <span class="input-group-text bg-primary text-white">From</span>
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.from.day"
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.day"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.from.month"
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.month"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="4"
                     v-model="range.from.year"
                     :disabled="disabled"
                     :maxlength="4"
                     :placeholder="placeholder.year"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
         </div>
         <div class="input-group">
-            <div class="input-group-addon bg-light">
-                <span class="input-group-text" id="">Till</span>
-            </div>
+            <span class="input-group-text bg-primary text-white">Till</span>
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.till.day"
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.day"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="2"
                     v-model="range.till.month"
                     :disabled="disabled"
                     :maxlength="2"
                     :placeholder="placeholder.month"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
             <input
-                    class="form-control"
+                    class="form-control date-input"
                     type="text"
+                    style="text-align:center;"
                     size="4"
                     v-model="range.till.year"
                     :disabled="disabled"
                     :maxlength="4"
                     :placeholder="placeholder.year"
-                    :readonly="schema.readonly" >
+                    :readonly="schema.readonly"
+                    @change="onChange" @keyup="onChange"
+            >
         </div>
     </div>
 </template>
 
 <script>
-import { abstractField } from "vue-form-generator";
+import { abstractField } from 'vue-form-generator/dist/vfg-core.js'
+const _debounce = require('lodash.debounce');
+
 
 export default {
     mixins: [ abstractField ],
@@ -105,28 +121,31 @@ export default {
             }
         };
     },
-    _watch: {
-        range: {
-            deep: true,
-            handler(val) {
-                // console.log('range watch')
-                // console.log(val)
-                this.value = val;
-            }
-        },
+    watch: {
         value: {
             deep: true,
             handler(val) {
                 // console.log('value watch')
                 // console.log(val)
                 if ( typeof val === 'object' ) {
-                    // this.range = JSON.parse(JSON.stringify(val));
+                    this.range = JSON.parse(JSON.stringify(val));
                 } else {
-                    this.range = this.default
+                    this.range = JSON.parse(JSON.stringify(val))
                 }
             }
         }
     },
+    methods: {
+        formatValueToField(value) {
+            if (value === null || value == undefined) {
+                return JSON.parse(JSON.stringify(this.default))
+            }
+            return value;
+        },
+        onChange: _debounce(function(e) {
+            this.updateModelValue(this.range, this.value)
+        }, 300)
+    }
 };
 </script>
 
@@ -137,10 +156,15 @@ export default {
       & + .input-group {
         margin-top: 5px;
       }
+    
+        span {
+            min-width: 63px;
+            justify-content: center;
+        }
 
-      input {
-        width: auto;
-      }
+        input {
+            width: auto;
+        }
     }
 }
 </style>

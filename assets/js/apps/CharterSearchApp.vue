@@ -1,18 +1,7 @@
 <template>
-    <div class="row">
+    <div class="row pbottom-large">
         <aside class="col-sm-4">
             <div class="bg-tertiary padding-default">
-                <div
-                        v-if="showReset"
-                        class="form-group"
-                >
-                    <button
-                            class="btn btn-block"
-                            @click="resetAllFilters"
-                    >
-                        Reset all filters
-                    </button>
-                </div>
                 <vue-form-generator
                         ref="form"
                         :model="model"
@@ -21,8 +10,15 @@
                         @validated="onValidated"
                         @model-updated="modelUpdated"
                 />
+
+                <div v-if="showReset" class="form-group ptop-default">
+                    <button class="btn btn-primary"  @click="resetAllFilters" >
+                        Reset all filters
+                    </button>
+                </div>
             </div>
         </aside>
+        
         <article class="col-sm-8 search-page">
             <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
             <v-server-table
@@ -38,7 +34,7 @@
                 </template>
                 <template slot="id" slot-scope="props">
                     <a :href="getCharterUrl(props.row.id, props.index)">
-                        {{ props.row.id }}
+                        Charter {{ props.row.id }}
                     </a>
                 </template>
                 <template slot="summary" slot-scope="props">
@@ -59,10 +55,6 @@
                         </div>
                     </template>
 
-<!--                    <?php echo $values["beneficiary"]["capacity"];?> - <?php echo $values["beneficiary"]["place"]; ?> - <?php echo $values["beneficiary"]["name"]; ?>-->
-
-
-
                     <h5>Summary</h5>
                     {{ props.row.summary }}
                 </template>
@@ -78,7 +70,6 @@
 </template>
 <script>
 import Vue from 'vue'
-import VueFormGenerator from 'vue-form-generator'
 
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
@@ -88,6 +79,11 @@ import SharedSearch from "../components/Search/SharedSearch";
 
 import FormatValue from "../components/Sidebar/FormatValue";
 
+import fieldDMYRange from '../components/FormFields/fieldDMYRange';
+import fieldCheckbox from '../components/FormFields/fieldCheckbox';
+
+Vue.component('fieldDMYRange', fieldDMYRange);
+Vue.component('fieldCheckboxBS5', fieldCheckbox);
 
 export default {
     mixins: [
@@ -118,6 +114,8 @@ export default {
                                 type: 'input',
                                 inputType: 'text',
                                 label: 'Charter ID',
+                                labelClasses: 'form-label',
+                                placeholder: 'Charter ID',
                                 model: 'id',
                             },
                             this.createMultiSelect('Language',
@@ -145,17 +143,20 @@ export default {
                             {
                                 type: 'DMYRange',
                                 model: 'dating_scholary',
-                                label: 'Scholary dating'
+                                label: 'Scholary dating',
+                                labelClasses: 'form-label'
                             },
                             {
-                                type: 'checkbox',
+                                type: 'checkboxBS5',
                                 model: 'dating_scholary_preferential',
-                                label: 'preferential dates only'
+                                label: 'Preferential dates only',
+                                labelClasses: 'd-none'
                             },
                             {
                                 type: 'DMYRange',
                                 model: 'dating_charter',
-                                label: 'Date in the charter'
+                                label: 'Date in the charter',
+                                labelClasses: 'form-label'
                             },
                             this.createMultiSelect('Place-date', { model: 'charter_place_name' }),
                         ]
@@ -168,13 +169,17 @@ export default {
                                 type: 'input',
                                 inputType: 'text',
                                 model: 'summary',
-                                label: 'Search in summary (in French only)'
+                                label: 'Search in summary (in French only)',
+                                placeholder: 'Search in summary',
+                                labelClasses: 'form-label'
                             },
                             {
                                 type: 'input',
                                 inputType: 'text',
                                 model: 'fulltext',
-                                label: 'Search in full text of charter'
+                                label: 'Search in full text of charter',
+                                placeholder: 'Search in charter',
+                                labelClasses: 'form-label'
                             },
                         ]
                     },

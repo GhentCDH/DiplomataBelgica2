@@ -1,3 +1,7 @@
+label, dt {
+  font-family: $default-font-family, Arial, sans-serif;
+}
+
 .form-control {
   &.listbox {
     height: inherit;
@@ -5,6 +9,9 @@
 }
 
 .form-group {
+
+  margin-bottom: 15px;
+
   .hint {
     padding-top: .5em;
   }
@@ -26,18 +33,36 @@
   }
 }
 
-.field-DMYRange .input-group .input-group-addon {
-  min-width: 75px;
+.form-group-sm {
+  .form-control {
+    font-size: 100%;
+  }
 }
 
-.field-DMYRange .input-group input {
-  width: auto;
-  margin-right: 5px;
+.checkbox-switch .count {
+  background-color: white;
+  color: black;
+  display: inline-block;
+  border: 1px solid #d1d1d1;
+  padding: 3px 8px 2px 8px;
+  margin-left: 0.5em;
+  border-radius: 5px;
+  font-size: 80%;
+  line-height: 1;
+  min-width: 30px;
+  text-align: center;
 }
 
-//.form-group.not(.form-inline) {
-//  .checkbox {
-//
-//  }
-//}
+.input-no-controls {
+  // Chrome, Safari, Edge, Opera
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin:0;
+  }
 
+  // Firefox
+  input[type=number] {
+    -moz-appearance: textfield;
+  }
+}

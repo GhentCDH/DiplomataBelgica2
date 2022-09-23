@@ -43,6 +43,10 @@ export default {
             type: String,
             default: null
         },
+        grid: {
+            type: String,
+            default: '6|6'
+        },
         type: {
             type: String,
             default: 'string'
@@ -57,11 +61,17 @@ export default {
         }
     },
     computed: {
+        labelWidth() {
+            return this.grid.split('|')[0] ?? 6;
+        },
+        valueWidth() {
+            return this.grid.split('|')[1] ?? 6;
+        },
         outputLabelClass() {
-            return ['labelvalue__label', this.inline ? 'labelvalue__label--inline col-xs-5' : 'col-xs-12', this.labelClass ? this.labelClass : ''].join(' ')
+            return ['labelvalue__label', this.inline ? 'labelvalue__label--inline col-' + this.labelWidth : 'col-12', this.labelClass ?? ''].join(' ')
         },
         outputValueClass() {
-            return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-xs-7' : 'col-xs-12', this.valueClass ? this.valueClass : ''].join(' ')
+            return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-' + this.valueWidth : 'col-12', this.valueClass ?? ''].join(' ')
         },
         outputValues() {
             let values = this.value ? ( Array.isArray(this.value) ? this.value : [ this.value ] ) : ( this.unknown ? [ this.unknown ] : [] )
@@ -89,19 +99,3 @@ export default {
     }
 }
 </script>
-
-<style scoped lang="scss">
-.labelvalue__label {
-  color: #666;
-}
-
-.labelvalue__value > span {
-  padding: 4px;
-  color: black;
-  display: inline-block;
-}
-
-.labelvalue__value--inline > span {
-  padding: 0;
-}
-</style>

@@ -1,3 +1,17 @@
 .labelvalue {
-  margin-bottom: 5px;
+    margin-bottom: 5px;   
+}
+
+.labelvalue__label {
+  color: $alt-text-color;
+}
+
+.labelvalue__value > span {
+  padding: 4px 0;
+  color: $black;
+  display: inline-block;
+}
+
+.labelvalue__value--inline > span {
+  padding: 0;
 }

@@ -1,0 +1,10 @@
+.colophon {
+    background-color: $tertiary;
+    border-top: 5px solid #BEDBDB;
+    position: relative;
+    z-index: 1;
+    @include media-breakpoint-up(md) {
+        // margin-top: -50px;
+    }
+   
+}

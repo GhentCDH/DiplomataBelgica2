@@ -9,7 +9,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
-    protected $templateFolder = 'Default';
+    protected $defaultTemplateFolder = 'Default';
+    protected $aboutTemplateFolder = 'About';
+    protected $copyrightTemplateFolder = 'Copyright';
+    protected $contactTemplateFolder = 'Contact';
+
 
     /**
      * @Route("/", name="default", methods={"GET"})
@@ -19,7 +23,40 @@ class DefaultController extends AbstractController
     public function index(Request $request)
     {
         return $this->render(
-            $this->templateFolder. '/index.html.twig');
+            $this->defaultTemplateFolder. '/index.html.twig');
+    }
+
+    /**
+     * @Route("/", name="about", methods={"GET"})
+     * @param Request $request
+     * @return Response
+     */
+    public function about(Request $request)
+    {
+        return $this->render(
+            $this->aboutTemplateFolder. '/about.html.twig');
+    }
+
+    /**
+     * @Route("/", name="copyright", methods={"GET"})
+     * @param Request $request
+     * @return Response
+     */
+    public function copyright(Request $request)
+    {
+        return $this->render(
+            $this->copyrightTemplateFolder. '/copyright.html.twig');
+    }
+
+    /**
+     * @Route("/", name="contact", methods={"GET"})
+     * @param Request $request
+     * @return Response
+     */
+    public function contact(Request $request)
+    {
+        return $this->render(
+            $this->contactTemplateFolder. '/contact.html.twig');
     }
 
 }

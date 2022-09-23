@@ -1,6 +1,5 @@
 import '../../scss/screen.scss';
 
-require('bootstrap-sass');
+require ('bootstrap');
 
-import regeneratorRuntime from "regenerator-runtime"
-
+// import regeneratorRuntime from "regenerator-runtime"

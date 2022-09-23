@@ -14,10 +14,10 @@ Encore
     .setPublicPath(Encore.isProduction() ? '/build/' : '/build/')
 
     // allow pug templates in vue components
-    .enableVueLoader()
+    // .enableVueLoader()
+    .enableVueLoader(() => {}, { runtimeCompilerBuild: false })
 
     // Add javascripts
-    .autoProvidejQuery()
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('charter-search', './assets/js/main/charter-search.js')
     .addEntry('charter-view', './assets/js/main/charter-view.js')
@@ -42,19 +42,24 @@ Encore
         test: /\.pug$/,
         loader: 'pug-plain-loader'
     })
+    
+    // copy files
+    .copyFiles({
+        from: './assets/images',
+        to: 'static/images/[name].[ext]'
+    })
 ;
 
 Encore.addAliases({ vue$: 'vue/dist/vue.esm.js' });
 
+if (process.env.NODE_ENV === 'analyze') {
+    const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+    Encore.addPlugin(new BundleAnalyzerPlugin())
+}
+
 // further config tweaking
 const config = Encore.getWebpackConfig();
 
-// Create symlinks using shell plugin
-config.plugins.push(new WebpackShellPlugin({
-    onBuildEnd: [
-        './copy_assets.sh',
-    ]
-}));
 
 // Make sure watch works
 // https://github.com/symfony/webpack-encore/issues/191

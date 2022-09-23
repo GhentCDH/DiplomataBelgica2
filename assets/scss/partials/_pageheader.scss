@@ -1,22 +1,40 @@
 .pageheader {
-  .navbar-default {
-    .nav-primary {
-      >li.dropdown {
-        >a {
-          padding-right: 34px;
-        }
-        .dropdown-toggle {
-          i {
-            right: 16px;
-          }
-        }
+    .dibe-logo {
+      z-index: 10;
+      height: 80px;
+      overflow: visible;
+    }
+    .img-fluid {
+      max-width: 100%;
+    
+    }
+    .navbar-brand {
+      font-size: $font-size-lg-min;
+    }
+    .nav-item {
+      font-size: $font-size-md;
+    }
+    .input-group {
+      width: 225px;
+    }
+    .navbar-toggler {
+      font-size: calc(30 / 16) * 1rem;
+      .fa-bars {
+        padding-top: 3px;
       }
     }
-  }
-
-  .header_title {
-    h1 {
-      font-size: 40px;
+    .navbar {
+      padding-top: 25px;
     }
+    @include media-breakpoint-up(lg) {
+  
+      .input-group {
+        padding-left: 15px;
+      }
+      .nav-item {
+        padding-bottom: 0px;
+        padding-top: 5px;
+      }
+    }
+    
   }
-}
