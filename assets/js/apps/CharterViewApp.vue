@@ -2,93 +2,80 @@
     <div class="row">
         <article class="col-sm-8">
             <div class="scrollable scrollable--vertical pbottom-large">
-                <h1 class="pbottom-default" id="detail-page-id">Charter {{ charter.id }}</h1>
+
+                <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
 
                 <h2>Summary and description</h2>
                 <div class="mbottom-default">{{ charter.summary }}</div>
 
                 <div class="mbottom-default">
-                  <LabelValue label="Language" :value="charter.language" type="id_name"></LabelValue>
-                  <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"></LabelValue>
-                  <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"></LabelValue>
-                  <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"></LabelValue>
+                  <LabelValue label="Language" :value="charter.language" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
-                
+
 
                 <!-- Text -->
-                <h2 v-if="charter.full_text">Full text of charter</h2>
-                <div class="col-10 pbottom-small">
-                  <p class="charter-full-text">
-                    {{ charter.full_text }}
-                  </p>
-                </div>
-                
-                
-                <template v-if="charter.edition">
-                  <div class="pbottom-small mbottom-default border-bottom">
-                    <div class="row">
-                      <div class="col-3">
-                        <h3>Source</h3>
-                      </div>
-                      <div class="col-9">
-                        {{ formatSource(charter.edition) }}
-                      </div>
-                   </div>
-                  </div>   
+                <template v-if="charter.full_text">
+                    <h2>Full text of charter</h2>
+                    <div class="col-10 pbottom-small">
+                        <p class="charter-full-text">
+                            {{ charter.full_text }}
+                        </p>
+                    </div>
+                    <div v-if="charter.edition" class="mbottom-default">
+                        <LabelValue label="Source" :value="formatSource(charter.edition)"  grid="4|8"></LabelValue>
+                    </div>
                 </template>
 
-                <h2 class="pbottom-small">Editions and secondary literature</h2>
+                <h2>Editions and secondary literature</h2>
 
-                <div class="row">
-                  <div class="col-3">
+                <div v-if="editionsFormatted.length" class="mbottom-small">
                     <h3>Editions</h3>
-                  </div>
-                  <div class="col-9">
-                    <ul class="list-unstyled" v-for="edition in editionsFormatted">
-                      <li>
-                          {{ edition.text }}
-                          <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
-                      </li>
-                    </ul>
-                  </div>
 
-                  <div class="col-3">
+                    <ul class="list-unstyled" v-for="edition in editionsFormatted">
+                        <li>
+                            {{ edition.text }}
+                            <ul class="list--inline list--links-as-badges" v-if="edition.links">
+                                <li v-for="(link, index) in edition.links"><a :href="link" class="external-link">{{ index + 1 }}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div v-if="secondaryLiteratureFormatted.length" class="mbottom-small">
                     <h3>Secondary literature</h3>
-                  </div>
-                  <div class="col-9">
+
                     <ul class="list-unstyled" v-for="edition in secondaryLiteratureFormatted">
-                    <li>
-                        {{ edition.text }}
-                        <a v-for="(link, index) in edition.links" :href="link" class="external-link">{{ index + 1 }}</a>
-                    </li>
-                </ul>
-                  </div>
+                        <li>
+                            {{ edition.text }}
+                            <ul class="list--inline list--links-as-badges" v-if="edition.links">
+                                <li v-for="(link, index) in edition.links"><a :href="link" class="external-link">{{ index + 1 }}</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
 
                 <h2>Tradition</h2>
-                <div class="row">
-                  <div class="col-3">
-                    <h3>Original</h3>
-                  </div>
 
-                  <div class="col-9">
-                    {{ isOriginal}}
+                <div class="mbottom-small">
+                    <LabelValue class="mbottom-default" label="Original" :value="isOriginal" grid="4|8"></LabelValue>
+
                     <div class="ptop-small" v-for="original in originals">
-                      <a v-if="original.link" :href="original.link">{{ original.text }}</a>
-                      <p v-else>{{ original.text }}</p>
+                        <a v-if="original.link" :href="original.link">{{ original.text }}</a>
+                        <p v-else>{{ original.text }}</p>
                     </div>
-                  </div>
+                </div>
 
-                  <div class="col-3">
+                <div v-if="codexes.length" class="mbottom-small">
                     <h3>Manuscripts</h3>
-                  </div>
-
-                  <div class="col-9">
-                    <div v-for="codex in codexes">
-                      <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
-                      <p v-else>{{ codex.text }}</p>
-                    </div>
-                  </div>
+                    <ul>
+                        <li v-for="codex in codexes">
+                            <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
+                            <p v-else>{{ codex.text }}</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </article>
@@ -158,11 +145,11 @@
                 </Widget>
 
                 <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
-                  <LabelValue label="Scholarly dating (preferential)" :value="getDatations(preferentialDates)"></LabelValue>
-                  <LabelValue label="Scholarly dating (any)" :value="getDatations(charter.datations)"></LabelValue>
-                  <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"></LabelValue>
-                  <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"></LabelValue>
-                  <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"></LabelValue>
+                  <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
+                  <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
+                  <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
+                  <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"  :inline="false"></LabelValue>
+                  <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"  :inline="false"></LabelValue>
                 </Widget>
 
             </div>
@@ -177,7 +164,6 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import Widget from '../components/Sidebar/Widget'
 import LabelValue from '../components/Sidebar/LabelValue'
 import PropertyGroup from '../components/Sidebar/PropertyGroup'
@@ -189,7 +175,6 @@ import SearchSession from "../components/Search/SearchSession";
 import SearchContext from "../components/Search/SearchContext";
 
 import axios from 'axios'
-import qs from 'qs'
 import FormatValue from "../components/Sidebar/FormatValue";
 
 export default {
@@ -215,7 +200,7 @@ export default {
         }
     },
     data() {
-        let data = {
+        return {
             urls: JSON.parse(this.initUrls),
             data: JSON.parse(this.initData),
             defaultConfig: {
@@ -229,7 +214,6 @@ export default {
             },
             openRequests: false,
         }
-        return data
     },
     computed: {
         charter: function() {
@@ -326,7 +310,7 @@ export default {
             return null;
           }
         },
-        getDate(date) {
+        formatDate(date) {
           var res = '';
           if (date.year) {
             res = date.year;
@@ -339,10 +323,10 @@ export default {
           }
           return res;
         },
-        getDatations(datations) {
+        formatDatations(datations) {
           var arr = [];
           for(const datation of datations) {
-            var res = this.getDate(datation.time);
+            var res = this.formatDate(datation.time);
             if (datation.time.interpretation) {
               res += ' (' + datation.time.interpretation;
               if (datation.researcher) {
@@ -358,7 +342,7 @@ export default {
         getDates(dates) {
           var arr = [];
           for(const date of dates) {
-            arr.push(this.getDate(date));
+            arr.push(this.formatDate(date));
           }
           return arr;
         },
@@ -547,10 +531,6 @@ export default {
     .widget {
       border-bottom: 1px solid #e9ecef;
     }
-  }
-
-  .external-link {
-    margin-left: 5px;
   }
 }
 </style>
