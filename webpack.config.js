@@ -17,7 +17,6 @@ Encore
     .enableVueLoader()
 
     // Add javascripts
-    .autoProvidejQuery()
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('charter-search', './assets/js/main/charter-search.js')
     .addEntry('charter-view', './assets/js/main/charter-view.js')
