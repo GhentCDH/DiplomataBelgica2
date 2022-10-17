@@ -39,11 +39,17 @@ class BaseController extends AbstractController
     protected function getSharedAppUrls() {
         // urls
         $urls = [
-            // searches
+            // charter
             'charter_search' => $this->generateUrl('charter_search'),
             'charter_search_api' => $this->generateUrl('charter_search_api'),
             'charter_paginate' => $this->generateUrl('charter_paginate'),
             'charter_get_single' => $this->generateUrl('charter_get_single', ['id' => 'charter_id']),
+
+            // tradition
+            'tradition_search' => $this->generateUrl('tradition_search'),
+            'tradition_search_api' => $this->generateUrl('tradition_search_api'),
+            'tradition_paginate' => $this->generateUrl('tradition_paginate'),
+            'tradition_get_single' => $this->generateUrl('tradition_get_single', ['id' => 'tradition_id', 'tradition_type' => 'tradition_type']),
         ];
 
         return $urls;
