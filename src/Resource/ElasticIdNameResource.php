@@ -3,7 +3,7 @@
 namespace App\Resource;
 
 
-class ElasticIdNameResource extends BaseResource
+class ElasticIdNameResource extends ElasticBaseResource
 {
     /**
      * Transform the resource into an array.
@@ -14,11 +14,11 @@ class ElasticIdNameResource extends BaseResource
     public function toArray($request = null): ?array
     {
         if ($this->resource) {
-            return [
-                'id' => $id = $this->getId(),
-                'name' => $name = $this->name,
-                'id_name' => $id.'_'.$name
-            ];
+            $ret = parent::toArray($request);
+            if ( $this->resource->name ?? null ) {
+                $ret['id_name'] = $this->resource->getId().'_'.$this->resource->name;
+            }
+            return $ret;
         }
         return null;
     }
