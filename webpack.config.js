@@ -21,6 +21,8 @@ Encore
     .addEntry('main', './assets/js/main/main.js')
     .addEntry('charter-search', './assets/js/main/charter-search.js')
     .addEntry('charter-view', './assets/js/main/charter-view.js')
+    .addEntry('tradition-search', './assets/js/main/tradition-search.js')
+    .addEntry('tradition-view', './assets/js/main/tradition-view.js')
 
     // allow sass/scss files to be processed
     .enableSassLoader()
