@@ -118,35 +118,35 @@ class CharterSearchService extends AbstractSearchService
                 'field' => 'place.name',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
-                'filter' => $searchFilters['actors']['filters']
+                'filters' => $searchFilters['actors']['filters']
             ],
             'actor_place_diocese' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.diocese_name',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
-                'filter' => $searchFilters['actors']['filters']
+                'filters' => $searchFilters['actors']['filters']
             ],
             'actor_place_principality' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.principality_name',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
-                'filter' => $searchFilters['actors']['filters']
+                'filters' => $searchFilters['actors']['filters']
             ],
             'actor_capacity' => [
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'capacity',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
-                'filter' => $searchFilters['actors']['filters']
+                'filters' => $searchFilters['actors']['filters']
             ],
             'actor_role' => [
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'role',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
-                'filter' => $searchFilters['actors']['filters']
+                'filters' => $searchFilters['actors']['filters']
             ],
 
         ];
