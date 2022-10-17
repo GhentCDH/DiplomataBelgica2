@@ -76,13 +76,13 @@ abstract class AbstractIndexService extends AbstractService implements SearchSer
         $this->getIndex()->refresh();
     }
 
-    public function delete(int $id): void
+    public function delete(string $id): void
     {
         $this->getIndex()->deleteById($id);
         $this->getIndex()->refresh();
     }
 
-    public function get(int $id) {
+    public function get(string $id) {
         $ret = $this->getIndex()->getDocument($id)->getData();
         return $ret;
     }
