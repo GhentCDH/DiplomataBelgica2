@@ -23,7 +23,7 @@ use ReflectionException;
  * @package App\Model
  */
 
-class Original extends AbstractModel
+class Original extends AbstractTraditionModel
 {
     protected $casts = [
         'published' => 'boolean',
@@ -32,8 +32,13 @@ class Original extends AbstractModel
         'repository_published' => 'boolean'
     ];
     protected $with = [
-        'codex', 'repository', 'images', 'external_image_urls', 'urls'
+        'codex', 'repository', 'images', 'imageUrls', 'urls'
     ];
+
+    public function traditionType(): string
+    {
+        return 'original';
+    }
 
     /**
      * @return BelongsTo|Codex
@@ -44,39 +49,4 @@ class Original extends AbstractModel
         return $this->belongsTo(Codex::class);
     }
 
-    /**
-     * @return BelongsTo|Repository
-     * @throws ReflectionException
-     */
-    public function repository(): BelongsTo
-    {
-        return $this->belongsTo(Repository::class);
-    }
-
-    /**
-     * @return HasMany|Collection|Image[]
-     * @throws ReflectionException
-     */
-    public function images(): HasMany
-    {
-        return $this->hasMany(Image::class);
-    }
-
-    /**
-     * @return HasMany|Collection|OriginalExternalImageUrl[]
-     * @throws ReflectionException
-     */
-    public function external_image_urls(): HasMany
-    {
-        return $this->hasMany(OriginalExternalImageUrl::class);
-    }
-
-    /**
-     * @return HasMany|Collection|OriginalUrl[]
-     * @throws ReflectionException
-     */
-    public function urls(): HasMany
-    {
-        return $this->hasMany(OriginalUrl::class);
-    }
 }

@@ -1,0 +1,23 @@
+{# Remove comments to add a view app to the template #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Diplomata Belgica - Tradition{% endblock %}
+
+{% block body_class %}layout--fullscreen layout--compact{% endblock %}
+
+{% block content %}
+    <tradition-view-app id="tradition-view-app"
+                   init-urls="{{ urls }}"
+                   init-data="{{ data }}"
+    />
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('tradition-view') }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('tradition-view') }}
+{% endblock %}

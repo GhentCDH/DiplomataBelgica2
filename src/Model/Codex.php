@@ -24,7 +24,7 @@ use ReflectionException;
  * @package App\Model
  */
 
-class Codex extends AbstractModel
+class Codex extends AbstractTraditionModel
 {
     protected $hidden = [
         'title_nl', 'title_fr', 'title_en',
@@ -39,32 +39,19 @@ class Codex extends AbstractModel
         'repository_published' => 'boolean'
     ];
     protected $with = [
-        'repository', 'external_image_urls', 'interested_institutions', 'materials', 'urls'
+        'repository', 'imageUrls', 'urls', 'images', 'institutions', 'materials',  'authorNames'
     ];
 
-    /**
-     * @return BelongsTo|Repository
-     * @throws ReflectionException
-     */
-    public function repository(): BelongsTo
+    public function traditionType(): string
     {
-        return $this->belongsTo(Repository::class);
-    }
-
-    /**
-     * @return HasMany|Collection|CodexExternalImageUrl[]
-     * @throws ReflectionException
-     */
-    public function external_image_urls(): HasMany
-    {
-        return $this->hasMany(CodexExternalImageUrl::class);
+        return 'manuscript';
     }
 
     /**
      * @return BelongsToMany|Collection|CodexInstitution[]
      * @throws ReflectionException
      */
-    public function interested_institutions(): BelongsToMany
+    public function institutions(): BelongsToMany
     {
         return $this->belongsToMany(CodexInstitution::class);
     }
@@ -82,17 +69,10 @@ class Codex extends AbstractModel
      * @return HasMany|Collection|CodexNameAuthor[]
      * @throws ReflectionException
      */
-    public function author_names(): HasMany
+    public function authorNames(): HasMany
     {
         return $this->hasMany(CodexNameAuthor::class);
     }
 
-    /**
-     * @return HasMany|Collection|CodexUrl[]
-     * @throws ReflectionException
-     */
-    public function urls(): HasMany
-    {
-        return $this->hasMany(CodexUrl::class);
-    }
+
 }

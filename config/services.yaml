@@ -41,14 +41,44 @@ services:
         public: true
     App\Service\ElasticSearch\CharterIndexService: '@charter_index_service'
 
+    tradition_index_service:
+        class: App\Service\ElasticSearch\TraditionIndexService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\TraditionIndexService: '@tradition_index_service'
+
     charter_search_service:
         class: App\Service\ElasticSearch\CharterSearchService
         arguments: ['@elastic_search_client']
         public: true
     App\Service\ElasticSearch\CharterSearchService: '@charter_search_service'
 
+    tradition_search_service:
+        class: App\Service\ElasticSearch\TraditionSearchService
+        arguments: ['@elastic_search_client']
+        public: true
+    App\Service\ElasticSearch\TraditionSearchService: '@tradition_search_service'
+
     charter_repository:
         class: App\Repository\CharterRepository
         arguments: []
         public: true
     App\Repository\CharterRepository: '@charter_repository'
+
+    original_repository:
+        class: App\Repository\OriginalRepository
+        arguments: [ ]
+        public: true
+    App\Repository\OriginalRepository: '@original_repository'
+
+    copy_repository:
+        class: App\Repository\CopyRepository
+        arguments: [ ]
+        public: true
+    App\Repository\CopyRepository: '@copy_repository'
+
+    codex_repository:
+        class: App\Repository\CodexRepository
+        arguments: [ ]
+        public: true
+    App\Repository\CodexRepository: '@codex_repository'

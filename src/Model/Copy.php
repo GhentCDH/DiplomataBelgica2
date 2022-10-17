@@ -26,7 +26,7 @@ use ReflectionException;
  * @package App\Model
  */
 
-class Copy extends AbstractModel
+class Copy extends AbstractTraditionModel
 {
     protected $casts = [
         'loose' => 'boolean',
@@ -36,8 +36,13 @@ class Copy extends AbstractModel
         'repository_published' => 'boolean'
     ];
     protected $with = [
-        'codex', 'repository', 'external_image_urls', 'urls'
+        'codex', 'repository', 'imageUrls', 'urls', 'images'
     ];
+
+    public function traditionType(): string
+    {
+        return 'copy';
+    }
 
     /**
      * @return BelongsTo|Codex
@@ -48,30 +53,4 @@ class Copy extends AbstractModel
         return $this->belongsTo(Codex::class);
     }
 
-    /**
-     * @return BelongsTo|Repository
-     * @throws ReflectionException
-     */
-    public function repository(): BelongsTo
-    {
-        return $this->belongsTo(Repository::class);
-    }
-
-    /**
-     * @return HasMany|Collection|CopyExternalImageUrl[]
-     * @throws ReflectionException
-     */
-    public function external_image_urls(): HasMany
-    {
-        return $this->hasMany(CopyExternalImageUrl::class);
-    }
-
-    /**
-     * @return HasMany|Collection|CopyUrl[]
-     * @throws ReflectionException
-     */
-    public function urls(): HasMany
-    {
-        return $this->hasMany(CopyUrl::class);
-    }
 }

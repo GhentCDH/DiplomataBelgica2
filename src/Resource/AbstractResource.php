@@ -11,7 +11,7 @@ abstract class AbstractResource extends JsonResource
     // Self-referential 'abstract' declaration
     const CACHENAME = self::class;
 
-    public final function getId() {
+    public function getId() {
         return $this->resource->getId();
     }
 }

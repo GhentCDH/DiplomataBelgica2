@@ -5,7 +5,9 @@ namespace App\Command;
 use App\Model\Charter;
 use App\Repository\CharterRepository;
 
+use App\Repository\RepositoryInterface;
 use App\Resource\ElasticCharterResource;
+use App\Resource\ElasticTraditionResource;
 use App\Service\ElasticSearch\CharterIndexService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -44,7 +46,50 @@ class IndexElasticsearchCommand extends Command
         $count = 0;
         if ($index = $input->getArgument('index')) {
             switch ($index) {
-                case 'charters':
+                case 'tradition':
+                    /*
+                     *  index original / copy / codex in same index
+                     *  - create resources types for these tables
+                     * - add 'type' property for each resource type
+                     */
+
+                    /** @var $service CharterIndexService */
+                    $service = $this->container->get('tradition_index_service');
+                    $service->setup();
+
+                    $total = 0;
+                    $repositories = ['original_repository', 'copy_repository', 'codex_repository' ];
+//                    $repositories = ['codex_repository' ];
+
+                    /*** @var $repository RepositoryInterface */
+                    foreach( $repositories as $repository_name ) {
+                        $repository = $this->container->get($repository_name);
+                        $total += $repository->indexQuery()->count();
+                    }
+
+                    // go!
+                    $progressBar = new ProgressBar($output, $total);
+                    $progressBar->start();
+
+                    /*** @var $repository RepositoryInterface */
+                    foreach( $repositories as $repository_name ) {
+                        $repository = $this->container->get($repository_name);
+                        $repository->indexQuery()->chunk(100,
+                            function($res) use ($service, &$count, $progressBar) {
+                                /** @var Charter $charter */
+                                foreach ($res as $charter) {
+                                    $res = new ElasticTraditionResource($charter->translate('en'));
+                                    $service->add($res);
+                                    $count++;
+                                }
+
+                                $progressBar->advance(100);
+                            });
+                    }
+
+                    break;
+
+                case 'charter':
                     /** @var $repository CharterRepository */
                     $repository = $this->container->get('charter_repository' );
 
@@ -54,6 +99,7 @@ class IndexElasticsearchCommand extends Command
 
                     $total = $repository->indexQuery()->count();
 
+                    // go!
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
