@@ -48,12 +48,10 @@
                 <div v-if="editionsFormatted.length" class="mbottom-small">
                     <h3>Editions</h3>
 
-                    <ul class="list-unstyled" v-for="edition in editionsFormatted">
-                        <li>
+                    <ul class="_list-unstyled" >
+                        <li v-for="edition in editionsFormatted">
                             {{ edition.text }}
-                            <ul class="list--inline list--links-as-badges" v-if="edition.links">
-                                <li v-for="(link, index) in edition.links"><a :href="link" class="external-link">{{ index + 1 }}</a></li>
-                            </ul>
+                            <InlineLinkList :linklist="edition.links"></InlineLinkList>
                         </li>
                     </ul>
                 </div>
@@ -61,12 +59,10 @@
                 <div v-if="secondaryLiteratureFormatted.length" class="mbottom-small">
                     <h3>Secondary literature</h3>
 
-                    <ul class="list-unstyled" v-for="edition in secondaryLiteratureFormatted">
-                        <li>
+                    <ul class="_list-unstyled">
+                        <li v-for="edition in secondaryLiteratureFormatted">
                             {{ edition.text }}
-                            <ul class="list--inline list--links-as-badges" v-if="edition.links">
-                                <li v-for="(link, index) in edition.links"><a :href="link" class="external-link">{{ index + 1 }}</a></li>
-                            </ul>
+                            <InlineLinkList :linklist="edition.links"></InlineLinkList>
                         </li>
                     </ul>
                 </div>
@@ -96,7 +92,7 @@
         <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
             <div class="padding-default">
 
-                <Widget v-if="isValidResultSet()" title="Search" :isOpen="true">
+                <Widget v-if="isValidResultSet()" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
                         <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)"> 
@@ -120,7 +116,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Actors" :is-open.sync="config.widgets.actors.isOpen">
+                <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
                     <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
                     <div v-for="actor in issuers">
                       <p>
@@ -158,7 +154,7 @@
                   </div>
                 </Widget>
 
-                <Widget title="Date" :is-open.sync="config.widgets.date.isOpen">
+                <Widget title="Date" :collapsed.sync="config.widgets.date.isOpen">
                   <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
                   <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
                   <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
@@ -182,6 +178,7 @@ import Widget from '../components/Sidebar/Widget'
 import LabelValue from '../components/Sidebar/LabelValue'
 import PropertyGroup from '../components/Sidebar/PropertyGroup'
 import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
+import InlineLinkList from '../components/InlineLinkList'
 
 import PersistentConfig from "../components/Shared/PersistentConfig";
 import ResultSet from "../components/Search/ResultSet";
@@ -195,7 +192,7 @@ export default {
     name: "CharterViewApp",
     components: {
       FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch
+        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList
     },
     mixins: [
         PersistentConfig('CharterViewConfig'),
@@ -222,8 +219,8 @@ export default {
                     useContext: true,
                 },
                 widgets: {
-                    actors: { isOpen: true },
-                    date: { isOpen: true }
+                    actors: { collapsed: false },
+                    date: { collapsed: false }
                 }
             },
             openRequests: false,
