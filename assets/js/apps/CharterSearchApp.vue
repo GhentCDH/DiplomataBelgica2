@@ -64,10 +64,17 @@
                                 </div>
                             </template>
 
-                    <h5>Summary</h5>
-                    {{ props.row.summary }}
-                </template>
-            </v-server-table>
+                            <h5>Summary</h5>
+                            {{ props.row.summary }}
+                        </template>
+                    </v-server-table>
+                </div>
+                <div class="tab-pane" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
+                    <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" :visible="mapVisible"></LeafletMap>
+                </div>
+            </div>
+
+
         </article>
         <div
                 v-if="openRequests"
@@ -101,7 +108,7 @@ export default {
         AbstractField,
         AbstractSearch,
         SharedSearch,
-        CollapsibleGroups
+        CollapsibleGroups,
     ],
     components: {
         FormatValue, LeafletMap
@@ -278,13 +285,31 @@ export default {
             console.log("triggered")
         },
         issuers: function(charter) {
-            return charter.actors.filter( actor => actor.role.id === 2 )
+            // todo: sort by id, really?
+            return charter.actors
+                .filter( actor => actor.role.id === 2 )
+                .sort((a,b) => a.id - b.id)
+                .slice(0,1)
         },
         authors: function(charter) {
-            return charter.actors.filter( actor => actor.role.id === 1 )
+            return charter.actors
+                .filter( actor => actor.role.id === 1 )
+                .sort((a,b) => a.id - b.id)
+                .slice(0,1)
         },
         beneficiaries: function(charter) {
-            return charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
+            return charter.actors
+                .filter( actor => actor.role.id === 3 || actor.role.id === 4 )
+                .sort((a,b) => a.id - b.id)
+                .slice(0,1)
+        },
+        getCharterUrl(id, index) {
+            let context = {
+                params: this.data.filters,
+                searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
+                searchSessionHash: this.getSearchSessionHash()
+            }
+            return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
         },
     },
 }
