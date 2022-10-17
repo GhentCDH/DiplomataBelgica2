@@ -278,6 +278,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
         }
 
+        $config['aggregations'] = $config['aggregations'] ?? [];
+
         $config['anyKey'] = $config['anyKey'] ?? self::ANY_KEY;
         $config['anyLabel'] = $config['anyLabel'] ?? self::ANY_LABEL;
         $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
@@ -310,11 +312,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $label = str_replace($aggConfig['replaceLabel']['search'], $aggConfig['replaceLabel']['replace'], $label);
             }
 
-            $output[] = [
-                'id' => $value,
-                'name' => $label,
-                'count' => $count
-            ];
+            $item['name'] = $label;
+
+            $output[] = $item;
         }
         return $output;
     }
@@ -1247,6 +1247,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     // count top documents?
                     $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
 
+                    // subaggregations
+                    foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                        $aggTerm->addAggregation((new Aggregation\Terms($subAggName))
+                            ->setField($subAggConfig['field'].".keyword")
+                        );
+                    }
+
                     $aggParentQuery->addAggregation($aggTerm);
                     break;
                 case self::AGG_BOOLEAN:
@@ -1324,12 +1331,17 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
 
-                        $items[] = [
+                        $item = [
                             'id' => $result['key'],
                             'name' => $result['key'],
                             'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
                         ];
+                        foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                            $item[$subAggName] = $result[$subAggName]['buckets'][0]['key'] ?? null;
+                        }
 
+                        $items[] = $item;
+//                        dump($item);
                     }
                     $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggSearchFilters);
                     break;
