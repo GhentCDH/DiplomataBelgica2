@@ -102,6 +102,16 @@ class CharterSearchService extends AbstractSearchService
             'charter_place_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.name',
+                'aggregations' => [
+                    'latitude' => [
+                        'type' => self::AGG_KEYWORD,
+                        'field' => 'place.latitude'
+                    ],
+                    'longitude' => [
+                        'type' => self::AGG_KEYWORD,
+                        'field' => 'place.longitude'
+                    ]
+                ]
             ],
             'actor_place_name' => [
                 'type' => self::AGG_KEYWORD,

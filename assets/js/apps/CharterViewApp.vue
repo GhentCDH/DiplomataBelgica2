@@ -15,6 +15,20 @@
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
 
+                <div id="map" class="map">
+                    <l-map ref="GmMap" v-bind="map" :center="center" :zoom="zoom" :bounds="bounds">
+                        <l-tile-layer v-for="layer in tileLayers" :key="layer.id"
+                                      v-bind="layer.options"
+                        />
+                        <l-wms-tile-layer v-for="layer in wmsLayers" :key="layer.id" v-bind="layer.options"></l-wms-tile-layer>
+                        <l-geo-json :ref="layer.id" v-for="layer in geojsonLayers" :key="layer.id"
+                                    v-bind="layer.options"></l-geo-json>
+                        <l-control class="map__control map__control--topleft" position="topleft">
+                            <slot name="controls-topleft"></slot>
+                        </l-control>
+                    </l-map>
+                </div>
+
 
                 <!-- Text -->
                 <template v-if="charter.full_text">

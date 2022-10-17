@@ -21,39 +21,48 @@
         
         <article class="col-sm-8 search-page">
             <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-            <v-server-table
-                    ref="resultTable"
-                    :columns="tableColumns"
-                    :options="tableOptions"
-                    :url="urls['charter_search_api']"
-                    @data="onData"
-                    @loaded="onLoaded"
-            >
-                <template slot="afterFilter">
-                    <b v-if="countRecords">{{ countRecords }}</b>
-                </template>
-                <template slot="id" slot-scope="props">
-                    <a :href="getCharterUrl(props.row.id, props.index)">
-                        Charter {{ props.row.id }}
-                    </a>
-                </template>
-                <template slot="summary" slot-scope="props">
-                    <template v-if="issuers(props.row).length">
-                        <h5>Main issuer</h5>
-                        <div v-for="actor in issuers(props.row)" class="actor--issuer">
-                            <FormatValue :value="actor.name.full_name"></FormatValue> -
-                            <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                            <FormatValue :value="actor.place" type="id_name"></FormatValue>
-                        </div>
-                    </template>
-                    <template v-if="beneficiaries(props.row).length">
-                        <h5>Main beneficiary</h5>
-                        <div v-for="actor in beneficiaries(props.row)" class="actor--issuer">
-                            <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                            <FormatValue :value="actor.place" type="id_name"></FormatValue> -
-                            <FormatValue :value="actor.name.full_name"></FormatValue>
-                        </div>
-                    </template>
+
+            <nav class="mbottom-default">
+                <div class="nav nav-pills" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab" data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results" aria-selected="true" @click="updateMapVisibility(false)"><i class="fa-solid fa-bars" ></i> Browse results</button>
+                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" @click="updateMapVisibility(true)"><i class="fa-solid fa-map-location-dot"></i> Browse map</button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane show active" id="nav-results" role="tabpanel" aria-labelledby="nav-results-tab">
+                    <v-server-table
+                            ref="resultTable"
+                            :columns="tableColumns"
+                            :options="tableOptions"
+                            :url="urls['charter_search_api']"
+                            @data="onData"
+                            @loaded="onLoaded"
+                    >
+                        <template #afterFilter>
+                            <b v-if="countRecords">{{ countRecords }}</b>
+                        </template>
+                        <template #id="props">
+                            <a :href="getCharterUrl(props.row.id, props.index)">
+                                {{ props.row.id }}
+                            </a>
+                        </template>
+                        <template #summary="props">
+                            <template v-if="issuers(props.row).length">
+                                <h5>Main issuer</h5>
+                                <div v-for="actor in issuers(props.row)" class="actor--issuer">
+                                    <FormatValue :value="actor.name.full_name"></FormatValue> -
+                                    <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
+                                    <FormatValue :value="actor.place" type="id_name"></FormatValue>
+                                </div>
+                            </template>
+                            <template v-if="beneficiaries(props.row).length">
+                                <h5>Main beneficiary</h5>
+                                <div v-for="actor in beneficiaries(props.row)" class="actor--issuer">
+                                    <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
+                                    <FormatValue :value="actor.place" type="id_name"></FormatValue> -
+                                    <FormatValue :value="actor.name.full_name"></FormatValue>
+                                </div>
+                            </template>
 
                     <h5>Summary</h5>
                     {{ props.row.summary }}
@@ -76,6 +85,7 @@ import AbstractSearch from '../components/Search/AbstractSearch'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 import PersistentConfig from "../components/Shared/PersistentConfig"
 import SharedSearch from "../components/Search/SharedSearch";
+import LeafletMap from "../components/LeafletMap"
 
 import FormatValue from "../components/Sidebar/FormatValue";
 
@@ -94,7 +104,7 @@ export default {
         CollapsibleGroups
     ],
     components: {
-        FormatValue
+        FormatValue, LeafletMap
     },
     props: {
     },
@@ -211,6 +221,7 @@ export default {
                 person: {},
             },
             defaultOrdering: 'id',
+            mapVisible: null
         }
 
         // Add view internal only fields
@@ -224,6 +235,36 @@ export default {
             let columns = ['id', 'summary']
             return columns
         },
+        markers() {
+            let places = this.aggregation?.charter_place_name ?? []
+            let markers = places.filter( (place) => ( place.latitude ?? false ) ).map(function(place){
+                return {
+                    latLng: [ parseFloat(place.latitude), parseFloat(place.longitude)],
+                    name: place.name + ' (' + place.count + ')',
+                    id: place.id
+                }
+            });
+            return markers
+        },
+        layers() {
+            return [
+                {
+                    id: 'google-satellite',
+                    type: 'tileLayer',
+                    options: {
+                        // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+                        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        attribution: 'Google',
+                        maxZoom: 18,
+                        name: 'Google satelliet',
+                        visible: true,
+                        opacity: 1,
+                        layerType: 'base',
+                        zIndex: 10,
+                    }
+                },
+            ]
+        }
     },
     watch: {},
     methods: {
@@ -231,6 +272,10 @@ export default {
             // Don't create a new history item
             this.noHistory = true;
             this.$refs.resultTable.refresh();
+        },
+        updateMapVisibility(value) {
+            this.mapVisible = value;
+            console.log("triggered")
         },
         issuers: function(charter) {
             return charter.actors.filter( actor => actor.role.id === 2 )
