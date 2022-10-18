@@ -2,18 +2,39 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/dibe/public/build/main.879e3614.css"
+        "/build/main.e81f0fd5.css"
       ],
       "js": [
-        "/dibe/public/build/main.92c449f0.js"
+        "/build/main.1d24b7ae.js"
       ]
     },
     "charter-search": {
       "css": [
-        "/dibe/public/build/charter-search.0298f990.css"
+        "/build/charter-search.b761bf3f.css"
       ],
       "js": [
-        "/dibe/public/build/charter-search.ffbe0d73.js"
+        "/build/charter-search.aedd68a6.js"
+      ]
+    },
+    "charter-view": {
+      "css": [
+        "/build/charter-view.0efa1a61.css"
+      ],
+      "js": [
+        "/build/charter-view.0fb63e48.js"
+      ]
+    },
+    "tradition-search": {
+      "js": [
+        "/build/tradition-search.57d60039.js"
+      ]
+    },
+    "tradition-view": {
+      "css": [
+        "/build/tradition-view.2cb86d9e.css"
+      ],
+      "js": [
+        "/build/tradition-view.740a4c2c.js"
       ]
     }
   }
