@@ -31,17 +31,19 @@ SSH to vm
 
 ### Install server packages
 
-    sudo ./install/elasticsearch7.sh
-    sudo ./install/mariadb-10.4.sh
-    sudo ./install/php7.4-fpm.sh
+    cd install
+
+    sudo ./elasticsearch7.sh
+    sudo ./mariadb-10.4.sh
+    sudo ./php7.4-fpm.sh
 
     # install build tools
-    sudo ./install/composer.sh
-    sudo ./install/nodejs.sh
+    sudo ./composer.sh
+    sudo ./nodejs.sh
     sudo npm i yarn -g
 
     # install symfony cli
-    sudo ./install/symfony-cli.sh
+    sudo ./symfony-cli.sh
 
 #### set default php version to 7.4
 
