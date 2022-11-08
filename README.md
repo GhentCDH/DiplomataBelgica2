@@ -63,7 +63,7 @@ SSH to vm
 Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) and import using
 
     echo "create database db_dibe" | sudo mysql
-    sudo mysql < db_dibe.sql
+    sudo mysql --database=db_dibe < db_dibe.sql
 
 Create user and set permissions
 
