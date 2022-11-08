@@ -71,7 +71,7 @@ Create user and set permissions
 
 ### Create/Update Elasticsearch index
 
-    php bin/console app:elasticsearch:index charters
+    php bin/console app:elasticsearch:index charter
 
 ### Run application
 
