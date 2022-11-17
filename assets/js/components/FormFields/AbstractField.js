@@ -1,5 +1,8 @@
 import wNumb from 'wnumb'
 
+import Articles from 'articles'
+
+
 const RANGE_MIN_INVALID = -1
 const RANGE_MAX_INVALID = 10000
 
@@ -9,7 +12,7 @@ export default {
             let result = {
                 type: 'multiselectClear',
                 label: label,
-                labelClasses: 'form-label',
+                labelClasses: 'control-label',
                 placeholder: 'Loading',
                 // lowercase first letter + remove spaces
                 model: label.charAt(0).toLowerCase() + label.slice(1).replace(/[ ]/g, ''),
@@ -24,7 +27,11 @@ export default {
                     trackBy: 'id',
                 },
                 // Will be enabled by enableField
-                disabled: true
+                disabled: true,
+                anyKey: -2,
+                allowAny: true,
+                noneKey: -1,
+                allowNone: true
             }
             if (extra != null) {
                 for (let key of Object.keys(extra)) {
@@ -46,7 +53,8 @@ export default {
         },
         createRangeSlider(model, label, min, max, step, extra = null) {
             let result = {
-                type: "noUiSlider",
+                type: "customNoUiSlider",
+                styleClasses: "field-noUiSlider",
                 label: label,
                 model: model,
                 min: min,
@@ -65,6 +73,55 @@ export default {
             }
 
             return result;
+        },
+        createOperators(model, extra, allowedOperators = [])
+        {
+            let result = {
+                type: "checkboxes",
+                styleClasses: "field-inline-options field-checkboxes-labels-only collapsible collapsed",
+                label: 'options',
+                model: model,
+                parentModel: model.replace('_op',''),
+                values: [
+                    { name: "OR", value: "or", toggleGroup: "and_or", disabled: this.operatorIsDisabled },
+                    { name: "AND", value: "and", toggleGroup: "and_or", disabled: this.operatorIsDisabled },
+                    { name: "NOT", value: "not", disabled: this.operatorIsDisabled },
+                    { name: "ONLY", value: "only", disabled: this.operatorIsDisabled },
+                ]
+            }
+            if (extra != null) {
+                for (let key of Object.keys(extra)) {
+                    result[key] = extra[key]
+                }
+            }
+            if (allowedOperators.length) {
+                result.values = result.values.filter(item => allowedOperators.includes(item.value))
+            }
+
+            return result;
+        },
+        operatorIsDisabled(model, schema, item) {
+            let parentValues = model[schema.parentModel] === undefined ? [] : model[schema.parentModel]
+            let parentCount = parentValues.length;
+            let globalKeys = [ model[schema.parentModel]?.noneKey ?? -1, model[schema.parentModel]?.anyKey ?? -2 ]
+
+            // any/none selected? disable all
+            if ( parentValues.length === 1 && globalKeys.includes(parentValues[0].id) ) {
+                return true
+            }
+
+            if ( ['and', 'or'].includes(item.value) ) {
+                if ( parentCount < 2 ) {
+                    return true
+                }
+            }
+            if ( ['not', 'only'].includes(item.value) ) {
+                if ( parentCount < 1 ) {
+                    return true
+                }
+            }
+
+            return false
         },
         formatSliderToolTip(value) {
             if ( value > -1 && value < 10000 ) {
@@ -90,10 +147,14 @@ export default {
             // get everything after last '.'
             let modelName = field.model.split('.').pop()
 
+            let label = field.dependencyName ?? this.fields[field.dependency].label.toLowerCase()
+
             delete model[modelName]
             field.disabled = true
             field.selectOptions.loading = false
-            field.placeholder = 'Please select a ' + (field.dependencyName ? field.dependencyName : field.dependency) + ' first'
+            field.placeholder = 'Please select ' + Articles.articlize(label) + ' first'
+            // set dependency state
+            field.styleClasses = [...new Set(field?.styleClasses?.split(' ') ?? []).add('field--dependency-missing')].join(' ')
         },
         enableField(field, model = null, search = false) {
             if (model == null) {
@@ -125,85 +186,12 @@ export default {
             field.selectOptions.loading = false
             field.disabled = field.originalDisabled == null ? false : field.originalDisabled;
             let label = field.label.toLowerCase()
-            let article = 'a ';
-            switch(label) {
-                case 'article':
-                case 'office':
-                case 'online source':
-                case 'origin':
-                case 'editorial status':
-                case 'id':
-                    article = 'an ';
-                    break;
-                case 'acknowledgements':
-                    article = '';
-                    break;
-            }
-            field.placeholder = (field.selectOptions.multiple ? 'Select ' : 'Select ' + article) + label
-            if (field.model === 'diktyon') {
-                field.placeholder = 'Select a Diktyon number'
-            }
-        },
-        loadLocationField(field, model = null) {
-            if (model == null) {
-                model = this.model
-            }
-            let locations = this.values
+            field.placeholder = 'Select ' + Articles.articlize(label)
 
-            // filter dependency
-            if (field.hasOwnProperty('dependency')) {
-                switch (field.dependency) {
-                    case 'regionWithParents':
-                        locations = locations.filter((location) => location.regionWithParents.id === model.regionWithParents.id)
-                        break
-                    case 'institution':
-                        locations = locations.filter((location) => ( location.institution != null && location.institution.id === model.institution.id))
-                        break
-                }
-            }
-
-            // get everything after last '.'
-            let modelName = field.model.split('.').pop()
-
-            // filter null values
-            switch (modelName) {
-                case 'institution':
-                    locations = locations.filter((location) => location.institution != null)
-                    break
-                case 'collection':
-                    locations = locations.filter((location) => location.collection != null)
-                    break
-            }
-
-            let values = locations
-                // get the requested field information
-                .map((location) => {
-                    let fieldInfo = {
-                        locationId: location.id
-                    }
-                    switch (modelName) {
-                        case 'regionWithParents':
-                            fieldInfo.id = location.regionWithParents.id
-                            fieldInfo.name = location.regionWithParents.name
-                            fieldInfo.individualName = location.regionWithParents.individualName
-                            fieldInfo.historicalName = location.regionWithParents.historicalName
-                            fieldInfo.individualHistoricalName = location.regionWithParents.individualHistoricalName
-                            break
-                        case 'institution':
-                            fieldInfo.id = location.institution.id
-                            fieldInfo.name = location.institution.name
-                            break
-                        case 'collection':
-                            fieldInfo.id = location.collection.id
-                            fieldInfo.name = location.collection.name
-                            break
-                    }
-                    return fieldInfo
-                })
-                // remove duplicates
-                .filter((location, index, self) => index === self.findIndex((l) => l.id === location.id))
-
-            field.values = values
+            // remove dependency state
+            let classes = new Set(field?.styleClasses?.split(' ') ?? [])
+            classes.delete('field--dependency-missing')
+            field.styleClasses = [... classes].join(' ')
         },
         noValuesField(field, model = null, search = false) {
             if (model == null) {
@@ -219,7 +207,7 @@ export default {
 
             field.disabled = true
             field.selectOptions.loading = false
-            field.placeholder = 'No ' + field.label.toLowerCase() + 's available'
+            field.placeholder = 'No ' + field.label.toLowerCase() + ' available'
         },
         removeGreekAccents(input) {
             let encoded = encodeURIComponent(input.normalize('NFD'));
