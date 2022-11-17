@@ -4,8 +4,8 @@
             {{ label }}
         </div>
         <div :class="outputValueClass">
-            <template v-if="value != null">
-                <FormatValue v-if="outputValues && outputValues.length" v-for="(item, index) in outputValues" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
+            <template v-if="outputValues && outputValues.length">
+                <FormatValue v-for="(item, index) in outputValues" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
             </template>
             <span v-else>{{ unknown }}</span>
         </div>
@@ -91,10 +91,7 @@ export default {
     },
     methods: {
         isCallable(prop) {
-            if ( prop instanceof Function ) {
-                return true
-            }
-            return false
+            return prop instanceof Function;
         }
     }
 }
