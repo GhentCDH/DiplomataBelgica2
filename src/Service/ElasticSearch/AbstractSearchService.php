@@ -1326,7 +1326,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_KEYWORD:
                     $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-
+//                    dump($aggResults);
                     $items = [];
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
