@@ -49,7 +49,7 @@
                     <h3>Editions</h3>
 
                     <ul class="_list-unstyled" >
-                        <li v-for="edition in editionsFormatted">
+                        <li v-for="edition in editionsFormatted" :key="edition.id">
                             {{ edition.text }}
                             <InlineLinkList :linklist="edition.links"></InlineLinkList>
                         </li>
@@ -60,7 +60,7 @@
                     <h3>Secondary literature</h3>
 
                     <ul class="_list-unstyled">
-                        <li v-for="edition in secondaryLiteratureFormatted">
+                        <li v-for="edition in secondaryLiteratureFormatted" :key="edition.id">
                             {{ edition.text }}
                             <InlineLinkList :linklist="edition.links"></InlineLinkList>
                         </li>
@@ -72,7 +72,7 @@
                 <div class="mbottom-small">
                     <LabelValue class="mbottom-default" label="Original" :value="isOriginal" grid="4|8"></LabelValue>
 
-                    <div class="ptop-small" v-for="original in originals">
+                    <div class="ptop-small" v-for="original in originals" :key="original.id">
                         <a v-if="original.link" :href="original.link">{{ original.text }}</a>
                         <p v-else>{{ original.text }}</p>
                     </div>
@@ -81,7 +81,7 @@
                 <div v-if="codexes.length" class="mbottom-small">
                     <h3>Manuscripts</h3>
                     <ul>
-                        <li v-for="codex in codexes">
+                        <li v-for="codex in codexes" :key="codex.id">
                             <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
                             <p v-else>{{ codex.text }}</p>
                         </li>
@@ -118,7 +118,7 @@
 
                 <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
                     <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
-                    <div v-for="actor in issuers">
+                    <div v-for="actor in issuers" :key="actor.id">
                       <p>
                         <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                         <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
@@ -130,7 +130,7 @@
                     </div>
 
                   <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
-                  <div v-for="actor in authors">
+                  <div v-for="actor in authors" :key="actor.id">
                     <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
@@ -142,7 +142,7 @@
                   </div>
 
                   <h3 v-if="beneficiaries.length > 0">Benefiriary(ies)<small>(= recipient)</small></h3>
-                  <div v-for="actor in beneficiaries">
+                  <div v-for="actor in beneficiaries" :key="actor.id">
                     <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
