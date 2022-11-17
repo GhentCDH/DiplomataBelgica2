@@ -86,15 +86,15 @@ DELIMITER //
 CREATE PROCEDURE MigrateTranslatedField(
 	IN table_name VARCHAR(255),
 	IN field_name VARCHAR(255),
-	IN new_name VARCHAR(255),
-	IN field_type VARCHAR(255)
+	IN result_table_name VARCHAR(255),
+	IN result_field_type VARCHAR(255)
 )
 BEGIN
    	DECLARE CONTINUE HANDLER FOR SQLSTATE '42000' BEGIN END;
-	SET @full_name_id = CONCAT(new_name, "_id");
+	SET @full_name_id = CONCAT(result_table_name, "_id");
 
 	-- drop new_table
-	SET @stmt = CONCAT("DROP TABLE IF EXISTS ", new_name);
+	SET @stmt = CONCAT("DROP TABLE IF EXISTS ", result_table_name);
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 	
@@ -118,12 +118,12 @@ BEGIN
 	EXECUTE stmt;
 
 	-- create new table
-	SET @stmt = CONCAT("CREATE TABLE ", new_name, " (",
-		"`", @full_name_id, "` INT UNSIGNED NOT NULL AUTO_INCREMENT, ",
-		"`name_nl` ", field_type, " NULL, ",
-		"`name_fr` ", field_type, " NULL, ",
-		"`name_en` ", field_type, " NULL, ",
-		"PRIMARY KEY(`", @full_name_id, "`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+	SET @stmt = CONCAT("CREATE TABLE ", result_table_name, " (",
+                       "`", @full_name_id, "` INT UNSIGNED NOT NULL AUTO_INCREMENT, ",
+                       "`name_nl` ", result_field_type, " NULL, ",
+                       "`name_fr` ", result_field_type, " NULL, ",
+                       "`name_en` ", result_field_type, " NULL, ",
+                       "PRIMARY KEY(`", @full_name_id, "`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
@@ -135,7 +135,7 @@ BEGIN
 
 	SET @stmt = CONCAT("ALTER TABLE ", table_name, " ADD CONSTRAINT ",
 		"`", table_name, "__", @full_name_id, "_fk` FOREIGN KEY (`",
-		@full_name_id, "`) REFERENCES `", new_name, "`(`", @full_name_id, "`)");
+		@full_name_id, "`) REFERENCES `", result_table_name, "`(`", @full_name_id, "`)");
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
@@ -144,13 +144,13 @@ BEGIN
 		field_name, "_en = NULLIF(TRIM(", field_name, "_en), ''), ",
 		field_name, "_fr = NULLIF(TRIM(", field_name, "_fr), '')");
 	
-	SET @stmt = CONCAT("INSERT INTO ", new_name, "(name_nl, name_fr, name_en) ",
+	SET @stmt = CONCAT("INSERT INTO ", result_table_name, "(name_nl, name_fr, name_en) ",
 		"SELECT DISTINCT ", field_name, "_nl, ", field_name, "_fr, ", field_name, "_en FROM ", table_name,
 		" WHERE NOT (", field_name, "_nl IS NULL AND ", field_name, "_fr IS NULL AND ", field_name, "_en IS NULL)");
 	PREPARE stmt FROM @stmt;
 	EXECUTE stmt;
 
-	SET @stmt = CONCAT("UPDATE ", table_name, " AS t1, ", new_name, " AS t2 ",
+	SET @stmt = CONCAT("UPDATE ", table_name, " AS t1, ", result_table_name, " AS t2 ",
 		"SET t1.", @full_name_id, " = t2.", @full_name_id, " WHERE t1.", field_name, "_nl <=> t2.name_nl ", 
 		"AND t1.", field_name, "_fr <=> t2.name_fr AND t1.", field_name, "_en <=> t2.name_en");
 	PREPARE stmt FROM @stmt;
@@ -168,6 +168,14 @@ BEGIN
 
 END //
 DELIMITER ;
+
+
+-- Data cleanup
+
+update charter_actor
+set role_nl = 'Beneficiaris'
+where role_nl = 'Bénéficiaire';
+
 
 
 -- Normalize tables
@@ -357,7 +365,7 @@ ALTER TABLE `original_url` RENAME COLUMN `ou_original_id` TO `original_id`;
 
 RENAME TABLE `localisation` TO `place_localisation`;
 ALTER TABLE `place_localisation` RENAME COLUMN `localisation_id` TO `place_localisation_id`;
-CALL MigrateTranslatedField("place_localisation", "land", "place_localisation_land", "VARCHAR(255)");
+CALL MigrateTranslatedField("place_localisation", "land", "country", "VARCHAR(255)");
 
 ALTER TABLE `repository_url` RENAME COLUMN `dummy_id` TO `repository_url_id`;
 ALTER TABLE `repository_url` RENAME COLUMN `ru_repository_id` TO `repository_id`;
@@ -377,5 +385,8 @@ ALTER TABLE `vidimus` RENAME COLUMN `vidimus_dibe_id_2` TO `related_charter_id`;
 ALTER TABLE `vidimus` DROP PRIMARY KEY;
 INSERT INTO vidimus(charter_id, related_charter_id, published) SELECT related_charter_id, charter_id, published FROM vidimus;
 ALTER TABLE `vidimus` ADD COLUMN `vidimus_id` INT UNSIGNED NOT NULL PRIMARY KEY AUTO_INCREMENT FIRST;
+
+CALL MigrateTranslatedField("place", "diocese_name", "diocese", "VARCHAR(255)");
+CALL MigrateTranslatedField("place", "principality_name", "principality", "VARCHAR(255)");
 
 DROP TABLE `person`;
