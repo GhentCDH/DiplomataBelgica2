@@ -1,0 +1,28 @@
+.searchit {
+	font-family: Raleway, Sans;
+	color: #0CA4AC;
+	padding-bottom: 44px;
+	display: block;
+	font-size: 24px;
+	margin-bottom: 18px;
+	top: 13px;
+    @include media-breakpoint-up(md) {
+        // margin-top: -50px;
+    }
+   
+}
+& a:link {
+	color: #0CA4AC;
+}
+&:hover {
+	color: #20DEE9;
+}
+& img {
+	display: inline-block;
+	top: 7px;
+	position: relative;
+	padding-top: 4px;
+	padding-right: 7px;
+	margin-top: 6px;
+	padding-left: 3px;
+}
