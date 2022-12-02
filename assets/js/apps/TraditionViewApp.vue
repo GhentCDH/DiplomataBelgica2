@@ -1,155 +1,43 @@
 <template>
     <div class="row">
-        <article class="col-sm-8">
+        <article class="col-sm-10">
             <div class="scrollable scrollable--vertical pbottom-large">
 
-                <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
-
-                <h2>Summary and description</h2>
-                <div class="mbottom-default">{{ charter.summary }}</div>
-
+                <h1 class="pbottom-default">Tradition </h1>
+                <!-- <h2>Tradition</h2> -->
                 <div class="mbottom-default">
-                  <LabelValue label="Language" :value="charter.language" type="id_name" grid="4|8"></LabelValue>
-                  <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name" grid="4|8"></LabelValue>
-                  <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" grid="4|8"></LabelValue>
-                  <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue label="Reference" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
+                  <LabelValue label="Type" :value="tradition.type" grid="4|8"></LabelValue>
                 </div>
-
-
-                <!-- Text -->
-                <template v-if="charter.full_text">
-                    <h2>Full text of charter</h2>
-                    <div class="col-10 pbottom-small">
-                        <p class="charter-full-text">
-                            {{ charter.full_text }}
-                        </p>
-                    </div>
-                    <div v-if="charter.edition" class="mbottom-default">
-                        <LabelValue label="Source" :value="formatSource(charter.edition)"  grid="4|8"></LabelValue>
-                    </div>
-                </template>
-
-                <h2>Editions and secondary literature</h2>
-
-                <div v-if="editionsFormatted.length" class="mbottom-small">
-                    <h3>Editions</h3>
-
-                    <ul class="_list-unstyled" >
-                        <li v-for="edition in editionsFormatted" :key="edition.id">
-                            {{ edition.text }}
-                            <InlineLinkList :linklist="edition.links"></InlineLinkList>
-                        </li>
-                    </ul>
+                <h1 v-if="tradition.type == 'manuscript'" class="pbottom-default" > Information about the Manuscript </h1>
+                <div v-if="tradition.type == 'manuscript'" class="mbottom-default">
+                  <LabelValue label="Stein ID" :value="tradition.stein_number" grid="4|8"></LabelValue>
+                  <LabelValue label="Author(s) of the manuscript" :value="tradition.authors" grid="4|8"></LabelValue>
+                  <LabelValue label="Title of the manuscript" :value="tradition.title" grid="4|8"></LabelValue>
+                  <LabelValue label="Date of redaction" :value="tradition.redaction_date" grid="4|8"></LabelValue>
+                  <LabelValue label="Institution(s) covered by the manuscript" :value="tradition.institutions" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue label="Size of the manuscript" :value="tradition.pages" grid="4|8"></LabelValue>
+                  <LabelValue label="Writing material(s)" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
-
-                <div v-if="secondaryLiteratureFormatted.length" class="mbottom-small">
-                    <h3>Secondary literature</h3>
-
-                    <ul class="_list-unstyled">
-                        <li v-for="edition in secondaryLiteratureFormatted" :key="edition.id">
-                            {{ edition.text }}
-                            <InlineLinkList :linklist="edition.links"></InlineLinkList>
-                        </li>
-                    </ul>
-                </div>
-
-                <h2>Tradition</h2>
-
-                <div class="mbottom-small">
-                    <LabelValue class="mbottom-default" label="Original" :value="isOriginal" grid="4|8"></LabelValue>
-
-                    <div class="ptop-small" v-for="original in originals" :key="original.id">
-                        <a v-if="original.link" :href="original.link">{{ original.text }}</a>
-                        <p v-else>{{ original.text }}</p>
-                    </div>
-                </div>
-
-                <div v-if="codexes.length" class="mbottom-small">
-                    <h3>Manuscripts</h3>
+                <h1 class="pbottom-default"> Link </h1>
+                <div v-if="tradition.repository.urls.length >0">
+                    <h2 v-if="tradition.repository.urls.length >0">Repository</h2>
                     <ul>
-                        <li v-for="codex in codexes" :key="codex.id">
-                            <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
-                            <p v-else>{{ codex.text }}</p>
+                        <li v-for="url in tradition.repository.urls" :key="url.id">
+                            <a href="url.url">{{ url.url }}</a> 
+                        </li>
+                    </ul>
+                </div>
+                <div v-if="(tradition.urls.length > 0 )">
+                    <h2 v-if="tradition.urls.length > 0" >Document</h2>
+                    <ul>
+                        <li v-for="url in tradition.urls" :key="url.id">
+                            <a href="url.url">{{ url.url }}</a> 
                         </li>
                     </ul>
                 </div>
             </div>
-        </article>
-        <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
-            <div class="padding-default">
-
-                <Widget v-if="isValidResultSet()" title="Search" :collapsed="false">
-                    <div class="row mbottom-default">
-                        <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)"> 
-                                <i class="fa-solid fa-angles-left"></i>
-                            </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">
-                                <i class="fa-solid fa-angle-left"></i>
-                            </span>
-                        </div>
-
-                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
-                        <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
-                          
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
-                                <i class="fa-solid fa-angle-right"></i>
-                            </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">
-                                <i class="fa-solid fa-angles-right"></i>
-                            </span>
-                        </div>
-                    </div>
-                </Widget>
-
-                <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
-                    <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
-                    <div v-for="actor in issuers" :key="actor.id">
-                      <p>
-                        <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
-                        <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
-                        <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                        <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                        <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
-                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                      </p>
-                    </div>
-
-                  <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
-                  <div v-for="actor in authors" :key="actor.id">
-                    <p>
-                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
-                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
-                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
-                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                    </p>
-                  </div>
-
-                  <h3 v-if="beneficiaries.length > 0">Benefiriary(ies)<small>(= recipient)</small></h3>
-                  <div v-for="actor in beneficiaries" :key="actor.id">
-                    <p>
-                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
-                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
-                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
-                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                    </p>
-                  </div>
-                </Widget>
-
-                <Widget title="Date" :collapsed.sync="config.widgets.date.isOpen">
-                  <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
-                  <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
-                  <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
-                  <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"  :inline="false"></LabelValue>
-                  <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"  :inline="false"></LabelValue>
-                </Widget>
-
-            </div>
-        </aside>
+        </article> 
         <div
                 v-if="openRequests"
                 class="loading-overlay"
@@ -205,8 +93,8 @@ export default {
                     useContext: true,
                 },
                 widgets: {
-                    actors: { collapsed: false },
-                    date: { collapsed: false }
+                    tradition: { collapsed: false },
+                    link: { collapsed: false }
                 }
             },
             openRequests: false,
@@ -222,7 +110,7 @@ export default {
             return this.urls[route] ?? ''
         },
         getTraditionUrl(id, tradition_type) {
-            let url = this.getUrl('tradition_get_single').replace('charter_id',id).replace('tradition_type', tradition_type)
+            let url = this.getUrl('tradition_get_single').replace('tradition_id',id).replace('tradition_type', tradition_type)
             if (this.isValidContext()) {
                 url += '#' + this.getContextHash()
             }
@@ -230,15 +118,28 @@ export default {
         },
         loadTradition(id, tradition_type) {
             this.openRequests += 1
-            let url = this.getUrl('tradition_get_single').replace('charter_id',id).replace('tradition_type', tradition_type)
+            let url = this.getUrl('tradition_get_single').replace('tradition_id',id).replace('tradition_type', tradition_type)
             return axios.get(url).then( (response) => {
                 if (response.data) {
-                    this.data.charter = response.data;
+                    this.data.tradition = response.data;
                 }
                 this.openRequests -= 1
             })
         },
-        loadCharterByIndex(index) {
+        formatReference(reference, referenceNum) {
+            var res = '';
+            if (reference.location) {
+                res = reference.location;
+            }
+            if (reference.name) {
+                res = res + ', ' + reference.name;
+            }
+            if (referenceNum) {
+                res = res + ', ' + referenceNum;
+            }
+            return res;
+        },
+        loadTraditionByIndex(index) {
             let that = this;
             if ( !this.resultSet.count ) return;
 
@@ -248,14 +149,210 @@ export default {
                     // update context
                     that.context.searchIndex = newIndex
                     // update state
-                    window.history.replaceState({}, '', that.getCharterUrl(id));
+                    window.history.replaceState({}, '', that.getTraditionUrl(id));
                 });
             })
         },
         isValidResultSet() {
             return this.context?.searchIndex && this.resultSet?.count
         },
-
+        formatSource(edition) {
+          var res = [];
+          if(edition.names_editors) {
+            res.push(edition.names_editors);
+          }
+          if(edition.date_of_edition_year) {
+            res.push(edition.date_of_edition_year);
+          }
+          if(res.length > 0) {
+            return res.join(', ');
+          } else {
+            return null;
+          }
+        },
+        formatDate(date) {
+          var res = '';
+          if (date.year) {
+            res = date.year;
+            if (date.month) {
+              res = date.month + '/' + res;
+              if (date.day) {
+                res = date.day + '/' + res;
+              }
+            }
+          }
+          return res;
+        },
+        formatDatations(datations) {
+          var arr = [];
+          for(const datation of datations) {
+            var res = this.formatDate(datation.time);
+            if (datation.time.interpretation) {
+              res += ' (' + datation.time.interpretation;
+              if (datation.researcher) {
+                res += ' - ' + datation.researcher + ')';
+              } else {
+                res += ')';
+              }
+            }
+            arr.push(res);
+          }
+          return arr;
+        },
+        getDates(dates) {
+          var arr = [];
+          for(const date of dates) {
+            arr.push(this.formatDate(date));
+          }
+          return arr;
+        },
+        getNormalisedPlace(place) {
+          var res = '';
+          if(place.name) {
+            res = place.name;
+          }
+          var localisation = [];
+          if(place.localisation) {
+            if(place.localisation.land) {
+              localisation.push(place.localisation.land.name);
+            }
+            if(place.localisation.echelon_1) {
+              localisation.push(place.localisation.echelon_1);
+            }
+            if(place.localisation.echelon_2) {
+              localisation.push(place.localisation.echelon_2);
+            }
+          }
+          if(localisation.length > 0) {
+            res += (res.length > 0 ? ' ' : '') + '(' + localisation.join(', ') + ')';
+          }
+          return res;
+        },
+        formatOriginal(original) {
+          var res = [];
+          if(original.repository) {
+            if(original.repository.location) {
+              res.push(original.repository.location);
+            }
+            if(original.repository.name) {
+              res.push(original.repository.name);
+            }
+          }
+          if(original.repository_reference_number) {
+            res.push(original.repository_reference_number);
+          }
+          if(res.length > 0) {
+            if(original.id) {
+              return { 'text': res.join(', '), 'link': '/original/' + original.id };
+            } else {
+              return { 'text' : res.join(', ') };
+            }
+          } else {
+            return null;
+          }
+        },
+        formatCodex(codex) {
+          var res = [];
+          if(codex.repository) {
+            if(codex.repository.location) {
+              res.push(codex.repository.location);
+            }
+            if(codex.repository.name) {
+              res.push(codex.repository.name);
+            }
+          }
+          if(codex.repository_reference_number) {
+            res.push(codex.repository_reference_number);
+          }
+          var line = '';
+          if(res.length > 0) {
+            line = res.join(', ');
+          }
+          if(codex.redaction_date) {
+            line += (line.length > 0 ? ' ' : '') + '(' + codex.redaction_date + ')';
+          }
+          if(line.length > 0) {
+            if(codex.id) {
+              return { 'text' : line, 'link' : '/codex/' + codex.id };
+            } else {
+              return { 'text' : line };
+            }
+          } else {
+            return null;
+          }
+        },
+        formatEdition(edition) {
+            let parts = [];
+            let links = [];
+            if(edition.edition) {
+                if(edition.edition.names_editors) {
+                    parts.push(edition.edition.names_editors);
+                }
+                if(edition.edition.full_title) {
+                    parts.push(edition.edition.full_title);
+                }
+            }
+            if(edition.bookpart) {
+                parts.push(edition.bookpart);
+            }
+            if(edition.nr) {
+                parts.push(edition.nr);
+            }
+            if(edition.pages) {
+                parts.push(edition.pages);
+            }
+            if(edition.edition && edition.edition.urls) {
+              for(const url of edition.edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
+            if(edition.urls) {
+              for (const url of edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
+            return parts.length ? { text: parts.join(', '), links: links } : null
+        },
+        formatSecondaryLiterature(edition) {
+            let parts = [];
+            let links = [];
+            if(edition.secondary_literature) {
+                if(edition.secondary_literature.names_editors) {
+                    parts.push(edition.secondary_literature.names_editors);
+                }
+                if(edition.secondary_literature.full_title) {
+                    parts.push(edition.secondary_literature.full_title);
+                }
+            }
+            if(edition.bookpart) {
+                parts.push(edition.bookpart);
+            }
+            if(edition.nr) {
+                parts.push(edition.nr);
+            }
+            if(edition.pages) {
+                parts.push(edition.pages);
+            }
+            if(edition.secondary_literature && edition.secondary_literature.urls) {
+              for(const url of edition.secondary_literature.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
+            if(edition.urls) {
+              for (const url of edition.urls) {
+                if (url.url && url.url.length > 0) {
+                  links.push(url.url);
+                }
+              }
+            }
+            return parts.length ? { text: parts.join(', '), links: links } : null
+        }
     },
     created() {
         // init context
@@ -273,7 +370,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
-#charter-view-app {
+#tradition-view-app {
   display: flex;
   flex-direction: row;
   flex: 1;

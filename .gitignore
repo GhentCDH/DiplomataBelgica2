@@ -20,7 +20,7 @@ bower_components
 node_modules
 /images/
 .idea/
-.env.local
+.env.local.php
 .env.*.local
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
