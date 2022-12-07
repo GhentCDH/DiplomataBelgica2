@@ -3,25 +3,25 @@
         <article class="col-sm-10">
             <div class="scrollable scrollable--vertical pbottom-large">
 
-                <h1 class="pbottom-default">Tradition </h1>
+                <h2 class="pbottom-default">Tradition </h2>
                 <!-- <h2>Tradition</h2> -->
                 <div class="mbottom-default">
                   <LabelValue label="Reference" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
                   <LabelValue label="Type" :value="tradition.type" grid="4|8"></LabelValue>
                 </div>
-                <h1 v-if="tradition.type == 'manuscript'" class="pbottom-default" > Information about the Manuscript </h1>
+                <h2 v-if="tradition.type == 'manuscript'" class="pbottom-default" > Information about the Manuscript </h2>
                 <div v-if="tradition.type == 'manuscript'" class="mbottom-default">
                   <LabelValue label="Stein ID" :value="tradition.stein_number" grid="4|8"></LabelValue>
-                  <LabelValue label="Author(s) of the manuscript" :value="tradition.authors" grid="4|8"></LabelValue>
+                  <LabelValue v-if=tradition.authors label="Author(s) of the manuscript" :value="tradition.authors" grid="4|8"></LabelValue>
                   <LabelValue label="Title of the manuscript" :value="tradition.title" grid="4|8"></LabelValue>
                   <LabelValue label="Date of redaction" :value="tradition.redaction_date" grid="4|8"></LabelValue>
                   <LabelValue label="Institution(s) covered by the manuscript" :value="tradition.institutions" type="id_name" grid="4|8"></LabelValue>
                   <LabelValue label="Size of the manuscript" :value="tradition.pages" grid="4|8"></LabelValue>
                   <LabelValue label="Writing material(s)" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
-                <h1 class="pbottom-default"> Link </h1>
+                <h2 class="pbottom-default"> Link </h2>
                 <div v-if="tradition.repository.urls.length >0">
-                    <h2 v-if="tradition.repository.urls.length >0">Repository</h2>
+                    <h3 v-if="tradition.repository.urls.length >0">Repository</h3>
                     <ul>
                         <li v-for="url in tradition.repository.urls" :key="url.id">
                             <a href="url.url">{{ url.url }}</a> 
@@ -29,14 +29,18 @@
                     </ul>
                 </div>
                 <div v-if="(tradition.urls.length > 0 )">
-                    <h2 v-if="tradition.urls.length > 0" >Document</h2>
+                    <h3 v-if="tradition.urls.length > 0" >Document</h3>
                     <ul>
                         <li v-for="url in tradition.urls" :key="url.id">
                             <a href="url.url">{{ url.url }}</a> 
                         </li>
                     </ul>
                 </div>
-            </div>
+                <h2 v-if="tradition.image_count > 0"> Images </h2>
+                <div v-if="(tradition.image_count>0)" >
+                  <ImageThumbnail :url="getImageUrl(tradition.images)" > </ImageThumbnail>
+                </div>
+              </div>
         </article> 
         <div
                 v-if="openRequests"
@@ -61,13 +65,19 @@ import SearchContext from "../components/Search/SearchContext";
 
 import axios from 'axios'
 import FormatValue from "../components/Sidebar/FormatValue";
+import ImageThumbnail from '../components/ImageThumbnail.vue'
 
 export default {
     name: "TraditionViewApp",
     components: {
-      FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList
-    },
+    FormatValue,
+    Widget,
+    LabelValue,
+    PropertyGroup,
+    CheckboxSwitch,
+    InlineLinkList,
+    ImageThumbnail
+},
     mixins: [
         PersistentConfig('TraditionViewConfig'),
         ResultSet,
@@ -183,6 +193,26 @@ export default {
           }
           return res;
         },
+        removeExtension(filename) {
+          return filename.substring(0, filename.lastIndexOf('.')) || filename;
+        },
+        removeExtension(filename) {
+          return filename.substring(0, filename.lastIndexOf('.')) || filename;
+        },
+        filenameCheck(filename) {
+          var name = this.removeExtension(filename).replace('/',':');
+
+          return name.replace('[^\d:-]','');
+        },
+        formatImageUrl(url) {
+            var prefix = 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:';
+            var suffix='/full/256,/0/default.jpg'
+            
+            return prefix + this.filenameCheck(this.removeExtension(url)) + suffix;
+        },
+        getImageUrl(values) {
+          return values.map( item => this.formatImageUrl(item.image_file ))
+        },         
         formatDatations(datations) {
           var arr = [];
           for(const datation of datations) {
