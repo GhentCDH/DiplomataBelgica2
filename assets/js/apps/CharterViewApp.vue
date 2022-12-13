@@ -394,7 +394,7 @@ export default {
           }
           if(res.length > 0) {
             if(original.id) {
-              return { 'text': res.join(', '), 'link': '/original/' + original.id };
+              return { 'text': res.join(', '), 'link': '/tradition/original/' + original.id };
             } else {
               return { 'text' : res.join(', ') };
             }
@@ -424,7 +424,7 @@ export default {
           }
           if(line.length > 0) {
             if(codex.id) {
-              return { 'text' : line, 'link' : '/codex/' + codex.id };
+              return { 'text' : line, 'link' : '/tradition/manuscript/' + codex.id };
             } else {
               return { 'text' : line };
             }

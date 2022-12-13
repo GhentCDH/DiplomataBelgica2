@@ -1,5 +1,7 @@
 .imagethumbnail {
+    column-count: 2;
     padding: 2px;
+    flex-flow: row wrap;
 }
 
 img {

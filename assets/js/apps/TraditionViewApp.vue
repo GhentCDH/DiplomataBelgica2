@@ -1,6 +1,6 @@
 <template>
     <div class="row">
-        <article class="col-sm-10">
+        <article class="col-sm-12">
             <div class="scrollable scrollable--vertical pbottom-large">
 
                 <h2 class="pbottom-default">Tradition </h2>
@@ -19,6 +19,7 @@
                   <LabelValue label="Size of the manuscript" :value="tradition.pages" grid="4|8"></LabelValue>
                   <LabelValue label="Writing material(s)" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
+                
                 <h2 class="pbottom-default"> Link </h2>
                 <div v-if="tradition.repository.urls.length >0">
                     <h3 v-if="tradition.repository.urls.length >0">Repository</h3>
@@ -28,17 +29,29 @@
                         </li>
                     </ul>
                 </div>
-                <div v-if="(tradition.urls.length > 0 )">
-                    <h3 v-if="tradition.urls.length > 0" >Document</h3>
-                    <ul>
-                        <li v-for="url in tradition.urls" :key="url.id">
-                            <a href="url.url">{{ url.url }}</a> 
-                        </li>
-                    </ul>
-                </div>
+
+
+                <h3 v-if="tradition.urls.length > 0" >Document</h3>
+                <ul>
+                    <li v-for="url in tradition.urls" :key="url.id">
+                        <a href="url.url">{{ url.url }}</a> 
+                    </li>
+                </ul>
+
                 <h2 v-if="tradition.image_count > 0"> Images </h2>
                 <div v-if="(tradition.image_count>0)" >
                   <ImageThumbnail :url="getImageUrl(tradition.images)" > </ImageThumbnail>
+                </div>
+                <div v-if="(tradition.type=='manuscript')">
+                  <h2 v-if="(tradition.type=='manuscript')"> Charters </h2>
+                  <div v-for="charter in tradition.charters" :key="charter.id">
+                    <p>
+                      <LabelValue label="DiBe ID" :value="charter.id" :url="'/charter/' + charter.id" grid="2|8"></LabelValue>
+                      <LabelValue label="Main issuer:" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
+                      <LabelValue label="Author" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
+                      <LabelValue label="Year" :value="getDates(charter.udt)" grid="2|8"></LabelValue>
+                    </p>
+                  </div>
                 </div>
               </div>
         </article> 
@@ -70,14 +83,14 @@ import ImageThumbnail from '../components/ImageThumbnail.vue'
 export default {
     name: "TraditionViewApp",
     components: {
-    FormatValue,
-    Widget,
-    LabelValue,
-    PropertyGroup,
-    CheckboxSwitch,
-    InlineLinkList,
-    ImageThumbnail
-},
+      FormatValue,
+      Widget,
+      LabelValue,
+      PropertyGroup,
+      CheckboxSwitch,
+      InlineLinkList,
+      ImageThumbnail
+  },
     mixins: [
         PersistentConfig('TraditionViewConfig'),
         ResultSet,

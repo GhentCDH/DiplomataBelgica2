@@ -53,6 +53,11 @@ class ElasticTraditionResource extends ElasticBaseResource
         if ($ret['type'] == 'manuscript') {
             $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
         }
+
+        if ($ret['type'] == 'original') {
+            $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
+        }
+
         $ret['has_images'] = self::boolean( (
             (count($ret['images']) > 0)
             || (count($ret['imageUrls']) > 0)
