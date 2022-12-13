@@ -10,10 +10,10 @@
     },
     "charter-search": {
       "css": [
-        "/build/charter-search.99085bb3.css"
+        "/build/charter-search.f8ab2b95.css"
       ],
       "js": [
-        "/build/charter-search.53f3fc95.js"
+        "/build/charter-search.ef611acf.js"
       ]
     },
     "charter-view": {
@@ -21,7 +21,7 @@
         "/build/charter-view.34769dca.css"
       ],
       "js": [
-        "/build/charter-view.d2758205.js"
+        "/build/charter-view.24af036f.js"
       ]
     },
     "tradition-search": {
@@ -34,7 +34,7 @@
         "/build/tradition-view.279ec3d2.css"
       ],
       "js": [
-        "/build/tradition-view.fa0860a4.js"
+        "/build/tradition-view.d1e8629f.js"
       ]
     }
   }

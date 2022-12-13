@@ -78,6 +78,16 @@
                     </div>
                 </div>
 
+                <div v-if="copies.length" class="mbottom-small">
+                    <h3>Copies</h3>
+                    <ul>
+                        <li v-for="copy in copies" :key="copy.id">
+                            <a v-if="copy.link" :href="copy.link">{{ copy.text }}</a>
+                            <p v-else>{{ copy.text }}</p>
+                        </li>
+                    </ul>
+                </div>
+
                 <div v-if="codexes.length" class="mbottom-small">
                     <h3>Manuscripts</h3>
                     <ul>
@@ -260,8 +270,11 @@ export default {
             return this.charter.originals.map( original => this.formatOriginal(original) ).filter( original => original !== null);
         },
         codexes() {
-            return this.charter.codexes.map( codex => this.formatCodex(codex) ).filter( codex => codex !== null);
+            return this.charter.codexes.map( codex => this.formatCodex(codex, 'manuscript') ).filter( codex => codex !== null);
         },
+        copies() {
+            return this.charter.copies.map( copy => this.formatCodex(copy, 'copy') ).filter( copy => copy !== null);
+        },        
         editionsFormatted() {
             return this.charter.edition_indications.map( item => this.formatEdition(item) ).filter( item => item !== null);
         },
@@ -402,7 +415,7 @@ export default {
             return null;
           }
         },
-        formatCodex(codex) {
+        formatCodex(codex, type) {
           var res = [];
           if(codex.repository) {
             if(codex.repository.location) {
@@ -424,7 +437,7 @@ export default {
           }
           if(line.length > 0) {
             if(codex.id) {
-              return { 'text' : line, 'link' : '/tradition/manuscript/' + codex.id };
+              return { 'text' : line, 'link' : '/tradition/' + type +'/' + codex.id };
             } else {
               return { 'text' : line };
             }
@@ -432,6 +445,7 @@ export default {
             return null;
           }
         },
+
         formatEdition(edition) {
             let parts = [];
             let links = [];

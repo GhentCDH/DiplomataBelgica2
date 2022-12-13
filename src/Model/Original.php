@@ -46,7 +46,16 @@ class Original extends AbstractTraditionModel
      */
     public function codex(): BelongsTo
     {
-        return $this->belongsTo(Codex::class);
+        return $this->BelongsTo(Codex::class);
+    }
+
+    /**
+     * @return BelongsTo|Collection|Charter[]
+     * @throws ReflectionException
+     */
+    public function charter(): BelongsTo
+    {
+        return $this->BelongsTo(Charter::class);
     }
 
 }

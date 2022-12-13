@@ -42,17 +42,16 @@
                 <div v-if="(tradition.image_count>0)" >
                   <ImageThumbnail :url="getImageUrl(tradition.images)" > </ImageThumbnail>
                 </div>
-                <div v-if="(tradition.type=='manuscript')">
-                  <h2 v-if="(tradition.type=='manuscript')"> Charters </h2>
-                  <div v-for="charter in tradition.charters" :key="charter.id">
-                    <p>
-                      <LabelValue label="DiBe ID" :value="charter.id" :url="'/charter/' + charter.id" grid="2|8"></LabelValue>
-                      <LabelValue label="Main issuer:" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
-                      <LabelValue label="Author" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
-                      <LabelValue label="Year" :value="getDates(charter.udt)" grid="2|8"></LabelValue>
-                    </p>
-                  </div>
+                <h2> Charters </h2>
+                <div v-for="charter in tradition.charters" :key="charter.id">
+                  <p>
+                    <LabelValue label="DiBe ID" :value="charter.id" :url="'/charter/' + charter.id" grid="2|8"></LabelValue>
+                    <LabelValue label="Main issuer:" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
+                    <LabelValue label="Author" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
+                    <LabelValue label="Year" :value="formatDatations(charter.datations)" grid="2|8"></LabelValue>
+                  </p>
                 </div>
+
               </div>
         </article> 
         <div

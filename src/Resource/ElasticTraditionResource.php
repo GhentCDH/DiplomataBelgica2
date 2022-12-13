@@ -46,15 +46,18 @@ class ElasticTraditionResource extends ElasticBaseResource
         if ( $resource->isRelation('institutions') ) {
             $ret['institutions'] = ElasticIdNameResource::collection($this->institutions);
         }
+        
         $ret['type'] = $resource->traditionType();
 
-        // $ret['charter_Test'] = $this->charters;
+        // if ($ret['type'] == 'manuscript') {
+        //     $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
+        // }
 
-        if ($ret['type'] == 'manuscript') {
-            $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
+        if ($ret['type'] == 'original' or 'copy') {
+            $ret['charters'] = ElasticTraditionCharterResource::collection([$this->charter]);
         }
 
-        if ($ret['type'] == 'original') {
+        if ($ret['type'] == 'manuscript') {
             $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
         }
 
