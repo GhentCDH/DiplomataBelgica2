@@ -3648,6 +3648,11 @@ opener@^1.5.2:
   resolved "https://registry.yarnpkg.com/opener/-/opener-1.5.2.tgz#5d37e1f35077b9dcac4301372271afdeb2a13598"
   integrity sha512-ur5UIdyw5Y7yEj9wLzhqXiy6GZ3Mwx0yGI+5sMn2r0N0v3cKJvUmFH5yPP+WXh9e0xfyzyJX95D8l088DNFj7A==
 
+openseadragon@^3.1.0:
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/openseadragon/-/openseadragon-3.1.0.tgz#152b1ed8b6b03296feeed4e0ddf084cea7d0c1f2"
+  integrity sha512-0zCbRIWUbCto7xm1tv2ZLEiSl84cDU659W/sfs2zqqTqVRa4CRHzhy7i9nsv6dHA1DryFR8IzjStjmWOqRs9Rg==
+
 p-limit@^2.0.0, p-limit@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-2.3.0.tgz#3dd33c647a214fdfffd835933eb086da0dc21db1"
@@ -4996,6 +5001,11 @@ vue-multiselect@^2.1.4:
   version "2.1.6"
   resolved "https://registry.yarnpkg.com/vue-multiselect/-/vue-multiselect-2.1.6.tgz#5be5d811a224804a15c43a4edbb7485028a89c7f"
   integrity sha512-s7jmZPlm9FeueJg1RwJtnE9KNPtME/7C8uRWSfp9/yEN4M8XcS/d+bddoyVwVnvFyRh9msFo0HWeW0vTL8Qv+w==
+
+vue-openseadragon@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/vue-openseadragon/-/vue-openseadragon-0.1.2.tgz#2c1101af6f21894ae8203ef9bdc0e7a004ac970a"
+  integrity sha512-yDJiqFcgkzOJHLOk/gT/u63AOMBfuy7zn2n2iH824vNfBJYE2KUy8qzBwrnrs5U/zcn+KJET1oxmW5xwVA2zNw==
 
 vue-pagination-2@^1.6.3:
   version "1.6.3"

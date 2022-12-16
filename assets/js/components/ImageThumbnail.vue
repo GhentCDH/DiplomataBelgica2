@@ -1,50 +1,73 @@
-<!-- <template>
-    <div class="imagethumbnail">
-        <template v-if="outputValues && outputValues.length">
-            <img class="img-thumbnail" v-for="(item, index) in outputValues" :key="index" :src="item" />
-        </template>
-    </div>
-</template> -->
-
 <template>
-    <masonry-wall :items="outputValues" :column-width="256" :gap="10">
-      <template #default="{ item }">
-        <div >
-            <img :src="item" />
+    <div class="image-thumbnail">
+        <masonry-wall :items="thumbnailUrls" :column-width="256" :gap="10">
+            <template #default="{ item }">
+                <div>
+                    <img @click="showZoomedImage(item)" class="img-thumbnail" :src="item" />
+                </div>
+            </template>
+        </masonry-wall>
+        <div v-if="zoomImage != null" id="zoomWindow" class="modal fade" :class="{'show': zoomImage}" tabindex="-1" style="display: block" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Image Zoom</h5>
+                        <button type="button" class="btn-close" @click="closeZoomedImage" aria-label="Close">
+                            <!-- <span aria-hidden="true">&times;</span> -->
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <open-seadragon
+                            id="openseadragon-zoom-viewer"
+                            :IIIFImageUrl="zoomImage"
+                        />
+                    </div>
+                </div>
+            </div>
         </div>
-      </template>
-    </masonry-wall>
+    </div>
 </template>
 
 <script>
-import MasonryWall from '@yeger/vue2-masonry-wall'
+import MasonryWall from '@yeger/vue2-masonry-wall';
+import OpenSeadragon from './OpenSeadragon.vue';
 
 export default {
     name: "ImageThumbnail",
     components: {
-        MasonryWall
+        MasonryWall,
+        OpenSeadragon
     },
     data() {
         return {
-        items: [],
+            NotClicked : true ,
+            zoomImage : null,
+            items: [],
         }
     },
 
     props: {
-        url: {
+        thumbnailUrls: {
             type: Array,
+            default: () => []
         },
         unknown: {
             type: String,
             default: null
         },
     },
-    
-    computed: {
-        outputValues() {
-            let urls = this.url ? ( Array.isArray(this.url) ? this.url : [ this.url ] ) : ( this.unknown ? [ this.unknown ] : [] )
-            return urls
+
+    methods: {
+        showZoomedImage (item) {	
+            this.zoomImage = item.replace('/full/256,/0/default.jpg', '/info.json')
+            const element = document.getElementById('zoomWindow');
+            element.style.display='block';
         },
-    },
+        closeZoomedImage () {
+            const element = document.getElementById('zoomWindow');
+            element.style.display='none';
+            this.zoomImage = null;
+        }
+    }
 }
 </script>

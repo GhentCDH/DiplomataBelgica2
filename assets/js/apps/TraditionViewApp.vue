@@ -3,7 +3,7 @@
         <article class="col-sm-12">
             <div class="scrollable scrollable--vertical pbottom-large">
 
-                <h2 class="pbottom-default">Tradition </h2>
+                <h2>Tradition </h2>
                 <!-- <h2>Tradition</h2> -->
                 <div class="mbottom-default">
                   <LabelValue label="Reference" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
@@ -20,7 +20,7 @@
                   <LabelValue label="Writing material(s)" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
                 
-                <h2 class="pbottom-default"> Link </h2>
+                <h2> Link </h2>
                 <div v-if="tradition.repository.urls.length >0">
                     <h3 v-if="tradition.repository.urls.length >0">Repository</h3>
                     <ul>
@@ -40,7 +40,7 @@
 
                 <h2 v-if="tradition.image_count > 0"> Images </h2>
                 <div v-if="(tradition.image_count>0)" >
-                  <ImageThumbnail :url="getImageUrl(tradition.images)" > </ImageThumbnail>
+                  <ImageThumbnail :thumbnail-urls="getImageUrl(tradition.images)" />
                 </div>
                 <h2> Charters </h2>
                 <div v-for="charter in tradition.charters" :key="charter.id">
@@ -218,7 +218,7 @@ export default {
         },
         formatImageUrl(url) {
             var prefix = 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:';
-            var suffix='/full/256,/0/default.jpg'
+            var suffix= '/full/256,/0/default.jpg'
             
             return prefix + this.filenameCheck(this.removeExtension(url)) + suffix;
         },
