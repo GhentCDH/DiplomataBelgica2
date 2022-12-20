@@ -42,6 +42,40 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret['datations'] = ElasticBaseResource::collection($charter->datations);
         $ret['originals'] = ElasticBaseResource::collection($charter->originals);
         $ret['vidimuses'] = ElasticBaseResource::collection($charter->vidimuses);
+        $ret['images'] = [];
+        $ret['imageUrls'] = [];
+        
+        foreach ($ret['originals'] as $value) {
+            if (count($value['images']) > 0 ) {
+                $ret['images'] = $value['images'];
+            }
+            if (count($value['imageUrls']) > 0 ) {
+                $ret['imageUrls'] = $value['imageUrls'];
+            }
+        }
+        foreach ($ret['codexes'] as $value) {
+            if (count($value['images']) > 0 ) {
+                $ret['images'] = $value['images'];
+            }
+            if (count($value['imageUrls']) > 0 ) {
+                $ret['imageUrls'] = $value['imageUrls'];
+            }
+        }
+        foreach ($ret['copies'] as $value) {
+            if (count($value['images']) > 0 ) {
+                $ret['images'] = $value['images'];
+            }
+            if (count($value['imageUrls']) > 0 ) {
+                $ret['imageUrls'] = $value['imageUrls'];
+            }
+        }
+
+        $ret['has_images'] = self::boolean( (
+            (count($ret['images']) > 0)
+            || (count($ret['imageUrls']) > 0)
+        ) ? 1 : 0 );
+
+        $ret['image_count'] = count($ret['images']);
 
         return $ret;
     }

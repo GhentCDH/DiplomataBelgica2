@@ -30,6 +30,11 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::FILTER_KEYWORD,
                 'field' => 'place.name'
             ],
+            
+            'has_images' => [
+                'type' => self::FILTER_EXISTS,
+                'field' => 'has_images'
+            ],
 
             'dating_scholary_nested' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,

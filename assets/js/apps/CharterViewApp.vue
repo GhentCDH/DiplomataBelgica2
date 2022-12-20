@@ -97,6 +97,10 @@
                         </li>
                     </ul>
                 </div>
+                <h2 v-if="charter.image_count > 0"> Images </h2>
+                <div v-if="(charter.image_count>0)" >
+                  <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" />
+                </div>
             </div>
         </article>
         <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
@@ -197,12 +201,13 @@ import SearchContext from "../components/Search/SearchContext";
 
 import axios from 'axios'
 import FormatValue from "../components/Sidebar/FormatValue";
+import ImageThumbnail from '../components/ImageThumbnail.vue'
 
 export default {
     name: "CharterViewApp",
     components: {
       FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList
+        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail
     },
     mixins: [
         PersistentConfig('CharterViewConfig'),
@@ -517,7 +522,24 @@ export default {
               }
             }
             return parts.length ? { text: parts.join(', '), links: links } : null
-        }
+        },
+        removeExtension(filename) {
+          return filename.substring(0, filename.lastIndexOf('.')) || filename;
+        },
+        filenameCheck(filename) {
+          var name = this.removeExtension(filename).replace('/',':');
+
+          return name.replace('[^\d:-]','');
+        },
+        formatImageUrl(url) {
+            var prefix = 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:';
+            var suffix= '/full/256,/0/default.jpg'
+            
+            return prefix + this.filenameCheck(this.removeExtension(url)) + suffix;
+        },
+        getImageUrl(values) {
+          return values.map( item => this.formatImageUrl(item.image_file ))
+        }  
     },
     created() {
         // init context

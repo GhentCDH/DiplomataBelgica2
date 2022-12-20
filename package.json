@@ -9,7 +9,6 @@
     "lodash.merge": "^4.6.2",
     "openseadragon": "^3.1.0",
     "regenerator-runtime": "^0.13.7",
-    "vue-openseadragon": "^0.1.2",
     "vue2-leaflet": "^2.7.1"
   },
   "devDependencies": {

@@ -63,9 +63,13 @@
                                     <FormatValue :value="actor.name.full_name"></FormatValue>
                                 </div>
                             </template>
-
                             <h5>Summary</h5>
                             {{ props.row.summary }}
+                        </template>
+                        <template #date="props">
+                            <a :href="getCharterUrl(props.row.id, props.index)">
+                                {{ props.row.id }}
+                            </a>
                         </template>
                     </v-server-table>
                 </div>
@@ -200,7 +204,17 @@ export default {
                             },
                         ]
                     },
-
+                    {
+                        styleClasses: 'collapsible collapsed',
+                        legend: 'Images',
+                        fields: [
+                            {
+                                label: 'Has images',
+                                type: 'checkbox',
+                                model: 'has_images',
+                            },
+                        ]
+                    },
                 ],
             },
             tableOptions: {
@@ -215,7 +229,7 @@ export default {
                 },
                 'perPage': 25,
                 'perPageValues': [25, 50, 100],
-                'sortable': ['id'],
+                'sortable': ['id'], 
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
