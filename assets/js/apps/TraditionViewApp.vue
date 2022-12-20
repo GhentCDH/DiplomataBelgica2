@@ -208,9 +208,6 @@ export default {
         removeExtension(filename) {
           return filename.substring(0, filename.lastIndexOf('.')) || filename;
         },
-        removeExtension(filename) {
-          return filename.substring(0, filename.lastIndexOf('.')) || filename;
-        },
         filenameCheck(filename) {
           var name = this.removeExtension(filename).replace('/',':');
 
