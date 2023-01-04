@@ -170,7 +170,7 @@ class CharterSearchService extends AbstractSearchService
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'published', 'summary', 'actors'];
+        $returnProps = ['id', 'published', 'summary', 'actors','udt','date'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 
@@ -184,9 +184,11 @@ class CharterSearchService extends AbstractSearchService
             switch ($params['orderBy']) {
                 case 'title':
                     $params['orderBy'] = ['title.keyword'];
-
                     break;
                 case 'id':
+                    $params['orderBy'] = [ $params['orderBy'] ];
+                    break;
+                case 'date':
                     $params['orderBy'] = [ $params['orderBy'] ];
                     break;
                 default:

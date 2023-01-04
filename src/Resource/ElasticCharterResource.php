@@ -44,6 +44,25 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret['vidimuses'] = ElasticBaseResource::collection($charter->vidimuses);
         $ret['images'] = [];
         $ret['imageUrls'] = [];
+        $ret['date'] = [] ;
+        
+        if (count($ret['udt']) > 0 ) {
+            foreach ($ret['udt'] as $value) {
+                if ( ($value['year'] != 0 ) && ($value['month'] != 0 ) && ($value['day'] != 0 ) ) {
+                    array_push($ret['date'],strtotime(strval($value['year']) . '-' . strval($value['month']) . '-' . strval($value['day'])));
+                    // echo strval($value['year']) . '-' . strval($value['month']) . '-' . strval($value['day']) ;
+                } elseif ( ($value['year'] != 0 ) && ($value['month'] != 0 ) && ($value['day'] == 0 ) ) {
+                    array_push($ret['date'],strtotime(strval($value['year']) . '-' . strval($value['month']) . '-28'));
+                    // echo strval($value['year']) . '-' . strval($value['month'] . '- 28' ) ; 
+                } elseif ( ($value['year'] != 0 ) && ($value['month'] == 0 ) && ($value['day'] == 0 ) ) {
+                    array_push($ret['date'],strtotime(strval($value['year']) . '-12-31')); 
+                    // echo strval($value['year']) . '-12-31';
+                } else {
+                    array_push($ret['date'],NULL);
+                }
+            }
+        }
+                
         
         foreach ($ret['originals'] as $value) {
             if (count($value['images']) > 0 ) {
@@ -76,6 +95,8 @@ class ElasticCharterResource extends ElasticBaseResource
         ) ? 1 : 0 );
 
         $ret['image_count'] = count($ret['images']);
+
+
 
         return $ret;
     }

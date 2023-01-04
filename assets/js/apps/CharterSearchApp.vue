@@ -67,8 +67,8 @@
                             {{ props.row.summary }}
                         </template>
                         <template #date="props">
-                            <a :href="getCharterUrl(props.row.id, props.index)">
-                                {{ props.row.id }}
+                            <a v-if="props.row.udt.length">
+                                {{ getDate(props.row.udt) }}
                             </a>
                         </template>
                     </v-server-table>
@@ -229,7 +229,7 @@ export default {
                 },
                 'perPage': 25,
                 'perPageValues': [25, 50, 100],
-                'sortable': ['id'], 
+                'sortable': ['id', 'date'], 
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -253,7 +253,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'summary']
+            let columns = ['id', 'summary', 'date']
             return columns
         },
         markers() {
@@ -325,6 +325,23 @@ export default {
             }
             return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
         },
+        getDate(udt){
+            if (udt.length > 1){
+                var year = []
+                for(let date of udt) {
+                    year.push(date.year);
+                }
+                year.sort();
+                if (year[0]==year[1]){
+                    var display = year[0].toString();
+                }else{
+                    var display = year[0].toString().concat(" - ", year[1]);
+                }
+            } else {
+                var display = udt[0].year.toString();
+            }
+            return display
+        }
     },
 }
 </script>
