@@ -82,7 +82,7 @@ export default {
         },
         zoom: {
             type: Number,
-            default: 8
+            default: 7
         },
         visible: {
             type: Boolean,
@@ -93,7 +93,7 @@ export default {
         return {
             mapObject: null,
             map: {
-                minZoom: 2,
+                minZoom: 1,
                 options: {
                     attributionControl: false,
                     zoomControl: true
@@ -136,8 +136,7 @@ export default {
         },
         computedMarkers(markers) {
             if ( this.mapObject && Array.isArray(markers) && markers.length ) {
-                var offset =0.01;
-                this.mapObject.fitBounds(markers.map(m => m.latLng+offset));
+                this.mapObject.fitBounds(markers.map(m => m.latLng));
             }
         }
     },
@@ -151,8 +150,13 @@ export default {
         updateBounds(payload) {
         },
         onMapReady() {
+            // if ( this.mapObject && Array.isArray(this.markers) && this.markers.length ) {
+            //     var offset =0.01;
+            //     var featureGroup = L.featureGroup(this.markers.map(m => m.latLng+offset)).addTo(this.mapObject);
+            //     this.mapObject.fitBounds(featureGroup.getBounds());
+            // }
             this.mapObject = this.$refs.GmMap.mapObject
-        },
+        }
     },
 
     created() {

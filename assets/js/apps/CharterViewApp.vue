@@ -86,9 +86,13 @@
                 <div v-if="(charter.image_count>0)" >
                   <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" />
                 </div>
+
+                <h2>Map</h2>
+
                 <div id="map" class="map">
                   <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
                 </div>
+                
             </div>
         </article>
         <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
@@ -299,7 +303,7 @@ export default {
           var marker = [];
           var duplicate =[];
           for (const actor of this.charter.actors) {
-            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.place.name)){
+            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.place.name) && actor.place.latitude != null){
               marker.push(
                 {
                   id: actor.place.name,
