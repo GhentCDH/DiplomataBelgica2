@@ -82,7 +82,7 @@ export default {
         },
         zoom: {
             type: Number,
-            default: 7
+            default: 8
         },
         visible: {
             type: Boolean,
@@ -119,10 +119,9 @@ export default {
                 }
                 return m;
             });
-            // if ( this.mapObject && Array.isArray(markers) && markers.length ) {
-            //     var offset =0.01;
-            //     this.mapObject.fitBounds(markers.map(m => m.latLng+offset));
-            // }
+            if ( this.mapObject && Array.isArray(markers) && markers.length ) {
+                this.mapObject.fitBounds(markers.map(m => m.latLng));
+            }
             return markers;
         },
         // computeZoom() {
@@ -134,11 +133,11 @@ export default {
             this.mapObject.invalidateSize()
             console.log("invalidateSize")
         },
-        computedMarkers(markers) {
-            if ( this.mapObject && Array.isArray(markers) && markers.length ) {
-                this.mapObject.fitBounds(markers.map(m => m.latLng));
-            }
-        }
+        // computedMarkers(markers) {
+        //     if ( this.mapObject && Array.isArray(markers) && markers.length ) {
+        //         this.mapObject.fitBounds(markers.map(m => m.latLng));
+        //     }
+        // }
     },
     methods: {
         updateZoom(payload) {
@@ -150,11 +149,6 @@ export default {
         updateBounds(payload) {
         },
         onMapReady() {
-            // if ( this.mapObject && Array.isArray(this.markers) && this.markers.length ) {
-            //     var offset =0.01;
-            //     var featureGroup = L.featureGroup(this.markers.map(m => m.latLng+offset)).addTo(this.mapObject);
-            //     this.mapObject.fitBounds(featureGroup.getBounds());
-            // }
             this.mapObject = this.$refs.GmMap.mapObject
         }
     },
