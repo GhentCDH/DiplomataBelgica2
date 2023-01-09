@@ -82,9 +82,16 @@
                         </li>
                     </ul>
                 </div>
-                <h2 v-if="charter.image_count > 0"> Images </h2>
+                <h2 v-if="charter.has_images" > Images </h2>
                 <div v-if="(charter.image_count>0)" >
                   <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" />
+                </div>
+                <div v-if="charter.imageUrls.length" >
+                  <ul>
+                    <li v-for="image in charter.imageUrls" :key="image.codex_id">
+                      <a v-if="image.url" :href="image.url">{{ image.url }}</a>
+                    </li>
+                  </ul>
                 </div>
 
                 <h2>Map</h2>
@@ -92,7 +99,7 @@
                 <div id="map" class="map">
                   <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
                 </div>
-                
+
             </div>
         </article>
         <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
