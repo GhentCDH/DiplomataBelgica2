@@ -15,21 +15,6 @@
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
 
-                <div id="map" class="map">
-                    <l-map ref="GmMap" v-bind="map" :center="center" :zoom="zoom" :bounds="bounds">
-                        <l-tile-layer v-for="layer in tileLayers" :key="layer.id"
-                                      v-bind="layer.options"
-                        />
-                        <l-wms-tile-layer v-for="layer in wmsLayers" :key="layer.id" v-bind="layer.options"></l-wms-tile-layer>
-                        <l-geo-json :ref="layer.id" v-for="layer in geojsonLayers" :key="layer.id"
-                                    v-bind="layer.options"></l-geo-json>
-                        <l-control class="map__control map__control--topleft" position="topleft">
-                            <slot name="controls-topleft"></slot>
-                        </l-control>
-                    </l-map>
-                </div>
-
-
                 <!-- Text -->
                 <template v-if="charter.full_text">
                     <h2>Full text of charter</h2>
@@ -100,6 +85,9 @@
                 <h2 v-if="charter.image_count > 0"> Images </h2>
                 <div v-if="(charter.image_count>0)" >
                   <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" />
+                </div>
+                <div id="map" class="map">
+                  <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
                 </div>
             </div>
         </article>
@@ -203,11 +191,13 @@ import axios from 'axios'
 import FormatValue from "../components/Sidebar/FormatValue";
 import ImageThumbnail from '../components/ImageThumbnail.vue'
 
+import LeafletMap from "../components/LeafletMap"
+
 export default {
     name: "CharterViewApp",
     components: {
       FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail
+        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail, LeafletMap
     },
     mixins: [
         PersistentConfig('CharterViewConfig'),
@@ -285,7 +275,52 @@ export default {
         },
         secondaryLiteratureFormatted() {
             return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
-        }
+        },
+        layers() {
+            return [
+                {
+                    id: 'google-satellite',
+                    type: 'tileLayer',
+                    options: {
+                        // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+                        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        attribution: 'Google',
+                        maxZoom: 18,
+                        name: 'Google satelliet',
+                        visible: true,
+                        opacity: 1,
+                        layerType: 'base',
+                        zIndex: 10,
+                    }
+                },
+            ]
+        },
+        markers() {
+          var marker = [];
+          var duplicate =[];
+          for (const actor of this.charter.actors) {
+            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.place.name)){
+              marker.push(
+                {
+                  id: actor.place.name,
+                  latLng: [actor.place.latitude,actor.place.longitude],
+                  name : actor.place.name,
+                }
+              )
+              duplicate.push(actor.place.name)
+            }
+          }
+          return marker
+        },
+        center(){
+          var lat = [];
+          var lng = [];
+          for (const coords of this.markers) {
+            lat.push(Number(coords.latLng[0]))
+            lng.push(Number(coords.latLng[1]))
+          }
+          return([this.getMiddle('lat', lat), this.getMiddle('lng',lng)])
+        },      
     },
     methods: {
         getUrl(route) {
@@ -297,6 +332,20 @@ export default {
                 url += '#' + this.getContextHash()
             }
             return url
+        },
+        getMiddle(prop, values) {
+          let min = Math.min(...values);
+          let max = Math.max(...values);
+          if (prop === 'lng' && (max - min > 180)) {
+            values = values.map(val => val < max - 180 ? val + 360 : val);
+            min = Math.min(...values);
+            max = Math.max(...InlineLinkListvalues);
+          }
+          let result = (min + max) / 2;
+          if (prop === 'lng' && result > 180) {
+            result -= 360
+          }
+          return result;
         },
         loadCharter(id) {
             this.openRequests += 1

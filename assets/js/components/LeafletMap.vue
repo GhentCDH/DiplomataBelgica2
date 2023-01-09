@@ -82,7 +82,7 @@ export default {
         },
         zoom: {
             type: Number,
-            default: 12
+            default: 8
         },
         visible: {
             type: Boolean,
@@ -119,8 +119,15 @@ export default {
                 }
                 return m;
             });
+            // if ( this.mapObject && Array.isArray(markers) && markers.length ) {
+            //     var offset =0.01;
+            //     this.mapObject.fitBounds(markers.map(m => m.latLng+offset));
+            // }
             return markers;
         },
+        // computeZoom() {
+
+        // }
     },
     watch: {
         visible(value, oldValue) {
@@ -129,7 +136,8 @@ export default {
         },
         computedMarkers(markers) {
             if ( this.mapObject && Array.isArray(markers) && markers.length ) {
-                this.mapObject.fitBounds(markers.map(m => m.latLng))
+                var offset =0.01;
+                this.mapObject.fitBounds(markers.map(m => m.latLng+offset));
             }
         }
     },
