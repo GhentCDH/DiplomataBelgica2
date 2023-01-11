@@ -34,6 +34,7 @@ class ElasticTraditionResource extends ElasticBaseResource
         // shared relations
         $ret['urls'] = ElasticBaseResource::collection($resource->urls);
         $ret['imageUrls'] = ElasticBaseResource::collection($resource->imageUrls);
+        $ret['images'] = ElasticBaseResource::collection($resource->images);
 
         // codex relations
         if ( $resource->isRelation('repository') ) {
@@ -45,13 +46,27 @@ class ElasticTraditionResource extends ElasticBaseResource
         if ( $resource->isRelation('institutions') ) {
             $ret['institutions'] = ElasticIdNameResource::collection($this->institutions);
         }
-
-
+        
         $ret['type'] = $resource->traditionType();
+
+        // if ($ret['type'] == 'manuscript') {
+        //     $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
+        // }
+
+        if ($ret['type'] == 'original' or 'copy') {
+            $ret['charters'] = ElasticTraditionCharterResource::collection([$this->charter]);
+        }
+
+        if ($ret['type'] == 'manuscript') {
+            $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
+        }
+
         $ret['has_images'] = self::boolean( (
-            is_array($ret['images'] ?? null) && count($ret['images'])
-            || is_array($ret['imageUrls'] ?? null) && count($ret['imageUrls'])
+            (count($ret['images']) > 0)
+            || (count($ret['imageUrls']) > 0)
         ) ? 1 : 0 );
+
+        $ret['image_count'] = count($ret['images']);
 
         return $ret;
     }

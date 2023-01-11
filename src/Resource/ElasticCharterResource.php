@@ -42,6 +42,61 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret['datations'] = ElasticBaseResource::collection($charter->datations);
         $ret['originals'] = ElasticBaseResource::collection($charter->originals);
         $ret['vidimuses'] = ElasticBaseResource::collection($charter->vidimuses);
+        $ret['images'] = [];
+        $ret['imageUrls'] = [];
+        $ret['date'] = [] ;
+        
+        if (count($ret['udt']) > 0 ) {
+            foreach ($ret['udt'] as $value) {
+                if ( ($value['year'] != 0 ) && ($value['month'] != 0 ) && ($value['day'] != 0 ) ) {
+                    array_push($ret['date'],strtotime(strval($value['year']) . '-' . strval($value['month']) . '-' . strval($value['day'])));
+                    // echo strval($value['year']) . '-' . strval($value['month']) . '-' . strval($value['day']) ;
+                } elseif ( ($value['year'] != 0 ) && ($value['month'] != 0 ) && ($value['day'] == 0 ) ) {
+                    array_push($ret['date'],strtotime(strval($value['year']) . '-' . strval($value['month']) . '-28'));
+                    // echo strval($value['year']) . '-' . strval($value['month'] . '- 28' ) ; 
+                } elseif ( ($value['year'] != 0 ) && ($value['month'] == 0 ) && ($value['day'] == 0 ) ) {
+                    array_push($ret['date'],strtotime(strval($value['year']) . '-12-31')); 
+                    // echo strval($value['year']) . '-12-31';
+                } else {
+                    array_push($ret['date'],NULL);
+                }
+            }
+        }
+                
+        
+        foreach ($ret['originals'] as $value) {
+            if (count($value['images']) > 0 ) {
+                $ret['images'] = $value['images'];
+            }
+            if (count($value['imageUrls']) > 0 ) {
+                $ret['imageUrls'] = $value['imageUrls'];
+            }
+        }
+        foreach ($ret['codexes'] as $value) {
+            if (count($value['images']) > 0 ) {
+                $ret['images'] = $value['images'];
+            }
+            if (count($value['imageUrls']) > 0 ) {
+                $ret['imageUrls'] = $value['imageUrls'];
+            }
+        }
+        foreach ($ret['copies'] as $value) {
+            if (count($value['images']) > 0 ) {
+                $ret['images'] = $value['images'];
+            }
+            if (count($value['imageUrls']) > 0 ) {
+                $ret['imageUrls'] = $value['imageUrls'];
+            }
+        }
+
+        $ret['has_images'] = self::boolean( (
+            (count($ret['images']) > 0)
+            || (count($ret['imageUrls']) > 0)
+        ) ? 1 : 0 );
+
+        $ret['image_count'] = count($ret['images']);
+
+
 
         return $ret;
     }

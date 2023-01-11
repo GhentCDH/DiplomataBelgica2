@@ -31,9 +31,15 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         
-                        <li class="nav-item ">
+                        <li class="nav-item">
                             <a class="nav-link {{ app.request.get('_route') == 'charter_search' ? 'active' }}" href="{{ path('charter_search') }}">
-                                Search
+                                Charter search
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link {{ app.request.get('_route') == 'tradition_search' ? 'active' }}" href="{{ path('tradition_search') }}">
+                                Tradition search
                             </a>
                         </li>
 
@@ -70,6 +76,7 @@
         <div class="colophon">
             <div class="row justify-content-center">
                 <div class="col-8 border-bottom">
+          
                     <h2 class="ptop-default">Colophon</h2>
 
                     <h4>Editors</h4>

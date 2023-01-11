@@ -74,5 +74,13 @@ class Codex extends AbstractTraditionModel
         return $this->hasMany(CodexNameAuthor::class);
     }
 
+    /**
+     * @return BelongsToMany|Collection|Charter[]
+     * @throws ReflectionException
+     */
+    public function charters(): BelongsToMany
+    {
+        return $this->BelongsToMany(Charter::class, 'charter__codex');
+    }
 
 }

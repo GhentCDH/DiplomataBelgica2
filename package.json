@@ -1,11 +1,13 @@
 {
   "dependencies": {
     "@popperjs/core": "^2.11.6",
+    "@yeger/vue2-masonry-wall": "^2.3.1",
     "articles": "^0.2.2",
     "bootstrap": "^5.2.0",
     "etali": "^1.2.3",
     "leaflet": "^1.9.1",
     "lodash.merge": "^4.6.2",
+    "openseadragon": "^3.1.0",
     "regenerator-runtime": "^0.13.7",
     "vue2-leaflet": "^2.7.1"
   },

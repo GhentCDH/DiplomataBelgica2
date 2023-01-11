@@ -15,3 +15,15 @@
 .labelvalue__value--inline > span {
   padding: 0;
 }
+
+.labelvalue--id_name {
+  .labelvalue__value span:after {
+      content: ', ';
+      margin-right: 0.5em;
+      
+  }
+  
+  .labelvalue__value span:last-child::after {
+      content: '';
+  }
+}

@@ -15,21 +15,6 @@
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
 
-                <div id="map" class="map">
-                    <l-map ref="GmMap" v-bind="map" :center="center" :zoom="zoom" :bounds="bounds">
-                        <l-tile-layer v-for="layer in tileLayers" :key="layer.id"
-                                      v-bind="layer.options"
-                        />
-                        <l-wms-tile-layer v-for="layer in wmsLayers" :key="layer.id" v-bind="layer.options"></l-wms-tile-layer>
-                        <l-geo-json :ref="layer.id" v-for="layer in geojsonLayers" :key="layer.id"
-                                    v-bind="layer.options"></l-geo-json>
-                        <l-control class="map__control map__control--topleft" position="topleft">
-                            <slot name="controls-topleft"></slot>
-                        </l-control>
-                    </l-map>
-                </div>
-
-
                 <!-- Text -->
                 <template v-if="charter.full_text">
                     <h2>Full text of charter</h2>
@@ -78,6 +63,16 @@
                     </div>
                 </div>
 
+                <div v-if="copies.length" class="mbottom-small">
+                    <h3>Copies</h3>
+                    <ul>
+                        <li v-for="copy in copies" :key="copy.id">
+                            <a v-if="copy.link" :href="copy.link">{{ copy.text }}</a>
+                            <p v-else>{{ copy.text }}</p>
+                        </li>
+                    </ul>
+                </div>
+
                 <div v-if="codexes.length" class="mbottom-small">
                     <h3>Manuscripts</h3>
                     <ul>
@@ -87,6 +82,24 @@
                         </li>
                     </ul>
                 </div>
+                <h2 v-if="charter.has_images" > Images </h2>
+                <div v-if="(charter.image_count>0)" >
+                  <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" />
+                </div>
+                <div v-if="charter.imageUrls.length" >
+                  <ul>
+                    <li v-for="image in charter.imageUrls" :key="image.codex_id">
+                      <a v-if="image.url" :href="image.url">{{ image.url }}</a>
+                    </li>
+                  </ul>
+                </div>
+
+                <h2>Map</h2>
+
+                <div id="map" class="map">
+                  <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
+                </div>
+
             </div>
         </article>
         <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
@@ -187,12 +200,15 @@ import SearchContext from "../components/Search/SearchContext";
 
 import axios from 'axios'
 import FormatValue from "../components/Sidebar/FormatValue";
+import ImageThumbnail from '../components/ImageThumbnail.vue'
+
+import LeafletMap from "../components/LeafletMap"
 
 export default {
     name: "CharterViewApp",
     components: {
       FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList
+        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail, LeafletMap
     },
     mixins: [
         PersistentConfig('CharterViewConfig'),
@@ -260,14 +276,62 @@ export default {
             return this.charter.originals.map( original => this.formatOriginal(original) ).filter( original => original !== null);
         },
         codexes() {
-            return this.charter.codexes.map( codex => this.formatCodex(codex) ).filter( codex => codex !== null);
+            return this.charter.codexes.map( codex => this.formatCodex(codex, 'manuscript') ).filter( codex => codex !== null);
         },
+        copies() {
+            return this.charter.copies.map( copy => this.formatCodex(copy, 'copy') ).filter( copy => copy !== null);
+        },        
         editionsFormatted() {
             return this.charter.edition_indications.map( item => this.formatEdition(item) ).filter( item => item !== null);
         },
         secondaryLiteratureFormatted() {
             return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
-        }
+        },
+        layers() {
+            return [
+                {
+                    id: 'google-satellite',
+                    type: 'tileLayer',
+                    options: {
+                        // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+                        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                        attribution: 'Google',
+                        maxZoom: 18,
+                        name: 'Google satelliet',
+                        visible: true,
+                        opacity: 1,
+                        layerType: 'base',
+                        zIndex: 10,
+                    }
+                },
+            ]
+        },
+        markers() {
+          var marker = [];
+          var duplicate =[];
+          for (const actor of this.charter.actors) {
+            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.place.name) && actor.place.latitude != null){
+              marker.push(
+                {
+                  id: actor.place.name,
+                  latLng: [actor.place.latitude,actor.place.longitude],
+                  name : actor.place.name,
+                }
+              )
+              duplicate.push(actor.place.name)
+            }
+          }
+          return marker
+        },
+        center(){
+          var lat = [];
+          var lng = [];
+          for (const coords of this.markers) {
+            lat.push(Number(coords.latLng[0]))
+            lng.push(Number(coords.latLng[1]))
+          }
+          return([this.getMiddle('lat', lat), this.getMiddle('lng',lng)])
+        },      
     },
     methods: {
         getUrl(route) {
@@ -279,6 +343,20 @@ export default {
                 url += '#' + this.getContextHash()
             }
             return url
+        },
+        getMiddle(prop, values) {
+          let min = Math.min(...values);
+          let max = Math.max(...values);
+          if (prop === 'lng' && (max - min > 180)) {
+            values = values.map(val => val < max - 180 ? val + 360 : val);
+            min = Math.min(...values);
+            max = Math.max(...InlineLinkListvalues);
+          }
+          let result = (min + max) / 2;
+          if (prop === 'lng' && result > 180) {
+            result -= 360
+          }
+          return result;
         },
         loadCharter(id) {
             this.openRequests += 1
@@ -394,7 +472,7 @@ export default {
           }
           if(res.length > 0) {
             if(original.id) {
-              return { 'text': res.join(', '), 'link': '/original/' + original.id };
+              return { 'text': res.join(', '), 'link': '/tradition/original/' + original.id };
             } else {
               return { 'text' : res.join(', ') };
             }
@@ -402,7 +480,7 @@ export default {
             return null;
           }
         },
-        formatCodex(codex) {
+        formatCodex(codex, type) {
           var res = [];
           if(codex.repository) {
             if(codex.repository.location) {
@@ -424,7 +502,7 @@ export default {
           }
           if(line.length > 0) {
             if(codex.id) {
-              return { 'text' : line, 'link' : '/codex/' + codex.id };
+              return { 'text' : line, 'link' : '/tradition/' + type +'/' + codex.id };
             } else {
               return { 'text' : line };
             }
@@ -432,6 +510,7 @@ export default {
             return null;
           }
         },
+
         formatEdition(edition) {
             let parts = [];
             let links = [];
@@ -503,7 +582,24 @@ export default {
               }
             }
             return parts.length ? { text: parts.join(', '), links: links } : null
-        }
+        },
+        removeExtension(filename) {
+          return filename.substring(0, filename.lastIndexOf('.')) || filename;
+        },
+        filenameCheck(filename) {
+          var name = this.removeExtension(filename).replace('/',':');
+
+          return name.replace('[^\d:-]','');
+        },
+        formatImageUrl(url) {
+            var prefix = 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:';
+            var suffix= '/full/256,/0/default.jpg'
+            
+            return prefix + this.filenameCheck(this.removeExtension(url)) + suffix;
+        },
+        getImageUrl(values) {
+          return values.map( item => this.formatImageUrl(item.image_file ))
+        }  
     },
     created() {
         // init context

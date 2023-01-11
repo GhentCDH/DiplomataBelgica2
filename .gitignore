@@ -20,7 +20,7 @@ bower_components
 node_modules
 /images/
 .idea/
-.env.local
+.env.local.php
 .env.*.local
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
@@ -28,3 +28,4 @@ npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
 src/Controller/TestController.php
+db_dibe.sql
