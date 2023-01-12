@@ -61,11 +61,11 @@ export default {
         showZoomedImage (item) {	
             this.zoomImage = item.replace('/full/256,/0/default.jpg', '/info.json')
             const element = document.getElementById('zoomWindow');
-            element.style.display='block';
+            // element.style.display='block';
         },
         closeZoomedImage () {
             const element = document.getElementById('zoomWindow');
-            element.style.display='none';
+            // element.style.display='none';
             this.zoomImage = null;
         }
     }

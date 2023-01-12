@@ -8,10 +8,10 @@ new Vue({
     }
 })
 
-(function () {
-    // Set proper page title
-    let id = document.getElementById('detail-page-id');
-    if (id) {
-        document.title += ' ' + id.innerText.split(' ')[1];
-    }
-}());
+// (function () {
+//     // Set proper page title
+//     let id = document.getElementById('detail-page-id');
+//     if (id) {
+//         document.title += ' ' + id.innerText.split(' ')[1];
+//     }
+// }());

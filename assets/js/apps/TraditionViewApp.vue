@@ -356,6 +356,10 @@ export default {
             }
             return parts.length ? { text: parts.join(', '), links: links } : null
         },
+        updateTitle(id) {
+          // Set proper page title
+          document.title = 'Diplomata Belgica - Tradition ID ' + id;
+        },
         formatSecondaryLiterature(edition) {
             let parts = [];
             let links = [];

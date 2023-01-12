@@ -15,7 +15,6 @@
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
 
-                <!-- Text -->
                 <template v-if="charter.full_text">
                     <h2>Full text of charter</h2>
                     <div class="col-10 pbottom-small">
@@ -99,7 +98,6 @@
                 <div id="map" class="map">
                   <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
                 </div>
-
             </div>
         </article>
         <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
@@ -131,7 +129,7 @@
 
                 <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
                     <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
-                    <div v-for="actor in issuers" :key="actor.id">
+                    <div v-for="actor in issuers" :key="`issuer ${actor.id}`">
                       <p>
                         <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                         <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
@@ -143,7 +141,7 @@
                     </div>
 
                   <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
-                  <div v-for="actor in authors" :key="actor.id">
+                  <div v-for="actor in authors" :key="`author ${actor.id}`">
                     <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
@@ -155,7 +153,7 @@
                   </div>
 
                   <h3 v-if="beneficiaries.length > 0">Benefiriary(ies)<small>(= recipient)</small></h3>
-                  <div v-for="actor in beneficiaries" :key="actor.id">
+                  <div v-for="actor in beneficiaries" :key="`beneficiaries ${actor.id}`">
                     <p>
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
@@ -366,6 +364,7 @@ export default {
                     this.data.charter = response.data;
                 }
                 this.openRequests -= 1
+                this.updateTitle(id);
             })
         },
         loadCharterByIndex(index) {
@@ -599,6 +598,10 @@ export default {
         },
         getImageUrl(values) {
           return values.map( item => this.formatImageUrl(item.image_file ))
+        },
+        updateTitle(id) {
+          // Set proper page title
+          document.title = 'Diplomata Belgica - Charter ID ' + id;
         }  
     },
     created() {
@@ -612,6 +615,8 @@ export default {
                 this.initResultSet(searchSession.urls.paginate, searchSession.params, searchSession.count)
             }
         }
+        
+        this.updateTitle(this.charter.id);
     },
 }
 </script>
