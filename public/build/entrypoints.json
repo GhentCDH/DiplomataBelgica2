@@ -13,7 +13,6 @@
         "/build/charter-search.b761bf3f.css"
       ],
       "js": [
-        "/build/charter-search.c39e93a4.js"
       ]
     },
     "charter-view": {
@@ -21,7 +20,7 @@
         "/build/charter-view.390bde13.css"
       ],
       "js": [
-        "/build/charter-view.5bbccfc2.js"
+
       ]
     },
     "tradition-search": {
@@ -34,7 +33,7 @@
         "/build/tradition-view.343a1b9a.css"
       ],
       "js": [
-        "/build/tradition-view.90eeb53a.js"
+
       ]
     }
   }
