@@ -20,6 +20,7 @@
                         <open-seadragon
                             id="openseadragon-zoom-viewer"
                             :IIIFImageUrl="zoomImage"
+                            :height="imageHeight"
                         />
                     </div>
                 </div>
@@ -43,6 +44,7 @@ export default {
             NotClicked : true ,
             zoomImage : null,
             items: [],
+            imageHeight : 266,
         }
     },
 
@@ -62,6 +64,7 @@ export default {
             this.zoomImage = item.replace('/full/256,/0/default.jpg', '/info.json')
             const element = document.getElementById('zoomWindow');
             // element.style.display='block';
+            // this.imageHeight = 
         },
         closeZoomedImage () {
             const element = document.getElementById('zoomWindow');

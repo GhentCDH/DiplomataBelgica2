@@ -1,7 +1,7 @@
 <template>
     <div
       :id="id"
-      class="openseadragon" style="height: 500px"
+      class="openseadragon" :style="calculateHeight"
     />
   </template>
   <script>
@@ -18,11 +18,22 @@ let openseadragon = require('openseadragon')
         type: String,
         required: true
       },
+      imageHeight: {
+        type: Number,
+        default: 266
+      },
     },
     data () {
       return {
         viewer: null
       }
+    },
+    computed: {
+      calculateHeight () {
+        var Height = (500 * (this.imageHeight / 256));
+        return {'height' : Height+'px'}
+      }
+
     },
 
     mounted () {
@@ -48,6 +59,7 @@ let openseadragon = require('openseadragon')
         }
       },
     }
+
   }
   </script>
   
