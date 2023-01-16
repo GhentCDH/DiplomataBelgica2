@@ -20,7 +20,15 @@
         "/build/charter-view.390bde13.css"
       ],
       "js": [
+<<<<<<< HEAD
 
+=======
+<<<<<<< Updated upstream
+        "/build/charter-view.a8f91741.js"
+=======
+        "/build/charter-view.6ba43ecc.js"
+>>>>>>> Stashed changes
+>>>>>>> 1807e31 (merge)
       ]
     },
     "tradition-search": {
@@ -33,7 +41,15 @@
         "/build/tradition-view.343a1b9a.css"
       ],
       "js": [
+<<<<<<< HEAD
 
+=======
+<<<<<<< Updated upstream
+        "/build/tradition-view.88b210c1.js"
+=======
+        "/build/tradition-view.4d17de42.js"
+>>>>>>> Stashed changes
+>>>>>>> 1807e31 (merge)
       ]
     }
   }
