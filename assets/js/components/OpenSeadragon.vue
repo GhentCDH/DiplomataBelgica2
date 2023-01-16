@@ -30,10 +30,9 @@ let openseadragon = require('openseadragon')
     },
     computed: {
       calculateHeight () {
-        var Height = (500 * (this.imageHeight / 256));
+        var Height = (700 * (this.imageHeight / 256));
         return {'height' : Height+'px'}
       }
-
     },
 
     mounted () {

@@ -3,7 +3,7 @@
         <masonry-wall :items="thumbnailUrls" :column-width="256" :gap="10">
             <template #default="{ item }">
                 <div>
-                    <img @click="showZoomedImage(item)" class="img-thumbnail" :src="item" />
+                    <img :id="item" @click="showZoomedImage(item)" class="img-thumbnail" :src="item" />
                 </div>
             </template>
         </masonry-wall>
@@ -63,8 +63,9 @@ export default {
         showZoomedImage (item) {	
             this.zoomImage = item.replace('/full/256,/0/default.jpg', '/info.json')
             const element = document.getElementById('zoomWindow');
+            var img = document.getElementById(item)
             // element.style.display='block';
-            // this.imageHeight = 
+            this.imageHeight = img.clientHeight;
         },
         closeZoomedImage () {
             const element = document.getElementById('zoomWindow');
