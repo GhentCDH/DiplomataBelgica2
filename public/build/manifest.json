@@ -1,24 +1,13 @@
 {
-<<<<<<< HEAD
-
-=======
   "public/build/main.css": "/build/main.9131d17c.css",
   "public/build/main.js": "/build/main.d6de260e.js",
   "public/build/charter-search.css": "/build/charter-search.f8ab2b95.css",
   "public/build/charter-search.js": "/build/charter-search.74306218.js",
   "public/build/charter-view.css": "/build/charter-view.1d04ef7c.css",
-<<<<<<< Updated upstream
-  "public/build/charter-view.js": "/build/charter-view.a8f91741.js",
+  "public/build/charter-view.js": "/build/charter-view.90906096.js",
   "public/build/tradition-search.js": "/build/tradition-search.d914629d.js",
   "public/build/tradition-view.css": "/build/tradition-view.279ec3d2.css",
-  "public/build/tradition-view.js": "/build/tradition-view.88b210c1.js",
-=======
-  "public/build/charter-view.js": "/build/charter-view.6ba43ecc.js",
-  "public/build/tradition-search.js": "/build/tradition-search.d914629d.js",
-  "public/build/tradition-view.css": "/build/tradition-view.279ec3d2.css",
-  "public/build/tradition-view.js": "/build/tradition-view.4d17de42.js",
->>>>>>> Stashed changes
->>>>>>> 1807e31 (merge)
+  "public/build/tradition-view.js": "/build/tradition-view.68df0a0b.js",
   "public/build/static/images/logo-belspo.jpeg": "/build/static/images/logo-belspo.jpeg",
   "public/build/static/images/banner.jpg": "/build/static/images/banner.jpg",
   "public/build/static/images/miniatuur.png": "/build/static/images/miniatuur.png",
