@@ -67,6 +67,10 @@ class CharterSearchService extends AbstractSearchService
             'type' => self::FILTER_NESTED_MULTIPLE,
             'nested_path' => 'actors',
             'filters' => [
+                'actor_name_full_name' => [
+                    'field' => 'name.full_name',
+                    'type' => self::FILTER_KEYWORD
+                ],
                 'actor_place_name' => [
                     'field' => 'place.name',
                     'type' => self::FILTER_KEYWORD
@@ -86,6 +90,10 @@ class CharterSearchService extends AbstractSearchService
                 'actor_role' => [
                     'field' => 'role',
                     'type' => self::FILTER_OBJECT_ID
+                ],
+                'actor_order_name' => [
+                    'field' => 'order.name',
+                    'type' => self::FILTER_KEYWORD
                 ],
             ],
             'innerHits' => [
@@ -117,6 +125,13 @@ class CharterSearchService extends AbstractSearchService
                         'field' => 'place.longitude'
                     ]
                 ]
+            ],
+            'actor_name_full_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'name.full_name',
+                'nested_path' => 'actors',
+                'excludeFilter' => [ 'actors' ],
+                'filters' => $searchFilters['actors']['filters']
             ],
             'actor_place_name' => [
                 'type' => self::AGG_KEYWORD,
@@ -153,7 +168,13 @@ class CharterSearchService extends AbstractSearchService
                 'excludeFilter' => [ 'actors' ],
                 'filters' => $searchFilters['actors']['filters']
             ],
-
+            'actor_order_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'order.name',
+                'nested_path' => 'actors',
+                'excludeFilter' => [ 'actors' ],
+                'filters' => $searchFilters['actors']['filters']
+            ],
         ];
 
         return $aggregationFilters;
