@@ -42,7 +42,7 @@ class TraditionController extends BaseController
         return $this->_search(
             $request,
             [
-                'title' => 'Charters'
+                'title' => 'Tradition'
             ],
             [
                 'search_api' => 'tradition_search_api',

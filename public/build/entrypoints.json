@@ -13,14 +13,15 @@
         "/build/charter-search.b761bf3f.css"
       ],
       "js": [
+        "/build/charter-search.c39e93a4.js"
       ]
     },
     "charter-view": {
       "css": [
-        "/build/charter-view.390bde13.css"
+        "/build/charter-view.9b97f932.css"
       ],
       "js": [
-
+        "/build/charter-view.1e108c20.js"
       ]
     },
     "tradition-search": {
@@ -30,10 +31,10 @@
     },
     "tradition-view": {
       "css": [
-        "/build/tradition-view.343a1b9a.css"
+        "/build/tradition-view.6f6327fd.css"
       ],
       "js": [
-
+        "/build/tradition-view.49f861c7.js"
       ]
     }
   }
