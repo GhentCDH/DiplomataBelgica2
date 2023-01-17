@@ -26,16 +26,12 @@ class Place extends AbstractModel
 {
     protected $hidden = [
         'name_nl', 'name_fr', 'name_en',
-        'diocese_name_nl', 'diocese_name_fr', 'diocese_name_en',
         'diocese_explanation_nl', 'diocese_explanation_fr', 'diocese_explanation_en',
-        'principality_name_nl', 'principality_name_fr', 'principality_name_en',
         'principality_explanation_nl', 'principality_explanation_fr', 'principality_explanation_en'
     ];
     protected $localizedAttributes = [
         'name',
-        'diocese_name',
         'diocese_explanation',
-        'principality_name',
         'principality_explanation'
     ];
     protected $casts = [
@@ -43,7 +39,7 @@ class Place extends AbstractModel
         'place_localisation_published' => 'boolean'
     ];
     protected $with = [
-        'localisation'
+        'localisation', 'diocese', 'principality'
     ];
 
     /**
@@ -53,5 +49,23 @@ class Place extends AbstractModel
     public function localisation(): BelongsTo
     {
         return $this->belongsTo(PlaceLocalisation::class);
+    }
+
+    /**
+     * @return BelongsTo|Diocese
+     * @throws ReflectionException
+     */
+    public function diocese(): BelongsTo
+    {
+        return $this->belongsTo(Diocese::class);
+    }
+    
+    /**
+     * @return BelongsTo|Principality
+     * @throws ReflectionException
+     */
+    public function principality(): BelongsTo
+    {
+        return $this->belongsTo(Principality::class);
     }
 }
