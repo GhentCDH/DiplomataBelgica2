@@ -2,39 +2,39 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/build/main.97f19296.css"
+        "/build/main.9131d17c.css"
       ],
       "js": [
-        "/build/main.1d24b7ae.js"
+        "/build/main.d6de260e.js"
       ]
     },
     "charter-search": {
       "css": [
-        "/build/charter-search.b761bf3f.css"
+        "/build/charter-search.f8ab2b95.css"
       ],
       "js": [
-        "/build/charter-search.c39e93a4.js"
+        "/build/charter-search.74306218.js"
       ]
     },
     "charter-view": {
       "css": [
-        "/build/charter-view.9b97f932.css"
+        "/build/charter-view.1d04ef7c.css"
       ],
       "js": [
-        "/build/charter-view.1e108c20.js"
+        "/build/charter-view.90906096.js"
       ]
     },
     "tradition-search": {
       "js": [
-        "/build/tradition-search.38b2f456.js"
+        "/build/tradition-search.d914629d.js"
       ]
     },
     "tradition-view": {
       "css": [
-        "/build/tradition-view.6f6327fd.css"
+        "/build/tradition-view.279ec3d2.css"
       ],
       "js": [
-        "/build/tradition-view.49f861c7.js"
+        "/build/tradition-view.68df0a0b.js"
       ]
     }
   }
