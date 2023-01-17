@@ -134,8 +134,8 @@
                         <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                         <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
                         <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                        <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                        <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                        <LabelValue label="Diocese" :value="actor.place.diocese.name"></LabelValue>
+                        <LabelValue label="Principality" :value="actor.place.principality.name"></LabelValue>
                         <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
                       </p>
                     </div>
@@ -146,8 +146,8 @@
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
                       <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                      <LabelValue label="Diocese" :value="actor.place.diocese.name"></LabelValue>
+                      <LabelValue label="Principality" :value="actor.place.principality.name"></LabelValue>
                       <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
                     </p>
                   </div>
@@ -158,8 +158,8 @@
                       <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
                       <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
                       <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                      <LabelValue label="Diocese" :value="actor.place.diocese.name"></LabelValue>
+                      <LabelValue label="Principality" :value="actor.place.principality.name"></LabelValue>
                       <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
                     </p>
                   </div>
