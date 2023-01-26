@@ -2,7 +2,7 @@
   "entrypoints": {
     "main": {
       "css": [
-        "/build/main.d950f59f.css"
+        "/build/main.9131d17c.css"
       ],
       "js": [
         "/build/main.d6de260e.js"
@@ -13,7 +13,7 @@
         "/build/charter-search.f8ab2b95.css"
       ],
       "js": [
-        "/build/charter-search.338febf8.js"
+        "/build/charter-search.48cd96f3.js"
       ]
     },
     "charter-view": {
@@ -21,7 +21,7 @@
         "/build/charter-view.1d04ef7c.css"
       ],
       "js": [
-        "/build/charter-view.d6932754.js"
+        "/build/charter-view.da64fd23.js"
       ]
     },
     "tradition-search": {
