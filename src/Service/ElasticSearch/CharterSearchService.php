@@ -60,6 +60,16 @@ class CharterSearchService extends AbstractSearchService
                 'aggregationFilter' => false, // filter can be applied before aggregations
                 'nested_path' => 'udt',
                 'field' => ''
+            ],
+
+            'fulltext' => [
+                'type' => self::FILTER_TEXT,
+                'field' => 'full_text'
+            ],
+
+            'summary' => [
+                'type' => self::FILTER_TEXT,
+                'field' => 'summary'
             ]
         ];
 
@@ -112,6 +122,18 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'language'
             ],
+
+            'fulltext' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'full_text'
+            ],
+
+
+            'summary' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'summary'
+            ],
+
             'charter_place_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.name',
@@ -126,6 +148,7 @@ class CharterSearchService extends AbstractSearchService
                     ]
                 ]
             ],
+
             'actor_name_full_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'name.full_name',

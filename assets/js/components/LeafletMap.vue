@@ -82,12 +82,6 @@ export default {
                 return [];
             }
         },
-        // filteredMarkers: {
-        //     type: Array,
-        //     default() {
-        //         return this.markers;
-        //     }
-        // },
         center: {
             type: Array,
             default() {
@@ -108,16 +102,13 @@ export default {
             type: Boolean,
             default: true
         },
-        // filterRole: {
-        //     type: String,
-        //     default: 'All'
-        // },
+
     },
     data() {
         return {
             mapObject: null,
             showByIndex : null,
-            buttonOn: false,
+            filterRole : 'All',
             filteredMarkers: this.markers,
             map: {
                 minZoom: 1,
@@ -140,6 +131,7 @@ export default {
             return this.layers.filter( layer => layer.type === "geojsonLayer" )
         },
         computedMarkers() {
+            this.filterMarker(this.filterRole);
             let markers= this.filteredMarkers.map( function(m) {
                 if (m?.icon) {
                     m.icon = L.Icon(m.icon)
@@ -196,7 +188,7 @@ export default {
             const element = document.getElementById("content");
             element.style.display = "none";
             // console.log(this.filterRole);
-            this.filterMarker(role);
+            // this.filterMarker(this.filterRole);
         },
         filterMarker (role) {
             if (role != 'All') {
@@ -207,9 +199,8 @@ export default {
                 );
             }
             else {
-               this.filteredMarkers = this.markers
+               this.filteredMarkers = this.markers;
             }
-            // console.log(this.filteredMarkers)
         },
         onClick: function (event) {
             if (!event.target.matches('.dropbtn')) {

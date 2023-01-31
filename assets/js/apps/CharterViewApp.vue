@@ -309,15 +309,16 @@ export default {
           var marker = [];
           var duplicate =[];
           for (const actor of this.charter.actors) {
-            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.place.name) && actor.place.latitude != null){
+            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.role.name+ '_'+actor.place.name) && actor.place.latitude != null){
               marker.push(
                 {
-                  id: actor.place.name,
+                  id: actor.role.name+ '_'+actor.place.name,
                   latLng: [actor.place.latitude,actor.place.longitude],
-                  name : actor.place.name,
+                  name : actor.capacity.name,
+                  role : actor.role.name,
                 }
               )
-              duplicate.push(actor.place.name)
+              duplicate.push(actor.role.name+ '_'+actor.place.name)
             }
           }
           return marker
