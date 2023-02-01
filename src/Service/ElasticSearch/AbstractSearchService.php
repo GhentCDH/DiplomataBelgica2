@@ -649,12 +649,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 if (isset($filterValue['type']) && $filterValue['type'] == 'exact') {
                     if (isset($filterValue['floor'])) {
                         $query->addMust(
-                            new Query\Match($filterConfig['floorField'], $filterValue['floor'])
+                            new Query\MatchQuery($filterConfig['floorField'], $filterValue['floor'])
                         );
                     }
                     if (isset($filterValue['ceiling'])) {
                         $query->addMust(
-                            new Query\Match($filterConfig['ceilingField'], $filterValue['ceiling'])
+                            new Query\MatchQuery($filterConfig['ceilingField'], $filterValue['ceiling'])
                         );
                     }
                 }
