@@ -19,8 +19,8 @@ class TraditionSearchService extends AbstractSearchService
     protected function getSearchFilterConfig(): array {
         $searchFilters = [
             'repository_name' => [
-                'type' => self::FILTER_KEYWORD,
-                'field' => 'repository.name',
+                'type' => self::FILTER_OBJECT_ID,
+                'field' => 'repository',
                 'aggregationFilter' => true,
             ],
 

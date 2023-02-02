@@ -46,7 +46,7 @@ class Charter extends AbstractModel
         'summary_nl', 'summary_fr', 'summary_en'
     ];
     protected $localizedAttributes = [
-        'summary'
+        'summary', 'full_text'
     ];
     protected $casts = [
         'published' => 'boolean',

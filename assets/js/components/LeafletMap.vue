@@ -7,8 +7,21 @@
             />
             <l-wms-tile-layer v-for="layer in wmsLayers" :key="layer.id" v-bind="layer.options"></l-wms-tile-layer>
             <l-geo-json :ref="layer.id" v-for="layer in geojsonLayers" :key="layer.id"
-                        v-bind="layer.options"></l-geo-json>
-            <l-marker v-for="marker in computedMarkers" v-bind="marker" :key="marker.id"></l-marker>
+                        v-bind="layer.options" ></l-geo-json>
+            <l-control position="topleft" >
+                <div class="dropup">
+                    <button type="button" class="dropbtn" @click="showList" >Filter role</button>
+                    <div id="content" class="dropup-content" style="display: none">
+                        <a @click="toggleDisplay('Issuer')">Issuer</a>
+                        <a @click="toggleDisplay('Author of the actio juridica')">Disposer</a>
+                        <a @click="toggleDisplay('Beneficiary')">Beneficiary(ies)</a>
+                        <a @click="toggleDisplay('All')">All</a>
+                    </div>
+                </div>
+            </l-control>
+            <l-marker v-for="marker in computedMarkers" v-bind="marker" :key="marker.id" >
+            <l-popup>Function: {{ marker.name }}</l-popup>
+            </l-marker> 
             <l-control class="map__control map__control--topleft" position="topleft">
                 <slot name="controls-topleft"></slot>
             </l-control>
@@ -17,7 +30,7 @@
 </template>
 
 <script>
-import {LControl, LGeoJson, LMap, LMarker, LTileLayer, LWMSTileLayer, LControlLayers, LIcon} from 'vue2-leaflet';
+import {LControl, LGeoJson, LMap, LMarker, LTileLayer, LWMSTileLayer, LControlLayers, LIcon, LPopup} from 'vue2-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // icon fix
@@ -43,6 +56,7 @@ export default {
         LGeoJson,
         LControl,
         LControlLayers,
+        LPopup,
         'l-wms-tile-layer': LWMSTileLayer
     },
     props: {
@@ -87,11 +101,15 @@ export default {
         visible: {
             type: Boolean,
             default: true
-        }
+        },
+
     },
     data() {
         return {
             mapObject: null,
+            showByIndex : null,
+            filterRole : 'All',
+            filteredMarkers: this.markers,
             map: {
                 minZoom: 1,
                 options: {
@@ -113,7 +131,8 @@ export default {
             return this.layers.filter( layer => layer.type === "geojsonLayer" )
         },
         computedMarkers() {
-            let markers= this.markers.map( function(m) {
+            this.filterMarker(this.filterRole);
+            let markers= this.filteredMarkers.map( function(m) {
                 if (m?.icon) {
                     m.icon = L.Icon(m.icon)
                 }
@@ -124,18 +143,15 @@ export default {
             }
             return markers;
         },
-        // computeZoom() {
-
-        // }
     },
     watch: {
         visible(value, oldValue) {
             this.mapObject.invalidateSize()
             console.log("invalidateSize")
         },
-        // computedMarkers(markers) {
-        //     if ( this.mapObject && Array.isArray(markers) && markers.length ) {
-        //         this.mapObject.fitBounds(markers.map(m => m.latLng));
+        // computedMarkers(newMarker) {            
+        //     if ( this.mapObject && Array.isArray(newMarker) && newMarker.length ) {
+        //         this.mapObject.fitBounds(newMarker.map(m => m.latLng));
         //     }
         // }
     },
@@ -150,12 +166,62 @@ export default {
         },
         onMapReady() {
             this.mapObject = this.$refs.GmMap.mapObject
-        }
+        },
+        onEachFeature(marker, layer) {
+            if (marker.name ) {
+                layer.bindPopup(marker.name);
+                layer.on('mouseover', () => { layer.openPopup(); });
+                layer.on('mouseout', () => { layer.closePopup(); });
+            }
+        },
+        showList () {
+            const element = document.getElementById("content");
+            // console.log(element.style.display);
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        },
+        toggleDisplay (role) {
+            this.filterRole = role;
+            const element = document.getElementById("content");
+            element.style.display = "none";
+            // console.log(this.filterRole);
+            // this.filterMarker(this.filterRole);
+        },
+        filterMarker (role) {
+            if (role != 'All') {
+                this.filteredMarkers = this.markers.filter(function (marker)
+                {
+                return marker.role === role ;
+                }
+                );
+            }
+            else {
+               this.filteredMarkers = this.markers;
+            }
+        },
+        onClick: function (event) {
+            if (!event.target.matches('.dropbtn')) {
+                const element = document.getElementById("content");
+                if (element.style.display === "block") {
+                    element.style.display = "none";
+                }
+            }
+        },
     },
 
     created() {
     },
-    moundted() {
-    }
+    mounted: function() {
+        // Attach event listener to the root vue element
+        document.addEventListener('click', this.onClick)
+    },
+    beforeDestroy: function () {
+        document.removeEventListener('click', this.onClick)
+        // document.removeEventListener('click', this.onClick)
+  },
+
 }
 </script>

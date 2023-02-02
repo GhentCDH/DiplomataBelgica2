@@ -60,6 +60,16 @@ class CharterSearchService extends AbstractSearchService
                 'aggregationFilter' => false, // filter can be applied before aggregations
                 'nested_path' => 'udt',
                 'field' => ''
+            ],
+
+            'fulltext' => [
+                'type' => self::FILTER_TEXT,
+                'field' => 'full_text'
+            ],
+
+            'summary' => [
+                'type' => self::FILTER_TEXT,
+                'field' => 'summary'
             ]
         ];
 
@@ -67,16 +77,20 @@ class CharterSearchService extends AbstractSearchService
             'type' => self::FILTER_NESTED_MULTIPLE,
             'nested_path' => 'actors',
             'filters' => [
+                'actor_name_full_name' => [
+                    'field' => 'name.full_name',
+                    'type' => self::FILTER_KEYWORD
+                ],
                 'actor_place_name' => [
                     'field' => 'place.name',
                     'type' => self::FILTER_KEYWORD
                 ],
-                'actor_place_diocese' => [
-                    'field' => 'place.diocese_name',
+                'actor_place_diocese_name' => [
+                    'field' => 'place.diocese.name',
                     'type' => self::FILTER_KEYWORD
                 ],
-                'actor_place_principality' => [
-                    'field' => 'place.principality_name',
+                'actor_place_principality_name' => [
+                    'field' => 'place.principality.name',
                     'type' => self::FILTER_KEYWORD
                 ],
                 'actor_capacity' => [
@@ -86,6 +100,10 @@ class CharterSearchService extends AbstractSearchService
                 'actor_role' => [
                     'field' => 'role',
                     'type' => self::FILTER_OBJECT_ID
+                ],
+                'actor_order_name' => [
+                    'field' => 'order.name',
+                    'type' => self::FILTER_KEYWORD
                 ],
             ],
             'innerHits' => [
@@ -104,6 +122,18 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'language'
             ],
+
+            'fulltext' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'full_text'
+            ],
+
+
+            'summary' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'summary'
+            ],
+
             'charter_place_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.name',
@@ -118,6 +148,14 @@ class CharterSearchService extends AbstractSearchService
                     ]
                 ]
             ],
+
+            'actor_name_full_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'name.full_name',
+                'nested_path' => 'actors',
+                'excludeFilter' => [ 'actors' ],
+                'filters' => $searchFilters['actors']['filters']
+            ],
             'actor_place_name' => [
                 'type' => self::AGG_KEYWORD,
                 'field' => 'place.name',
@@ -125,16 +163,16 @@ class CharterSearchService extends AbstractSearchService
                 'excludeFilter' => [ 'actors' ],
                 'filters' => $searchFilters['actors']['filters']
             ],
-            'actor_place_diocese' => [
+            'actor_place_diocese_name' => [
                 'type' => self::AGG_KEYWORD,
-                'field' => 'place.diocese_name',
+                'field' => 'place.diocese.name',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
                 'filters' => $searchFilters['actors']['filters']
             ],
-            'actor_place_principality' => [
+            'actor_place_principality_name' => [
                 'type' => self::AGG_KEYWORD,
-                'field' => 'place.principality_name',
+                'field' => 'place.principality.name',
                 'nested_path' => 'actors',
                 'excludeFilter' => [ 'actors' ],
                 'filters' => $searchFilters['actors']['filters']
@@ -153,7 +191,13 @@ class CharterSearchService extends AbstractSearchService
                 'excludeFilter' => [ 'actors' ],
                 'filters' => $searchFilters['actors']['filters']
             ],
-
+            'actor_order_name' => [
+                'type' => self::AGG_KEYWORD,
+                'field' => 'order.name',
+                'nested_path' => 'actors',
+                'excludeFilter' => [ 'actors' ],
+                'filters' => $searchFilters['actors']['filters']
+            ],
         ];
 
         return $aggregationFilters;

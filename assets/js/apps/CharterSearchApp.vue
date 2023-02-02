@@ -150,11 +150,13 @@ export default {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Actor(s)',
                         fields: [
+                            this.createMultiSelect('Name', { model: 'actor_name_full_name' }),
                             this.createMultiSelect('Role', { model: 'actor_role' }),
                             this.createMultiSelect('Function', { model: 'actor_capacity' }),
                             this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name' }),
+                            this.createMultiSelect('Religious Order', { model: 'actor_order_name' }),
                         ]
                     },
                     {

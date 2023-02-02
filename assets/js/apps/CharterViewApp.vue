@@ -131,38 +131,39 @@
                     <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
                     <div v-for="actor in issuers" :key="`issuer ${actor.id}`">
                       <p>
-                        <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
-                        <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
-                        <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                        <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                        <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
+                        <LabelValue v-if="actor.capacity" label="Function/title" :value="actor.capacity.name"></LabelValue>
+                        <LabelValue v-if="actor.name" label="Name" :value="actor.name.full_name"></LabelValue>
+                        <LabelValue v-if="actor.place" label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                        <LabelValue v-if="actor.place.diocese" label="Diocese" :value="actor.place.diocese.name"></LabelValue>
+                        <LabelValue v-if="actor.place.principality" label="Principality" :value="actor.place.principality.name"></LabelValue>
                         <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
                       </p>
                     </div>
 
-                  <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
-                  <div v-for="actor in authors" :key="`author ${actor.id}`">
-                    <p>
-                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
-                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
-                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
-                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                    </p>
-                  </div>
+                    <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
+                    <div v-for="actor in authors" :key="`author ${actor.id}`">
+                      <p>
+                        <LabelValue v-if="actor.capacity" label="Function/title" :value="actor.capacity.name"></LabelValue>
+                        <LabelValue v-if="actor.name" label="Name" :value="actor.name.full_name"></LabelValue>
+                        <LabelValue v-if="actor.place" label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                        <LabelValue v-if="actor.place.diocese" label="Diocese" :value="actor.place.diocese.name"></LabelValue>
+                        <LabelValue v-if="actor.place.principality" label="Principality" :value="actor.place.principality.name"></LabelValue>
+                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                      </p>
+                    </div>
 
-                  <h3 v-if="beneficiaries.length > 0">Benefiriary(ies)<small>(= recipient)</small></h3>
-                  <div v-for="actor in beneficiaries" :key="`beneficiaries ${actor.id}`">
-                    <p>
-                      <LabelValue label="Function/title" :value="actor.capacity.name"></LabelValue>
-                      <LabelValue label="Name" :value="actor.name.full_name"></LabelValue>
-                      <LabelValue label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                      <LabelValue label="Diocese" :value="actor.place.diocese_name"></LabelValue>
-                      <LabelValue label="Principality" :value="actor.place.principality_name"></LabelValue>
-                      <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                    </p>
-                  </div>
+                    <h3 v-if="beneficiaries.length > 0">Beneficiary(ies)<small>(= recipient)</small></h3>
+                    <div v-for="actor in beneficiaries" :key="`beneficiaries ${actor.id}`">
+                      <p>
+                        <LabelValue v-if="actor.capacity" label="Function/title" :value="actor.capacity.name"></LabelValue>
+                        <LabelValue v-if="actor.name" label="Name" :value="actor.name.full_name"></LabelValue>
+                        <LabelValue v-if="actor.place" label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
+                        <LabelValue v-if="actor.place.diocese" label="Diocese" :value="actor.place.diocese.name"></LabelValue>
+                        <LabelValue v-if="actor.place.principality" label="Principality" :value="actor.place.principality.name"></LabelValue>
+                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
+                      </p>
+                    </div>
+                    
                 </Widget>
 
                 <Widget title="Date" :collapsed.sync="config.widgets.date.isOpen">
@@ -308,15 +309,16 @@ export default {
           var marker = [];
           var duplicate =[];
           for (const actor of this.charter.actors) {
-            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.place.name) && actor.place.latitude != null){
+            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.role.name+ '_'+actor.place.name) && actor.place.latitude != null){
               marker.push(
                 {
-                  id: actor.place.name,
+                  id: actor.role.name+ '_'+actor.place.name,
                   latLng: [actor.place.latitude,actor.place.longitude],
-                  name : actor.place.name,
+                  name : actor.capacity.name,
+                  role : actor.role.name,
                 }
               )
-              duplicate.push(actor.place.name)
+              duplicate.push(actor.role.name+ '_'+actor.place.name)
             }
           }
           return marker
