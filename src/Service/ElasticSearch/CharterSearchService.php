@@ -64,7 +64,7 @@ class CharterSearchService extends AbstractSearchService
 
             'fulltext' => [
                 'type' => self::FILTER_TEXT,
-                'field' => 'full_text'
+                'field' => '*'
             ],
 
             'summary' => [
@@ -125,13 +125,13 @@ class CharterSearchService extends AbstractSearchService
 
             'fulltext' => [
                 'type' => self::AGG_KEYWORD,
-                'field' => 'full_text'
+                'field' => '*'
             ],
 
 
             'summary' => [
                 'type' => self::AGG_KEYWORD,
-                'field' => 'summary'
+                'field' => '*'
             ],
 
             'charter_place_name' => [

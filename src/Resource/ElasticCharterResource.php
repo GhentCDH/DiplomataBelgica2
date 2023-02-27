@@ -44,7 +44,36 @@ class ElasticCharterResource extends ElasticBaseResource
         $ret['vidimuses'] = ElasticBaseResource::collection($charter->vidimuses);
         $ret['images'] = [];
         $ret['imageUrls'] = [];
-        $ret['date'] = [] ;
+        $ret['date'] = [];
+        $ret['actor_name'] = [];
+        $ret['actor_capacity'] = [];
+        $ret['actor_place'] = [];
+        $ret['actor_diocese'] = [];
+        $ret['actor_principality'] = [];
+        $ret['actor_order'] = [];
+
+        ##### flatten required fields for full text searching
+                
+        foreach ($ret['actors'] as $value) {
+            if (isset($value['order']))  {
+                array_push($ret['actor_order'], $value['order']['name']);
+            }
+            if (isset($value['place']['diocese']))  {
+                array_push($ret['actor_diocese'], $value['place']['diocese']['name']);
+            }
+            if (isset($value['place']['name']))  {
+                array_push($ret['actor_place'], $value['place']['name']);
+            }
+            if (isset($value['place']['principality']))  {
+                array_push($ret['actor_principality'], $value['place']['principality']['name']);
+            }
+            if (isset($value['name']['full_name']))  {
+                array_push($ret['actor_name'], $value['name']['full_name']);
+            }
+            if (isset($value['capacity']))  {
+                array_push($ret['actor_capacity'], $value['capacity']['name']);
+            }
+        }
         
         if (count($ret['udt']) > 0 ) {
             foreach ($ret['udt'] as $value) {
@@ -61,8 +90,7 @@ class ElasticCharterResource extends ElasticBaseResource
                     array_push($ret['date'],NULL);
                 }
             }
-        }
-                
+        }          
         
         foreach ($ret['originals'] as $value) {
             if (count($value['images']) > 0 ) {
