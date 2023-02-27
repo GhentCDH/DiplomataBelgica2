@@ -803,26 +803,72 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
 
         $field = $value['field'] ?? $key;
+
         // Replace multiple spaces with a single space
         $text = preg_replace('!\s+!', ' ', $value['text']);
 
-        // Remove colons
-        $text = str_replace(':', '', $text);
-
-        // Check if user does not use advanced syntax
-        if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
-            if ($value['combination'] == 'phrase') {
-                if (preg_match('/[*?]/', $text) === 0) {
-                    $text = '"' . $text . '"';
-                } else {
-                    $text = implode(' AND ', explode(' ', $text));
-                }
-            } elseif ($value['combination'] == 'all') {
-                $text = implode(' AND ', explode(' ', $text));
-            }
+        // Assumption: colon in search field denotes the field to be searched
+        if (str_contains($text, ':')) {
+            $text_array = explode(':', $text);
+            $field =  $text_array[0];
+            $text = $text_array[1];
         }
 
-        return (new Query\QueryString($text))->setDefaultField($field);
+        // Complex queries with boolean operators +, "," and #
+        $text = str_replace("+"," AND ", $text);
+        $text = str_replace(","," OR ", $text);
+        $text = str_replace("#"," NOT ", $text);
+
+        // Queries with slop and fuzziness and group of words
+        // Convert /10() or () -> ("")~10 () ($pattern = "!/\d+\([^()]*\)(\s\w+)?|\([^()]*\)(\s\w+)?")
+        preg_match_all('!/\d+\([^()]*\)(\s\w+\s)?|\([^()]*\)(\s\w+\s)?!',$text, $match);
+        $modified_text = "";
+        if (sizeof($match[0]) >=1) {
+            for ($x = 0; $x < sizeof($match[0]); $x++) {
+                $single_group = $match[0][$x];
+                if (preg_match('!\/\d+!',$single_group) === 1) {
+                    preg_match('!\/\d+!',$single_group, $number_match);
+                    $number = str_replace(str_split('/'), '', $number_match[0]);
+                    preg_match('!\([^()]*\)!',$single_group, $brackets);
+                    $inside_brackets = str_replace(str_split('()'), '', $brackets[0]);
+                    
+                    if (preg_match('!\([^()]*\)(\s\w+\s)!',$single_group) ===1) {
+                        preg_match('!\)(\s\w+\s)!',$single_group, $concat);
+                        $concat_str = str_replace(str_split(')'), '', $concat[0]);
+                        $modified_text = $modified_text.'"'.$inside_brackets.'" ~'.$number.$concat_str;
+                    } else {
+                        $modified_text = $modified_text.'"'.$inside_brackets.'" ~'.$number;	
+                    }
+                } else {
+                    $modified_text = $modified_text.$single_group;
+                }
+            }
+            $text = $modified_text;
+        }
+
+        // Replace multiple spaces with a single space
+        $text = preg_replace('!\s+!', ' ', $text);
+
+        //     $text = str_replace(")", "", $text_array[1]);
+        //     $slop = str_replace("%","", $text_array[0]);
+
+        //     return (new Query\MatchPhrasePrefix($text));
+
+        // // Check if user does not use advanced syntax
+        // if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
+        //     if ($value['combination'] == 'phrase') {
+        //         if (preg_match('/[*?]/', $text) === 0) {
+        //             $text = '"' . $text . '"';
+        //         } else {
+        //             $text = implode(' AND ', explode(' ', $text));
+        //         }
+        //     } elseif ($value['combination'] == 'all') {
+        //         $text = implode(' AND ', explode(' ', $text));
+        //     }
+        // }
+
+        
+        return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzeWildcard();
     }
 
     public function searchAndAggregate(array $params): array
@@ -1326,7 +1372,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_KEYWORD:
                     $aggFilterValues = $filterValues[$aggName]['value'] ?? [];
                     $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-//                    dump($aggResults);
+                    // dump($aggResults);
                     $items = [];
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;

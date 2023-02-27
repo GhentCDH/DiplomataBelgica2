@@ -18,6 +18,8 @@ class ElasticActorResource extends ElasticBaseResource
         $actor = $this->resource;
 
         $ret = parent::toArray();
+        // $ret['actor_diocese'] = [];
+        // $ret['actor_order'] = [];
         $ret['capacity'] = new ElasticIdNameResource($actor->capacity);
         $ret['role'] = $this->whenPivotLoaded('charter__actor', function() use ($actor) {
             return new ElasticIdNameResource($actor->pivot->role);
