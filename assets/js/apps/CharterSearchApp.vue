@@ -1,7 +1,12 @@
 <template>
-    <div class="row pbottom-large">
-        <aside class="col-sm-4">
+    <div class="row search-app">
+        <aside class="col-sm-3 search-app__filters scrollable">
             <div class="bg-tertiary padding-default">
+                <div v-if="showReset" class="form-group ptop-default">
+                    <button class="btn btn-primary"  @click="resetAllFilters" >
+                        Reset all filters
+                    </button>
+                </div>
                 <vue-form-generator
                         ref="form"
                         :model="model"
@@ -10,75 +15,84 @@
                         @validated="onValidated"
                         @model-updated="modelUpdated"
                 />
-
-                <div v-if="showReset" class="form-group ptop-default">
-                    <button class="btn btn-primary"  @click="resetAllFilters" >
-                        Reset all filters
-                    </button>
-                </div>
             </div>
         </aside>
         
-        <article class="col-sm-8 search-page">
-            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
+        <article class="col-sm-9 search-app__search-page">
+            <header>
+                <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
 
-            <nav class="mbottom-default">
-                <div class="nav nav-pills" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab" data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results" aria-selected="true" @click="updateMapVisibility(false)"><i class="fa-solid fa-bars" ></i> Browse results</button>
-                    <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" @click="updateMapVisibility(true)"><i class="fa-solid fa-map-location-dot"></i> Browse map</button>
-                </div>
-            </nav>
-            <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane show active" id="nav-results" role="tabpanel" aria-labelledby="nav-results-tab">
-                    <v-server-table
-                            ref="resultTable"
-                            :columns="tableColumns"
-                            :options="tableOptions"
-                            :url="urls['charter_search_api']"
-                            @data="onData"
-                            @loaded="onLoaded"
-                    >
-                        <template #afterFilter>
-                            <b v-if="countRecords">{{ countRecords }}</b>
-                        </template>
-                        <template #id="props">
-                            <a :href="getCharterUrl(props.row.id, props.index)">
-                                {{ props.row.id }}
-                            </a>
-                        </template>
-                        <template #summary="props">
-                            <template v-if="issuers(props.row).length">
-                                <h5>Main issuer</h5>
-                                <div v-for="actor in issuers(props.row)" :key="'actor:'+actor.id" class="actor--issuer" >
-                                    <FormatValue :value="actor.name.full_name"></FormatValue> -
-                                    <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                                    <FormatValue :value="actor.place" type="id_name"></FormatValue>
+                <nav class="mbottom-default">
+                    <div class="nav nav-pills" id="nav-tab" role="tablist">
+                        <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab" data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results" aria-selected="true" @click="updateMapVisibility(false)"><i class="fa-solid fa-bars" ></i> Browse results</button>
+                        <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" @click="updateMapVisibility(true)"><i class="fa-solid fa-map-location-dot"></i> Browse map</button>
+                    </div>
+                </nav>
+            </header>
+            <section>
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane show active" id="nav-results" role="tabpanel" aria-labelledby="nav-results-tab">
+                        <v-server-table
+                                ref="resultTable"
+                                :columns="tableColumns"
+                                :options="tableOptions"
+                                :url="urls['charter_search_api']"
+                                @data="onData"
+                                @loaded="onLoaded"
+                        >
+                            <template v-slot:beforeTable>
+                                <div class="VueTables__beforeTable row form-group form-inline">
+                                    <div class="VueTables__pagination col-xs-4">
+                                        <vt-pagination></vt-pagination>
+                                    </div>
+                                    <div class="VueTables__count col-xs-4">
+                                        <vt-pagination-count></vt-pagination-count>
+                                    </div>
+                                    <div class="VueTables__limit col-xs-4">
+                                        <vt-per-page-selector></vt-per-page-selector>
+                                    </div>
                                 </div>
                             </template>
-                            <template v-if="beneficiaries(props.row).length">
-                                <h5>Main beneficiary</h5>
-                                <div v-for="actor in beneficiaries(props.row)" :key="'beneficiary:'+actor.id" class="actor--beneficiary">
-                                    <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                                    <FormatValue :value="actor.place" type="id_name"></FormatValue> -
-                                    <FormatValue :value="actor.name.full_name"></FormatValue>
-                                </div>
+                            <template #afterFilter>
+                                <b v-if="countRecords">{{ countRecords }}</b>
                             </template>
-                            <h5>Summary</h5>
-                            {{ props.row.summary }}
-                        </template>
-                        <template #date="props">
-                            <a v-if="props.row.udt.length">
-                                {{ getDate(props.row.udt) }}
-                            </a>
-                        </template>
-                    </v-server-table>
+                            <template #id="props">
+                                <a :href="getCharterUrl(props.row.id, props.index)">
+                                    {{ props.row.id }}
+                                </a>
+                            </template>
+                            <template #summary="props">
+                                <template v-if="issuers(props.row).length">
+                                    <h5>Main issuer</h5>
+                                    <div v-for="actor in issuers(props.row)" :key="'actor:'+actor.id" class="actor--issuer" >
+                                        <FormatValue :value="actor.name.full_name"></FormatValue> -
+                                        <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
+                                        <FormatValue :value="actor.place" type="id_name"></FormatValue>
+                                    </div>
+                                </template>
+                                <template v-if="beneficiaries(props.row).length">
+                                    <h5>Main beneficiary</h5>
+                                    <div v-for="actor in beneficiaries(props.row)" :key="'beneficiary:'+actor.id" class="actor--beneficiary">
+                                        <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
+                                        <FormatValue :value="actor.place" type="id_name"></FormatValue> -
+                                        <FormatValue :value="actor.name.full_name"></FormatValue>
+                                    </div>
+                                </template>
+                                <h5>Summary</h5>
+                                {{ props.row.summary }}
+                            </template>
+                            <template #date="props">
+                                <a v-if="props.row.udt.length">
+                                    {{ getDate(props.row.udt) }}
+                                </a>
+                            </template>
+                        </v-server-table>
+                    </div>
+                    <div class="tab-pane" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
+                        <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" :visible="mapVisible"></LeafletMap>
+                    </div>
                 </div>
-                <div class="tab-pane" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
-                    <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" :visible="mapVisible"></LeafletMap>
-                </div>
-            </div>
-
-
+            </section>
         </article>
         <div
                 v-if="openRequests"
@@ -150,13 +164,30 @@ export default {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Actor(s)',
                         fields: [
-                            this.createMultiSelect('Name', { model: 'actor_name_full_name' }),
-                            this.createMultiSelect('Role', { model: 'actor_role' }),
-                            this.createMultiSelect('Function', { model: 'actor_capacity' }),
-                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name' }),
-                            this.createMultiSelect('Religious Order', { model: 'actor_order_name' }),
+                            {
+                                type: 'label',
+                                label: 'Actor 1',
+                                model: 'actor1'
+                            },
+                            this.createMultiSelect('Name', { model: 'actor_name_full_name_1' }),
+                            this.createMultiSelect('Role', { model: 'actor_role_1' }),
+                            this.createMultiSelect('Function', { model: 'actor_capacity_1' }),
+                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_1' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_1' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_1' }),
+                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_1' }),
+                            {
+                                type: 'label',
+                                label: 'Actor 2',
+                                model: 'actor2'
+                            },
+                            this.createMultiSelect('Name', { model: 'actor_name_full_name_2' }),
+                            this.createMultiSelect('Role', { model: 'actor_role_2' }),
+                            this.createMultiSelect('Function', { model: 'actor_capacity_2' }),
+                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_2' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_2' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_2' }),
+                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_2' }),
                         ]
                     },
                     {

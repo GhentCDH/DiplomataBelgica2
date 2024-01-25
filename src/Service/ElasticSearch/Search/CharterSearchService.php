@@ -31,7 +31,7 @@ class CharterSearchService extends AbstractSearchService
 
             'dating_scholary_nested' => [
                 'type' => self::FILTER_NESTED_MULTIPLE,
-                'nested_path' => 'datations',
+                'nestedPath' => 'datations',
                 'aggregationFilter' => false, // filter can be applied before aggregations
                 'filters' => [
                     'dating_scholary' => [
@@ -51,7 +51,7 @@ class CharterSearchService extends AbstractSearchService
             'dating_charter' => [
                 'type' => self::FILTER_DMY_RANGE,
                 'aggregationFilter' => false, // filter can be applied before aggregations
-                'nested_path' => 'udt',
+                'nestedPath' => 'udt',
                 'field' => ''
             ],
 
@@ -66,43 +66,43 @@ class CharterSearchService extends AbstractSearchService
             ]
         ];
 
-        $searchFilters['actors'] = [
-            'type' => self::FILTER_NESTED_MULTIPLE,
-            'nested_path' => 'actors',
-            'filters' => [
-                'actor_name_full_name' => [
-                    'field' => 'name.full_name',
-                    'type' => self::FILTER_KEYWORD
+        // actor filters
+        foreach( range(1, $this->actorLimit) as $index ) {
+            $searchFilters["actors_{$index}"] = [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nestedPath' => 'actors',
+                'filters' => [
+                    "actor_name_full_name_{$index}" => [
+                        'field' => 'name.full_name',
+                        'type' => self::FILTER_KEYWORD
+                    ],
+                    "actor_place_name_{$index}" => [
+                        'field' => 'place.name',
+                        'type' => self::FILTER_KEYWORD
+                    ],
+                    "actor_place_diocese_name_{$index}" => [
+                        'field' => 'place.diocese.name',
+                        'type' => self::FILTER_KEYWORD
+                    ],
+                    "actor_place_principality_name_{$index}" => [
+                        'field' => 'place.principality.name',
+                        'type' => self::FILTER_KEYWORD
+                    ],
+                    "actor_capacity_{$index}" => [
+                        'field' => 'capacity',
+                        'type' => self::FILTER_OBJECT_ID
+                    ],
+                    "actor_role_{$index}" => [
+                        'field' => 'role',
+                        'type' => self::FILTER_OBJECT_ID
+                    ],
+                    "actor_order_name_{$index}" => [
+                        'field' => 'order.name',
+                        'type' => self::FILTER_KEYWORD
+                    ],
                 ],
-                'actor_place_name' => [
-                    'field' => 'place.name',
-                    'type' => self::FILTER_KEYWORD
-                ],
-                'actor_place_diocese_name' => [
-                    'field' => 'place.diocese.name',
-                    'type' => self::FILTER_KEYWORD
-                ],
-                'actor_place_principality_name' => [
-                    'field' => 'place.principality.name',
-                    'type' => self::FILTER_KEYWORD
-                ],
-                'actor_capacity' => [
-                    'field' => 'capacity',
-                    'type' => self::FILTER_OBJECT_ID
-                ],
-                'actor_role' => [
-                    'field' => 'role',
-                    'type' => self::FILTER_OBJECT_ID
-                ],
-                'actor_order_name' => [
-                    'field' => 'order.name',
-                    'type' => self::FILTER_KEYWORD
-                ],
-            ],
-            'innerHits' => [
-                'size' => 100
-            ]
-        ];
+            ];
+        }
 
         return $searchFilters;
     }
@@ -141,57 +141,55 @@ class CharterSearchService extends AbstractSearchService
                     ]
                 ]
             ],
-
-            'actor_name_full_name' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'name.full_name',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
-            'actor_place_name' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'place.name',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
-            'actor_place_diocese_name' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'place.diocese.name',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
-            'actor_place_principality_name' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'place.principality.name',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
-            'actor_capacity' => [
-                'type' => self::AGG_OBJECT_ID_NAME,
-                'field' => 'capacity',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
-            'actor_role' => [
-                'type' => self::AGG_OBJECT_ID_NAME,
-                'field' => 'role',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
-            'actor_order_name' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'order.name',
-                'nested_path' => 'actors',
-                'excludeFilter' => [ 'actors' ],
-                'filters' => $searchFilters['actors']['filters']
-            ],
         ];
+
+        foreach( range(1, $this->actorLimit) as $index ) {
+            $agg = [
+                "actor_name_full_name_{$index}" => [
+                    'type' => self::AGG_KEYWORD,
+                    'field' => 'name.full_name',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+                "actor_place_name_{$index}" => [
+                    'type' => self::AGG_KEYWORD,
+                    'field' => 'place.name',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+                "actor_place_diocese_name_{$index}" => [
+                    'type' => self::AGG_KEYWORD,
+                    'field' => 'place.diocese.name',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+                "actor_place_principality_name_{$index}" => [
+                    'type' => self::AGG_KEYWORD,
+                    'field' => 'place.principality.name',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+                "actor_capacity_{$index}" => [
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'capacity',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+                "actor_role_{$index}" => [
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'role',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+                "actor_order_name_{$index}" => [
+                    'type' => self::AGG_KEYWORD,
+                    'field' => 'order.name',
+                    'nestedPath' => 'actors',
+                    'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                ],
+            ];
+            $aggregationFilters = array_merge($aggregationFilters, $agg);
+        }
 
         return $aggregationFilters;
     }
