@@ -1,0 +1,66 @@
+version: "3.9"
+
+services:
+
+  app:
+    build:
+        context: .
+        target: dev
+    ports:
+      - "127.0.0.1:${APP_SYMFONY_EXTERNAL_PORT:-8080}:8000"
+    volumes:
+      - ./:/app
+    environment:
+      DATABASE_USER: $DATABASE_USER
+      DATABASE_PASSWORD: $DATABASE_PASSWORD
+      DATABASE_NAME: $DATABASE_NAME
+      DATABASE_HOST: $DATABASE_HOST
+      DATABASE_PORT: ${DATABASE_PORT:-3306}
+      DATABASE_DRIVER: $DATABASE_DRIVER
+    tty: true
+
+  database:
+    image: mariadb:10.6-focal
+    environment:
+      MARIADB_USER: $DATABASE_USER
+      MARIADB_PASSWORD: $DATABASE_PASSWORD
+      MARIADB_DATABASE: $DATABASE_NAME
+      MARIADB_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD:-SetecAstronomy}
+    ports:
+      - "127.0.0.1:${DATABASE_EXTERNAL_PORT:-13306}:3306"
+    volumes:
+      - database:/var/lib/mysql
+
+  elasticsearch:
+    image:  elasticsearch:7.17.16
+    ports:
+      - "127.0.0.1:${ELASTICSEARCH_EXTERNAL_PORT:-19200}:9200"
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    # 8.x
+#    environment: [ 'ES_JAVA_OPTS=-Xms2g -Xmx2g','bootstrap.memory_lock=true','discovery.type=single-node','xpack.security.enabled=false', 'xpack.security.enrollment.enabled=false' ]
+#     7.17.X
+    environment:
+      discovery.type: single-node
+      network.host: 0.0.0.0
+      http.port: 9200
+      transport.host: localhost
+      cluster.name: docker-cluster
+      bootstrap.memory_lock: "true"
+      xpack.security.enabled: "false"
+      cluster.routing.allocation.disk.threshold_enabled: "false"
+      ES_JAVA_OPTS: -Xms2g -Xmx2g
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+volumes:
+  elasticsearch:
+    name: "dibe-elasticsearch"
+  database:
+    name: "dibe-database"
+
