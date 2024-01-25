@@ -54,7 +54,7 @@ class IndexElasticsearchCommand extends Command
 
                     /** @var $service CharterIndexService */
                     $service = $this->container->get('tradition_index_service');
-                    $service->setup();
+                    $indexName = $service->createNewIndex();
 
                     $total = 0;
                     $repositories = ['original_repository', 'copy_repository', 'codex_repository' ];
@@ -86,6 +86,9 @@ class IndexElasticsearchCommand extends Command
                             });
                     }
 
+                    $service->switchToNewIndex($indexName);
+                    $progressBar->finish();
+
                     break;
 
                 case 'charter':
@@ -94,7 +97,7 @@ class IndexElasticsearchCommand extends Command
 
                     /** @var $service CharterIndexService */
                     $service = $this->container->get('charter_index_service');
-                    $service->setup();
+                    $indexName = $service->createNewIndex();
 
                     $total = $repository->indexQuery()->count();
 
@@ -113,6 +116,10 @@ class IndexElasticsearchCommand extends Command
 
                             $progressBar->advance(100);
                         });
+
+                    $service->switchToNewIndex($indexName);
+
+                    $progressBar->finish();
 
                     break;
             }
