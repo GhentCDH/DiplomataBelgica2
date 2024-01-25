@@ -64,18 +64,29 @@ FULLSCREEN LAYOUT
 - no overflows
 */
 body.layout--fullscreen {
+
+    display: flex;
+    flex-direction: column;
+
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
+
+    & > .container-xl {
+        flex: 0 1;
+        margin: 0;
+        max-width: unset;
+    }
 
     & > .container-xl > .row {
         width: 100%;
-        max-width: 1280px;
+        max-width: 1800px;
         margin-left: auto;
         margin-right: auto;
 
         aside {
             margin: 0;
         }
-
     }
 
     & > .container-xl.page__content {
@@ -83,11 +94,7 @@ body.layout--fullscreen {
         overflow: hidden;
     }
 
-    footer {
+    & > footer {
         display: none;
     }
-}
-
-.scrollable--vertical {
-    height: calc(100vh - 150px);
 }

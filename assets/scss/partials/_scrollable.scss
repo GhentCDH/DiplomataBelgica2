@@ -1,27 +1,46 @@
 .scrollable {
-  overflow: auto;
-  
-  &:not(aside) {
-    padding-right: $padding-medium;
-  }
+  overflow-y: auto;
 
   &::-webkit-scrollbar {
-    width: 5px;
+    width: 6px;
     height: 0;
   }
 
   &::-webkit-scrollbar-track {
-    width: 5px;
-    background-color: $gray-light;
-    border-radius: 3px;
+    width: 6px;
+    background-color: #efefef;
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: $border-color;
-    border-radius: 3px;
+    background-color: #ccc;
   }
 
   &::-webkit-scrollbar-button {
     display: none;
   }
+
+  &.scrollable--ml {
+    &::-webkit-scrollbar {
+      width: 24px;
+    }
+
+    &::-webkit-scrollbar-track {
+      border-left: 18px solid white;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-left: 18px solid white;
+    }
+  }
+
+  &--vertical {
+    overflow: hidden;
+    overflow-y: auto;
+  }
+
+  &--horizontal {
+    overflow: hidden;
+    overflow-x: auto;
+  }
+
 }

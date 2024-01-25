@@ -30,10 +30,9 @@
 <body class="{% block body_class %}{% endblock %}">
 
     {# HEADER #}
-    <div class="container-xl">
+    <header class="container-xl page__header">
         {% block header %} 
-            <div class="pageheader">
-                <div class="row pbottom-large"> 
+                <div class="row pageheader pbottom-large">
                     <div class="col-12">
                         <!-- NAVBAR -->
                         <nav class="navbar navbar-expand-lg navbar-light bg-tertiary">
@@ -89,12 +88,11 @@
                         </nav>
                     </div>
                 </div>
-            </div>
         {% endblock %}
-    </div> 
+    </header>
 
     {# CONTENT #}
-    <div class="container-xl page__content">
+    <main class="container-xl page__content">
         {% if app.request.hasPreviousSession %}
             {% for type, messages in app.session.flashbag.all() %}
                 {% for message in messages %}
@@ -106,10 +104,10 @@
             {% endfor %}
         {% endif %}
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
     {# FOOTER #}
-    <div class="container-xl">
+    <footer class="container-xl page__footer">
         <footer class="">
             <div class="container-fluid padding-default bg-tertiary">
                 <div class="row">
@@ -192,7 +190,7 @@
 
             </div>
         </footer>
-    </div>
+    </footer>
     {% block javascript %}
         {{ encore_entry_script_tags('main') }}
     {% endblock %}

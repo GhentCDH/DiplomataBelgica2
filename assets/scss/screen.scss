@@ -1,5 +1,6 @@
 @import "init";
 
+@import "~bootstrap/scss/variables-dark";
 @import "~bootstrap/scss/mixins";
 @import "~bootstrap/scss/maps";
 @import "~bootstrap/scss/utilities";
@@ -52,7 +53,7 @@
 @import "base/layout";
 @import "base/typography";
 
-
+@import "partials/scrollable";
 @import "partials/breadcrumb";
 @import "partials/colophon";
 @import "partials/fonts";
