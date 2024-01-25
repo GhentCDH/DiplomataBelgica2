@@ -1,17 +1,12 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Index;
+
+use App\Service\ElasticSearch\Base\AbstractIndexService;
 
 class TraditionIndexService extends AbstractIndexService
 {
     const indexName = "tradition";
-
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
 
     protected function getMappingProperties(): array {
         return [

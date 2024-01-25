@@ -4,11 +4,10 @@ namespace App\Command;
 
 use App\Model\Charter;
 use App\Repository\CharterRepository;
-
 use App\Repository\RepositoryInterface;
 use App\Resource\ElasticCharterResource;
 use App\Resource\ElasticTraditionResource;
-use App\Service\ElasticSearch\CharterIndexService;
+use App\Service\ElasticSearch\Index\CharterIndexService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;

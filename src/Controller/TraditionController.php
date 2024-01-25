@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\ElasticSearch\TraditionSearchService;
+use App\Service\ElasticSearch\Search\TraditionSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;

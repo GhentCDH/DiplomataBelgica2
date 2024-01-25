@@ -31,33 +31,33 @@ services:
     # please note that last definitions always *replace* previous ones
     elastic_search_client:
         class: App\Service\ElasticSearch\Client
-        arguments: ['%elasticsearch.config%','%elasticsearch.index_prefix%']
+        arguments: ['%elasticsearch.config%']
         public: true
     App\Service\ElasticSearch\Client: '@elastic_search_client'
 
     charter_index_service:
-        class: App\Service\ElasticSearch\CharterIndexService
-        arguments: ['@elastic_search_client']
+        class: App\Service\ElasticSearch\Index\CharterIndexService
+        arguments: ['@elastic_search_client', '%elasticsearch.index_prefix%']
         public: true
-    App\Service\ElasticSearch\CharterIndexService: '@charter_index_service'
+    App\Service\ElasticSearch\Index\CharterIndexService: '@charter_index_service'
 
     tradition_index_service:
-        class: App\Service\ElasticSearch\TraditionIndexService
-        arguments: ['@elastic_search_client']
+        class: App\Service\ElasticSearch\Index\TraditionIndexService
+        arguments: ['@elastic_search_client', '%elasticsearch.index_prefix%']
         public: true
-    App\Service\ElasticSearch\TraditionIndexService: '@tradition_index_service'
+    App\Service\ElasticSearch\Index\TraditionIndexService: '@tradition_index_service'
 
     charter_search_service:
-        class: App\Service\ElasticSearch\CharterSearchService
-        arguments: ['@elastic_search_client']
+        class: App\Service\ElasticSearch\Search\CharterSearchService
+        arguments: ['@elastic_search_client', '%elasticsearch.index_prefix%', '%elasticsearch.debug%']
         public: true
-    App\Service\ElasticSearch\CharterSearchService: '@charter_search_service'
+    App\Service\ElasticSearch\Search\CharterSearchService: '@charter_search_service'
 
     tradition_search_service:
-        class: App\Service\ElasticSearch\TraditionSearchService
-        arguments: ['@elastic_search_client']
+        class: App\Service\ElasticSearch\Search\TraditionSearchService
+        arguments: ['@elastic_search_client', '%elasticsearch.index_prefix%', '%elasticsearch.debug%']
         public: true
-    App\Service\ElasticSearch\TraditionSearchService: '@tradition_search_service'
+    App\Service\ElasticSearch\Search\TraditionSearchService: '@tradition_search_service'
 
     charter_repository:
         class: App\Repository\CharterRepository

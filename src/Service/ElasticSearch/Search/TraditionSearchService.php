@@ -1,22 +1,14 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
-use Elastica\Mapping;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use App\Service\ElasticSearch\Base\AbstractSearchService;
 
 class TraditionSearchService extends AbstractSearchService
 {
     const indexName = "tradition";
 
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
-
-    protected function getSearchFilterConfig(): array {
+    protected function initSearchConfig(): array {
         $searchFilters = [
             'repository_name' => [
                 'type' => self::FILTER_OBJECT_ID,
@@ -69,8 +61,8 @@ class TraditionSearchService extends AbstractSearchService
         return $searchFilters;
     }
 
-    protected function getAggregationConfig(): array {
-        $searchFilters = $this->getSearchFilterConfig();
+    protected function initAggregationConfig(): array {
+        $searchFilters = $this->initSearchConfig();
 
         $aggregationFilters = [
             'repository_name' => [

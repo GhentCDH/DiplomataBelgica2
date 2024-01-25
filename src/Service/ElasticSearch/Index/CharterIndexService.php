@@ -1,17 +1,12 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Index;
+
+use App\Service\ElasticSearch\Base\AbstractIndexService;
 
 class CharterIndexService extends AbstractIndexService
 {
-    const indexName = "charters";
-
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
+    const indexName = "charter";
 
     protected function getMappingProperties(): array {
         return [

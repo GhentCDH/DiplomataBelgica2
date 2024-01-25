@@ -1,5 +1,5 @@
 <?php
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Base;
 
 interface SearchConfigInterface
 {
@@ -26,6 +26,13 @@ interface SearchConfigInterface
     const AGG_BOOLEAN = "bool";
     const AGG_GLOBAL_STATS = "stats";
 
+    const AGG_CARDINALITY = "cardinality";
+
     const AGG_NESTED_ID_NAME = "nested_id_name";
     const AGG_OBJECT_ID_NAME = "object_id_name";
+
+    const ANY_LABEL = 'any';
+    const ANY_KEY = -2;
+    const NONE_LABEL = 'none';
+    const NONE_KEY = -1;
 }

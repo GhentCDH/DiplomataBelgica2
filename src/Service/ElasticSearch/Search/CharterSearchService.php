@@ -1,22 +1,15 @@
 <?php
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Search;
 
-use Elastica\Mapping;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use App\Service\ElasticSearch\Base\AbstractSearchService;
 
 class CharterSearchService extends AbstractSearchService
 {
-    const indexName = "charters";
+    const indexName = "charter";
+    private int $actorLimit = 2;
 
-    public function __construct(Client $client)
-    {
-        parent::__construct(
-            $client,
-            self::indexName);
-    }
-
-    protected function getSearchFilterConfig(): array {
+    protected function initSearchConfig(): array {
         $searchFilters = [
             'id' => ['type' => self::FILTER_NUMERIC],
 
@@ -114,8 +107,8 @@ class CharterSearchService extends AbstractSearchService
         return $searchFilters;
     }
 
-    protected function getAggregationConfig(): array {
-        $searchFilters = $this->getSearchFilterConfig();
+    protected function initAggregationConfig(): array {
+        $searchFilters = $this->getSearchConfig();
 
         $aggregationFilters = [
             'charter_language' => [
