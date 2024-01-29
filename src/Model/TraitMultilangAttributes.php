@@ -37,6 +37,9 @@ trait TraitMultilangAttributes {
 
         foreach ($this->localizedAttributes as $attr) {
             $attributes[$attr] = $this->getLocalizedAttribute($attr);
+            foreach(self::$locales as $locale) {
+                unset($attributes[$attr . "_" . $locale]);
+            }
         }
 
         return $attributes;
