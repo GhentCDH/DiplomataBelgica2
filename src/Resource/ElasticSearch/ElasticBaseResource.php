@@ -1,7 +1,10 @@
 <?php
 
 
-namespace App\Resource;
+namespace App\Resource\ElasticSearch;
+
+use App\Resource\Base\BaseResource;
+use Illuminate\Database\Eloquent\Model;
 
 class ElasticBaseResource extends BaseResource
 {
@@ -17,6 +20,14 @@ class ElasticBaseResource extends BaseResource
             $ret = ['id' => $this->getKey()];
             $ret = array_merge($ret, $this->resource->toArray());
             unset($ret[$this->getKeyName()]);
+
+            // remove keys for loaded relations
+            $relations = $this->resource->getRelations();
+            foreach ($relations as $relation) {
+                if ( $relation instanceof Model) {
+                    unset($ret[$relation->getKeyName()]);
+                }
+            }
 
             return $ret;
         }
