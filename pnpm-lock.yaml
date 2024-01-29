@@ -44,6 +44,9 @@ devDependencies:
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
+  lodash.isequal:
+    specifier: ^4.5.0
+    version: 4.5.0
   lodash.merge:
     specifier: ^4.6.2
     version: 4.6.2
@@ -77,9 +80,6 @@ devDependencies:
   vue:
     specifier: ^2.6.8
     version: 2.7.16
-  vue-ckeditor2:
-    specifier: ^2.1.4
-    version: 2.1.5(ckeditor@4.12.1)(vue@2.7.16)
   vue-cookies:
     specifier: ^1.7.4
     version: 1.8.3
@@ -92,9 +92,9 @@ devDependencies:
   vue-multiselect:
     specifier: ^2.1.4
     version: 2.1.8
-  vue-tables-2:
-    specifier: ^1.0.10
-    version: 1.6.25
+  vue-tables-2-premium:
+    specifier: ^2.3.6
+    version: 2.3.6
   vue-template-compiler:
     specifier: ^2.6.8
     version: 2.7.16
@@ -2181,6 +2181,10 @@ packages:
       webpack: 5.89.0(webpack-cli@4.10.0)
     dev: true
 
+  /babel-plugin-add-module-exports@0.2.1:
+    resolution: {integrity: sha512-3AN/9V/rKuv90NG65m4tTHsI04XrCKsWbztIcW7a8H5iIN7WlvWucRtVV0V/rT4QvtA11n5Vmp20fLwfMWqp6g==}
+    dev: true
+
   /babel-plugin-polyfill-corejs2@0.4.7(@babel/core@7.23.7):
     resolution: {integrity: sha512-LidDk/tEGDfuHW2DWh/Hgo4rmnw3cduK6ZkOI1NPFceSK3n/yAGeOsNT7FLnSGHkXj3RHGSEVkN3FsCTY6w2CQ==}
     peerDependencies:
@@ -2424,11 +2428,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /ckeditor@4.12.1:
-    resolution: {integrity: sha512-pH2Su4oi0D4iN/3U8nUcwI7/lXHoOJi0aiN8e2zxnm4Ow5kq8eZP2ZGmpYyuqRyKZ2tHaU8+OyYi7laXcjiq9Q==}
-    deprecated: We have renamed the @ckeditor package. New versions are available under the @ckeditor4 name.
-    dev: true
-
   /clean-css@4.2.4:
     resolution: {integrity: sha512-EJUDT7nDVFDvaQgAo2G/PJvxmp1o/c6iXLbswsBbUFXi1Nr+AjA2cKmfbKDMjMvzEe75g3P6JkaDDAKk96A85A==}
     engines: {node: '>= 4.0'}
@@ -2461,11 +2460,6 @@ packages:
       is-plain-object: 2.0.4
       kind-of: 6.0.3
       shallow-clone: 3.0.1
-    dev: true
-
-  /clone@2.1.2:
-    resolution: {integrity: sha512-3Pe/CF1Nn94hyhIYpjtiLhdCoEoz0DqQ+988E9gmeEdQZlojxnOb74wctFyuwWQHzqyf9X7C7MG8juUpqBJT8w==}
-    engines: {node: '>=0.8'}
     dev: true
 
   /color-convert@1.9.3:
@@ -4026,8 +4020,16 @@ packages:
       p-locate: 6.0.0
     dev: true
 
+  /lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
+    dev: true
+
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+    dev: true
+
+  /lodash.isequal@4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     dev: true
 
   /lodash.memoize@4.1.2:
@@ -4109,8 +4111,8 @@ packages:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
     dev: true
 
-  /merge@1.2.1:
-    resolution: {integrity: sha512-VjFo4P5Whtj4vsLzsYBu5ayHhoHJ0UqNm7ibvShmbmoz7tGi0vXaoJbGdB+GmDMLUdg8DpQXEIeVDAe8MaABvQ==}
+  /merge@2.1.1:
+    resolution: {integrity: sha512-jz+Cfrg9GWOZbQAnDQ4hlVnQky+341Yk5ru8bZSe6sIDTCIg8n9i/u7hSQGSVOF3C7lH6mGtqjkiT9G4wFLL0w==}
     dev: true
 
   /methods@1.1.2:
@@ -5733,16 +5735,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /vue-ckeditor2@2.1.5(ckeditor@4.12.1)(vue@2.7.16):
-    resolution: {integrity: sha512-8aDxfu4Yhfba8b/TPWLEq2qXEasyBvIx5+QPlg1yHe+U3qfKwKBeplQFtQmZN6W8EtDeKEz+AAHn+ALgJMDRsQ==}
-    peerDependencies:
-      ckeditor: '>= 4'
-      vue: '>= 2'
-    dependencies:
-      ckeditor: 4.12.1
-      vue: 2.7.16
-    dev: true
-
   /vue-cookies@1.8.3:
     resolution: {integrity: sha512-VBRsyRMVdahBgFfh389TMHPmDdr4URDJNMk4FKSCfuNITs7+jitBDhwyL4RJd3WUsfOYNNjPAkfbehyH9AFuoA==}
     dev: true
@@ -5843,10 +5835,11 @@ packages:
     engines: {node: '>= 4.0.0', npm: '>= 3.0.0'}
     dev: true
 
-  /vue-pagination-2@1.6.3:
-    resolution: {integrity: sha512-I1F5DBB72wBBqUjgzBh6lryrehQM4CX9J+mswbajmqSvlDCAX02Elr1qqyFRoGfLYMGYeF/nuviKxbwmlUUeHw==}
+  /vue-pagination-2@3.1.0:
+    resolution: {integrity: sha512-gySZMsQq7DQ++tQ3FinQ8jr4n/lwJx1Qo5T5BXwacdYwDui9bH1tmx29Ob1sZ/gq3BTFwfuJasLLKg6BRDxpYg==}
     dependencies:
-      merge: 1.2.1
+      babel-plugin-add-module-exports: 0.2.1
+      merge: 2.1.1
       vue: 2.7.16
       vuex: 2.5.0
     dev: true
@@ -5858,16 +5851,16 @@ packages:
       loader-utils: 1.4.2
     dev: true
 
-  /vue-tables-2@1.6.25:
-    resolution: {integrity: sha512-Szb48xV9/pxPkcnK5hA/JxToIFsgnlpIS2lGBjAjNXUKCKJxyyvY1ird2iohSHnMjkmcOimdmcjLmMlEn8TS5A==}
+  /vue-tables-2-premium@2.3.6:
+    resolution: {integrity: sha512-UxQvdPFGarB6PUP0ft0nx7w1UJwt52irSUtGh6F3zGBOrRInqngN4HVHNdIoOEFDyYKcFbFPZu51Q00E47rYSg==}
     dependencies:
       array-intersect: 0.0.1
       babel-helper-vue-jsx-merge-props: 2.0.3
-      clone: 2.1.2
       debounce: 1.2.1
-      merge: 1.2.1
+      lodash.clonedeep: 4.5.0
+      merge: 2.1.1
       vue: 2.7.16
-      vue-pagination-2: 1.6.3
+      vue-pagination-2: 3.1.0
     dev: true
 
   /vue-template-compiler@2.7.16:
