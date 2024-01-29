@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Resource;
+namespace App\Resource\ElasticSearch;
 
 use App\Model\Actor;
 

@@ -1,32 +1,26 @@
 <?php
 
-namespace App\Resource;
+namespace App\Resource\ElasticSearch;
 
 use App\Model\Charter;
+use App\Resource\ResourceInterface;
+use Illuminate\Http\Request;
 
 /**
  * Class ElasticCharterResource
  * @package App\Resource
  * @mixin Charter
  */
-class ElasticCharterResource extends ElasticBaseResource
+class ElasticCharterResource extends ElasticBaseResource implements ResourceInterface
 {
-    const CACHENAME = "charter_elastic";
-
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    public function toArray($request=null)
+    public function toArray($request = null): array
     {
         /** @var Charter $charter */
         $charter = $this->resource;
 
-        $ret = $this->attributesToArray();
+        $ret = parent::toArray();
 
-        $ret['place'] = new ElasticBaseResource($charter->place);
+        $ret['place'] = (new ElasticBaseResource($charter->place))->toArray();
         $ret['edition_indication'] = new ElasticBaseResource($charter->edition_indication);
         $ret['edition'] = new ElasticBaseResource($charter->edition);
         $ret['authenticity'] = new ElasticBaseResource($charter->authenticity);

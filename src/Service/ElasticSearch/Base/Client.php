@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Service\ElasticSearch;
+namespace App\Service\ElasticSearch\Base;
 
 use Elastica;
 use Elastica\Index;

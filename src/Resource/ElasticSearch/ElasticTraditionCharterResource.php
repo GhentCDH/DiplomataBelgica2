@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Resource;
-use App\Model\Actor;
+namespace App\Resource\ElasticSearch;
 
 class ElasticTraditionCharterResource extends ElasticBaseResource
 {

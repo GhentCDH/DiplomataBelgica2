@@ -1,21 +1,22 @@
 <?php
 
-namespace App\Resource;
+namespace App\Resource\ElasticSearch;
 
 use App\Model\Charter;
-use App\Model\Original;
-use App\Model\Copy;
 use App\Model\Codex;
+use App\Model\Copy;
+use App\Model\Original;
 
 /**
  * Class ElasticCharterResource
  * @package App\Resource
- * @mixin Charter
+ * @property Copy|Codex|Original resource
  */
 class ElasticTraditionResource extends ElasticBaseResource
 {
-    public final function getId() {
-        return $this->traditionType().':'.$this->resource->getId();
+    public final function getId(): string
+    {
+        return $this->resource->traditionType().':'.$this->resource->getId();
     }
 
     /**
@@ -26,7 +27,6 @@ class ElasticTraditionResource extends ElasticBaseResource
      */
     public function toArray($request=null)
     {
-        /** @var Copy|Codex|Original $resource */
         $resource = $this->resource;
 
         $ret = $this->attributesToArray();

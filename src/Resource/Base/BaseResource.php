@@ -1,15 +1,23 @@
 <?php
 
 
-namespace App\Resource;
+namespace App\Resource\Base;
 
 
+use App\Resource\ResourceInterface;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 use JsonSerializable;
 
-class BaseResource extends AbstractResource
+class BaseResource extends JsonResource implements ResourceInterface
 {
+    public function getId(): string
+    {
+        return $this->resource->getId();
+    }
+
     public function jsonSerialize(): array
     {
         return $this->resolve();
@@ -18,7 +26,7 @@ class BaseResource extends AbstractResource
     /**
      * Resolve the resource to an array.
      *
-     * @param  \Illuminate\Http\Request|null  $request
+     * @param  Request|null  $request
      * @return array
      */
     public function resolve($request = null): array
@@ -38,7 +46,7 @@ class BaseResource extends AbstractResource
      * Create a new anonymous resource collection.
      *
      * @param  mixed  $resource
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return AnonymousResourceCollection
      */
     public static function collection($resource)
     {

@@ -32,6 +32,36 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      */
     protected abstract function initAggregationConfig(): array;
 
+    public function aggregate(array $filters): array {
+        $filters = $this->sanitizeSearchFilters($filters);
+        return $this->_aggregate($filters);
+    }
+
+    public function search(array $query): array
+    {
+        $query = $this->sanitizeQuery($query);
+        return $this->_search($query);
+    }
+
+    public function searchAndAggregate(array $query): array
+    {
+        // sanitize query
+        $query = $this->sanitizeQuery($query);
+
+        // search
+        $result = $this->_search($query);
+
+        // aggregate
+        $result['aggregation'] = $this->_aggregate($query['filters']);
+
+        return $result;
+    }
+
+    public function getSingle(string $id): array
+    {
+        return $this->getIndex()->getDocument($id)->getData();
+    }
+
     protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
     {
         // Set default parameters
@@ -253,6 +283,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $ret;
     }
 
+    protected function sanitizeQuery(array $query): array
+    {
+        $result = $this->sanitizeSearchParameters($query);
+        $result['filters'] = $this->sanitizeSearchFilters($query['filters'] ?? []);
+
+        return $result;
+    }
+
     private function sanitizeSearchFilterConfig(string $name, array $config, string $prefix = null): array
     {
         $arrFieldPrefix = [];
@@ -395,8 +433,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     protected function onInitAggregationConfig(array &$arrAggregationConfigs, array $arrFilterValues): void {
     }
-
-
 
     protected final function getAggregationConfig(): array
     {
@@ -918,21 +954,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzeWildcard();
     }
 
-    public function searchAndAggregate(array $params): array
-    {
-        // search
-        $result = $this->search($params);
 
-        // aggregate
-        $result['aggregation'] = $this->aggregate($params['filters'] ?? []);
-
-        return $result;
-    }
-
-    protected function search(array $params = null): array
+    protected function _search(array $params = null): array
     {
         // sanitize search parameters
-        $searchParams = $this->sanitizeSearchParameters($params);
+        $searchParams = $params;
 
         // Construct query
         $queryFS = new Query\FunctionScore();
@@ -973,7 +999,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Filtering
 //        dump($params);
-        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
+        $searchFilters = $params['filters'] ?? [];
         if (count($searchFilters)) {
             $this->debug && dump($searchFilters);
             $queryFS->setQuery($this->createSearchQuery($searchFilters));
@@ -1244,7 +1270,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      *   must also filter the nested set of objects based on the value of 'type'.
      *
      */
-    protected function aggregate(array $arrFilterValues): array
+
+    protected function _aggregate(array $arrFilterValues): array
     {
         // get aggregation configurations
         $arrAggregationConfigs = $this->getAggregationConfig();
@@ -1253,9 +1280,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
 
         $arrFilterConfigs = $this->getSearchConfig();
-
-        // sanitize filter values
-        $arrFilterValues = $this->sanitizeSearchFilters($arrFilterValues);
 
         // event onInitAggregationConfig
         $this->onInitAggregationConfig($arrAggregationConfigs, $arrFilterValues);

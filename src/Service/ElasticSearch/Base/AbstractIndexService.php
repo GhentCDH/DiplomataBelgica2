@@ -2,7 +2,7 @@
 
 namespace App\Service\ElasticSearch\Base;
 
-use App\Resource\BaseResource;
+use App\Resource\ResourceInterface;
 use Elastica\Document;
 use Elastica\Mapping;
 use Illuminate\Http\Resources\Json\ResourceCollection;
@@ -56,7 +56,7 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         return $newIndexName;
     }
 
-    public function switchToNewIndex(string $newIndexName)
+    public function switchToNewIndex(string $newIndexName): void
     {
         $oldIndices = $this->client->getStatus()->getIndicesWithAlias($this->getIndexName());
         foreach ($oldIndices as $oldIndex) {
@@ -90,19 +90,10 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         $this->getIndex()->refresh();
     }
 
-    public function add(BaseResource $resource): void
+    public function add(ResourceInterface $resource): void
     {
-        $id = $resource->getId();
-        $json = $resource->toJson();
-
-        $document = new Document($id, $json);
+        $document = new Document($resource->getId(), $resource->toJson());
         $this->getIndex()->addDocument($document);
-        $this->getIndex()->refresh();
-    }
-
-    public function deleteMultiple(array $ids): void
-    {
-        $this->getClient()->deleteIds($ids, $this->getIndex());
         $this->getIndex()->refresh();
     }
 
@@ -112,7 +103,13 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         $this->getIndex()->refresh();
     }
 
-    public function get(string $id) {
+    public function deleteMultiple(array $ids): void
+    {
+        $this->getClient()->deleteIds($ids, $this->getIndex());
+        $this->getIndex()->refresh();
+    }
+
+    public function get(string $id): array|string {
         $ret = $this->getIndex()->getDocument($id)->getData();
         return $ret;
     }

@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Resource;
+namespace App\Resource\Base;
 
-use Illuminate\Container\Container;
 use Illuminate\Contracts\Support\Arrayable;
+use Illuminate\Http\Request;
+use JsonSerializable;
 
 class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousResourceCollection
 {
@@ -11,12 +12,12 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
     /**
      * Transform the resource into a JSON array.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     * @param  Request  $request
+     * @return array|Arrayable|JsonSerializable
      */
     public function toArray($request = null)
     {
-        return $this->collection->map->toArray($request)->all();
+        parent::toArray($request);
     }
 
     /**
@@ -32,7 +33,7 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
     /**
      * Resolve the resource to an array.
      *
-     * @param  \Illuminate\Http\Request|null  $request
+     * @param  Request|null  $request
      * @return array
      */
     public function resolve($request = null): array

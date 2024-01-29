@@ -2,7 +2,6 @@
 
 namespace App\Service\ElasticSearch\Base;
 
-use App\Service\ElasticSearch\Client;
 use Elastica\Index;
 use Exception;
 
