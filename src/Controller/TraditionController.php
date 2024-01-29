@@ -13,32 +13,25 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TraditionController extends BaseController
 {
-    protected $templateFolder = 'Tradition';
+    protected string $templateFolder = 'Tradition';
 
-    protected const searchServiceName = "tradition_search_service";
-    protected const indexServiceName = "tradition_index_service";
-
+    public function __construct(TraditionSearchService $searchService)
+    {
+        $this->searchService = $searchService;
+    }
 
     /**
      * @Route("/tradition", name="charter", methods={"GET"})
-     * @param Request $request
-     * @return RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('tradition_search', ['request' =>  $request], 301);
     }
 
     /**
      * @Route("/tradition/search", name="tradition_search", methods={"GET"})
-     * @param Request $request
-     * @param TraditionSearchService $elasticService
-     * @return Response
      */
-    public function search(
-        Request $request,
-        TraditionSearchService $elasticService
-    ) {
+    public function search(Request $request): Response {
         return $this->_search(
             $request,
             [
@@ -53,42 +46,28 @@ class TraditionController extends BaseController
 
     /**
      * @Route("/tradition/search_api", name="tradition_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
      */
-    public function searchAPI(
-        Request $request
-    ) {
+    public function searchAPI(Request $request): Response {
         return $this->_searchAPI($request);
     }
 
     /**
      * @Route("/tradition/paginate", name="tradition_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
      */
-    public function paginate(
-        Request $request
-    ) {
+    public function paginate(Request $request): Response {
         return $this->_paginate($request);
     }
 
     /**
      * @Route("/tradition/{tradition_type}/{id}", name="tradition_get_single", methods={"GET"})
-     * @param int $id
-     * @param Request $request
-     * @param ContainerInterface $container
-     * @return JsonResponse|Response
      */
-    public function getSingle(int $id, string $tradition_type, Request $request, ContainerInterface $container)
+    public function getSingle(string $id, string $tradition_type, Request $request, ContainerInterface $container): Response
     {
-        $elasticService = $this->getContainer()->get(self::indexServiceName);
-
         $resource_id = $tradition_type.':'.$id;
 
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
             try {
-                $resource = $elasticService->get($resource_id);
+                $resource = $this->searchService->getSingle($resource_id);
             } catch (NotFoundHttpException $e) {
                 return new JsonResponse(
                     ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
@@ -97,7 +76,7 @@ class TraditionController extends BaseController
             }
             return new JsonResponse($resource);
         } else {
-            $resource = $elasticService->get($resource_id);
+            $resource = $this->searchService->getSingle($resource_id);
 
             return $this->render(
                 $this->templateFolder. '/detail.html.twig',
@@ -110,15 +89,4 @@ class TraditionController extends BaseController
             );
         }
     }
-
-    /**
-     * Sanitize data from request string
-     * @param array $params
-     * @return array
-     */
-    private function sanitize(array $params): array
-    {
-        return $params;
-    }
-
 }

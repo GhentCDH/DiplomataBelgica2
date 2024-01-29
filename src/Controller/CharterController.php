@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Service\ElasticSearch\Search\CharterSearchService;
+use App\Service\ElasticSearch\Search\TraditionSearchService;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -13,32 +14,26 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CharterController extends BaseController
 {
-    protected $templateFolder = 'Charter';
+    protected string $templateFolder = 'Charter';
 
-    protected const searchServiceName = "charter_search_service";
-    protected const indexServiceName = "charter_index_service";
-
+    public function __construct(CharterSearchService $searchService)
+    {
+        $this->searchService = $searchService;
+    }
 
     /**
      * @Route("/charter", name="charter", methods={"GET"})
-     * @param Request $request
-     * @return RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('charter_search', ['request' =>  $request], 301);
     }
 
     /**
      * @Route("/charter/search", name="charter_search", methods={"GET"})
-     * @param Request $request
-     * @param CharterSearchService $elasticService
-     * @return Response
      */
-    public function search(
-        Request $request,
-        CharterSearchService $elasticService
-    ) {
+    public function search(Request $request): Response
+    {
         return $this->_search(
             $request,
             [
@@ -53,70 +48,46 @@ class CharterController extends BaseController
 
     /**
      * @Route("/charter/search_api", name="charter_search_api", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
      */
-    public function searchAPI(
-        Request $request
-    ) {
+    public function searchAPI(Request $request): Response
+    {
         return $this->_searchAPI($request);
     }
 
     /**
      * @Route("/charter/paginate", name="charter_paginate", methods={"GET"})
-     * @param Request $request
-     * @return JsonResponse
      */
-    public function paginate(
-        Request $request
-    ) {
+    public function paginate(Request $request): Response {
         return $this->_paginate($request);
     }
 
     /**
      * @Route("/charter/{id}", name="charter_get_single", methods={"GET"})
-     * @param int $id
-     * @param Request $request
-     * @param ContainerInterface $container
-     * @return JsonResponse|Response
      */
-    public function getSingle(int $id, Request $request, ContainerInterface $container)
+    public function getSingle(string $id, Request $request): Response
     {
-        $elasticService = $this->getContainer()->get(self::indexServiceName);
-
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
             try {
-                $resource = $elasticService->get($id);
+                $data = $this->searchService->getSingle($id);
             } catch (NotFoundHttpException $e) {
                 return new JsonResponse(
                     ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
                     Response::HTTP_NOT_FOUND
                 );
             }
-            return new JsonResponse($resource);
+            return new JsonResponse($data);
         } else {
-            $resource = $elasticService->get($id);
+            $data = $this->searchService->getSingle($id);
 
             return $this->render(
                 $this->templateFolder. '/detail.html.twig',
                 [
                     'urls' => json_encode($this->getSharedAppUrls()),
                     'data' => json_encode([
-                        'charter' => $resource
+                        'charter' => $data
                     ])
                 ]
             );
         }
     }
-
-    /**
-     * Sanitize data from request string
-     * @param array $params
-     * @return array
-     */
-    private function sanitize(array $params): array
-    {
-        return $params;
-    }
-
 }

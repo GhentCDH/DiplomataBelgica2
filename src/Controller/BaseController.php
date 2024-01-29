@@ -1,7 +1,8 @@
 <?php
 namespace App\Controller;
 
-use App\Service\ElasticSearch\AbstractSearchService;
+use App\Service\ElasticSearch\Base\SearchServiceInterface;
+use Illuminate\Container\Container;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -9,34 +10,19 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 
-
 class BaseController extends AbstractController
 {
     /**
      * The folder where relevant templates are located.
-     *
-     * @var string
      */
-    protected $templateFolder;
-
-    /**
-     * @var ContainerInterface
-     */
-    protected $mycontainer;
-
-    public function __construct(ContainerInterface $container) {
-        $this->mycontainer = $container;
-    }
-
-    protected function getContainer() {
-        return $this->mycontainer;
-    }
+    protected string $templateFolder;
+    protected SearchServiceInterface $searchService;
 
     /**
      * Return shared urls
      * @return array
      */
-    protected function getSharedAppUrls() {
+    protected function getSharedAppUrls(): array {
         // urls
         $urls = [
             // charter
@@ -56,11 +42,9 @@ class BaseController extends AbstractController
     }
 
 
-    protected function _paginate(Request $request) {
-        $elasticService = $this->getContainer()->get(static::searchServiceName);
-
+    protected function _paginate(Request $request): Response {
         // search
-        $data = $elasticService->searchRAW(
+        $data = $this->searchService->searchRAW(
             $request->query->all(),
             ['id']
         );
@@ -74,22 +58,18 @@ class BaseController extends AbstractController
         return new JsonResponse($result);
     }
 
-    protected function _searchAPI(Request $request) {
-        $elasticService = $this->getContainer()->get(static::searchServiceName);
-
+    protected function _searchAPI(Request $request): Response {
         // get data
-        $data = $elasticService->searchAndAggregate(
+        $data = $this->searchService->searchAndAggregate(
             $this->sanitizeSearchRequest($request->query->all())
         );
 
         return new JsonResponse($data);
     }
 
-    protected function _search(Request $request, array $props = [], array $extraRoutes = []) {
-        $elasticService = $this->getContainer()->get(static::searchServiceName);
-
+    protected function _search(Request $request, array $props = [], array $extraRoutes = []): Response {
         // get data
-        $data = $elasticService->searchAndAggregate(
+        $data = $this->searchService->searchAndAggregate(
             $this->sanitizeSearchRequest($request->query->all())
         );
 
