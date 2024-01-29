@@ -42,11 +42,8 @@ use ReflectionException;
 
 class Charter extends AbstractModel
 {
-    protected $hidden = [
-        'summary_nl', 'summary_fr', 'summary_en'
-    ];
     protected $localizedAttributes = [
-        'summary', 'full_text'
+        'summary'
     ];
     protected $casts = [
         'published' => 'boolean',
