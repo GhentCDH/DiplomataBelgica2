@@ -16,6 +16,6 @@ use ReflectionException;
  * @package App\Model
  */
 
-class Principality extends IdNameMultilangModel
+class Principality extends LocalizedIdNameModel
 {
 }

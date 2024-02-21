@@ -14,7 +14,7 @@ use function Symfony\Component\String\u;
 
 abstract class AbstractPivot extends Pivot
 {
-    use TraitMultilangAttributes;
+    use TraitLocalizedAttributes;
     use TraitCustomModelSchema;
 
     protected $primaryKey;
@@ -33,5 +33,6 @@ abstract class AbstractPivot extends Pivot
         parent::__construct($attributes);
 
         $this->initSchema();
+        $this->initLocalizedAttributes();
     }
 }

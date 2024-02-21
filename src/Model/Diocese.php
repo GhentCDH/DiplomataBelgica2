@@ -16,6 +16,6 @@ use ReflectionException;
  * @package App\Model
  */
 
-class Diocese extends IdNameMultilangModel
+class Diocese extends LocalizedIdNameModel
 {
 }

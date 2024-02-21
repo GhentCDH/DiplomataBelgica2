@@ -16,6 +16,6 @@ use ReflectionException;
  * @package App\Model
  */
 
-class DatationTimeOriginality extends IdNameMultilangModel
+class DatationTimeOriginality extends LocalizedIdNameModel
 {
 }

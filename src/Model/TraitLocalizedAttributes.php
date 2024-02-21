@@ -1,13 +1,26 @@
 <?php
 namespace App\Model;
 
-trait TraitMultilangAttributes {
+trait TraitLocalizedAttributes {
 
     protected $localizedAttributes = [];
 
     protected static $defaultLocale = 'en';
     protected static $locale = null;
     protected static $locales = ['nl','fr','en'];
+
+    public function initLocalizedAttributes(): void
+    {
+        foreach ($this->localizedAttributes as $attr) {
+            $attributes[$attr] = $this->getLocalizedAttribute($attr);
+            foreach(self::$locales as $locale) {
+                $this->makeHidden($attr . "_" . $locale);
+                // hack to add localized attributes
+                // would be better to override attributesToArray() in derived class
+                $this->append($attr);
+            }
+        }
+    }
 
     /**
      * Set attribute translation (for all models!)
@@ -29,23 +42,6 @@ trait TraitMultilangAttributes {
     }
 
     /**
-     * Add translation support to eloquent attributesToArray
-     */
-    public function attributesToArray()
-    {
-        $attributes = parent::attributesToArray();
-
-        foreach ($this->localizedAttributes as $attr) {
-            $attributes[$attr] = $this->getLocalizedAttribute($attr);
-            foreach(self::$locales as $locale) {
-                unset($attributes[$attr . "_" . $locale]);
-            }
-        }
-
-        return $attributes;
-    }
-
-    /**
      * Add translation support to eloquent getAttribute
      */
     public function getAttribute($attr)
@@ -55,6 +51,17 @@ trait TraitMultilangAttributes {
         }
 
         return $this->getLocalizedAttribute($attr, static::$locale);
+    }
+
+    // override attribute mutator, prevent localizedAttributes from being mutated
+    protected function mutateAttribute($key, $value)
+    {
+        // don't mutate localized attributes
+
+        if ( !$this->isLocalizedAttribute($key) ) {
+            parent::mutateAttribute($key, $value);
+        }
+        return $this->getLocalizedAttribute($key);
     }
 
     /**
@@ -70,7 +77,7 @@ trait TraitMultilangAttributes {
         $locale = in_array($locale, static::$locales, true ) ? $locale : static::$defaultLocale;
         $attr .= "_" . $locale;
 
-        return parent::getAttribute($attr);
+        return $this->getAttributeValue($attr);
     }
 
 }

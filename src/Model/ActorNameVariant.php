@@ -11,7 +11,7 @@ use ReflectionException;
 /**
  * @property int actor_name_variant_id
  * @property int actor_standardized_name_id
- * @property string variant
+ * @property string name
  *
  * @package App\Model
  */

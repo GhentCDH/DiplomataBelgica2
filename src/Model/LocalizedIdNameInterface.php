@@ -2,7 +2,7 @@
 
 namespace App\Model;
 
-interface IdNameMultilangInterface
+interface LocalizedIdNameInterface
 {
     public function getId(): int;
     public function getName(?string $_lang): string;

@@ -9,7 +9,7 @@ namespace App\Model;
  *
  * @package App\Model
  */
-class ActorCapacity extends IdNameMultilangModel
+class ActorCapacity extends LocalizedIdNameModel
 {
     protected $casts = [
         'published' => 'boolean'

@@ -16,6 +16,6 @@ use ReflectionException;
  * @package App\Model
  */
 
-class CodexMaterial extends IdNameMultilangModel
+class CodexMaterial extends LocalizedIdNameModel
 {
 }

@@ -24,11 +24,6 @@ use ReflectionException;
  */
 class Place extends AbstractModel
 {
-    protected $hidden = [
-        'name_nl', 'name_fr', 'name_en',
-        'diocese_explanation_nl', 'diocese_explanation_fr', 'diocese_explanation_en',
-        'principality_explanation_nl', 'principality_explanation_fr', 'principality_explanation_en'
-    ];
     protected $localizedAttributes = [
         'name',
         'diocese_explanation',
@@ -39,7 +34,7 @@ class Place extends AbstractModel
         'place_localisation_published' => 'boolean'
     ];
     protected $with = [
-        'localisation', 'diocese', 'principality'
+        'localisation', 'diocese', 'principality', 'placeLocalisation'
     ];
 
     /**
@@ -67,5 +62,10 @@ class Place extends AbstractModel
     public function principality(): BelongsTo
     {
         return $this->belongsTo(Principality::class);
+    }
+
+    public function placeLocalisation(): BelongsTo
+    {
+        return $this->belongsTo(PlaceLocalisation::class);
     }
 }

@@ -13,6 +13,6 @@ use ReflectionException;
  *
  * @package App\Model
  */
-class PlaceLocalisationLand extends IdNameMultilangModel
+class PlaceLocalisationLand extends LocalizedIdNameModel
 {
 }

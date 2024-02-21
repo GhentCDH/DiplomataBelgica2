@@ -13,6 +13,6 @@ use ReflectionException;
  *
  * @package App\Model
  */
-class CharterNature extends IdNameMultilangModel
+class CharterNature extends LocalizedIdNameModel
 {
 }

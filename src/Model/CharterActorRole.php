@@ -9,6 +9,6 @@ namespace App\Model;
  * @package App\Model
  */
 
-class CharterActorRole extends IdNameMultilangModel
+class CharterActorRole extends LocalizedIdNameModel
 {
 }

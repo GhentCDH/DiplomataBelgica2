@@ -10,34 +10,31 @@ use ReflectionException;
 
 /**
  * @property int actor_name_id
- * @property string full_name
- * @property boolean published
  * @property int actor_standardized_name_id
+ * @property string name
+ * @property boolean published
  * @property boolean actor_standardized_name_published
  *
  * @package App\Model
  */
 class ActorName extends AbstractModel
 {
-    protected $hidden = [
-        'full_name_nl', 'full_name_fr', 'full_name_en'
-    ];
     protected $localizedAttributes = [
-        'full_name'
+        'name'
     ];
     protected $casts = [
         'published' => 'boolean',
         'actor_standardized_name_published' => 'boolean'
     ];
     protected $with = [
-        'standardized_name'
+        'standardizedName'
     ];
 
     /**
      * @return BelongsTo|ActorStandardizedName
      * @throws ReflectionException
      */
-    public function standardized_name(): BelongsTo
+    public function standardizedName(): BelongsTo
     {
         return $this->belongsTo(ActorStandardizedName::class);
     }

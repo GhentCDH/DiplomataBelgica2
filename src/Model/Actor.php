@@ -34,7 +34,7 @@ class Actor extends AbstractModel
         'place_published' => 'boolean'
     ];
     protected $with = [
-        'capacity', 'name', 'place', 'order', 'place_institute'
+        'capacity', 'name', 'place', 'order', 'placeInstitute'
     ];
 
     /**
@@ -77,7 +77,7 @@ class Actor extends AbstractModel
      * @return BelongsTo|ActorPlaceInstitute
      * @throws ReflectionException
      */
-    public function place_institute(): BelongsTo
+    public function placeInstitute(): BelongsTo
     {
         return $this->belongsTo(ActorPlaceInstitute::class);
     }

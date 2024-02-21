@@ -8,6 +8,6 @@ namespace App\Model;
  *
  * @package App\Model
  */
-class CharterLanguage extends IdNameMultilangModel
+class CharterLanguage extends LocalizedIdNameModel
 {
 }
