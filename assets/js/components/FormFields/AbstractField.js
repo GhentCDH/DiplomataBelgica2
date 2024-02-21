@@ -25,6 +25,7 @@ export default {
                     showLabels: false,
                     loading: true,
                     trackBy: 'id',
+                    optionsLimit: 10000
                 },
                 // Will be enabled by enableField
                 disabled: true,
@@ -46,12 +47,10 @@ export default {
             return result
         },
         createMultiSelect(label, extra = null, extraSelectOptions) {
-            let result = this.createSelect(label, extra, extraSelectOptions)
-            result.selectOptions.multiple = true;
-            result.selectOptions.closeOnSelect = false;
-            return result;
+            const selectOptions = { multiple: true, closeOnSelect: false, ...extraSelectOptions }
+            return this.createSelect(label, extra, selectOptions)
         },
-        createRangeSlider(model, label, min, max, step, extra = null) {
+        createRangeSlider(model, label, min, max, step, decimals = 0, unit = null, extra = null) {
             let result = {
                 type: "customNoUiSlider",
                 styleClasses: "field-noUiSlider",
@@ -68,7 +67,7 @@ export default {
                         'max': [RANGE_MAX_INVALID]
                     },
                     start: [-1, 10000],
-                    tooltips: { to: this.formatSliderToolTip },
+                    tooltips: { to: this.formatSliderToolTip(decimals, unit) },
                 }
             }
 
@@ -123,11 +122,13 @@ export default {
 
             return false
         },
-        formatSliderToolTip(value) {
+        formatSliderToolTip(decimals = 0, unit = null) {
+            return function(value) {
             if ( value > -1 && value < 10000 ) {
-                return wNumb({decimals: 0}).to(value)
+                    return String(wNumb({decimals: decimals}).to(value)) + String(unit ?? '')
             } else {
                 return 'off';
+            }
             }
         },
         disableField(field, model = null) {
@@ -142,6 +143,11 @@ export default {
         dependencyField(field, model = null) {
             if (model == null) {
                 model = this.model
+            }
+
+            if ( ! (field.dependencyName ?? this.fields[field.dependency]) ) {
+                console.error('VFG config error: dependency field not found for field ' + field.model)
+                return
             }
 
             // get everything after last '.'
