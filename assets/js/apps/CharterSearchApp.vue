@@ -39,17 +39,18 @@
                                 :url="urls['charter_search_api']"
                                 @data="onData"
                                 @loaded="onLoaded"
+                                class="form-group-sm"
                         >
                             <template v-slot:beforeTable>
-                                <div class="VueTables__beforeTable row form-group form-inline">
-                                    <div class="VueTables__pagination col-xs-4">
+                                <div class="VueTables__beforeTable row form-group">
+                                    <div class="VueTables__pagination col-lg-4">
                                         <vt-pagination></vt-pagination>
                                     </div>
-                                    <div class="VueTables__count col-xs-4">
+                                    <div class="VueTables__count col-lg-4 d-flex align-items-lg-center">
                                         <vt-pagination-count></vt-pagination-count>
                                     </div>
-                                    <div class="VueTables__limit col-xs-4">
-                                        <vt-per-page-selector></vt-per-page-selector>
+                                    <div class="VueTables__limit col-lg-4 d-flex justify-content-lg-end">
+                                        <vt-per-page-selector class="d-flex align-items-md-center"></vt-per-page-selector>
                                     </div>
                                 </div>
                             </template>
@@ -63,7 +64,7 @@
                             </template>
                             <template #summary="props">
                                 <template v-if="issuers(props.row).length">
-                                    <h5>Main issuer</h5>
+                                    <h6>Main issuer</h6>
                                     <div v-for="actor in issuers(props.row)" :key="'actor:'+actor.id" class="actor--issuer" >
                                         <FormatValue :value="actor.name.full_name"></FormatValue> -
                                         <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
@@ -71,14 +72,14 @@
                                     </div>
                                 </template>
                                 <template v-if="beneficiaries(props.row).length">
-                                    <h5>Main beneficiary</h5>
+                                    <h6 class="mtop-small">Main beneficiary</h6>
                                     <div v-for="actor in beneficiaries(props.row)" :key="'beneficiary:'+actor.id" class="actor--beneficiary">
                                         <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
                                         <FormatValue :value="actor.place" type="id_name"></FormatValue> -
                                         <FormatValue :value="actor.name.full_name"></FormatValue>
                                     </div>
                                 </template>
-                                <h5>Summary</h5>
+                                <h6 class="mtop-small">Summary</h6>
                                 {{ props.row.summary }}
                             </template>
                             <template #date="props">
@@ -108,6 +109,7 @@ import Vue from 'vue'
 import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
+
 import PersistentConfig from "../components/Shared/PersistentConfig"
 import SharedSearch from "../components/Search/SharedSearch";
 import LeafletMap from "../components/LeafletMap"
@@ -116,6 +118,11 @@ import FormatValue from "../components/Sidebar/FormatValue";
 
 import fieldDMYRange from '../components/FormFields/fieldDMYRange';
 import fieldCheckbox from '../components/FormFields/fieldCheckbox';
+
+import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
+import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
+import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
+import qs from "qs";
 
 Vue.component('fieldDMYRange', fieldDMYRange);
 Vue.component('fieldCheckboxBS5', fieldCheckbox);
@@ -129,7 +136,10 @@ export default {
         CollapsibleGroups,
     ],
     components: {
-        FormatValue, LeafletMap
+        FormatValue, LeafletMap,
+        VtPerPageSelector,
+        VtPagination,
+        VtPaginationCount
     },
     props: {
     },
@@ -167,27 +177,57 @@ export default {
                             {
                                 type: 'label',
                                 label: 'Actor 1',
-                                model: 'actor1'
+                                model: 'actor1',
+                                styleClasses: 'actor actor-1'
                             },
-                            this.createMultiSelect('Name', { model: 'actor_name_full_name_1' }),
-                            this.createMultiSelect('Role', { model: 'actor_role_1' }),
-                            this.createMultiSelect('Function', { model: 'actor_capacity_1' }),
-                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_1' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_1' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_1' }),
-                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_1' }),
+                            this.createMultiSelect(
+                                'Name',
+                                { model: 'actor_name_full_name_1', styleClasses: 'actor actor-1' },
+                                { 'onSearch': this.onSearch('actor_name_full_name_1') }
+                            ),
+                            this.createMultiSelect('Role', { model: 'actor_role_1', styleClasses: 'actor actor-1' }),
+                            this.createMultiSelect('Function', { model: 'actor_capacity_1', styleClasses: 'actor actor-1' }),
+                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_1', styleClasses: 'actor actor-1' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_1', styleClasses: 'actor actor-1' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_1', styleClasses: 'actor actor-1' }),
+                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_1', styleClasses: 'actor actor-1' }),
+
                             {
                                 type: 'label',
                                 label: 'Actor 2',
-                                model: 'actor2'
+                                model: 'actor2',
+                                styleClasses: 'actor actor-2'
                             },
-                            this.createMultiSelect('Name', { model: 'actor_name_full_name_2' }),
-                            this.createMultiSelect('Role', { model: 'actor_role_2' }),
-                            this.createMultiSelect('Function', { model: 'actor_capacity_2' }),
-                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_2' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_2' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_2' }),
-                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_2' }),
+                            this.createMultiSelect(
+                                'Name',
+                                { model: 'actor_name_full_name_2', styleClasses: 'actor actor-2' },
+                                { 'onSearch': this.onSearch('actor_name_full_name_2') }
+                            ),
+                            this.createMultiSelect('Role', { model: 'actor_role_2', styleClasses: 'actor actor-2' }),
+                            this.createMultiSelect('Function', { model: 'actor_capacity_2', styleClasses: 'actor actor-2' }),
+                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_2', styleClasses: 'actor actor-2' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_2', styleClasses: 'actor actor-2' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_2', styleClasses: 'actor actor-2' }),
+                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_2', styleClasses: 'actor actor-2' }),
+
+                            {
+                                type: 'label',
+                                label: 'Actor 3',
+                                model: 'actor3',
+                                styleClasses: 'actor actor-3'
+                            },
+                            this.createMultiSelect(
+                                'Name',
+                                { model: 'actor_name_full_name_3', styleClasses: 'actor actor-3' },
+                                { 'onSearch': this.onSearch('actor_name_full_name_3') }
+                            ),
+                            this.createMultiSelect('Role', { model: 'actor_role_3', styleClasses: 'actor actor-3' }),
+                            this.createMultiSelect('Function', { model: 'actor_capacity_3', styleClasses: 'actor actor-3' }),
+                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_3', styleClasses: 'actor actor-3' }),
+                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_3', styleClasses: 'actor actor-3' }),
+                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_3', styleClasses: 'actor actor-3' }),
+                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_3', styleClasses: 'actor actor-3' }),
+
                         ]
                     },
                     {
@@ -251,24 +291,29 @@ export default {
                 ],
             },
             tableOptions: {
+                filterByColumn: false,
+                filterable: false,
                 headings: {
                 },
                 columnsClasses: {
                     name: 'no-wrap',
                 },
-                'filterable': false,
-                'orderBy': {
+                orderBy: {
                     'column': 'id'
                 },
-                'perPage': 25,
-                'perPageValues': [25, 50, 100],
-                'sortable': ['id', 'date'], 
+                perPage: 25,
+                perPageValues: [25, 50, 100],
+                sortable: ['id', 'date'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
                     return '';
                     // return (row.public == null || row.public) ? '' : 'warning'
                 },
+                pagination: {
+                    show: false,
+                    chunk: 5
+                }
             },
             submitModel: {
                 submitType: 'charter',
@@ -308,9 +353,9 @@ export default {
                     options: {
                         // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
                         url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        attribution: 'Google',
+                        attribution: 'Open Streetmap',
                         maxZoom: 18,
-                        name: 'Google satelliet',
+                        name: 'Open Streetmap',
                         visible: true,
                         opacity: 1,
                         layerType: 'base',
@@ -374,6 +419,24 @@ export default {
                 var display = udt[0].year.toString();
             }
             return display
+        },
+        onSearch(field) {
+            const that = this
+            return function(query) {
+                let data = {
+                    field: field,
+                    value: query,
+                    filters: that.constructFilterValues(),
+                }
+                axios.get(that.urls['charter_aggregation_suggest'], {
+                    params: data,
+                    paramsSerializer: qs.stringify,
+                })
+                .then( (response) => {
+                    that.updateAggregations(response.data, [ field ], true)
+                    return response
+                } )
+            }
         }
     },
 }
