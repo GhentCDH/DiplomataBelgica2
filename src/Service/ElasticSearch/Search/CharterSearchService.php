@@ -7,7 +7,7 @@ use App\Service\ElasticSearch\Base\AbstractSearchService;
 class CharterSearchService extends AbstractSearchService
 {
     const indexName = "charter";
-    private int $actorLimit = 2;
+    private int $actorLimit = 3;
 
     protected function initSearchConfig(): array {
         $searchFilters = [
@@ -20,8 +20,8 @@ class CharterSearchService extends AbstractSearchService
             ],
 
             'charter_place_name' => [
-                'type' => self::FILTER_KEYWORD,
-                'field' => 'place.name'
+                'type' => self::FILTER_OBJECT_ID,
+                'field' => 'place'
             ],
             
             'has_images' => [
@@ -72,21 +72,29 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::FILTER_NESTED_MULTIPLE,
                 'nestedPath' => 'actors',
                 'filters' => [
+                    "actor_name_full_name_{$index}:prefix" => [
+                        'field' => 'name.name',
+                        'type' => self::FILTER_KEYWORD_PREFIX
+                    ],
                     "actor_name_full_name_{$index}" => [
-                        'field' => 'name.full_name',
-                        'type' => self::FILTER_KEYWORD
+                        'field' => 'name',
+                        'type' => self::FILTER_OBJECT_ID
+                    ],
+                    "actor_name_full_name_{$index}" => [
+                        'field' => 'name',
+                        'type' => self::FILTER_OBJECT_ID
                     ],
                     "actor_place_name_{$index}" => [
-                        'field' => 'place.name',
-                        'type' => self::FILTER_KEYWORD
+                        'field' => 'place',
+                        'type' => self::FILTER_OBJECT_ID
                     ],
                     "actor_place_diocese_name_{$index}" => [
-                        'field' => 'place.diocese.name',
-                        'type' => self::FILTER_KEYWORD
+                        'field' => 'place.diocese',
+                        'type' => self::FILTER_OBJECT_ID
                     ],
                     "actor_place_principality_name_{$index}" => [
-                        'field' => 'place.principality.name',
-                        'type' => self::FILTER_KEYWORD
+                        'field' => 'place.principality',
+                        'type' => self::FILTER_OBJECT_ID
                     ],
                     "actor_capacity_{$index}" => [
                         'field' => 'capacity',
@@ -97,8 +105,8 @@ class CharterSearchService extends AbstractSearchService
                         'type' => self::FILTER_OBJECT_ID
                     ],
                     "actor_order_name_{$index}" => [
-                        'field' => 'order.name',
-                        'type' => self::FILTER_KEYWORD
+                        'field' => 'order',
+                        'type' => self::FILTER_OBJECT_ID
                     ],
                 ],
             ];
@@ -128,8 +136,8 @@ class CharterSearchService extends AbstractSearchService
             ],
 
             'charter_place_name' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => 'place.name',
+                'type' => self::AGG_OBJECT_ID_NAME,
+                'field' => 'place',
                 'aggregations' => [
                     'latitude' => [
                         'type' => self::AGG_KEYWORD,
@@ -146,26 +154,27 @@ class CharterSearchService extends AbstractSearchService
         foreach( range(1, $this->actorLimit) as $index ) {
             $agg = [
                 "actor_name_full_name_{$index}" => [
-                    'type' => self::AGG_KEYWORD,
-                    'field' => 'name.full_name',
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'name',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                    'safeLimit' => 100,
                 ],
                 "actor_place_name_{$index}" => [
-                    'type' => self::AGG_KEYWORD,
-                    'field' => 'place.name',
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'place',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
                 ],
                 "actor_place_diocese_name_{$index}" => [
-                    'type' => self::AGG_KEYWORD,
-                    'field' => 'place.diocese.name',
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'place.diocese',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
                 ],
                 "actor_place_principality_name_{$index}" => [
-                    'type' => self::AGG_KEYWORD,
-                    'field' => 'place.principality.name',
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'place.principality',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
                 ],
@@ -182,8 +191,8 @@ class CharterSearchService extends AbstractSearchService
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
                 ],
                 "actor_order_name_{$index}" => [
-                    'type' => self::AGG_KEYWORD,
-                    'field' => 'order.name',
+                    'type' => self::AGG_OBJECT_ID_NAME,
+                    'field' => 'order',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
                 ],
