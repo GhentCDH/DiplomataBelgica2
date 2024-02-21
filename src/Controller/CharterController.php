@@ -47,6 +47,31 @@ class CharterController extends BaseController
     }
 
     /**
+     * @Route("/charter/aggregation_suggest", name="charter_aggregation_suggest", methods={"GET"})
+     */
+    public function aggregation_suggest(Request $request): Response
+    {
+        $filters = $request->query->all('filters', []);
+        $field = $request->query->get('field');
+        $value = $request->query->get('value');
+
+        if (!$field) {
+            return new JsonResponse([]);
+        }
+
+        // construct prefix filter
+        $filters["${field}:prefix"] = $value;
+
+        // get data
+        $data = $this->searchService->aggregate(
+            $filters,
+            [ $field ]
+        );
+
+        return new JsonResponse($data);
+    }
+
+    /**
      * @Route("/charter/search_api", name="charter_search_api", methods={"GET"})
      */
     public function searchAPI(Request $request): Response

@@ -30,6 +30,7 @@ class BaseController extends AbstractController
             'charter_search_api' => $this->generateUrl('charter_search_api'),
             'charter_paginate' => $this->generateUrl('charter_paginate'),
             'charter_get_single' => $this->generateUrl('charter_get_single', ['id' => 'charter_id']),
+            'charter_aggregation_suggest' => $this->generateUrl('charter_aggregation_suggest'),
 
             // tradition
             'tradition_search' => $this->generateUrl('tradition_search'),
