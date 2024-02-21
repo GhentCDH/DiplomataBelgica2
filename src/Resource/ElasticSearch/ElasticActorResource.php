@@ -4,6 +4,9 @@ namespace App\Resource\ElasticSearch;
 
 use App\Model\Actor;
 
+/**
+ * @property Actor $resource
+ */
 class ElasticActorResource extends ElasticBaseResource
 {
     /**
@@ -14,15 +17,16 @@ class ElasticActorResource extends ElasticBaseResource
      */
     public function toArray($request=null)
     {
-        /** @var Actor $charter */
         $actor = $this->resource;
 
-        $ret = parent::toArray();
-        // $ret['actor_diocese'] = [];
-        // $ret['actor_order'] = [];
-        $ret['capacity'] = new ElasticIdNameResource($actor->capacity);
+        $ret = $this->attributesToArray();
+        $ret['name'] = new ElasticBaseResource($actor->name);
+        $ret['capacity'] = new ElasticBaseResource($actor->capacity);
+        $ret['order'] = new ElasticBaseResource($actor->order);
+        $ret['place_institute'] = new ElasticBaseResource($actor->place_institute);
+        $ret['place'] = new ElasticPlaceResource($actor->place);
         $ret['role'] = $this->whenPivotLoaded('charter__actor', function() use ($actor) {
-            return new ElasticIdNameResource($actor->pivot->role);
+            return new ElasticBaseResource($actor->pivot->role);
         });
 
         return $ret;

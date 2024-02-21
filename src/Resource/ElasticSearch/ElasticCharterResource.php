@@ -18,16 +18,16 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
         /** @var Charter $charter */
         $charter = $this->resource;
 
-        $ret = parent::toArray();
+        $ret = $this->attributesToArray(true);
 
-        $ret['place'] = (new ElasticBaseResource($charter->place))->toArray();
+        $ret['place'] = (new ElasticPlaceResource($charter->place))->toArray();
         $ret['edition_indication'] = new ElasticBaseResource($charter->edition_indication);
         $ret['edition'] = new ElasticBaseResource($charter->edition);
         $ret['authenticity'] = new ElasticBaseResource($charter->authenticity);
         $ret['nature'] = new ElasticBaseResource($charter->nature);
         $ret['type'] = new ElasticBaseResource($charter->type);
         $ret['udt'] = ElasticBaseResource::collection($charter->udt);
-        $ret['language'] = ElasticIdNameResource::collection($charter->language);
+        $ret['language'] = ElasticBaseResource::collection($charter->language);
         $ret['actors'] = ElasticActorResource::collection($charter->actors);
         $ret['codexes'] = ElasticBaseResource::collection($charter->codexes);
         $ret['edition_indications'] = ElasticBaseResource::collection($charter->edition_indications);

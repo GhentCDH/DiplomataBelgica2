@@ -4,19 +4,42 @@
 namespace App\Resource\Base;
 
 
+use App\Model\AbstractModel;
 use App\Resource\ResourceInterface;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Http\Resources\MissingValue;
 use JsonSerializable;
 
+/**
+ * @property AbstractModel $resource
+ */
 class BaseResource extends JsonResource implements ResourceInterface
 {
     public function getId(): string
     {
         return $this->resource->getId();
     }
+
+    /**
+     * Transform the resource into a JSON array.
+     *
+     * @param  Request  $request
+     * @return array|Arrayable|JsonSerializable
+     */
+    public function toArray($request = null)
+    {
+        return parent::toArray($request);
+    }
+
+    /**
+     * Transform the resource into an array.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
+     */
 
     public function jsonSerialize(): array
     {
@@ -56,5 +79,4 @@ class BaseResource extends JsonResource implements ResourceInterface
             }
         });
     }
-
 }

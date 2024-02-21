@@ -17,7 +17,7 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      */
     public function toArray($request = null)
     {
-        parent::toArray($request);
+        return parent::toArray($request);
     }
 
     /**

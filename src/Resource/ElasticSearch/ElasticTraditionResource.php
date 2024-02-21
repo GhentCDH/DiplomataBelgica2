@@ -29,7 +29,7 @@ class ElasticTraditionResource extends ElasticBaseResource
     {
         $resource = $this->resource;
 
-        $ret = $this->attributesToArray();
+        $ret = $this->attributesToArray(true);
 
         // shared relations
         $ret['urls'] = ElasticBaseResource::collection($resource->urls);
@@ -38,13 +38,13 @@ class ElasticTraditionResource extends ElasticBaseResource
 
         // codex relations
         if ( $resource->isRelation('repository') ) {
-            $ret['repository'] = new ElasticIdNameResource($resource->repository);
+            $ret['repository'] = new ElasticBaseResource($resource->repository);
         }
         if ( $resource->isRelation('materials') ) {
-            $ret['materials'] = ElasticIdNameResource::collection($this->materials);
+            $ret['materials'] = ElasticBaseResource::collection($this->materials);
         }
         if ( $resource->isRelation('institutions') ) {
-            $ret['institutions'] = ElasticIdNameResource::collection($this->institutions);
+            $ret['institutions'] = ElasticBaseResource::collection($this->institutions);
         }
         
         $ret['type'] = $resource->traditionType();
