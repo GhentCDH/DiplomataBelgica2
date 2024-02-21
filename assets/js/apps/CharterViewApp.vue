@@ -1,7 +1,7 @@
 <template>
-    <div class="row">
-        <article class="col-sm-8">
-            <div class="scrollable scrollable--vertical pbottom-large">
+    <div class="row d-flex flex-direction-row flex-nowrap align-items-stretch">
+        <article class="d-flex col-sm-8 overflow-hidden">
+            <div class="scrollable scrollable--vertical pe-2 pbottom-large w-100">
 
                 <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
 
@@ -100,8 +100,8 @@
                 </div>
             </div>
         </article>
-        <aside class="col-sm-4 scrollable bg-tertiary scrollable--vertical scrollable--horizontal padding-none">
-            <div class="padding-default">
+        <aside class="d-flex col-sm-4 overflow-hidden">
+            <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100">
 
                 <Widget v-if="isValidResultSet()" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
@@ -625,23 +625,7 @@ export default {
 
 <style scoped lang="scss">
 #charter-view-app {
-  display: flex;
-  flex-direction: row;
-  flex: 1;
-  overflow: hidden;
-  height: 100%;
-
-  article {
-    display: flex;
-
-    & > div {
-      width: 100%;
-    }
-  }
-
   aside {
-    // background-color: #fafafa !important;
-
     .widget {
       border-bottom: 1px solid #e9ecef;
     }
