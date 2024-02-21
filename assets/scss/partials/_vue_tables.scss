@@ -1,0 +1,28 @@
+.VueTables {
+
+  .VueTables__sortable {
+    cursor: pointer;
+  }
+
+  .VueTables__sort-icon {
+    color: #aaa;
+  }
+
+  // style navigation row
+  .VueTables__beforeTable {
+    .VueTables__count {
+      p {
+        margin: 0;
+      }
+    }
+
+    .VueTables__pagination .pagination {
+      margin: 0;
+    }
+
+    label {
+      margin-right: 0.3em;
+    }
+
+  }
+}

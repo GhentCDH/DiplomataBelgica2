@@ -66,4 +66,15 @@
     .nav-item:hover .dropdown-content {
       display: block;
     }
+
+    .logo--belgica {
+      font-weight: 100;
+      //font-size: 95%;
+      font-family: $font-family-belgica;
+    }
+
+    .logo--diplomata {
+      font-family: $font-family-rosarivo;
+      letter-spacing: -0.08em;
+    }
   }
