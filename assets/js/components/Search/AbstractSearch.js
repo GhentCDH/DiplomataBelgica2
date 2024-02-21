@@ -5,13 +5,17 @@ import qs from 'qs'
 import Vue from 'vue'
 import VueFormGenerator from 'vue-form-generator/dist/vfg-core.js'
 import VueMultiselect from 'vue-multiselect'
-import VueTables from 'vue-tables-2'
 
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
 import fieldCheckboxes from '../FormFields/fieldCheckboxes'
 
 Vue.use(VueFormGenerator)
-Vue.use(VueTables.ServerTable)
+// Vue.use(VueTables.ServerTable)
+
+import {ServerTable, ClientTable, Event} from 'vue-tables-2-premium';
+Vue.use(ClientTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
+Vue.use(ServerTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), {});
+
 
 Vue.component('multiselect', VueMultiselect)
 Vue.component('fieldMultiselectClear', fieldMultiselectClear)
@@ -183,7 +187,7 @@ export default {
                 // filters are always in the same order, so we can compare serialization
                 if (JSON.stringify(filterValues) !== JSON.stringify(this.oldFilterValues)) {
                     this.oldFilterValues = JSON.parse(JSON.stringify(filterValues))
-                    VueTables.Event.$emit('vue-tables.filter::filters', filterValues)
+                    Event.$emit('vue-tables.filter::filters', filterValues) // todo: fix!
                 }
             }, timeoutValue)
         },
@@ -196,10 +200,10 @@ export default {
             let b_name_lower = b_name.toLowerCase()
 
             // Place 'any', 'none' filters above
-            if((a_name === 'none' || a_name === 'all') && (b_name !== 'all' && b_name !== 'none')) {
+            if((a_name === 'none' || a_name === 'any') && (b_name !== 'any' && b_name !== 'none')) {
                 return -1
             }
-            if((a_name !== 'all' && a_name !== 'none') && (b_name === 'all' || b_name === 'none')) {
+            if((a_name !== 'any' && a_name !== 'none') && (b_name === 'any' || b_name === 'none')) {
                 return 1
             }
 
@@ -233,24 +237,45 @@ export default {
             }
 
             // Update aggregation fields
-            for (let fieldName of Object.keys(this.fields)) {
-                let field = this.fields[fieldName]
-                if (field.type === 'multiselectClear') {
-                    let values = this.aggregation[fieldName] == null ? [] : this.aggregation[fieldName].sort(this.sortByName)
-                    field.values = values
-                    if (field.dependency != null && this.model[field.dependency] == null) {
-                        this.dependencyField(field)
-                    }
-                    else {
-                        this.enableField(field)
-                    }
-                }
-            }
+            this.updateAggregations(this.aggregation);
 
             // Update number of records text
             this.updateCountRecords()
 
             this.openRequests--
+        },
+        updateAggregations(data, fieldNames = null, keepModelData = false) {
+            fieldNames = fieldNames && Array.isArray(fieldNames) ? fieldNames : Object.keys(this.fields)
+            for (let fieldName of fieldNames) {
+                let field = this?.fields?.[fieldName]
+                if (field && field.type === 'multiselectClear') {
+                    // get aggregation values
+                    let values = data?.[fieldName] ?? [];
+                    // add current model data?
+                    if ( keepModelData && this.model?.[fieldName]?.length ) {
+                        const ids = new Set(values.map(item => item.id))
+                        for (const item of this.model?.[fieldName] ?? []) {
+                            if (!ids.has(item.id)) {
+                                values.push(item)
+                            }
+                        }
+                    }
+                    // sort values
+                    values = values.sort(this.sortByName)
+                    field.values = values
+                    // active values? update model
+                    let activeValues = field.values.filter( item => item?.active )
+                    if (activeValues.length) {
+                        this.$set(this.model, fieldName, activeValues)
+                    }
+                    // update dependency field?
+                    if (field.dependency != null && this.model[field.dependency] == null) {
+                        this.dependencyField(field)
+                    } else {
+                        this.enableField(field)
+                    }
+                }
+            }
         },
         pushHistory(data) {
             history.pushState(data, document.title, document.location.href.split('?')[0] + '?' + qs.stringify(data))
@@ -306,7 +331,7 @@ export default {
             }
         },
         updateCountRecords() {
-            let table = this.$refs.resultTable
+            let table = this.$refs.resultTable.$refs.table
             if (!table.count) {
                 this.countRecords = ''
                 return
@@ -335,23 +360,23 @@ export default {
             delete data['ascending']
         }
         // Add filter values if necessary
-        data['filters'] = this.$parent.constructFilterValues()
+        data['filters'] = this.$parent.$parent.constructFilterValues()
         if (data['filters'] == null || data['filters'] == '') {
             delete data['filters']
         }
-        this.$parent.openRequests++
-        if (!this.$parent.initialized) {
+        this.$parent.$parent.openRequests++
+        if (!this.$parent.$parent.initialized) {
             return new Promise((resolve, reject) => {
-                this.$emit('data', this.$parent.data)
+                this.$parent.$emit('data', this.$parent.$parent.data)
                 resolve({
                     data : {
-                        data: this.$parent.data.data,
-                        count: this.$parent.data.count
+                        data: this.$parent.$parent.data.data,
+                        count: this.$parent.$parent.data.count
                     }
                 })
             })
         }
-        if (!this.$parent.actualRequest) {
+        if (!this.$parent.$parent.actualRequest) {
             return new Promise((resolve, reject) => {
                 resolve({
                     data : {
@@ -361,24 +386,24 @@ export default {
                 })
             })
         }
-        if (this.$parent.historyRequest) {
-            if (this.$parent.openRequests > 1 && this.$parent.tableCancel != null) {
-                this.$parent.tableCancel('Operation canceled by newer request')
+        if (this.$parent.$parent.historyRequest) {
+            if (this.$parent.$parent.openRequests > 1 && this.$parent.$parent.tableCancel != null) {
+                this.$parent.$parent.tableCancel('Operation canceled by newer request')
             }
             let url = this.url
-            if (this.$parent.historyRequest !== 'init') {
-                url += '?' + this.$parent.historyRequest
+            if (this.$parent.$parent.historyRequest !== 'init') {
+                url += '?' + this.$parent.$parent.historyRequest
             }
             return axios.get(url, {
-                cancelToken: new axios.CancelToken((c) => {this.$parent.tableCancel = c})
+                cancelToken: new axios.CancelToken((c) => {this.$parent.$parent.tableCancel = c})
             })
                 .then( (response) => {
-                    this.$emit('data', response.data)
+                    this.$parent.$emit('data', response.data)
                     return response
                 })
                 .catch(function (error) {
-                    this.$parent.historyRequest = false
-                    this.$parent.openRequests--
+                    this.$parent.$parent.historyRequest = false
+                    this.$parent.$parent.openRequests--
                     if (axios.isCancel(error)) {
                         // Return the current data if the request is cancelled
                         return {
@@ -391,22 +416,22 @@ export default {
                     this.dispatch('error', error)
                 }.bind(this))
         }
-        if (!this.$parent.noHistory) {
-            this.$parent.pushHistory(data)
+        if (!this.$parent.$parent.noHistory) {
+            this.$parent.$parent.pushHistory(data)
         } else {
-            this.$parent.noHistory = false;
+            this.$parent.$parent.noHistory = false;
         }
 
-        if (this.$parent.openRequests > 1 && this.$parent.tableCancel != null) {
-            this.$parent.tableCancel('Operation canceled by newer request')
+        if (this.$parent.$parent.openRequests > 1 && this.$parent.$parent.tableCancel != null) {
+            this.$parent.$parent.tableCancel('Operation canceled by newer request')
         }
         return axios.get(this.url, {
             params: data,
             paramsSerializer: qs.stringify,
-            cancelToken: new axios.CancelToken((c) => {this.$parent.tableCancel = c})
+            cancelToken: new axios.CancelToken((c) => {this.$parent.$parent.tableCancel = c})
         })
             .then( (response) => {
-                this.$emit('data', response.data)
+                this.$parent.$emit('data', response.data)
                 return response
             })
             .catch(function (error) {
