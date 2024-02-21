@@ -5,8 +5,8 @@ namespace App\Command;
 use App\Model\Charter;
 use App\Repository\CharterRepository;
 use App\Repository\RepositoryInterface;
-use App\Resource\ElasticCharterResource;
-use App\Resource\ElasticTraditionResource;
+use App\Resource\ElasticSearch\ElasticCharterResource;
+use App\Resource\ElasticSearch\ElasticTraditionResource;
 use App\Service\ElasticSearch\Index\CharterIndexService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -35,6 +35,7 @@ class IndexElasticsearchCommand extends Command
         $this
             ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
+            ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
             ->setHelp('This command allows you to reindex elasticsearch.');
     }
 
@@ -43,6 +44,7 @@ class IndexElasticsearchCommand extends Command
         $io = new SymfonyStyle($input, $output);
 
         $count = 0;
+        $maxItems = $input->getArgument('maxItems');
         if ($index = $input->getArgument('index')) {
             switch ($index) {
                 case 'tradition':
@@ -74,7 +76,11 @@ class IndexElasticsearchCommand extends Command
                     foreach( $repositories as $repository_name ) {
                         $repository = $this->container->get($repository_name);
                         $repository->indexQuery()->chunk(100,
-                            function($res) use ($service, &$count, $progressBar) {
+                            function($res) use ($service, &$count, $progressBar, $maxItems) {
+                                if ( $maxItems && $count >= $maxItems ) {
+                                    return false;
+                                }
+
                                 /** @var Charter $charter */
                                 foreach ($res as $charter) {
                                     $res = new ElasticTraditionResource($charter->translate('en'));
@@ -106,7 +112,11 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     $repository->indexQuery()->chunk(100,
-                        function($res) use ($service, &$count, $progressBar) {
+                        function($res) use ($service, &$count, $progressBar, $maxItems) {
+                            if ( $maxItems && $count >= $maxItems ) {
+                                return false;
+                            }
+
                             /** @var Charter $charter */
                             foreach ($res as $charter) {
                                 $res = new ElasticCharterResource($charter->translate('en'));
