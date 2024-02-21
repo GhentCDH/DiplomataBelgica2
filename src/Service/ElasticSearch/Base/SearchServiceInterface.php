@@ -10,7 +10,7 @@ interface SearchServiceInterface
 
     public function search(array $query): array;
 
-    public function aggregate(array $filters): array;
+    public function aggregate(array $filters, ?array $configKeys = null): array;
 
     public function getSingle(string $id): array;
 }

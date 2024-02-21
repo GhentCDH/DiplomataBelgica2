@@ -32,9 +32,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      */
     protected abstract function initAggregationConfig(): array;
 
-    public function aggregate(array $filters): array {
+    public function aggregate(array $filters, ?array $configKeys = null): array {
         $filters = $this->sanitizeSearchFilters($filters);
-        return $this->_aggregate($filters);
+        return $this->_aggregate($filters, $configKeys);
     }
 
     public function search(array $query): array
@@ -151,6 +151,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $ret['value'] = is_array($filterValue) ? $filterValue : [ $filterValue ];
                 $ret['operator'] = $params[$filterName . '_op'] ?? ['or'];
                 $ret['operator'] = is_array($ret['operator']) ? $ret['operator'] : [$ret['operator']];
+                break;
+            case self::FILTER_KEYWORD_PREFIX:
+                if ($filterValue === null) break;
+                $ret['value'] = is_array($filterValue) ? $filterValue : [ $filterValue ];
                 break;
             case self::FILTER_BOOLEAN:
                 if ($filterValue === null) break;
@@ -339,6 +343,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $config['name'] = $name;
         $config['field'] = $config['field'] ?? $config['name'];
         $config['active'] = (bool) ($config['active'] ?? true);
+        $config['limit'] = isset($config['limit']) ? intval($config['limit']) : null;
+        $config['safeLimit'] = isset($config['safeLimit']) ? intval($config['safeLimit']) : null;
         if($this->isNestedAggregation($config)) {
             $config['nestedPath'] = $config['nestedPath'] ?? $config['field'];
             $arrFieldPrefix[] = $config['nestedPath'];
@@ -380,42 +386,46 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     private function sanitizeTermAggregationItems(array $items, array $aggConfig, array $aggFilterValues): array
     {
+        $must = [];
+        $may = [];
         $output = [];
         foreach($items as $item) {
-            $count = $item['count'];
-            $value = $item['id'];
             $label = $item['name'];
-            $active = $item['active'] ?? false;
+            $item['active'] = $item['active'] ?? false;
 
-            // limitValue?
-            if (count($aggConfig['allowedValue'] ?? []) && !in_array($value, $aggConfig['allowedValue'], true)) {
+            // allowedValue?
+            if (count($aggConfig['allowedValue'] ?? []) && !in_array($item['id'], $aggConfig['allowedValue'], true)) {
                 continue;
             }
             // ignoreValue?
-            if (count($aggConfig['ignoreValue'] ?? []) && in_array($value, $aggConfig['ignoreValue'], true)) {
+            if (count($aggConfig['ignoreValue'] ?? []) && in_array($item['id'], $aggConfig['ignoreValue'], true)) {
                 continue;
             }
             // zero doc count? only allow if value in search filter values
-            if ( $count === 0 && ( !count($aggFilterValues) || !in_array($value, $aggFilterValues, true) ) ) {
+            if ( $item['count'] === 0 && ( !count($aggFilterValues) || !in_array($item['id'], $aggFilterValues, true) ) ) {
                 continue;
             }
             // replace label?
             if ( $aggConfig['replaceLabel'] ?? null ) {
-                $label = str_replace($aggConfig['replaceLabel']['search'], $aggConfig['replaceLabel']['replace'], $label);
+                $item['name'] = $label = str_replace($aggConfig['replaceLabel']['search'], $aggConfig['replaceLabel']['replace'], $label);
             }
-
             if ($aggConfig['mapLabel'] ?? null ) {
-                $label = $aggConfig['mapLabel'][$label] ?? $label;
+                $item['name'] = $label = $aggConfig['mapLabel'][$label] ?? $item['name'];
             }
 
-            $output[] = [
-                'id' => $value,
-                'name' => $label,
-                'count' => $count,
-                'active' => $active
-            ];
+            if ($item['active']) {
+                $must[] = $item;
+            } else {
+                $may[] = $item;
+            }
         }
-        return $output;
+
+        // safe limit?
+        if ($aggConfig['safeLimit']) {
+            $may = array_slice($may, 0, $aggConfig['safeLimit']);
+        }
+
+        return array_merge($must, $may);
     }
 
     protected function getDefaultSearchFilters(): array
@@ -603,6 +613,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     }
                 }
 
+                break;
+            case self::FILTER_KEYWORD_PREFIX:
+                if ( $filterValue ) {
+                    $filterQuery = new Query\Prefix();
+                    $filterQuery->setPrefix($filterField.".keyword", $filterValue[0]);
+                    $query->addMust($filterQuery);
+                }
                 break;
             case self::FILTER_EXISTS:
                 if ( $filterValue ) {
@@ -1271,12 +1288,17 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      *
      */
 
-    protected function _aggregate(array $arrFilterValues): array
+    protected function _aggregate(array $arrFilterValues, ?array $configKeys = null): array
     {
         // get aggregation configurations
         $arrAggregationConfigs = $this->getAggregationConfig();
         if (!count($arrAggregationConfigs)) {
             return [];
+        }
+
+        // limit aggregation configs?
+        if ( $configKeys ) {
+            $arrAggregationConfigs = array_intersect_key($arrAggregationConfigs, array_flip($configKeys));
         }
 
         $arrFilterConfigs = $this->getSearchConfig();
@@ -1306,6 +1328,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $aggField = $aggConfig['field'];
             $aggIsGlobal = $this->isGlobalAggregation($aggConfig); // global aggregation?
             $countTopDocuments = $aggConfig['countTopDocuments'];
+            $aggLimit = $aggConfig['limit'] ?? self::MAX_AGG;
 
             // skip inactive aggregations
             if (!$aggConfig['active']) {
@@ -1438,7 +1461,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
 
                     $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize(self::MAX_AGG)
+                        ->setSize($aggLimit)
                         ->setField($aggField);
 
                     // allow 0 doc count if aggregation is filtered
@@ -1462,7 +1485,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::AGG_BOOLEAN:
                 case self::AGG_NUMERIC:
                     $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize(self::MAX_AGG)
+                        ->setSize($aggLimit)
                         ->setField($aggField);
 
                     // count top documents?
@@ -1478,7 +1501,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
 
                     $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize(self::MAX_AGG)
+                        ->setSize($aggLimit)
                         ->setField($aggField);
 
                     // count top documents?
@@ -1487,6 +1510,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     // allow 0 doc count if aggregation is filtered
                     if ( count($aggFilterValues) ) {
                         $aggTerm->setMinimumDocumentCount(0);
+                    }
+
+                    // subaggregations
+                    // todo: fix hard coded aggregation type!!
+                    foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                        $aggTerm->addAggregation((new Aggregation\Terms($subAggName))
+                            ->setField($subAggConfig['field'].".keyword")
+                        );
                     }
 
                     $aggParentQuery->addAggregation($aggTerm);
@@ -1592,15 +1623,20 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     foreach ($aggResults['buckets'] ?? [] as $result) {
                         if (!isset($result['key'])) continue;
                         $parts = explode('_', $result['key'], 2);
-
+                        // create item
                         $item = [
                             'id' => (int) $parts[0],
                             'name' => $parts[1],
                             'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
                         ];
+                        // item active?
                         if ( in_array((int) $parts[0], $aggFilterValues) ) {
                             $item['active'] = true;
-                    }
+                        }
+                        // collect sub aggregations
+                        foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                            $item[$subAggName] = $result[$subAggName]['buckets'][0]['key'] ?? null;
+                        }
 
                         $items[] = $item;
                     }

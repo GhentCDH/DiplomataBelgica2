@@ -6,6 +6,8 @@ interface SearchConfigInterface
     const FILTER_NUMERIC = "numeric"; // numeric term filter
     const FILTER_BOOLEAN = "boolean"; // boolean term filter
     const FILTER_KEYWORD = "keyword"; // term filter
+
+    const FILTER_KEYWORD_PREFIX = "prefix"; // term prefix filter
     const FILTER_WILDCARD = "wildcard"; // wildcard term filter
     const FILTER_EXISTS = "exists"; 
 
