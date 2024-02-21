@@ -3,49 +3,53 @@
 
 namespace App\Resource\ElasticSearch;
 
+use App\Model\AbstractModel;
 use App\Resource\Base\BaseResource;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 class ElasticBaseResource extends BaseResource
 {
+    public function __construct($resource)
+    {
+        // hide
+
+        parent::__construct($resource);
+    }
+
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
+     * @property AbstractModel resource
      * @return array
      */
     public function toArray($request=null)
     {
-        if ( $this->resource ) {
-            $ret = ['id' => $this->getKey()];
-            $ret = array_merge($ret, $this->resource->toArray());
-            unset($ret[$this->getKeyName()]);
-
-            // remove keys for loaded relations
-            $relations = $this->resource->getRelations();
-            foreach ($relations as $relation) {
-                if ( $relation instanceof Model) {
-                    unset($ret[$relation->getKeyName()]);
-                }
-            }
-
-            return $ret;
+        if (!$this->resource) {
+            return [];
         }
 
-        return null;
+        $ret = parent::toArray(null);
+
+        // add id_name if resource has name property
+        $ret['id_name'] = $this->when($this->resource->getAttribute('name'), $this->resource->getId().'_'.$this->resource->name);
+
+        return $ret;
     }
 
-    public function attributesToArray()
+    public function attributesToArray(bool $hideForeignKeys = false)
     {
-        if ( $this->resource ) {
-            $ret = ['id' => $this->getKey()];
-            $ret = array_merge($ret, $this->resource->attributesToArray());
-            unset($ret[$this->getKeyName()]);
-
-            return $ret;
+        if (!$this->resource) {
+            return [];
         }
 
-        return null;
+        $ret = parent::toArray(null);
+
+        // add id_name if resource has name property
+        $ret['id_name'] = $this->when($this->resource->getAttribute('name'), $this->resource->getId().'_'.$this->resource->name);
+
+        return $ret;
     }
 
     protected static function boolean($value)
