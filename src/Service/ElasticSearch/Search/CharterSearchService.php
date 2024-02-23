@@ -73,8 +73,8 @@ class CharterSearchService extends AbstractSearchService
                 'nestedPath' => 'actors',
                 'filters' => [
                     "actor_name_full_name_{$index}:prefix" => [
-                        'field' => 'name.name',
-                        'type' => self::FILTER_KEYWORD_PREFIX
+                        'field' => 'name.name.normalized_text',
+                        'type' => self::FILTER_TEXT_PREFIX
                     ],
                     "actor_name_full_name_{$index}" => [
                         'field' => 'name',
