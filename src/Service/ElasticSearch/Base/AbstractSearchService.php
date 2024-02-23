@@ -152,6 +152,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $ret['operator'] = $params[$filterName . '_op'] ?? ['or'];
                 $ret['operator'] = is_array($ret['operator']) ? $ret['operator'] : [$ret['operator']];
                 break;
+            case self::FILTER_TEXT_PREFIX:
             case self::FILTER_KEYWORD_PREFIX:
                 if ($filterValue === null) break;
                 $ret['value'] = is_array($filterValue) ? $filterValue : [ $filterValue ];
@@ -614,10 +615,29 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
 
                 break;
+            case self::FILTER_TEXT_PREFIX:
+                if ( $filterValue ) {
+//                    $filterQuery = [
+//                        'match_bool_prefix' => [
+//                            $filterField => [
+//                                'query' => $filterValue[0]
+//                            ]
+//                        ]
+//                    ];
+                    $filterQuery = new Query\MatchPhrasePrefix();
+                    $filterQuery->setFieldQuery($filterField, $filterValue[0]);
+                    $query->addMust($filterQuery);
+                }
+                break;
             case self::FILTER_KEYWORD_PREFIX:
                 if ( $filterValue ) {
-                    $filterQuery = new Query\Prefix();
-                    $filterQuery->setPrefix($filterField.".keyword", $filterValue[0]);
+                    $filterQuery = [
+                        'match_bool_prefix' => [
+                            $filterField => [
+                                'query' => $filterValue[0]
+                            ]
+                        ]
+                    ];
                     $query->addMust($filterQuery);
                 }
                 break;
@@ -848,9 +868,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $queryNested = self::createNestedQuery($filterNestedPath, $filterConfig);
                 $subQuery = $this->createSearchQuery($filterValues, $filterConfig['filters']);
 
-                // count number of inner hits
-                if ($filterConfig['boost'] ?? 1) {
+                // count number of inner hits using match_all query?
+                // with match_all, each result gets same boost score (default 1)
+                if ( ($filterConfig['scoreEqual'] ?? false) ) {
                     $subQuery->addMust( new Query\MatchAll() );
+                    // todo: set $filterConfig['boost'] ?? 1
                 }
 
                 if ($subQuery->count()) {
