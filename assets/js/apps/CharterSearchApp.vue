@@ -1,6 +1,6 @@
 <template>
     <div class="row search-app">
-        <aside class="col-sm-3 search-app__filters scrollable">
+        <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical">
             <div class="bg-tertiary padding-default">
                 <div v-if="showReset" class="form-group ptop-default">
                     <button class="btn btn-primary"  @click="resetAllFilters" >
@@ -18,7 +18,7 @@
             </div>
         </aside>
         
-        <article class="col-sm-9 search-app__search-page">
+        <article class="col-sm-9 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
 
@@ -30,7 +30,7 @@
                 </nav>
             </header>
             <section>
-                <div class="tab-content" id="nav-tabContent">
+                <div class="tab-content w-100" id="nav-tabContent">
                     <div class="tab-pane show active" id="nav-results" role="tabpanel" aria-labelledby="nav-results-tab">
                         <v-server-table
                                 ref="resultTable"
@@ -39,7 +39,6 @@
                                 :url="urls['charter_search_api']"
                                 @data="onData"
                                 @loaded="onLoaded"
-                                class="form-group-sm"
                         >
                             <template v-slot:beforeTable>
                                 <div class="VueTables__beforeTable row form-group">
@@ -299,7 +298,7 @@ export default {
                 pagination: {
                     show: false,
                     chunk: 5
-                }
+                },
             },
             submitModel: {
                 submitType: 'charter',

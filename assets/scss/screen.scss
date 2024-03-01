@@ -50,9 +50,10 @@
 
 // Custom
 // @import "base/elements";
-@import "base/layout";
+@import "base/layouts";
 @import "base/typography";
 
+@import "partials/layout";
 @import "partials/scrollable";
 @import "partials/breadcrumb";
 @import "partials/colophon";
