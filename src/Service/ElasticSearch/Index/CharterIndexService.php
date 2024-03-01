@@ -2,7 +2,6 @@
 
 namespace App\Service\ElasticSearch\Index;
 
-use App\Service\ElasticSearch\Analysis;
 use App\Service\ElasticSearch\Base\AbstractIndexService;
 
 class CharterIndexService extends AbstractIndexService
