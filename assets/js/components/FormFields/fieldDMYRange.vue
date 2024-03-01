@@ -83,7 +83,7 @@
 
 <script>
 import { abstractField } from 'vue-form-generator/dist/vfg-core.js'
-const _debounce = require('lodash.debounce');
+import { debounce as _debounce } from 'lodash';
 
 
 export default {

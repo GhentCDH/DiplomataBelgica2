@@ -8,6 +8,8 @@ import VueMultiselect from 'vue-multiselect'
 
 import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
 import fieldCheckboxes from '../FormFields/fieldCheckboxes'
+import fieldNoUiSlider from '../FormFields/fieldNoUiSlider'
+
 
 Vue.use(VueFormGenerator)
 // Vue.use(VueTables.ServerTable)
@@ -19,10 +21,8 @@ Vue.use(ServerTable, {}, false, require('../../theme/vue-tables-2/bootstrap3'), 
 
 Vue.component('multiselect', VueMultiselect)
 Vue.component('fieldMultiselectClear', fieldMultiselectClear)
+Vue.component('fieldCustomNoUiSlider', fieldNoUiSlider)
 Vue.component('fieldCheckboxes', fieldCheckboxes)
-
-const YEAR_MIN = 1
-const YEAR_MAX = (new Date()).getFullYear()
 
 export default {
     props: {
@@ -447,6 +447,4 @@ export default {
                 this.dispatch('error', error)
             }.bind(this))
     },
-    YEAR_MIN: YEAR_MIN,
-    YEAR_MAX: YEAR_MAX,
 }
