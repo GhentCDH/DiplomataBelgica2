@@ -1,0 +1,44 @@
+{
+  "entrypoints": {
+    "main": {
+      "css": [
+        "/build/main.f7ff2981.css"
+      ],
+      "js": [
+        "/build/main.59476fd4.js"
+      ]
+    },
+    "charter-search": {
+      "css": [
+        "/build/charter-search.0605e2bd.css"
+      ],
+      "js": [
+        "/build/charter-search.bb7ddd90.js"
+      ]
+    },
+    "charter-view": {
+      "css": [
+        "/build/charter-view.ab7a0226.css"
+      ],
+      "js": [
+        "/build/charter-view.98e6d4bb.js"
+      ]
+    },
+    "tradition-search": {
+      "css": [
+        "/build/tradition-search.607a9d31.css"
+      ],
+      "js": [
+        "/build/tradition-search.4860873b.js"
+      ]
+    },
+    "tradition-view": {
+      "css": [
+        "/build/tradition-view.6f6327fd.css"
+      ],
+      "js": [
+        "/build/tradition-view.1e6c33bc.js"
+      ]
+    }
+  }
+}
