@@ -63,24 +63,7 @@
                                 </a>
                             </template>
                             <template #summary="props">
-                                <template v-if="issuers(props.row).length">
-                                    <h6>Main issuer</h6>
-                                    <div v-for="actor in issuers(props.row)" :key="'actor:'+actor.id" class="actor--issuer" >
-                                        <FormatValue :value="actor.name.full_name"></FormatValue> -
-                                        <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                                        <FormatValue :value="actor.place" type="id_name"></FormatValue>
-                                    </div>
-                                </template>
-                                <template v-if="beneficiaries(props.row).length">
-                                    <h6 class="mtop-small">Main beneficiary</h6>
-                                    <div v-for="actor in beneficiaries(props.row)" :key="'beneficiary:'+actor.id" class="actor--beneficiary">
-                                        <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                                        <FormatValue :value="actor.place" type="id_name"></FormatValue> -
-                                        <FormatValue :value="actor.name.full_name"></FormatValue>
-                                    </div>
-                                </template>
-                                <h6 class="mtop-small">Summary</h6>
-                                {{ props.row.summary }}
+                                <charter-search-summary :charter="props.row"></charter-search-summary>
                             </template>
                             <template #date="props">
                                 <a v-if="props.row.udt.length">
@@ -110,6 +93,8 @@ import AbstractField from '../components/FormFields/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearch'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 
+import CharterSearchSummary from "../components/Charter/CharterSearchSummary.vue";
+
 import PersistentConfig from "../components/Shared/PersistentConfig"
 import SharedSearch from "../components/Search/SharedSearch";
 import LeafletMap from "../components/LeafletMap"
@@ -136,6 +121,7 @@ export default {
         CollapsibleGroups,
     ],
     components: {
+        CharterSearchSummary,
         FormatValue, LeafletMap,
         VtPerPageSelector,
         VtPagination,
@@ -374,27 +360,8 @@ export default {
         },
         updateMapVisibility(value) {
             this.mapVisible = value;
-            console.log("triggered")
         },
-        issuers: function(charter) {
-            // todo: sort by id, really?
-            return charter.actors
-                .filter( actor => actor.role.id === 2 )
-                .sort((a,b) => a.id - b.id)
-                .slice(0,1)
-        },
-        authors: function(charter) {
-            return charter.actors
-                .filter( actor => actor.role.id === 1 )
-                .sort((a,b) => a.id - b.id)
-                .slice(0,1)
-        },
-        beneficiaries: function(charter) {
-            return charter.actors
-                .filter( actor => actor.role.id === 3 || actor.role.id === 4 )
-                .sort((a,b) => a.id - b.id)
-                .slice(0,1)
-        },
+
         getCharterUrl(id, index) {
             let context = {
                 params: this.data.filters,

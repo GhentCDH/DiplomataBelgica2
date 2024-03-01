@@ -128,42 +128,9 @@
                 </Widget>
 
                 <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
-                    <h3 v-if="issuers.length > 0">Issuer(s)<small>(= author)</small></h3>
-                    <div v-for="actor in issuers" :key="`issuer ${actor.id}`">
-                      <p>
-                        <LabelValue v-if="actor.capacity" label="Function/title" :value="actor.capacity.name"></LabelValue>
-                        <LabelValue v-if="actor.name" label="Name" :value="actor.name.full_name"></LabelValue>
-                        <LabelValue v-if="actor.place" label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                        <LabelValue v-if="actor.place.diocese" label="Diocese" :value="actor.place.diocese.name"></LabelValue>
-                        <LabelValue v-if="actor.place.principality" label="Principality" :value="actor.place.principality.name"></LabelValue>
-                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                      </p>
-                    </div>
-
-                    <h3 v-if="authors.length > 0">Author(s) of the actio juridica<small>(= disposer)</small></h3>
-                    <div v-for="actor in authors" :key="`author ${actor.id}`">
-                      <p>
-                        <LabelValue v-if="actor.capacity" label="Function/title" :value="actor.capacity.name"></LabelValue>
-                        <LabelValue v-if="actor.name" label="Name" :value="actor.name.full_name"></LabelValue>
-                        <LabelValue v-if="actor.place" label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                        <LabelValue v-if="actor.place.diocese" label="Diocese" :value="actor.place.diocese.name"></LabelValue>
-                        <LabelValue v-if="actor.place.principality" label="Principality" :value="actor.place.principality.name"></LabelValue>
-                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                      </p>
-                    </div>
-
-                    <h3 v-if="beneficiaries.length > 0">Beneficiary(ies)<small>(= recipient)</small></h3>
-                    <div v-for="actor in beneficiaries" :key="`beneficiaries ${actor.id}`">
-                      <p>
-                        <LabelValue v-if="actor.capacity" label="Function/title" :value="actor.capacity.name"></LabelValue>
-                        <LabelValue v-if="actor.name" label="Name" :value="actor.name.full_name"></LabelValue>
-                        <LabelValue v-if="actor.place" label="Institution/jurisdiction" :value="actor.place.name" :url="'/map?lat=' + actor.place.latitude + '&long=' + actor.place.longitude"></LabelValue>
-                        <LabelValue v-if="actor.place.diocese" label="Diocese" :value="actor.place.diocese.name"></LabelValue>
-                        <LabelValue v-if="actor.place.principality" label="Principality" :value="actor.place.principality.name"></LabelValue>
-                        <LabelValue v-if="actor.order" label="Religious order" :value="actor.order.name"></LabelValue>
-                      </p>
-                    </div>
-                    
+                    <actor-list-detailed label="Issuer <small>(author)</small>" label-plural="Issuers <small>(authors)</small>" :actors="issuers"></actor-list-detailed>
+                    <actor-list-detailed label="Author of the actio juridica <small>(disposer)</small>" label-plural="Authors of the actio juridica <small>(disposers)</small>" :actors="authors"></actor-list-detailed>
+                    <actor-list-detailed label="Beneficiary <small>(recipient)</small>" label-plural="Beneficiaries <small>(recipients)</small>" :actors="beneficiaries"></actor-list-detailed>
                 </Widget>
 
                 <Widget title="Date" :collapsed.sync="config.widgets.date.isOpen">
@@ -203,11 +170,16 @@ import ImageThumbnail from '../components/ImageThumbnail.vue'
 
 import LeafletMap from "../components/LeafletMap"
 
+import ActorDetails from "../components/Actor/ActorDetails.vue"
+import ActorListDetailed from "../components/Actor/ActorListDetailed.vue";
+
 export default {
     name: "CharterViewApp",
     components: {
+        ActorListDetailed,
       FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail, LeafletMap
+        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail, LeafletMap,
+        ActorDetails
     },
     mixins: [
         PersistentConfig('CharterViewConfig'),
