@@ -147,7 +147,7 @@ export default {
     watch: {
         visible(value, oldValue) {
             this.mapObject.invalidateSize()
-            console.log("invalidateSize")
+            // console.log("invalidateSize")
         },
         // computedMarkers(newMarker) {            
         //     if ( this.mapObject && Array.isArray(newMarker) && newMarker.length ) {

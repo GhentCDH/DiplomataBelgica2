@@ -72,7 +72,7 @@
                         </v-server-table>
                     </div>
                     <div class="tab-pane" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
-                        <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" :visible="mapVisible"></LeafletMap>
+                        <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" v-if="mapVisible"></LeafletMap>
                     </div>
                 </div>
             </section>
