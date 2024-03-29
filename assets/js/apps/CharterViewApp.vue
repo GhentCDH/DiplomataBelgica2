@@ -9,7 +9,7 @@
                 <div class="mbottom-default">{{ charter.summary }}</div>
 
                 <div class="mbottom-default">
-                  <LabelValue label="Language" :value="charter.language" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue label="Language" :value="charter.language" type="id_name" :url="urlGeneratorIdName('charter_search', 'charter_language')" grid="4|8"></LabelValue>
                   <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name" grid="4|8"></LabelValue>
                   <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" grid="4|8"></LabelValue>
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
@@ -128,9 +128,16 @@
                 </Widget>
 
                 <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
-                    <actor-list-detailed label="Issuer <small>(author)</small>" label-plural="Issuers <small>(authors)</small>" :actors="issuers"></actor-list-detailed>
-                    <actor-list-detailed label="Author of the actio juridica <small>(disposer)</small>" label-plural="Authors of the actio juridica <small>(disposers)</small>" :actors="authors"></actor-list-detailed>
-                    <actor-list-detailed label="Beneficiary <small>(recipient)</small>" label-plural="Beneficiaries <small>(recipients)</small>" :actors="beneficiaries"></actor-list-detailed>
+                    <actor-list-detailed label="Issuer <small>(author)</small>"
+                                         label-plural="Issuers <small>(authors)</small>" :actors="issuers"
+                                         :url-generator="urlGeneratorIssuer"></actor-list-detailed>
+                    <actor-list-detailed label="Author of the actio juridica <small>(disposer)</small>"
+                                         label-plural="Authors of the actio juridica <small>(disposers)</small>"
+                                         :actors="authors" :url-generator="urlGeneratorAuthors"></actor-list-detailed>
+                    <actor-list-detailed label="Beneficiary <small>(recipient)</small>"
+                                         label-plural="Beneficiaries <small>(recipients)</small>"
+                                         :actors="beneficiaries"
+                                         :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
 
                 <Widget title="Date" :collapsed.sync="config.widgets.date.isOpen">
@@ -165,6 +172,8 @@ import SearchSession from "../components/Search/SearchSession";
 import SearchContext from "../components/Search/SearchContext";
 
 import axios from 'axios'
+import qs from 'qs'
+
 import FormatValue from "../components/Sidebar/FormatValue";
 import ImageThumbnail from '../components/ImageThumbnail.vue'
 
@@ -308,6 +317,18 @@ export default {
     methods: {
         getUrl(route) {
             return this.urls[route] ?? ''
+        },
+        urlGeneratorIssuer(url, filter, filter_defaults = {}) {
+            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 2, [filter]: value.id } } ) )
+        },
+        urlGeneratorAuthors(url, filter, filter_defaults = {}) {
+            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 1, [filter]: value.id } } ) )
+        },
+        urlGeneratorBeneficiaries(url, filter, filter_defaults = {}) {
+            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 3, [filter]: value.id } } ) )
+        },
+        urlGeneratorIdName(url, filter, filter_defaults = {}) {
+            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: {...filter_defaults, [filter]: value.id } } ) )
         },
         getCharterUrl(id) {
             let url = this.getUrl('charter_get_single').replace('charter_id',id)

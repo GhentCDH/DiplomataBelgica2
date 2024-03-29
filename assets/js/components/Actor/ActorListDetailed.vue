@@ -3,7 +3,7 @@
         <h3 v-if="actors.length === 1" v-html="label"></h3>
         <h3 v-if="actors.length > 1" v-html="labelPlural ?? label"></h3>
         <div class="actors">
-            <actor-details v-for="actor in actors" :actor="actor" :key="`actor ${actor.id}`"></actor-details>
+            <actor-details v-for="actor in actors" :actor="actor" :key="`actor ${actor.id}`" :url-generator="urlGenerator"></actor-details>
         </div>
     </div>
 </template>
@@ -32,7 +32,12 @@ export default {
         labelPlural: {
             type: String,
             required: false
-        }
+        },
+        urlGenerator: {
+            type: Function,
+            default: null,
+            required: true
+        },
     },
 }
 </script>
