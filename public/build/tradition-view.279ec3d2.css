@@ -1,0 +1,81 @@
+/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/css-loader@6.9.0_webpack@5.89.0/node_modules/css-loader/dist/cjs.js??clonedRuleSet-13.use[1]!./node_modules/.pnpm/vue-loader@15.11.1_css-loader@6.9.0_lodash@4.17.21_pug@2.0.4_vue-template-compiler@2.7.16_webpack@5.89.0/node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/.pnpm/resolve-url-loader@5.0.0/node_modules/resolve-url-loader/index.js??clonedRuleSet-13.use[2]!./node_modules/.pnpm/sass-loader@13.3.3_sass@1.69.7_webpack@5.89.0/node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13.use[3]!./node_modules/.pnpm/vue-loader@15.11.1_css-loader@6.9.0_lodash@4.17.21_pug@2.0.4_vue-template-compiler@2.7.16_webpack@5.89.0/node_modules/vue-loader/lib/index.js??vue-loader-options!./assets/js/components/Sidebar/Widget.vue?vue&type=style&index=0&id=400f1550&scoped=true&lang=scss ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+.widget .title[data-v-400f1550] {
+  text-transform: uppercase;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 12px 0 7px;
+  letter-spacing: 0.2rem;
+  font-family: "Open Sans", sans-serif, Arial, sans-serif;
+  color: #777;
+}
+.widget .title .toggle__collapsed[data-v-400f1550] {
+  display: none;
+}
+.widget .title .count[data-v-400f1550] {
+  border: 1px solid #eee;
+  padding: 3px 5px;
+  border-radius: 5px;
+  font-size: 80%;
+  color: #aaa;
+  position: relative;
+  top: 0;
+  margin-right: 0.5em;
+  letter-spacing: 0;
+  line-height: 1;
+  float: right;
+}
+.widget .body[data-v-400f1550] {
+  padding: 15px 0;
+}
+.widget .body.fixed[data-v-400f1550] {
+  max-height: 200px;
+  overflow-y: auto;
+}
+.widget .form-group[data-v-400f1550] {
+  margin-bottom: 5px;
+}
+.widget .form-group .checkbox[data-v-400f1550], .widget .form-group .radio[data-v-400f1550] {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.widget.collapsible .toggle__collapsed[data-v-400f1550] {
+  display: block;
+  float: right;
+  color: #cccccc;
+}
+.widget.collapsible .toggle__collapsed .fa[data-v-400f1550] {
+  transform: rotate(180deg);
+}
+.widget.collapsible.collapsed .toggle__collapsed .fa[data-v-400f1550] {
+  transform: none;
+}
+.widget.collapsible.collapsed .body[data-v-400f1550] {
+  max-height: 0;
+  overflow: hidden;
+  transition: 0.2s;
+  margin: 0;
+  padding: 0;
+}
+/*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/.pnpm/css-loader@6.9.0_webpack@5.89.0/node_modules/css-loader/dist/cjs.js??clonedRuleSet-13.use[1]!./node_modules/.pnpm/vue-loader@15.11.1_css-loader@6.9.0_lodash@4.17.21_pug@2.0.4_vue-template-compiler@2.7.16_webpack@5.89.0/node_modules/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/.pnpm/resolve-url-loader@5.0.0/node_modules/resolve-url-loader/index.js??clonedRuleSet-13.use[2]!./node_modules/.pnpm/sass-loader@13.3.3_sass@1.69.7_webpack@5.89.0/node_modules/sass-loader/dist/cjs.js??clonedRuleSet-13.use[3]!./node_modules/.pnpm/vue-loader@15.11.1_css-loader@6.9.0_lodash@4.17.21_pug@2.0.4_vue-template-compiler@2.7.16_webpack@5.89.0/node_modules/vue-loader/lib/index.js??vue-loader-options!./assets/js/apps/TraditionViewApp.vue?vue&type=style&index=0&id=7db55d36&scoped=true&lang=scss ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+#tradition-view-app[data-v-7db55d36] {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  overflow: hidden;
+  height: 100%;
+}
+#tradition-view-app article[data-v-7db55d36] {
+  display: flex;
+}
+#tradition-view-app article > div[data-v-7db55d36] {
+  width: 100%;
+}
+#tradition-view-app aside .widget[data-v-7db55d36] {
+  border-bottom: 1px solid #e9ecef;
+}
+
+/*# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidHJhZGl0aW9uLXZpZXcuMjc5ZWMzZDIuY3NzIiwibWFwcGluZ3MiOiI7OztBQU9FO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUVBO0VBQ0E7QUFQSjtBQVNJO0VBQ0U7QUFQTjtBQVVJO0VBQ0U7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0VBQ0E7RUFDQTtBQVJOO0FBWUU7RUFDRTtBQVZKO0FBWUk7RUFDRTtFQUNBO0FBVk47QUFjRTtFQUNFO0FBWko7QUFjSTtFQUNFO0VBQ0E7QUFaTjtBQWtCSTtFQUNFO0VBQ0E7RUFDQTtBQWhCTjtBQWtCTTtFQUNFO0FBaEJSO0FBc0JNO0VBQ0U7QUFwQlI7QUF1Qk07RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0FBckJSLEM7Ozs7QUN2REE7RUFDRTtFQUNBO0VBQ0E7RUFDQTtFQUNBO0FBQUY7QUFFRTtFQUNFO0FBQUo7QUFFSTtFQUNFO0FBQU47QUFPSTtFQUNFO0FBTE4sQyIsInNvdXJjZXMiOlsid2VicGFjazovLy8uL2Fzc2V0cy9qcy9jb21wb25lbnRzL1NpZGViYXIvV2lkZ2V0LnZ1ZSIsIndlYnBhY2s6Ly8vLi9hc3NldHMvanMvYXBwcy9UcmFkaXRpb25WaWV3QXBwLnZ1ZSJdLCJzb3VyY2VzQ29udGVudCI6WyJcbkBpbXBvcnQgJy4uLy4uLy4uL3Njc3MvaW5pdCc7XG4ud2lkZ2V0IHtcblxuICAuc3RpY2t5LWJsb2NrIHtcbiAgfVxuXG4gIC50aXRsZSB7XG4gICAgdGV4dC10cmFuc2Zvcm06IHVwcGVyY2FzZTtcbiAgICBmb250LXNpemU6IDE4cHg7XG4gICAgY3Vyc29yOiBwb2ludGVyO1xuICAgIHBhZGRpbmc6IDEycHggMCA3cHg7XG4gICAgbGV0dGVyLXNwYWNpbmc6IDAuMnJlbTtcblxuICAgIGZvbnQtZmFtaWx5OiAkZGVmYXVsdC1mb250LWZhbWlseSwgQXJpYWwsIHNhbnMtc2VyaWY7XG4gICAgY29sb3I6ICM3Nzc7XG5cbiAgICAudG9nZ2xlX19jb2xsYXBzZWQge1xuICAgICAgZGlzcGxheTogbm9uZTtcbiAgICB9XG5cbiAgICAuY291bnQge1xuICAgICAgYm9yZGVyOiAxcHggc29saWQgI2VlZTtcbiAgICAgIHBhZGRpbmc6IDNweCA1cHg7XG4gICAgICBib3JkZXItcmFkaXVzOiA1cHg7XG4gICAgICBmb250LXNpemU6IDgwJTtcbiAgICAgIGNvbG9yOiAjYWFhO1xuICAgICAgcG9zaXRpb246IHJlbGF0aXZlO1xuICAgICAgdG9wOiAwO1xuICAgICAgbWFyZ2luLXJpZ2h0OiAwLjVlbTtcbiAgICAgIGxldHRlci1zcGFjaW5nOiAwO1xuICAgICAgbGluZS1oZWlnaHQ6IDE7XG4gICAgICBmbG9hdDogcmlnaHQ7XG4gICAgfVxuICB9XG5cbiAgLmJvZHkge1xuICAgIHBhZGRpbmc6IDE1cHggMDtcblxuICAgICYuZml4ZWQge1xuICAgICAgbWF4LWhlaWdodDogMjAwcHg7XG4gICAgICBvdmVyZmxvdy15OiBhdXRvO1xuICAgIH1cbiAgfVxuXG4gIC5mb3JtLWdyb3VwIHtcbiAgICBtYXJnaW4tYm90dG9tOiA1cHg7XG5cbiAgICAuY2hlY2tib3gsIC5yYWRpbyB7XG4gICAgICBtYXJnaW4tdG9wOiAwO1xuICAgICAgbWFyZ2luLWJvdHRvbTogMDtcbiAgICB9XG4gIH1cblxuICAmLmNvbGxhcHNpYmxlIHtcblxuICAgIC50b2dnbGVfX2NvbGxhcHNlZCB7XG4gICAgICBkaXNwbGF5OiBibG9jaztcbiAgICAgIGZsb2F0OiByaWdodDtcbiAgICAgIGNvbG9yOiAjY2NjY2NjO1xuXG4gICAgICAuZmEge1xuICAgICAgICB0cmFuc2Zvcm06IHJvdGF0ZSgxODBkZWcpXG4gICAgICB9XG4gICAgfVxuXG4gICAgJi5jb2xsYXBzZWQge1xuXG4gICAgICAudG9nZ2xlX19jb2xsYXBzZWQgLmZhIHtcbiAgICAgICAgdHJhbnNmb3JtOiBub25lO1xuICAgICAgfVxuXG4gICAgICAuYm9keSB7XG4gICAgICAgIG1heC1oZWlnaHQ6IDA7XG4gICAgICAgIG92ZXJmbG93OiBoaWRkZW47XG4gICAgICAgIHRyYW5zaXRpb246IDAuMnM7XG4gICAgICAgIG1hcmdpbjogMDtcbiAgICAgICAgcGFkZGluZzogMDtcbiAgICAgIH1cbiAgICB9XG4gIH1cbn1cblxuIiwiXG4jdHJhZGl0aW9uLXZpZXctYXBwIHtcbiAgZGlzcGxheTogZmxleDtcbiAgZmxleC1kaXJlY3Rpb246IHJvdztcbiAgZmxleDogMTtcbiAgb3ZlcmZsb3c6IGhpZGRlbjtcbiAgaGVpZ2h0OiAxMDAlO1xuXG4gIGFydGljbGUge1xuICAgIGRpc3BsYXk6IGZsZXg7XG5cbiAgICAmID4gZGl2IHtcbiAgICAgIHdpZHRoOiAxMDAlO1xuICAgIH1cbiAgfVxuXG4gIGFzaWRlIHtcbiAgICAvLyBiYWNrZ3JvdW5kLWNvbG9yOiAjZmFmYWZhICFpbXBvcnRhbnQ7XG5cbiAgICAud2lkZ2V0IHtcbiAgICAgIGJvcmRlci1ib3R0b206IDFweCBzb2xpZCAjZTllY2VmO1xuICAgIH1cbiAgfVxufVxuIl0sIm5hbWVzIjpbXSwic291cmNlUm9vdCI6IiJ9*/
