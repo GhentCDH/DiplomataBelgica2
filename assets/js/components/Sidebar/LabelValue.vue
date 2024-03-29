@@ -5,7 +5,8 @@
         </div>
         <div :class="outputValueClass">
             <template v-if="outputValues && outputValues.length">
-                <FormatValue v-for="(item, index) in outputValues" :key="index" :type="type" :value="item" :url="isCallable(url) ? url(value) : url" />
+                <FormatValue v-for="(item, index) in outputValues" :key="index" :type="type" :value="item"
+                             :url="isCallable(url) ? url(item) : url"/>
             </template>
             <span v-else>{{ unknown }}</span>
         </div>
@@ -25,7 +26,7 @@ export default {
             type: String,
         },
         value: {
-            type: String|Number|Object|Array
+            type: String | Number | Object | Array
         },
         unknown: {
             type: String,
@@ -52,7 +53,7 @@ export default {
             default: 'string'
         },
         url: {
-            type: String|Function,
+            type: String | Function,
             default: null
         },
         ignoreValue: {
@@ -74,13 +75,13 @@ export default {
             return ['labelvalue__value', this.inline ? 'labelvalue__value--inline col-' + this.valueWidth : 'col-12', this.valueClass ?? ''].join(' ')
         },
         outputValues() {
-            let values = this.value ? ( Array.isArray(this.value) ? this.value : [ this.value ] ) : ( this.unknown ? [ this.unknown ] : [] )
-            switch(this.type) {
+            let values = this.value ? (Array.isArray(this.value) ? this.value : [this.value]) : (this.unknown ? [this.unknown] : [])
+            switch (this.type) {
                 case 'id_name':
-                    values = values.filter( (item) => !this.ignoreValue.includes(item.name) )
+                    values = values.filter((item) => !this.ignoreValue.includes(item.name))
                     break
                 case 'string':
-                    values = values.filter( (value) => !value || !this.ignoreValue.includes(value) )
+                    values = values.filter((value) => !value || !this.ignoreValue.includes(value))
             }
 
             return values
