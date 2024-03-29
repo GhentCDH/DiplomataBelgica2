@@ -44,14 +44,14 @@
   // full height filters & results
   .search-app__filters, .search-app__results {
     height: 100%;
-    padding: 0; // remove col padding
+    //padding: 0; // remove col padding
   }
 
   .search-app {
     flex-wrap: nowrap;
 
     //padding: 0 10px; // remove row padding
-    gap: 20px;
+    //gap: 20px;
   }
 
   // flex results
@@ -70,6 +70,7 @@
     .VueTables {
       height: 100%;
       display: flex;
+      flex: 1;
       flex-direction: column;
       margin: 0;
 

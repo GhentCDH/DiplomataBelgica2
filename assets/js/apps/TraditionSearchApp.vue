@@ -1,6 +1,6 @@
 <template>
-    <div class="row pbottom-large">
-        <aside class="col-sm-4">
+    <div class="row search-app">
+        <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical scrollable--mr">
             <div class="bg-tertiary padding-default">
                 <vue-form-generator
                         ref="form"
@@ -19,38 +19,55 @@
             </div>
         </aside>
         
-        <article class="col-sm-8 search-page">
-            <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-            <v-server-table
-                    ref="resultTable"
-                    :columns="tableColumns"
-                    :options="tableOptions"
-                    :url="urls['tradition_search_api']"
-                    @data="onData"
-                    @loaded="onLoaded"
-            >
-                <template #afterFilter>
-                    <b v-if="countRecords">{{ countRecords }}</b>
-                </template>
-                <template #type="props">
-                    {{ props.row.type }}
-                </template>
-                <template #summary="props">
-                    <div>
-                        <a :href="getTraditionUrl(props.row.id, props.row.type)">
-                            <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
-                            <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
-                            <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
-                        </a>
-                    </div>
-                    <div>
-                        {{ props.row.title }}
-                    </div>
-                    <div>
-                        {{ props.row.redaction_date }}
-                    </div>
-                </template>
-            </v-server-table>
+        <article class="col-sm-9 search-app__results">
+            <header>
+                <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
+            </header>
+            <section>
+                <v-server-table
+                        ref="resultTable"
+                        :columns="tableColumns"
+                        :options="tableOptions"
+                        :url="urls['tradition_search_api']"
+                        @data="onData"
+                        @loaded="onLoaded"
+                >
+                    <template v-slot:beforeTable>
+                        <div class="VueTables__beforeTable row form-group">
+                            <div class="VueTables__pagination col-lg-4">
+                                <vt-pagination></vt-pagination>
+                            </div>
+                            <div class="VueTables__count col-lg-4 d-flex align-items-lg-center">
+                                <vt-pagination-count></vt-pagination-count>
+                            </div>
+                            <div class="VueTables__limit col-lg-4 d-flex justify-content-lg-end">
+                                <vt-per-page-selector class="d-flex align-items-md-center"></vt-per-page-selector>
+                            </div>
+                        </div>
+                    </template>
+                    <template #afterFilter>
+                        <b v-if="countRecords">{{ countRecords }}</b>
+                    </template>
+                    <template #type="props">
+                        {{ props.row.type }}
+                    </template>
+                    <template #summary="props">
+                        <div>
+                            <a :href="getTraditionUrl(props.row.id, props.row.type)">
+                                <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
+                                <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
+                                <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
+                            </a>
+                        </div>
+                        <div>
+                            {{ props.row.title }}
+                        </div>
+                        <div>
+                            {{ props.row.redaction_date }}
+                        </div>
+                    </template>
+                </v-server-table>
+            </section>
         </article>
         <div
                 v-if="openRequests"
@@ -74,6 +91,9 @@ import FormatValue from "../components/Sidebar/FormatValue";
 
 import fieldCheckbox from '../components/FormFields/fieldCheckbox';
 import fieldCheckboxes from '../components/FormFields/fieldCheckboxes'
+import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
+import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
+import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
 
 
 Vue.component('fieldCheckboxBS5', fieldCheckbox);
@@ -88,6 +108,7 @@ export default {
         CollapsibleGroups
     ],
     components: {
+        VtPerPageSelector, VtPagination, VtPaginationCount,
         FormatValue
     },
     props: {
@@ -166,12 +187,13 @@ export default {
                 ],
             },
             tableOptions: {
+                filterByColumn: false,
+                filterable: false,
                 headings: {
                 },
                 columnsClasses: {
                     name: 'no-wrap',
                 },
-                'filterable': false,
                 'orderBy': {
                     'column': 'id'
                 },
@@ -183,6 +205,10 @@ export default {
                 rowClassCallback: function (row) {
                     return '';
                     // return (row.public == null || row.public) ? '' : 'warning'
+                },
+                pagination: {
+                    show: false,
+                    chunk: 5
                 },
             },
             submitModel: {

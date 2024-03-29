@@ -2,9 +2,11 @@
 
 {% block title %}Diplomata Belgica - Search{% endblock %}
 
+{% block body_class %}layout--fullscreen{% endblock %}
+
 {% block content %}
-    <div id="tradition-search-app">
         <tradition-search-app
+            id="tradition-search-app"
             :is-editor="{{ is_granted('ROLE_EDITOR_VIEW') ? 'true' : 'false' }}"
             :is-view-internal="{{ is_granted('ROLE_VIEW_INTERNAL') ? 'true' : 'false' }}"
             init-urls="{{ urls }}"
@@ -13,7 +15,6 @@
             init-managements="{{ managements }}"
             title="{{ title }}"
         />
-    </div>
 {% endblock %}
 
 {% block javascript %}

@@ -1,6 +1,6 @@
 <template>
     <div class="row search-app">
-        <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical">
+        <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical scrollable--mr">
             <div class="bg-tertiary padding-default">
                 <div v-if="showReset" class="form-group ptop-default">
                     <button class="btn btn-primary"  @click="resetAllFilters" >
