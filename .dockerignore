@@ -1,0 +1,7 @@
+**/.env
+**/.env.*
+**/.git
+**/.pnpm-store
+**/var
+**/node_modules
+**/vendor
