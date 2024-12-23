@@ -2,33 +2,14 @@
 /config/packages/*/parameters.yaml
 /build/
 /phpunit.xml
-/var/*
-!/var/cache
-/var/cache/*
-!var/cache/.gitkeep
-!/var/logs
-/var/logs/*
-!var/logs/.gitkeep
-!/var/sessions
-/var/sessions/*
-!var/sessions/.gitkeep
-!var/SymfonyRequirements.php
-/vendor/
-/public/bundles/
-
+**/app/var
+**/app/vendor
+**/app/public/build
 bower_components
 node_modules
 /images/
 .idea/
 .env.local.php
 .env.*.local
-###> symfony/webpack-encore-bundle ###
-/node_modules/
-npm-debug.log
-yarn-error.log
-###< symfony/webpack-encore-bundle ###
 src/Controller/TestController.php
-db_dibe.sql
-
 ###### production build
-build_production.sh
