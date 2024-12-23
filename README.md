@@ -1,176 +1,78 @@
 # Diplomata Belgica
 
-## Requirements
+This repository contains the source code of the [Diplomata Belgica](https://www.diplomata-belgica.be/) database.
 
-- Apache2
-- PHP 7.4 FPM
-- Elasticsearch 7
-- MariaDB 10.4
-- Composer2
+The Diplomata Belgica database consists of a Symphony back-end connected to a MariaDB database and Elasticsearch search engine.
+The search and edit pages consist of Vue.js applications.
 
+## Getting Started
 
-- Development tools
-    - node 14
-    - npm 6
-    - yarn
+Read the [Important Notes](#important-notes) thoroughly before starting!
 
-## Install development version
+First, check that `.env` contains the correct default configuration (see `example.env`).
 
-### Vagrant setup
+Next, make sure ssh-agent is running on your machine and exposes the correct key. To add a key run `ssh-add ~/.ssh/id_rsa`. To check the keys exposed by ssh-agent, run `ssh-add -l`.
 
-    git clone git@github.ugent.be:GhentCDH/dibe-vagrant.git dibe_vagrant
-    cd dibe_vagrant
+```sh
+ssh-add ~/.ssh/id_rsa
+```
 
-Start virtual machine
+Finally, run the following command to run the docker services:
 
-    vagrant up
+- PHP Symfony
+- Elasticsearch
+- MariaDB database
+- Node.js
 
-SSH to vm
+```sh
+docker compose up --build 
+```
 
-    vagrant ssh
+After the containers are up and running, you can access the Diplomata Belgica database on [localhost:8080](http://localhost:8080).
 
-### Install server packages
+## Database
 
-    cd install
+In the `initdb` folder, you can find the necessary scripts to create the database schema and a minimum test dataset. The
+sql scripts are run when when the database container is first created.
 
-    sudo ./elasticsearch7.sh
-    sudo ./mariadb-10.4.sh
-    sudo ./php7.4-fpm.sh
+You can add additional scripts to the `initdb` folder if required.
 
-    # install build tools
-    sudo ./composer.sh
-    sudo ./nodejs.sh
-    sudo npm i yarn -g
+## Indexing
 
-    # install symfony cli
-    sudo ./symfony-cli.sh
+During the first run, the startup script will create (if needed) initial indexes for the Elasticsearch search engine (
+100 records max).
 
-#### set default php version to 7.4
+To index more records, run the following command:
 
-    sudo update-alternatives --set php /usr/bin/php7.4    
+```sh
+docker exec -it dibe-dev-symfony-1 bin/console app:elasticsearch:index charter [max limit]
+docker exec -it dibe-dev-symfony-1 bin/console app:elasticsearch:index tradition [max limit]
+```
 
-### Deploy code
+## Docker production build
 
-    git clone git@github.com:GhentCDH/DiplomataBelgica2.git dibe
-    cd dibe
-    # install php dependencies
-    composer install
-    # dump .env.* to .env.local.php
-    composer dump-env dev
-    # install node dependencies
-    yarn install
+Add the correct SSH key to the agent if building in production, and then run:
 
-### Import database
+```sh
+# For production build
+docker buildx build --tag dibe-web --target prod --ssh default .
+```
 
-Download database from [data.ghentcdh.ugent.be](https://data.ghentcdh.ugent.be) and import using
+#### Notes:
 
-    echo "create database db_dibe" | sudo mysql
-    sudo mysql --database=db_dibe < db_dibe.sql
+- Ensure you have the ssh-agent active with the correct SSH key!
+- If an external MariaDB database or Elasticsearch is used, update or remove the services in `docker-compose.yaml` (
+  or create a `docker-composer.override.yaml` file).
 
-Create user and set permissions
+## IMPORTANT NOTES
 
-    sudo mysql < ./scripts/create-user.sql
+- Ensure that your ssh agent is running and that your key(s) are added before building or starting the containers. For
+  production builds, it is necessary to start and add your SSH key in the same terminal window (unless set up via config
+  file) as where the build command is executed.
 
-### Create/Update Elasticsearch index
+- The SQL scripts in `initdb` should be named in the correct order. A good example is naming the first script
+  `001-<first file>.sql`, the next script `010-<second file>.sql`, and the last script `100-<third file>.sql`.
 
-    php bin/console app:elasticsearch:index charter
-    php bin/console app:elasticsearch:index tradition
-
-### Run application
-
-Start the back-end dev server
-
-    symfony server:start --no-tls
-
-Site is available on these addresses:
-
-    http://dibe.vagrant:8000
-    http://localhost:8000
-
-### Build js/css
-
-    encore dev --watch
-    
-If encore is not available, use
-
-    node_modules/.bin/encore dev
-
-## Misc
-
-encore dev --watch
-
-### Pull qas build
-
-    git pull
-    php7.4 bin/console cache:clear --env=qas
-
-### Pull prod build
-
-    git pull
-    php7.4 bin/console cache:clear --env=prod
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+- When running in development, three folders will be created locally: `node_modules`, `vendor`, and `var` (for
+  MariaDB and Elasticsearch data). If you want to run in production after development, be sure to delete these three
+  folders!
