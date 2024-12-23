@@ -2,14 +2,15 @@
 /config/packages/*/parameters.yaml
 /build/
 /phpunit.xml
-**/app/var
-**/app/vendor
-**/app/public/build
+/var
+/_prev
+app/var
+app/vendor
+app/public/build
 bower_components
 node_modules
 /images/
 .idea/
-.env.local.php
-.env.*.local
-src/Controller/TestController.php
-###### production build
+.env.*
+app/src/Controller/TestController.php
+initdb/020-data.sql
