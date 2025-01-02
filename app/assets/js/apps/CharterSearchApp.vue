@@ -3,42 +3,51 @@
         <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical scrollable--mr">
             <div class="bg-tertiary padding-default">
                 <div v-if="showReset" class="form-group ptop-default">
-                    <button class="btn btn-primary"  @click="resetAllFilters" >
+                    <button class="btn btn-primary" @click="resetAllFilters">
                         Reset all filters
                     </button>
                 </div>
                 <vue-form-generator
-                        ref="form"
-                        :model="model"
-                        :options="formOptions"
-                        :schema="schema"
-                        @validated="onValidated"
-                        @model-updated="modelUpdated"
+                    ref="form"
+                    :model="model"
+                    :options="formOptions"
+                    :schema="schema"
+                    @validated="onValidated"
+                    @model-updated="modelUpdated"
                 />
             </div>
         </aside>
-        
+
         <article class="col-sm-9 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
 
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
-                        <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab" data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results" aria-selected="true" @click="updateMapVisibility(false)"><i class="fa-solid fa-bars" ></i> Browse results</button>
-                        <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map" type="button" role="tab" aria-controls="nav-map" aria-selected="false" @click="updateMapVisibility(true)"><i class="fa-solid fa-map-location-dot"></i> Browse map</button>
+                        <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
+                                data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results"
+                                aria-selected="true" @click="updateMapVisibility(false)"><i
+                            class="fa-solid fa-bars"></i> Browse results
+                        </button>
+                        <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map"
+                                type="button" role="tab" aria-controls="nav-map" aria-selected="false"
+                                @click="updateMapVisibility(true)"><i class="fa-solid fa-map-location-dot"></i> Browse
+                            map
+                        </button>
                     </div>
                 </nav>
             </header>
             <section>
                 <div class="tab-content w-100" id="nav-tabContent">
-                    <div class="tab-pane show active" id="nav-results" role="tabpanel" aria-labelledby="nav-results-tab">
+                    <div class="tab-pane show active" id="nav-results" role="tabpanel"
+                         aria-labelledby="nav-results-tab">
                         <v-server-table
-                                ref="resultTable"
-                                :columns="tableColumns"
-                                :options="tableOptions"
-                                :url="urls['charter_search_api']"
-                                @data="onData"
-                                @loaded="onLoaded"
+                            ref="resultTable"
+                            :columns="tableColumns"
+                            :options="tableOptions"
+                            :url="urls['charter_search_api']"
+                            @data="onData"
+                            @loaded="onLoaded"
                         >
                             <template v-slot:beforeTable>
                                 <div class="VueTables__beforeTable row form-group">
@@ -49,7 +58,8 @@
                                         <vt-pagination-count></vt-pagination-count>
                                     </div>
                                     <div class="VueTables__limit col-lg-4 d-flex justify-content-lg-end">
-                                        <vt-per-page-selector class="d-flex align-items-md-center"></vt-per-page-selector>
+                                        <vt-per-page-selector
+                                            class="d-flex align-items-md-center"></vt-per-page-selector>
                                     </div>
                                 </div>
                             </template>
@@ -72,14 +82,15 @@
                         </v-server-table>
                     </div>
                     <div class="tab-pane" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
-                        <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" v-if="mapVisible"></LeafletMap>
+                        <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]"
+                                    v-if="mapVisible"></LeafletMap>
                     </div>
                 </div>
             </section>
         </article>
         <div
-                v-if="openRequests"
-                class="loading-overlay"
+            v-if="openRequests"
+            class="loading-overlay"
         >
             <div class="spinner"/>
         </div>
@@ -126,8 +137,7 @@ export default {
         VtPagination,
         VtPaginationCount
     },
-    props: {
-    },
+    props: {},
     data() {
         let data = {
             model: {
@@ -162,56 +172,103 @@ export default {
                             {
                                 type: 'label',
                                 label: 'Actor 1',
-                                model: 'actor1',
+                                model: 'actor_1',
                                 styleClasses: 'actor actor-1'
                             },
                             this.createMultiSelect(
                                 'Name',
-                                { model: 'actor_name_full_name_1', styleClasses: 'actor actor-1' },
-                                { 'onSearch': this.onSearch('actor_name_full_name_1') }
+                                {model: 'actor_name_full_name_1', styleClasses: 'actor actor-1'},
+                                {'onSearch': this.onSearch('actor_name_full_name_1')}
                             ),
-                            this.createMultiSelect('Role', { model: 'actor_role_1', styleClasses: 'actor actor-1' }),
-                            this.createMultiSelect('Function', { model: 'actor_capacity_1', styleClasses: 'actor actor-1' }),
-                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_1', styleClasses: 'actor actor-1' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_1', styleClasses: 'actor actor-1' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_1', styleClasses: 'actor actor-1' }),
-                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_1', styleClasses: 'actor actor-1' }),
+                            this.createMultiSelect('Role', {model: 'actor_role_1', styleClasses: 'actor actor-1'}),
+                            this.createMultiSelect('Function', {
+                                model: 'actor_capacity_1',
+                                styleClasses: 'actor actor-1'
+                            }),
+                            this.createMultiSelect('Institution/jurisdiction', {
+                                model: 'actor_place_name_1',
+                                styleClasses: 'actor actor-1'
+                            }),
+                            this.createMultiSelect('Diocese', {
+                                model: 'actor_place_diocese_name_1',
+                                styleClasses: 'actor actor-1'
+                            }),
+                            this.createMultiSelect('Principality', {
+                                model: 'actor_place_principality_name_1',
+                                styleClasses: 'actor actor-1'
+                            }),
+                            this.createMultiSelect('Religious Order', {
+                                model: 'actor_order_name_1',
+                                styleClasses: 'actor actor-1'
+                            }),
 
                             {
                                 type: 'label',
                                 label: 'Actor 2',
-                                model: 'actor2',
-                                styleClasses: 'actor actor-2'
+                                model: 'actor_2',
+                                styleClasses: 'actor actor-2',
+                                visible: this.visibleActorFields,
                             },
                             this.createMultiSelect(
                                 'Name',
-                                { model: 'actor_name_full_name_2', styleClasses: 'actor actor-2' },
-                                { 'onSearch': this.onSearch('actor_name_full_name_2') }
+                                {model: 'actor_name_full_name_2', styleClasses: 'actor actor-2', visible: this.visibleActorFields},
+                                {'onSearch': this.onSearch('actor_name_full_name_2')}
                             ),
-                            this.createMultiSelect('Role', { model: 'actor_role_2', styleClasses: 'actor actor-2' }),
-                            this.createMultiSelect('Function', { model: 'actor_capacity_2', styleClasses: 'actor actor-2' }),
-                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_2', styleClasses: 'actor actor-2' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_2', styleClasses: 'actor actor-2' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_2', styleClasses: 'actor actor-2' }),
-                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_2', styleClasses: 'actor actor-2' }),
+                            this.createMultiSelect('Role', {model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.visibleActorFields}),
+                            this.createMultiSelect('Function', {
+                                model: 'actor_capacity_2',
+                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Institution/jurisdiction', {
+                                model: 'actor_place_name_2',
+                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Diocese', {
+                                model: 'actor_place_diocese_name_2',
+                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Principality', {
+                                model: 'actor_place_principality_name_2',
+                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Religious Order', {
+                                model: 'actor_order_name_2',
+                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                            }),
 
                             {
                                 type: 'label',
                                 label: 'Actor 3',
-                                model: 'actor3',
-                                styleClasses: 'actor actor-3'
+                                model: 'actor_3',
+                                styleClasses: 'actor actor-3',
+                                visible: this.visibleActorFields
                             },
                             this.createMultiSelect(
                                 'Name',
-                                { model: 'actor_name_full_name_3', styleClasses: 'actor actor-3' },
-                                { 'onSearch': this.onSearch('actor_name_full_name_3') }
+                                {model: 'actor_name_full_name_3', styleClasses: 'actor actor-3', visible: this.visibleActorFields},
+                                {'onSearch': this.onSearch('actor_name_full_name_3')}
                             ),
-                            this.createMultiSelect('Role', { model: 'actor_role_3', styleClasses: 'actor actor-3' }),
-                            this.createMultiSelect('Function', { model: 'actor_capacity_3', styleClasses: 'actor actor-3' }),
-                            this.createMultiSelect('Institution/jurisdiction', { model: 'actor_place_name_3', styleClasses: 'actor actor-3' }),
-                            this.createMultiSelect('Diocese', { model: 'actor_place_diocese_name_3', styleClasses: 'actor actor-3' }),
-                            this.createMultiSelect('Principality', { model: 'actor_place_principality_name_3', styleClasses: 'actor actor-3' }),
-                            this.createMultiSelect('Religious Order', { model: 'actor_order_name_3', styleClasses: 'actor actor-3' }),
+                            this.createMultiSelect('Role', {model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.visibleActorFields}),
+                            this.createMultiSelect('Function', {
+                                model: 'actor_capacity_3',
+                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Institution/jurisdiction', {
+                                model: 'actor_place_name_3',
+                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Diocese', {
+                                model: 'actor_place_diocese_name_3',
+                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Principality', {
+                                model: 'actor_place_principality_name_3',
+                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                            }),
+                            this.createMultiSelect('Religious Order', {
+                                model: 'actor_order_name_3',
+                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                            }),
 
                         ]
                     },
@@ -237,7 +294,7 @@ export default {
                                 label: 'Date in the charter',
                                 labelClasses: 'form-label'
                             },
-                            this.createMultiSelect('Place-date', { model: 'charter_place_name' }),
+                            this.createMultiSelect('Place-date', {model: 'charter_place_name'}),
                         ]
                     },
                     {
@@ -278,8 +335,7 @@ export default {
             tableOptions: {
                 filterByColumn: false,
                 filterable: false,
-                headings: {
-                },
+                headings: {},
                 columnsClasses: {
                     name: 'no-wrap',
                 },
@@ -321,9 +377,9 @@ export default {
         },
         markers() {
             let places = this.aggregation?.charter_place_name ?? []
-            let markers = places.filter( (place) => ( place.latitude ?? false ) ).map(function(place){
+            let markers = places.filter((place) => (place.latitude ?? false)).map(function (place) {
                 return {
-                    latLng: [ parseFloat(place.latitude), parseFloat(place.longitude)],
+                    latLng: [parseFloat(place.latitude), parseFloat(place.longitude)],
                     name: place.name + ' (' + place.count + ')',
                     id: place.id
                 }
@@ -369,16 +425,16 @@ export default {
             }
             return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
         },
-        getDate(udt){
-            if (udt.length > 1){
+        getDate(udt) {
+            if (udt.length > 1) {
                 var year = []
-                for(let date of udt) {
+                for (let date of udt) {
                     year.push(date.year);
                 }
                 year.sort();
-                if (year[0]==year[1]){
+                if (year[0] == year[1]) {
                     var display = year[0].toString();
-                }else{
+                } else {
                     var display = year[0].toString().concat(" - ", year[1]);
                 }
             } else {
@@ -388,7 +444,7 @@ export default {
         },
         onSearch(field) {
             const that = this
-            return function(query) {
+            return function (query) {
                 let data = {
                     field: field,
                     value: query,
@@ -398,12 +454,30 @@ export default {
                     params: data,
                     paramsSerializer: qs.stringify,
                 })
-                .then( (response) => {
-                    that.updateAggregations(response.data, [ field ], true)
-                    return response
-                } )
+                    .then((response) => {
+                        that.updateAggregations(response.data, [field], true)
+                        return response
+                    })
             }
-        }
+        },
+        actorFields(index) {
+            return [
+                'actor_name_full_name_' + index,
+                'actor_role_' + index,
+                'actor_capacity_' + index,
+                'actor_place_name_' + index,
+                'actor_place_diocese_name_' + index,
+                'actor_place_principality_name_' + index,
+                'actor_order_name_' + index,
+            ]
+        },
+        visibleActorFields(model, field) {
+            const modelKey = field.model
+            const actorIndex = modelKey.split('_').pop()
+            const actorFields = [ ...this.actorFields(actorIndex), ...(actorIndex > 1 ? this.actorFields(actorIndex - 1) : []) ]
+            let res = actorFields.filter((key) => model?.[key] && model?.[key].length > 0)
+            return res.length > 0
+        },
     },
 }
 </script>
