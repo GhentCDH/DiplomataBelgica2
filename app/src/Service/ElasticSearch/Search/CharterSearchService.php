@@ -74,7 +74,8 @@ class CharterSearchService extends AbstractSearchService
                 'filters' => [
                     "actor_name_full_name_{$index}:prefix" => [
                         'field' => 'name.name.normalized_text',
-                        'type' => self::FILTER_TEXT_PREFIX
+//                        'type' => self::FILTER_TEXT_PREFIX,
+                        'type' => self::FILTER_KEYWORD_PREFIX,
                     ],
                     "actor_name_full_name_{$index}" => [
                         'field' => 'name',
