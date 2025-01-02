@@ -426,7 +426,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $may = array_slice($may, 0, $aggConfig['safeLimit']);
         }
 
-        return array_merge($must, $may);
+        $output = array_merge($must, $may);
+
+        // sort?
+        $this->sortAggregationResult($output, $aggConfig);
+        return $output;
     }
 
     protected function getDefaultSearchFilters(): array
@@ -1778,12 +1782,29 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    protected function sortAggregationResult(?array &$agg_result)
+    protected function sortAggregationResult(?array &$agg_result, array $aggConfig): void
     {
         if (!$agg_result) {
             return;
         }
-        usort($agg_result, function ($a, $b) {
+        usort($agg_result, function ($a, $b) use ($aggConfig) {
+
+            // Place 'any', 'none' filters above
+            if(($a['name'] === 'none' || $a['name'] === 'any') && ($b['name'] !== 'any' && $b['name'] !== 'none')) {
+                return -1;
+            }
+            if(($a['name'] !== 'any' && $a['name'] !== 'none') && ($b['name'] === 'any' || $b['name'] === 'none')) {
+                return 1;
+            }
+
+            // Place true before false
+            if ($a['name'] === 'false' && $b['name'] === 'true') {
+                return 1;
+            }
+            if ($a['name'] === 'true' && $b['name'] === 'false') {
+                return -1;
+            }            
+            
             return strnatcasecmp($a['name'], $b['name']);
         });
     }
