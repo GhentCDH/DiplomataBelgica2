@@ -193,11 +193,8 @@ export default {
         },
         sortByName(a, b) {
             // console.log(a)
-            let a_name = a.name.toString()
-            let b_name = b.name.toString()
-
-            let a_name_lower = a_name.toLowerCase()
-            let b_name_lower = b_name.toLowerCase()
+            const a_name = a.name.toString()
+            const b_name = b.name.toString()
 
             // Place 'any', 'none' filters above
             if((a_name === 'none' || a_name === 'any') && (b_name !== 'any' && b_name !== 'none')) {
@@ -247,10 +244,11 @@ export default {
         updateAggregations(data, fieldNames = null, keepModelData = false) {
             fieldNames = fieldNames && Array.isArray(fieldNames) ? fieldNames : Object.keys(this.fields)
             for (let fieldName of fieldNames) {
-                let field = this?.fields?.[fieldName]
-                if (field && field.type === 'multiselectClear') {
+                const fieldConfig = this?.fields?.[fieldName]
+                if (fieldConfig && fieldConfig.type === 'multiselectClear') {
                     // get aggregation values
-                    let values = data?.[fieldName] ?? [];
+                    const values = data?.[fieldName] ?? [];
+
                     // add current model data?
                     if ( keepModelData && this.model?.[fieldName]?.length ) {
                         const ids = new Set(values.map(item => item.id))
@@ -260,19 +258,21 @@ export default {
                             }
                         }
                     }
+
                     // sort values
-                    values = values.sort(this.sortByName)
-                    field.values = values
+                    // field.values = values.sort(this.sortByName)
+                    fieldConfig.values = fieldConfig?.sortBy === 'name' ? values.sort(this.sortByName) : values
+
                     // active values? update model
-                    let activeValues = field.values.filter( item => item?.active )
+                    let activeValues = fieldConfig.values.filter( item => item?.active )
                     if (activeValues.length) {
                         this.$set(this.model, fieldName, activeValues)
                     }
                     // update dependency field?
-                    if (field.dependency != null && this.model[field.dependency] == null) {
-                        this.dependencyField(field)
+                    if (fieldConfig.dependency != null && this.model[fieldConfig.dependency] == null) {
+                        this.dependencyField(fieldConfig)
                     } else {
-                        this.enableField(field)
+                        this.enableField(fieldConfig)
                     }
                 }
             }
