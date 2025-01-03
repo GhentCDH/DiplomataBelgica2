@@ -1,6 +1,6 @@
 <template>
     <span v-if="value != null">
-        <a v-if="url" :href="url">{{ formatValue(value) }}</a>
+        <a v-if="url" :href="url" target="_blank">{{ formatValue(value) }}</a>
         <template v-else>
         {{ formatValue(value) }}
         </template>

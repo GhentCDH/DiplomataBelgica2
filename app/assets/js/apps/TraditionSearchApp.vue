@@ -53,7 +53,7 @@
                     </template>
                     <template #summary="props">
                         <div>
-                            <a :href="getTraditionUrl(props.row.id, props.row.type)">
+                            <a target="_blank" :href="getTraditionUrl(props.row.id, props.row.type)">
                                 <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
                                 <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
                                 <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>

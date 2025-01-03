@@ -57,7 +57,7 @@
                     <LabelValue class="mbottom-default" label="Original" :value="isOriginal" grid="4|8"></LabelValue>
 
                     <div class="ptop-small" v-for="original in originals" :key="original.id">
-                        <a v-if="original.link" :href="original.link">{{ original.text }}</a>
+                        <a target="_blank" v-if="original.link" :href="original.link">{{ original.text }}</a>
                         <p v-else>{{ original.text }}</p>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                     <h3>Copies</h3>
                     <ul>
                         <li v-for="copy in copies" :key="copy.id">
-                            <a v-if="copy.link" :href="copy.link">{{ copy.text }}</a>
+                            <a target="_blank" v-if="copy.link" :href="copy.link">{{ copy.text }}</a>
                             <p v-else>{{ copy.text }}</p>
                         </li>
                     </ul>
@@ -76,7 +76,7 @@
                     <h3>Manuscripts</h3>
                     <ul>
                         <li v-for="codex in codexes" :key="codex.id">
-                            <a v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
+                            <a target="_blank" v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
                             <p v-else>{{ codex.text }}</p>
                         </li>
                     </ul>
@@ -88,7 +88,7 @@
                 <div v-if="charter.imageUrls.length" >
                   <ul>
                     <li v-for="image in charter.imageUrls" :key="image.codex_id">
-                      <a v-if="image.url" :href="image.url">{{ image.url }}</a>
+                      <a target="_blank" v-if="image.url" :href="image.url">{{ image.url }}</a>
                     </li>
                   </ul>
                 </div>

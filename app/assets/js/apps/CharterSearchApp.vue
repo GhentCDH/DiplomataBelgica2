@@ -67,7 +67,7 @@
                                 <b v-if="countRecords">{{ countRecords }}</b>
                             </template>
                             <template #id="props">
-                                <a :href="getCharterUrl(props.row.id, props.index)">
+                                <a target="_blank" :href="getCharterUrl(props.row.id, props.index)">
                                     {{ props.row.id }}
                                 </a>
                             </template>
@@ -75,7 +75,7 @@
                                 <charter-search-summary :charter="props.row"></charter-search-summary>
                             </template>
                             <template #date="props">
-                                <a v-if="props.row.udt.length">
+                                <a target="_blank" v-if="props.row.udt.length">
                                     {{ getDate(props.row.udt) }}
                                 </a>
                             </template>

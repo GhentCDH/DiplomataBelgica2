@@ -25,7 +25,7 @@
                     <h3 v-if="tradition.repository.urls.length >0">Repository</h3>
                     <ul>
                         <li v-for="url in tradition.repository.urls" :key="url.id">
-                            <a href="url.url">{{ url.url }}</a> 
+                            <a target="_blank" href="url.url">{{ url.url }}</a>
                         </li>
                     </ul>
                 </div>
@@ -34,7 +34,7 @@
                 <h3 v-if="tradition.urls.length > 0" >Document</h3>
                 <ul>
                     <li v-for="url in tradition.urls" :key="url.id">
-                        <a href="url.url">{{ url.url }}</a> 
+                        <a target="_blank" href="url.url">{{ url.url }}</a>
                     </li>
                 </ul>
 
