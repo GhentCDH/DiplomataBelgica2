@@ -1,6 +1,6 @@
 /.web-server-pid
 /config/packages/*/parameters.yaml
-/build/
+/public/build/
 /phpunit.xml
 /var
 /_prev
