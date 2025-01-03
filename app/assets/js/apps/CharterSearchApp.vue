@@ -178,7 +178,7 @@ export default {
                             this.createMultiSelect(
                                 'Name',
                                 {model: 'actor_name_full_name_1', styleClasses: 'actor actor-1'},
-                                {'onSearch': this.onSearch('actor_name_full_name_1')}
+                                {onSearch: this.onAutocomplete('actor_name_full_name_1'), internalSearch: false}
                             ),
                             this.createMultiSelect('Role', {model: 'actor_role_1', styleClasses: 'actor actor-1'}),
                             this.createMultiSelect('Function', {
@@ -207,33 +207,33 @@ export default {
                                 label: 'Actor 2',
                                 model: 'actor_2',
                                 styleClasses: 'actor actor-2',
-                                visible: this.visibleActorFields,
+                                visible: this.actorFieldIsVisible,
                             },
                             this.createMultiSelect(
                                 'Name',
-                                {model: 'actor_name_full_name_2', styleClasses: 'actor actor-2', visible: this.visibleActorFields},
-                                {'onSearch': this.onSearch('actor_name_full_name_2')}
+                                {model: 'actor_name_full_name_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible},
+                                {onSearch: this.onAutocomplete('actor_name_full_name_2'), internalSearch: false}
                             ),
-                            this.createMultiSelect('Role', {model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.visibleActorFields}),
+                            this.createMultiSelect('Role', {model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible}),
                             this.createMultiSelect('Function', {
                                 model: 'actor_capacity_2',
-                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Institution/jurisdiction', {
                                 model: 'actor_place_name_2',
-                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Diocese', {
                                 model: 'actor_place_diocese_name_2',
-                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Principality', {
                                 model: 'actor_place_principality_name_2',
-                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Religious Order', {
                                 model: 'actor_order_name_2',
-                                styleClasses: 'actor actor-2', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
                             }),
 
                             {
@@ -241,33 +241,33 @@ export default {
                                 label: 'Actor 3',
                                 model: 'actor_3',
                                 styleClasses: 'actor actor-3',
-                                visible: this.visibleActorFields
+                                visible: this.actorFieldIsVisible
                             },
                             this.createMultiSelect(
                                 'Name',
-                                {model: 'actor_name_full_name_3', styleClasses: 'actor actor-3', visible: this.visibleActorFields},
-                                {'onSearch': this.onSearch('actor_name_full_name_3')}
+                                {model: 'actor_name_full_name_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible},
+                                {onSearch: this.onAutocomplete('actor_name_full_name_3'), internalSearch: false}
                             ),
-                            this.createMultiSelect('Role', {model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.visibleActorFields}),
+                            this.createMultiSelect('Role', {model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible}),
                             this.createMultiSelect('Function', {
                                 model: 'actor_capacity_3',
-                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Institution/jurisdiction', {
                                 model: 'actor_place_name_3',
-                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Diocese', {
                                 model: 'actor_place_diocese_name_3',
-                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Principality', {
                                 model: 'actor_place_principality_name_3',
-                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
                             }),
                             this.createMultiSelect('Religious Order', {
                                 model: 'actor_order_name_3',
-                                styleClasses: 'actor actor-3', visible: this.visibleActorFields
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
                             }),
 
                         ]
@@ -442,7 +442,7 @@ export default {
             }
             return display
         },
-        onSearch(field) {
+        onAutocomplete(field) {
             const that = this
             return function (query) {
                 let data = {
@@ -455,26 +455,29 @@ export default {
                     paramsSerializer: qs.stringify,
                 })
                     .then((response) => {
-                        that.updateAggregations(response.data, [field], true)
+                        const fieldConfig = that?.fields?.[field]
+                        fieldConfig.values = response.data?.[field] ?? []
                         return response
                     })
             }
         },
-        actorFields(index) {
-            return [
-                'actor_name_full_name_' + index,
-                'actor_role_' + index,
-                'actor_capacity_' + index,
-                'actor_place_name_' + index,
-                'actor_place_diocese_name_' + index,
-                'actor_place_principality_name_' + index,
-                'actor_order_name_' + index,
-            ]
-        },
-        visibleActorFields(model, field) {
+        actorFieldIsVisible(model, field) {
+
+            function getActorFields(index) {
+                return [
+                    'actor_name_full_name_' + index,
+                    'actor_role_' + index,
+                    'actor_capacity_' + index,
+                    'actor_place_name_' + index,
+                    'actor_place_diocese_name_' + index,
+                    'actor_place_principality_name_' + index,
+                    'actor_order_name_' + index,
+                ]
+            }
+
             const modelKey = field.model
             const actorIndex = modelKey.split('_').pop()
-            const actorFields = [ ...this.actorFields(actorIndex), ...(actorIndex > 1 ? this.actorFields(actorIndex - 1) : []) ]
+            const actorFields = [ ...getActorFields(actorIndex), ...(actorIndex > 1 ? getActorFields(actorIndex - 1) : []) ]
             let res = actorFields.filter((key) => model?.[key] && model?.[key].length > 0)
             return res.length > 0
         },
