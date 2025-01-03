@@ -123,14 +123,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $filters;
     }
 
-    protected function sanitizeSearchFilter($filterName, $filterConfig, $params): ?array
+    protected function sanitizeSearchFilter($filterName, $filterConfig, $queryValues): ?array
     {
         $ret = null;
 
-        $param_name = $filterConfig['filterParameter'] ?? $filterName; //todo: remove snake case!
-
-//        $filterValue = $filterConfig['value'] ?? $params[$filterName] ?? $filterConfig['defaultValue'] ?? null;
-        $filterValue = $filterConfig['value'] ?? $params[$param_name] ?? $filterConfig['defaultValue'] ?? null;
+        // get filter value
+        // fixed value first -> filter value -> default value
+        $queryKey = $filterConfig['filterName'] ?? $filterName; //todo: remove snake case!
+        $filterValue = $filterConfig['value'] ?? $queryValues[$queryKey] ?? $filterConfig['defaultValue'] ?? null;
 
         switch ($filterConfig['type'] ?? self::DEFAULT_FILTER_TYPE) {
             case self::FILTER_NUMERIC:
@@ -143,13 +143,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 if (is_numeric($filterValue)) {
                     $ret['value'] = [(int)$filterValue];
                 }
-                $ret['operator'] = $params[$filterName . '_op'] ?? ['or'];
+                $ret['operator'] = $queryValues[$filterName . '_op'] ?? ['or'];
                 $ret['operator'] = is_array($ret['operator']) ? $ret['operator'] : [$ret['operator']];
                 break;
             case self::FILTER_KEYWORD:
                 if ($filterValue === null) break;
                 $ret['value'] = is_array($filterValue) ? $filterValue : [ $filterValue ];
-                $ret['operator'] = $params[$filterName . '_op'] ?? ['or'];
+                $ret['operator'] = $queryValues[$filterName . '_op'] ?? ['or'];
                 $ret['operator'] = is_array($ret['operator']) ? $ret['operator'] : [$ret['operator']];
                 break;
             case self::FILTER_TEXT_PREFIX:
@@ -174,18 +174,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $rangeFilter = [];
 
                 $valueField = $filterConfig['floorField'];
-                if (isset($params[$valueField]) && is_numeric($params[$valueField])) {
-                    $rangeFilter['floor'] = $params[$valueField];
+                if (isset($queryValues[$valueField]) && is_numeric($queryValues[$valueField])) {
+                    $rangeFilter['floor'] = $queryValues[$valueField];
                 }
 
                 $valueField = $filterConfig['ceilingField'];
-                if (isset($params[$valueField]) && is_numeric($params[$valueField])) {
-                    $rangeFilter['ceiling'] = $params[$valueField];
+                if (isset($queryValues[$valueField]) && is_numeric($queryValues[$valueField])) {
+                    $rangeFilter['ceiling'] = $queryValues[$valueField];
                 }
 
                 $valueField = $filterConfig['typeField'];
-                if (isset($params[$valueField]) && in_array($params[$valueField], ['exact', 'included', 'include', 'overlap'], true)) {
-                    $rangeFilter['type'] = $params[$valueField];
+                if (isset($queryValues[$valueField]) && in_array($queryValues[$valueField], ['exact', 'included', 'include', 'overlap'], true)) {
+                    $rangeFilter['type'] = $queryValues[$valueField];
                 }
 
                 if ($rangeFilter) {
@@ -266,7 +266,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $ret['value'] = $filterValue;
                 }
                 if (is_string($filterValue) && $filterValue !== '') {
-                    $combination = $params[$filterName . '_combination'] ?? 'any';
+                    $combination = $queryValues[$filterName . '_combination'] ?? 'any';
                     $combination = in_array($combination, ['any', 'all', 'phrase'], true) ? $combination : 'any';
 
                     $ret['value'] = [
@@ -426,7 +426,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $may = array_slice($may, 0, $aggConfig['safeLimit']);
         }
 
-        return array_merge($must, $may);
+        $output = array_merge($must, $may);
+
+        // sort?
+        $this->sortAggregationResult($output, $aggConfig);
+        return $output;
     }
 
     protected function getDefaultSearchFilters(): array
@@ -1778,12 +1782,29 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    protected function sortAggregationResult(?array &$agg_result)
+    protected function sortAggregationResult(?array &$agg_result, array $aggConfig): void
     {
         if (!$agg_result) {
             return;
         }
-        usort($agg_result, function ($a, $b) {
+        usort($agg_result, function ($a, $b) use ($aggConfig) {
+
+            // Place 'any', 'none' filters above
+            if(($a['name'] === 'none' || $a['name'] === 'any') && ($b['name'] !== 'any' && $b['name'] !== 'none')) {
+                return -1;
+            }
+            if(($a['name'] !== 'any' && $a['name'] !== 'none') && ($b['name'] === 'any' || $b['name'] === 'none')) {
+                return 1;
+            }
+
+            // Place true before false
+            if ($a['name'] === 'false' && $b['name'] === 'true') {
+                return 1;
+            }
+            if ($a['name'] === 'true' && $b['name'] === 'false') {
+                return -1;
+            }            
+            
             return strnatcasecmp($a['name'], $b['name']);
         });
     }

@@ -7,8 +7,8 @@
                         :model="model"
                         :options="formOptions"
                         :schema="schema"
-                        @validated="onValidated"
-                        @model-updated="modelUpdated"
+                        @validated="onFormValidated"
+                        @model-updated="onModelUpdated"
                 />
 
                 <div v-if="showReset" class="form-group ptop-default">

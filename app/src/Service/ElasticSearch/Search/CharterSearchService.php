@@ -74,16 +74,17 @@ class CharterSearchService extends AbstractSearchService
                 'filters' => [
                     "actor_name_full_name_{$index}:prefix" => [
                         'field' => 'name.name.normalized_text',
-                        'type' => self::FILTER_TEXT_PREFIX
+//                        'type' => self::FILTER_TEXT_PREFIX,
+                        'type' => self::FILTER_KEYWORD_PREFIX,
                     ],
                     "actor_name_full_name_{$index}" => [
                         'field' => 'name',
                         'type' => self::FILTER_OBJECT_ID
                     ],
-                    "actor_name_full_name_{$index}" => [
-                        'field' => 'name',
-                        'type' => self::FILTER_OBJECT_ID
-                    ],
+//                    "actor_name_full_name_{$index}" => [
+//                        'field' => 'name',
+//                        'type' => self::FILTER_OBJECT_ID
+//                    ],
                     "actor_place_name_{$index}" => [
                         'field' => 'place',
                         'type' => self::FILTER_OBJECT_ID
@@ -151,6 +152,7 @@ class CharterSearchService extends AbstractSearchService
             ],
         ];
 
+        // actor filters
         foreach( range(1, $this->actorLimit) as $index ) {
             $agg = [
                 "actor_name_full_name_{$index}" => [
@@ -197,6 +199,11 @@ class CharterSearchService extends AbstractSearchService
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
                 ],
             ];
+            if ($index > 1) {
+                foreach($agg as $key => $value) {
+                    $agg[$key]['condition'] = $this->actorCondition($index);
+                }
+            }
             $aggregationFilters = array_merge($aggregationFilters, $agg);
         }
 
@@ -244,4 +251,32 @@ class CharterSearchService extends AbstractSearchService
         return parent::sanitizeSearchParameters($params);
     }
 
+    protected function actorCondition(int $index): \Closure
+    {
+        return function($aggName, $aggConfig, $arrFilterValues) use ($index) {
+            // check if any of the current & previous actor filters have a value
+            $indexes = array_filter([$index, $index > 1 ? ($index - 1) : null]);
+            foreach($indexes as $i) {
+                $actorProperties = $this->actorProperties($i);
+                foreach($actorProperties as $actorProperty) {
+                    if (isset($arrFilterValues[$actorProperty]) && $arrFilterValues[$actorProperty]['value']) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+    }
+
+    protected function actorProperties(string $index) {
+        return [
+            "actor_name_full_name_{$index}",
+            "actor_place_name_{$index}",
+            "actor_place_diocese_name_{$index}",
+            "actor_place_principality_name_{$index}",
+            "actor_capacity_{$index}",
+            "actor_role_{$index}",
+            "actor_order_name_{$index}",
+        ];
+    }
 }

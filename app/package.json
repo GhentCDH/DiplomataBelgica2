@@ -26,7 +26,7 @@
     "sass-loader": "^13.0.0",
     "vue": "^2.6.8",
     "vue-cookies": "^1.7.4",
-    "vue-form-generator": "~2.3.4",
+    "vue-form-generator": "github:flamsens/vue-form-generator",
     "vue-loader": "^15.7.0",
     "vue-multiselect": "^2.1.4",
     "vue-tables-2-premium": "^2.3.6",
