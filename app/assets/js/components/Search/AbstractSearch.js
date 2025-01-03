@@ -138,10 +138,10 @@ export default {
             }
             return result
         },
-        modelUpdated(value, fieldName) {
+        onModelUpdated(value, fieldName) {
             this.lastChangedField = fieldName
         },
-        onValidated(isValid, errors) {
+        onFormValidated(isValid, errors) {
             // do nothing but cancelling requests if invalid
             if (!isValid) {
                 if (this.inputCancel !== null) {
@@ -180,6 +180,7 @@ export default {
                 this.actualRequest = false
             }
 
+            // trigger table update request
             this.inputCancel = window.setTimeout(() => {
                 this.inputCancel = null
                 let filterValues = this.constructFilterValues()
@@ -187,12 +188,11 @@ export default {
                 // filters are always in the same order, so we can compare serialization
                 if (JSON.stringify(filterValues) !== JSON.stringify(this.oldFilterValues)) {
                     this.oldFilterValues = JSON.parse(JSON.stringify(filterValues))
-                    Event.$emit('vue-tables.filter::filters', filterValues) // todo: fix!
+                    Event.$emit('vue-tables.filter::filters', filterValues)
                 }
             }, timeoutValue)
         },
         sortByName(a, b) {
-            // console.log(a)
             const a_name = a.name.toString()
             const b_name = b.name.toString()
 
@@ -217,10 +217,12 @@ export default {
         },
         resetAllFilters() {
             this.model = JSON.parse(JSON.stringify(this.originalModel))
-            this.onValidated(true)
+            this.onFormValidated(true)
         },
         onData(data) {
-            this.aggregation = data.aggregation
+            if (data?.aggregation) {
+                this.aggregation = data.aggregation
+            }
         },
         onLoaded(data) {
             // Update model and ordering if not initialized or history request
@@ -269,7 +271,7 @@ export default {
                         this.$set(this.model, fieldName, activeValues)
                     }
                     // update dependency field?
-                    if (fieldConfig.dependency != null && this.model[fieldConfig.dependency] == null) {
+                    if (fieldConfig?.dependency && this.model[fieldConfig.dependency] == null) {
                         this.dependencyField(fieldConfig)
                     } else {
                         this.enableField(fieldConfig)
