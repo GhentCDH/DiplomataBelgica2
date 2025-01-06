@@ -660,16 +660,16 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
                 break;
             case self::FILTER_BOOLEAN:
-                if ($filterConfig['only_filter_on_true'] ?? false) {
+                if ($filterConfig['onlyFilterIfTrue'] ?? false) {
                     if ($filterValue) {
                         $filterQuery = new Query\Term();
-                        $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['true_value'] ?? true : $filterConfig['false_value'] ?? false);
+                        $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['trueValue'] ?? true : $filterConfig['falseValue'] ?? false);
 
                         $query->addMust($filterQuery);
                     }
                 } else {
                     $filterQuery = new Query\Term();
-                    $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['true_value'] ?? true : $filterConfig['false_value'] ?? false);
+                    $filterQuery->setTerm($filterField, $filterValue ? $filterConfig['trueValue'] ?? true : $filterConfig['falseValue'] ?? false);
 
                     $query->addMust($filterQuery);
                 }
