@@ -51,8 +51,7 @@ class CharterSearchService extends AbstractSearchService
             'dating_charter' => [
                 'type' => self::FILTER_DMY_RANGE,
                 'aggregationFilter' => false, // filter can be applied before aggregations
-                'nestedPath' => 'udt',
-                'field' => ''
+                'field' => 'udt'
             ],
 
             'fulltext' => [
