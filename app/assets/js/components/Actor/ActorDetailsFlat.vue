@@ -1,8 +1,8 @@
 <template>
     <div class="actor actor--flat">
-        <FormatValue :value="actor.name.name"></FormatValue>
-        <FormatValue :value="actor.capacity" type="id_name"></FormatValue>
-        <FormatValue :value="actor.place" type="id_name"></FormatValue>
+        <FormatValue :value="actor.capacity" type="id_name" :unknown="false" />
+        <FormatValue :value="actor.name.name" :unknown="false" />
+        <FormatValue :value="actor.place" type="id_name" :unknown="false" />
     </div>
 </template>
 
@@ -29,10 +29,10 @@ export default {
 @import '../../../scss/init';
 
 .actor.actor--flat {
-  span + span::after {
+  span::after {
     content: ' - ';
   }
-  span + span:last-child::after {
+  span:last-child::after {
     content: '';
   }
 }
