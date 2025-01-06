@@ -333,7 +333,11 @@ export default {
             tableOptions: {
                 filterByColumn: false,
                 filterable: false,
-                headings: {},
+                headings: {
+                    id: 'Id',
+                    summary: 'Summary',
+                    date_sort: 'Date',
+                },
                 columnsClasses: {
                     id: 'no-wrap ',
                     date: 'no-wrap ',
@@ -427,7 +431,7 @@ export default {
             return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
         },
         getPreferentialDate(datations) {
-            return datations.find((datation) => datation.preference)
+            return datations.find((datation) => datation.preference == 0)
         },
         formatDatationTime(datation) {
             if (!datation?.time) {
