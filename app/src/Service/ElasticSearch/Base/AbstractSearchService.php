@@ -197,32 +197,40 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $rangeFilter = [
                     'from' => [],
                     'till' => [],
-                    'has_from' => false,
-                    'has_till' => false
+                    'hasFrom' => false,
+                    'hasTill' => false
                 ];
                 $boolValid = false;
 
                 $dateParts = [
+                    'year',
                     'month',
                     'day',
-                    'year',
                 ];
 
                 foreach ($dateParts as $datePart) {
                     $rangeFilter['from'][$datePart] = is_numeric($filterValue['from'][$datePart] ?? null) ? intval($filterValue['from'][$datePart]) : null;
-                    $rangeFilter['has_from'] = $rangeFilter['has_from'] || ($rangeFilter['from'][$datePart] !== null);
+                    $rangeFilter['hasFrom'] = $rangeFilter['hasFrom'] || ($rangeFilter['from'][$datePart] !== null);
                     $rangeFilter['till'][$datePart] = is_numeric($filterValue['till'][$datePart] ?? null) ? intval($filterValue['till'][$datePart]) : null;
-                    $rangeFilter['has_till'] = $rangeFilter['has_till'] || ($rangeFilter['till'][$datePart] !== null);
+                    $rangeFilter['hasTill'] = $rangeFilter['hasTill'] || ($rangeFilter['till'][$datePart] !== null);
                 }
 
-                // check if valid range query
-                if ($rangeFilter['has_from'] && $rangeFilter['has_till']
-                    && !array_diff_key(array_filter($rangeFilter['from'], fn($i) => $i != null), array_filter($rangeFilter['till'], fn($i) => $i != null))
-                    && !array_diff_key(array_filter($rangeFilter['till'], fn($i) => $i != null), array_filter($rangeFilter['from'], fn($i) => $i != null))
+                // check if valid range query (valid combinations: year, year-month, year-month-day)
+                if ($rangeFilter['hasFrom'] && $rangeFilter['hasTill'] &&
+                    in_array(
+                        implode('-', array_keys(array_filter($rangeFilter['from'], fn($key,$value) => $value !== null, ARRAY_FILTER_USE_BOTH))),
+                        ['year-month-day', 'year-month', 'year'],
+                        true
+                    ) &&
+                    in_array(
+                        implode('-', array_keys(array_filter($rangeFilter['till'], fn($key,$value) => $value !== null, ARRAY_FILTER_USE_BOTH))),
+                        ['year-month-day', 'year-month', 'year'],
+                        true
+                    )
                 ) {
                     $rangeFilter['type'] = 'range';
                     $boolValid = true;
-                } elseif ($rangeFilter['has_from']) {
+                } elseif ($rangeFilter['hasFrom']) {
                     $rangeFilter['type'] = 'exact';
                     $boolValid = true;
                 } else {
@@ -326,7 +334,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         if ( count($arrFieldPrefix) ) {
             $fieldPrefix = implode('.', $arrFieldPrefix).'.';
             // add missing field prefix?
-            if ( isset($config['field']) && !str_starts_with($config['field'], $fieldPrefix) ) {
+            if ( isset($config['field']) && $config['field'] && !(str_starts_with($config['field'], $fieldPrefix) || $fieldPrefix === $config['field'].'.') ) {
                 $config['field'] = $fieldPrefix.$config['field'];
             }
         }

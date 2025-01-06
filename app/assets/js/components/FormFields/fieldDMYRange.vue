@@ -1,93 +1,92 @@
 <template>
     <div>
-        <div class="input-group mbottom-small">
-            <span class="input-group-text bg-primary text-white">From</span>
+        <div class="input-group mbottom-small from" :class="{'has-from': hasFrom}">
+            <span class="input-group-text">{{ hasTill ? fromLabel : exactLabel }}</span>
             <input
-                    class="form-control date-input"
-                    type="text"
-                    style="text-align:center;"
-                    size="2"
-                    v-model="range.from.day"
-                    :disabled="disabled"
-                    :maxlength="2"
-                    :placeholder="placeholder.day"
-                    :readonly="schema.readonly"
-                    @change="onChange" @keyup="onChange"
+                class="form-control date-input"
+                type="text"
+                style="text-align:center;"
+                size="2"
+                v-model="range.from.day"
+                :disabled="disabled"
+                :maxlength="2"
+                :placeholder="placeholder.day"
+                :readonly="schema.readonly"
+                @change="onChange" @keyup="onChange"
             >
             <input
-                    class="form-control date-input"
-                    type="text"
-                    style="text-align:center;"
-                    size="2"
-                    v-model="range.from.month"
-                    :disabled="disabled"
-                    :maxlength="2"
-                    :placeholder="placeholder.month"
-                    :readonly="schema.readonly"
-                    @change="onChange" @keyup="onChange"
+                class="form-control date-input"
+                type="text"
+                style="text-align:center;"
+                size="2"
+                v-model="range.from.month"
+                :disabled="disabled"
+                :maxlength="2"
+                :placeholder="placeholder.month"
+                :readonly="schema.readonly"
+                @change="onChange" @keyup="onChange"
             >
             <input
-                    class="form-control date-input"
-                    type="text"
-                    style="text-align:center;"
-                    size="4"
-                    v-model="range.from.year"
-                    :disabled="disabled"
-                    :maxlength="4"
-                    :placeholder="placeholder.year"
-                    :readonly="schema.readonly"
-                    @change="onChange" @keyup="onChange"
+                class="form-control date-input"
+                type="text"
+                style="text-align:center;"
+                size="4"
+                v-model="range.from.year"
+                :disabled="disabled"
+                :maxlength="4"
+                :placeholder="placeholder.year"
+                :readonly="schema.readonly"
+                @change="onChange" @keyup="onChange"
             >
         </div>
-        <div class="input-group">
-            <span class="input-group-text bg-primary text-white">Till</span>
+        <div class="input-group till" :class="{'has-till': hasTill}">
+            <span class="input-group-text">{{ tillLabel }}</span>
             <input
-                    class="form-control date-input"
-                    type="text"
-                    style="text-align:center;"
-                    size="2"
-                    v-model="range.till.day"
-                    :disabled="disabled"
-                    :maxlength="2"
-                    :placeholder="placeholder.day"
-                    :readonly="schema.readonly"
-                    @change="onChange" @keyup="onChange"
+                class="form-control date-input"
+                type="text"
+                style="text-align:center;"
+                size="2"
+                v-model="range.till.day"
+                :disabled="disabled"
+                :maxlength="2"
+                :placeholder="placeholder.day"
+                :readonly="schema.readonly"
+                @change="onChange" @keyup="onChange"
             >
             <input
-                    class="form-control date-input"
-                    type="text"
-                    style="text-align:center;"
-                    size="2"
-                    v-model="range.till.month"
-                    :disabled="disabled"
-                    :maxlength="2"
-                    :placeholder="placeholder.month"
-                    :readonly="schema.readonly"
-                    @change="onChange" @keyup="onChange"
+                class="form-control date-input"
+                type="text"
+                style="text-align:center;"
+                size="2"
+                v-model="range.till.month"
+                :disabled="disabled"
+                :maxlength="2"
+                :placeholder="placeholder.month"
+                :readonly="schema.readonly"
+                @change="onChange" @keyup="onChange"
             >
             <input
-                    class="form-control date-input"
-                    type="text"
-                    style="text-align:center;"
-                    size="4"
-                    v-model="range.till.year"
-                    :disabled="disabled"
-                    :maxlength="4"
-                    :placeholder="placeholder.year"
-                    :readonly="schema.readonly"
-                    @change="onChange" @keyup="onChange"
+                class="form-control date-input"
+                type="text"
+                style="text-align:center;"
+                size="4"
+                v-model="range.till.year"
+                :disabled="disabled"
+                :maxlength="4"
+                :placeholder="placeholder.year"
+                :readonly="schema.readonly"
+                @change="onChange" @keyup="onChange"
             >
         </div>
     </div>
 </template>
 
 <script>
-import { abstractField } from 'vue-form-generator/dist/vfg-core.js'
-import { debounce as _debounce } from 'lodash';
-
+import {abstractField} from 'vue-form-generator/dist/vfg-core.js'
+import {debounce as _debounce} from 'lodash';
 
 export default {
-    mixins: [ abstractField ],
+    mixins: [abstractField],
     data() {
         return {
             placeholder: {
@@ -95,6 +94,9 @@ export default {
                 month: 'mm',
                 day: 'dd'
             },
+            fromLabel: 'From',
+            tillLabel: 'Till',
+            exactLabel: 'Exact / From',
             range: {
                 from: {
                     day: null,
@@ -125,14 +127,20 @@ export default {
         value: {
             deep: true,
             handler(val) {
-                // console.log('value watch')
-                // console.log(val)
-                if ( typeof val === 'object' ) {
+                if (typeof val === 'object') {
                     this.range = JSON.parse(JSON.stringify(val));
                 } else {
                     this.range = JSON.parse(JSON.stringify(val))
                 }
             }
+        }
+    },
+    computed: {
+        hasFrom() {
+            return this.range.from.year !== "" || this.range.from.month !== "" || this.range.from.day !== "";
+        },
+        hasTill() {
+            return this.range.till.year !== "" || this.range.till.month !== "" || this.range.till.day !== "";
         }
     },
     methods: {
@@ -142,7 +150,7 @@ export default {
             }
             return value;
         },
-        onChange: _debounce(function(e) {
+        onChange: _debounce(function (e) {
             this.updateModelValue(this.range, this.value)
         }, 300)
     }
@@ -153,13 +161,11 @@ export default {
 .field-DMYRange {
     .input-group {
 
-      & + .input-group {
-        margin-top: 5px;
-      }
-    
+        & + .input-group {
+            margin-top: 5px;
+        }
+
         span {
-            min-width: 63px;
-            justify-content: center;
         }
 
         input {

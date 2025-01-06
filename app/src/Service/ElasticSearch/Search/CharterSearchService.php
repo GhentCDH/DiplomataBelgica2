@@ -51,8 +51,7 @@ class CharterSearchService extends AbstractSearchService
             'dating_charter' => [
                 'type' => self::FILTER_DMY_RANGE,
                 'aggregationFilter' => false, // filter can be applied before aggregations
-                'nestedPath' => 'udt',
-                'field' => ''
+                'field' => 'udt'
             ],
 
             'fulltext' => [
@@ -215,13 +214,13 @@ class CharterSearchService extends AbstractSearchService
             'limit' => 25,
             'page' => 1,
             'ascending' => 1,
-            'orderBy' => ['id'],
+            'orderBy' => ['date_sort'],
         ];
     }
 
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'published', 'summary', 'actors','udt','date'];
+        $returnProps = ['id', 'published', 'summary', 'actors','datations', 'date_sort'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 
@@ -233,13 +232,8 @@ class CharterSearchService extends AbstractSearchService
         // convert orderBy field to elastic field expression
         if (isset($params['orderBy'])) {
             switch ($params['orderBy']) {
-                case 'title':
-                    $params['orderBy'] = ['title.keyword'];
-                    break;
                 case 'id':
-                    $params['orderBy'] = [ $params['orderBy'] ];
-                    break;
-                case 'date':
+                case 'date_sort':
                     $params['orderBy'] = [ $params['orderBy'] ];
                     break;
                 default:
@@ -247,7 +241,6 @@ class CharterSearchService extends AbstractSearchService
                     break;
             }
         }
-
         return parent::sanitizeSearchParameters($params);
     }
 
