@@ -334,7 +334,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         if ( count($arrFieldPrefix) ) {
             $fieldPrefix = implode('.', $arrFieldPrefix).'.';
             // add missing field prefix?
-            if ( isset($config['field']) && !str_starts_with($config['field'], $fieldPrefix) ) {
+            if ( isset($config['field']) && $config['field'] && !(str_starts_with($config['field'], $fieldPrefix) || $fieldPrefix === $config['field'].'.') ) {
                 $config['field'] = $fieldPrefix.$config['field'];
             }
         }
