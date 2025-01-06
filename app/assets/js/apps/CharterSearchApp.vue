@@ -333,7 +333,11 @@ export default {
             tableOptions: {
                 filterByColumn: false,
                 filterable: false,
-                headings: {},
+                headings: {
+                    id: 'Id',
+                    summary: 'Summary',
+                    date_sort: 'Date',
+                },
                 columnsClasses: {
                     id: 'no-wrap ',
                     date: 'no-wrap ',
