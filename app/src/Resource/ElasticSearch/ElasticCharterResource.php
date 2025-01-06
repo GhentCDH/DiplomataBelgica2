@@ -33,12 +33,12 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
         $ret['edition_indications'] = ElasticBaseResource::collection($charter->edition_indications);
         $ret['secondary_literature_indications'] = ElasticBaseResource::collection($charter->secondary_literature_indications);
         $ret['copies'] = ElasticBaseResource::collection($charter->copies);
-        $ret['datations'] = ElasticBaseResource::collection($charter->datations);
+        $ret['datations'] = ElasticBaseResource::collection($charter->datations)->toArray();
         $ret['originals'] = ElasticBaseResource::collection($charter->originals);
         $ret['vidimuses'] = ElasticBaseResource::collection($charter->vidimuses);
         $ret['images'] = [];
         $ret['imageUrls'] = [];
-        $ret['date'] = [];
+        $ret['date_sort'] = [];
         $ret['actor_name'] = [];
         $ret['actor_capacity'] = [];
         $ret['actor_place'] = [];
@@ -46,8 +46,7 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
         $ret['actor_principality'] = [];
         $ret['actor_order'] = [];
 
-        ##### flatten required fields for full text searching
-                
+        // flatten required fields for full text searching
         foreach ($ret['actors'] as $value) {
             if (isset($value['order']))  {
                 array_push($ret['actor_order'], $value['order']['name']);
@@ -68,20 +67,12 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
                 array_push($ret['actor_capacity'], $value['capacity']['name']);
             }
         }
-        
-        if (count($ret['udt']) > 0 ) {
-            foreach ($ret['udt'] as $value) {
-                if ( ($value['year'] != 0 ) && ($value['month'] != 0 ) && ($value['day'] != 0 ) ) {
-                    array_push($ret['date'],strtotime(strval($value['year']) . '-' . strval($value['month']) . '-' . strval($value['day'])));
-                    // echo strval($value['year']) . '-' . strval($value['month']) . '-' . strval($value['day']) ;
-                } elseif ( ($value['year'] != 0 ) && ($value['month'] != 0 ) && ($value['day'] == 0 ) ) {
-                    array_push($ret['date'],strtotime(strval($value['year']) . '-' . strval($value['month']) . '-28'));
-                    // echo strval($value['year']) . '-' . strval($value['month'] . '- 28' ) ; 
-                } elseif ( ($value['year'] != 0 ) && ($value['month'] == 0 ) && ($value['day'] == 0 ) ) {
-                    array_push($ret['date'],strtotime(strval($value['year']) . '-12-31')); 
-                    // echo strval($value['year']) . '-12-31';
-                } else {
-                    array_push($ret['date'],NULL);
+
+        // calculate sort date (based on preferential date)
+        if (count($ret['datations']) > 0 ) {
+            foreach ($ret['datations'] as $date) {
+                if ($date['preference'] == 1) {
+                    $ret['date_sort'][] = ($date['time']['month'] ?? 1) * 12 + ($date['time']['day'] ?? 1) + ($date['time']['year']*366);
                 }
             }
         }          
@@ -117,8 +108,6 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
         ) ? 1 : 0 );
 
         $ret['image_count'] = count($ret['images']);
-
-
 
         return $ret;
     }

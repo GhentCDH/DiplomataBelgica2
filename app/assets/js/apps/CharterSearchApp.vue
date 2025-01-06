@@ -74,10 +74,8 @@
                             <template #summary="props">
                                 <charter-search-summary :charter="props.row"></charter-search-summary>
                             </template>
-                            <template #date="props">
-                                <a target="_blank" v-if="props.row.udt.length">
-                                    {{ getDate(props.row.udt) }}
-                                </a>
+                            <template #date_sort="props">
+                                {{ formatDatationTime(getPreferentialDate(props.row.datations)) }}
                             </template>
                         </v-server-table>
                     </div>
@@ -337,14 +335,16 @@ export default {
                 filterable: false,
                 headings: {},
                 columnsClasses: {
-                    name: 'no-wrap',
+                    id: 'no-wrap ',
+                    date: 'no-wrap ',
                 },
                 orderBy: {
-                    'column': 'id'
+                    'column': 'date_preferential'
                 },
+                addSortedClassToCells: true,
                 perPage: 25,
                 perPageValues: [25, 50, 100],
-                sortable: ['id', 'date'],
+                sortable: ['id', 'date_sort'],
                 customFilters: ['filters'],
                 requestFunction: AbstractSearch.requestFunction,
                 rowClassCallback: function (row) {
@@ -355,6 +355,7 @@ export default {
                     show: false,
                     chunk: 5
                 },
+                sortIcon: {base: 'fa-solid', up: 'fa-chevron-up', down: 'fa-chevron-down', is: 'fa-sort'}
             },
             submitModel: {
                 submitType: 'charter',
@@ -372,7 +373,7 @@ export default {
     },
     computed: {
         tableColumns() {
-            let columns = ['id', 'summary', 'date']
+            let columns = ['id', 'summary', 'date_sort']
             return columns
         },
         markers() {
@@ -425,22 +426,14 @@ export default {
             }
             return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
         },
-        getDate(udt) {
-            if (udt.length > 1) {
-                var year = []
-                for (let date of udt) {
-                    year.push(date.year);
-                }
-                year.sort();
-                if (year[0] == year[1]) {
-                    var display = year[0].toString();
-                } else {
-                    var display = year[0].toString().concat(" - ", year[1]);
-                }
-            } else {
-                var display = udt[0].year.toString();
+        getPreferentialDate(datations) {
+            return datations.find((datation) => datation.preference)
+        },
+        formatDatationTime(datation) {
+            if (!datation?.time) {
+                return ''
             }
-            return display
+            return [datation.time.day, datation.time.month, datation.time.year].filter((x) => x).join('/')
         },
         onAutocomplete(field) {
             const that = this
@@ -478,7 +471,7 @@ export default {
             const modelKey = field.model
             const actorIndex = modelKey.split('_').pop()
             const actorFields = [ ...getActorFields(actorIndex), ...(actorIndex > 1 ? getActorFields(actorIndex - 1) : []) ]
-            let res = actorFields.filter((key) => model?.[key] && model?.[key].length > 0)
+            let res = actorFields.filter((key) => model?.[key] && model?.[key]?.length > 0)
             return res.length > 0
         },
     },
