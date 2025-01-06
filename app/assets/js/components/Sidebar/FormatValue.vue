@@ -1,12 +1,14 @@
 <template>
-    <span v-if="value != null">
-        <a v-if="url" :href="url" target="_blank">{{ formatValue(value) }}</a>
-        <template v-else>
-        {{ formatValue(value) }}
+    <span v-if="value || unknown !== false">
+        <template v-if="value">
+            <a v-if="url" :href="url" target="_blank">{{ formatValue(value) }}</a>
+            <template v-else>
+                {{ formatValue(value) }}
+            </template>
         </template>
-    </span>
-  <span v-else>
-        {{ unknown }}
+        <template v-if="value == null && unknown !== false">
+            {{ unknown }}
+        </template>
     </span>
 </template>
 
@@ -18,7 +20,7 @@ export default {
       type: String|Number
     },
     unknown: {
-      type: String,
+      type: [Boolean, String],
       default: 'unknown'
     },
     url: {
@@ -39,13 +41,10 @@ export default {
           if ( value ) {
             return (value.start === value.end ? value.start : value.start + ' - ' + value.end)
           }
-
           break;
         case 'id_name':
-
           return value.name;
           break;
-
         default:
           return value
       }
