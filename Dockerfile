@@ -96,14 +96,15 @@ RUN mkdir -p -m 0600 ~/.ssh && \
 # copy sources
 RUN mkdir -p var/cache var/log public
 
-COPY config ./config
-COPY bin ./bin
-COPY migrations ./migrations
-COPY public ./public
-COPY src ./src
-COPY translations ./translations
-COPY public/index.php ./public
-COPY public/.htaccess ./public
+COPY app/bin ./bin
+COPY app/config ./config
+COPY app/migrations ./migrations
+COPY app/src ./src
+COPY app/templates ./templates
+COPY app/translations ./translations
+COPY app/public/index.php ./public/
+COPY app/public/.htaccess ./public/
+COPY app/composer.* ./
 
 # install composer dependencies
 RUN --mount=type=ssh \
