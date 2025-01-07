@@ -178,9 +178,10 @@ export default {
                         legend: 'Images',
                         fields: [
                             {
-                                label: 'Has images',
-                                type: 'checkbox',
+                                label: 'Images available',
+                                type: 'checkboxBS5',
                                 model: 'has_images',
+                                labelClasses: 'd-none',
                             },
                         ]
                     },
