@@ -71,8 +71,8 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
         // calculate sort date (based on preferential date)
         if (count($ret['datations']) > 0 ) {
             foreach ($ret['datations'] as $date) {
-                if ($date['preference'] == 1) {
-                    $ret['date_sort'][] = ($date['time']['month'] ?? 1) * 12 + ($date['time']['day'] ?? 1) + ($date['time']['year']*366);
+                if ($date['preference'] == 0) {
+                    $ret['date_sort'][] = ($date['time']['month'] ?? 0) * 12 + ($date['time']['day'] ?? 0) + ($date['time']['year'] ?? 0)*366;
                 }
             }
         }          
