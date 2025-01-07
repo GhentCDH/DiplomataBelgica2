@@ -30,6 +30,18 @@
     }
   }
 
+  .multiselect__select {
+    position: absolute;
+    top: unset;
+    bottom: 2px;
+    right: 8px;
+  }
+
+  .multiselect__clear {
+    position: absolute;
+    top: 7px;
+    right: 8px;
+  }
 }
 
 

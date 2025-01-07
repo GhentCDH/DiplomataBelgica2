@@ -197,7 +197,7 @@ export default {
                             }),
                             this.createMultiSelect('Religious Order', {
                                 model: 'actor_order_name_1',
-                                styleClasses: 'actor actor-1'
+                                styleClasses: 'actor actor-1 !mbottom-default'
                             }),
 
                             {
@@ -231,7 +231,7 @@ export default {
                             }),
                             this.createMultiSelect('Religious Order', {
                                 model: 'actor_order_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-2 !mbottom-default', visible: this.actorFieldIsVisible
                             }),
 
                             {
@@ -265,7 +265,7 @@ export default {
                             }),
                             this.createMultiSelect('Religious Order', {
                                 model: 'actor_order_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-3 !mbottom-default', visible: this.actorFieldIsVisible
                             }),
 
                         ]
@@ -284,7 +284,8 @@ export default {
                                 type: 'checkboxBS5',
                                 model: 'dating_scholary_preferential',
                                 label: 'Preferential dates only',
-                                labelClasses: 'd-none'
+                                labelClasses: 'd-none',
+                                default: true,
                             },
                             {
                                 type: 'DMYRange',
@@ -322,9 +323,10 @@ export default {
                         legend: 'Images',
                         fields: [
                             {
-                                label: 'Has images',
-                                type: 'checkbox',
+                                label: 'Images available',
+                                type: 'checkboxBS5',
                                 model: 'has_images',
+                                labelClasses: 'd-none',
                             },
                         ]
                     },
@@ -365,7 +367,7 @@ export default {
                 submitType: 'charter',
                 person: {},
             },
-            defaultOrdering: 'id',
+            defaultOrdering: 'date_sort',
             mapVisible: null
         }
 
