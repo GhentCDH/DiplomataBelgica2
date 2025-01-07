@@ -137,10 +137,10 @@ export default {
     },
     computed: {
         hasFrom() {
-            return this.range.from.year !== "" || this.range.from.month !== "" || this.range.from.day !== "";
+            return !!this.range.from.year || !!this.range.from.month || !!this.range.from.day;
         },
         hasTill() {
-            return this.range.till.year !== "" || this.range.till.month !== "" || this.range.till.day !== "";
+            return !!this.range.till.year || !!this.range.till.month || !!this.range.till.day;
         }
     },
     methods: {
