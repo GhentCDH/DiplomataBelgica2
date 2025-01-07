@@ -140,6 +140,7 @@ export default {
         let data = {
             model: {
                 date_search_type: 'exact',
+                dating_scholary_preferential: true,
             },
             persons: null,
             schema: {
