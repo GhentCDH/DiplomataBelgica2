@@ -1,8 +1,8 @@
 <template>
     <div class="actor actor--flat">
         <FormatValue :value="actor.capacity" type="id_name" :unknown="false" />
-        <FormatValue :value="actor.name.name" :unknown="false" />
         <FormatValue :value="actor.place" type="id_name" :unknown="false" />
+        <FormatValue :value="actor.name.name" :unknown="false" />
     </div>
 </template>
 
