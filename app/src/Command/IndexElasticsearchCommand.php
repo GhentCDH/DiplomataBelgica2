@@ -42,6 +42,7 @@ class IndexElasticsearchCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $chunkSize = 200;
 
         $count = 0;
         $maxItems = $input->getArgument('maxItems');
@@ -73,22 +74,22 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     /*** @var $repository RepositoryInterface */
+                    Charter::setLocale('en');
                     foreach( $repositories as $repository_name ) {
                         $repository = $this->container->get($repository_name);
-                        $repository->indexQuery()->chunk(100,
-                            function($res) use ($service, &$count, $progressBar, $maxItems) {
+                        $repository->indexQuery()->chunk($chunkSize,
+                            function($traditions) use ($service, &$count, $progressBar, $maxItems, $chunkSize) {
                                 if ( $maxItems && $count >= $maxItems ) {
                                     return false;
                                 }
 
-                                /** @var Charter $charter */
-                                foreach ($res as $charter) {
-                                    $res = new ElasticTraditionResource($charter->translate('en'));
-                                    $service->add($res);
-                                    $count++;
-                                }
+                                // index traditions
+                                $traditionResources = ElasticTraditionResource::collection($traditions);
+                                $count += $traditionResources->count();
+                                $service->addMultiple($traditionResources);
 
-                                $progressBar->advance(100);
+                                // update progress bar
+                                $progressBar->advance($chunkSize);
                             });
                     }
 
@@ -112,19 +113,19 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     $repository->indexQuery()->chunk(100,
-                        function($res) use ($service, &$count, $progressBar, $maxItems) {
+                        function($charters) use ($service, &$count, $progressBar, $maxItems, $chunkSize): bool {
                             if ( $maxItems && $count >= $maxItems ) {
                                 return false;
                             }
 
-                            /** @var Charter $charter */
-                            foreach ($res as $charter) {
-                                $res = new ElasticCharterResource($charter->translate('en'));
-                                $service->add($res);
-                                $count++;
-                            }
+                            // index charters
+                            $charterResources = ElasticCharterResource::collection($charters);
+                            $count += $charterResources->count();
+                            $service->addMultiple($charterResources);
 
-                            $progressBar->advance(100);
+                            // update progress bar
+                            $progressBar->advance($chunkSize);
+                            return true;
                         });
 
                     $service->switchToNewIndex($indexName);
