@@ -16,7 +16,7 @@ class ElasticTraditionCharterResource extends ElasticBaseResource
             $actor = $this->resource->actors;
             $ret['id'] = $this->resource->getId();
             $ret['datations'] = $this->resource->datations;
-            $ret['actors'] = ElasticActorResource::collection ($actor);
+            $ret['actors'] = ElasticActorResource::collection($actor);
 
             return $ret;
         }
