@@ -360,6 +360,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
         $config['countTopDocuments'] = (bool) ($config['countTopDocuments'] ?? True);
 
+        $config['countMissing'] = (bool) ($config['countMissing'] ?? false);
+        $config['countAny'] = (bool) ($config['countAny'] ?? false);
         $config['anyKey'] = $config['anyKey'] ?? self::ANY_KEY;
         $config['anyLabel'] = $config['anyLabel'] ?? self::ANY_LABEL;
         $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
@@ -1557,15 +1559,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $aggParentQuery->addAggregation($aggTerm);
 
                     // count missing
-                    $aggCountMissing = new Aggregation\Missing('count_missing', $aggField);
-                    $aggIsNested && $countTopDocuments && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-                    $aggParentQuery->addAggregation($aggCountMissing);
+                    if ($config['countMissing'] ?? false) {
+                        $aggCountMissing = new Aggregation\Missing('count_missing', $aggField);
+                        $aggIsNested && $countTopDocuments && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                        $aggParentQuery->addAggregation($aggCountMissing);
+                    }
                     // count any
-                    $aggCountAny = new Aggregation\Filters('count_any');
-                    $aggIsNested && $countTopDocuments && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-                    $aggCountAny->addFilter(new Query\Exists($aggField));
-
-                    $aggParentQuery->addAggregation($aggCountAny);
+                    if ($config['countAny'] ?? false) {
+                        $aggCountAny = new Aggregation\Filters('count_any');
+                        $aggIsNested && $countTopDocuments && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                        $aggCountAny->addFilter(new Query\Exists($aggField));
+                        $aggParentQuery->addAggregation($aggCountAny);
+                    }
                     break;
             }
         }
@@ -1625,31 +1630,35 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
 
                     // get none count
-                    $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
-                    if ( $aggResults['doc_count'] ?? null) {
-                        $item = [
-                            'id' => $aggConfig['noneKey'],
-                            'name' => $aggConfig['noneLabel'],
-                            'count' => (int) ($aggResults['top_reverse_nested']['doc_count'] ?? $aggResults['doc_count'])
-                        ];
-                        if ( in_array((int) $aggConfig['noneKey'], $aggFilterValues) ) {
-                            $item['active'] = true;
+                    if ($aggConfig['countMissing'] ?? false) {
+                        $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
+                        if ( $aggResults['doc_count'] ?? null) {
+                            $item = [
+                                'id' => $aggConfig['noneKey'],
+                                'name' => $aggConfig['noneLabel'],
+                                'count' => (int) ($aggResults['top_reverse_nested']['doc_count'] ?? $aggResults['doc_count'])
+                            ];
+                            if ( in_array((int) $aggConfig['noneKey'], $aggFilterValues) ) {
+                                $item['active'] = true;
+                            }
+                            $items[] = $item;
                         }
-                        $items[] = $item;
                     }
 
                     // get any count
-                    $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
-                    if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
-                        $item = [
-                            'id' => $aggConfig['anyKey'],
-                            'name' => $aggConfig['anyLabel'],
-                            'count' => (int) ($aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count'])
-                        ];
-                        if ( in_array((int) $aggConfig['anyKey'], $aggFilterValues) ) {
-                            $item['active'] = true;
+                    if ($aggConfig['countAny'] ?? false) {
+                        $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
+                        if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
+                            $item = [
+                                'id' => $aggConfig['anyKey'],
+                                'name' => $aggConfig['anyLabel'],
+                                'count' => (int) ($aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count'])
+                            ];
+                            if ( in_array((int) $aggConfig['anyKey'], $aggFilterValues) ) {
+                                $item['active'] = true;
+                            }
+                            $items[] = $item;
                         }
-                        $items[] = $item;
                     }
 
                     // get values
