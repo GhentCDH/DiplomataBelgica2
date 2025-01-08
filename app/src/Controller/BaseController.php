@@ -2,9 +2,7 @@
 namespace App\Controller;
 
 use App\Service\ElasticSearch\Base\SearchServiceInterface;
-use Illuminate\Container\Container;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
