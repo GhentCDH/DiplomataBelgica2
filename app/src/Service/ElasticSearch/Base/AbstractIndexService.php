@@ -68,20 +68,6 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
 
     public function addMultiple(ResourceCollection $resources): void
     {
-        /*
-        $json_array = $resources->toJson();
-
-        $bulk_documents = [];
-        while (count($elastics) > 0) {
-            $bulk_contents = array_splice($elastics, 0, 500);
-            foreach ($bulk_contents as $bc) {
-                $bulk_documents[] = new Document($resource->getId(), $resource->getJson());
-            }
-            $this->getIndex()->addDocuments($bulk_documents);
-            $bulk_documents = [];
-        }
-        $this->getIndex()->refresh();
-        */
         $documents = [];
         foreach( $resources as $resource ) {
             $documents[] = new Document($resource->getId(), $resource->toJson());
