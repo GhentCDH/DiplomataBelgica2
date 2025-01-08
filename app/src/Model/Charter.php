@@ -51,10 +51,11 @@ class Charter extends AbstractModel
         'edition_indication_published' => 'boolean'
     ];
     protected $with = [
-        'place', 'edition_indication', 'edition', 'authenticity',
-        'nature', 'language', 'type', 'udt', 'actors', 'actors.pivot.role', 'codexes',
-        'edition_indications', 'secondary_literature_indications',
-        'copies', 'datations', 'originals', 'vidimuses'
+//        'place',
+//        'edition_indication', 'edition', 'authenticity',
+//        'nature', 'language', 'type', 'udt', 'actors', 'actors.pivot.role', 'codexes',
+//        'edition_indications', 'secondary_literature_indications',
+//        'copies', 'datations', 'originals', 'vidimuses'
     ];
 
     /**
@@ -138,6 +139,21 @@ class Charter extends AbstractModel
         return $this->belongsToMany(Actor::class)
             ->using(Charter_Actor::class)
             ->withPivot('charter_actor_role_id');
+    }
+
+    public function issuers(): BelongsToMany
+    {
+        return $this->actors()->using(Charter_Actor::class)->wherePivot('charter_actor_role_id', 2);
+    }
+
+    public function beneficiaries(): BelongsToMany
+    {
+        return $this->actors()->using(Charter_Actor::class)->wherePivot('charter_actor_role_id', 3);
+    }
+
+    public function disposants(): BelongsToMany
+    {
+        return $this->actors()->using(Charter_Actor::class)->wherePivot('charter_actor_role_id', 1);
     }
 
     /**
