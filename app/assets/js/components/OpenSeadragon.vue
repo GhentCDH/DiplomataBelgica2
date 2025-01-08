@@ -53,7 +53,7 @@ export default {
                         id: this.id,
                         prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@2.4/build/openseadragon/images/',
                         tileSources: this.IIIFImageUrl,
-                        maxZoomLevel: 2,
+                        maxZoomLevel: 5,
                     })
                 }
             }
