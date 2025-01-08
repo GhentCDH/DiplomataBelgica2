@@ -31,6 +31,10 @@ trait TraitLocalizedAttributes {
         return $this;
     }
 
+    public static function setLocale(string $locale) {
+        static::$locale = $locale;
+    }
+
     /**
      * Check if attributed is localized
      * @param string $key

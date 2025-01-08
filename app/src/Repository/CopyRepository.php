@@ -11,6 +11,10 @@ use Illuminate\Database\Eloquent\Builder;
 class CopyRepository extends AbstractRepository
 {
     // auto load relations
-    protected $relations = [];
+    protected $relations = [
+        'charter',
+        'charter.datations',
+        'charter.actors',
+    ];
     protected $model = Copy::class;
 }

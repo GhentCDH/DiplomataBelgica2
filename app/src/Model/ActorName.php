@@ -27,7 +27,7 @@ class ActorName extends AbstractModel
         'actor_standardized_name_published' => 'boolean'
     ];
     protected $with = [
-        'standardizedName'
+//        'standardizedName'
     ];
 
     /**

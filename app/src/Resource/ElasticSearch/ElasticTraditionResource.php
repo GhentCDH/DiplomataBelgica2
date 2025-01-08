@@ -29,7 +29,7 @@ class ElasticTraditionResource extends ElasticBaseResource
     {
         $resource = $this->resource;
 
-        $ret = $this->attributesToArray(true);
+        $ret = $this->attributesToArray();
 
         // shared relations
         $ret['urls'] = ElasticBaseResource::collection($resource->urls);
@@ -53,7 +53,7 @@ class ElasticTraditionResource extends ElasticBaseResource
         //     $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
         // }
 
-        if ($ret['type'] == 'original' or 'copy') {
+        if ($ret['type'] == 'original' || $ret['type'] == 'copy') {
             $ret['charters'] = ElasticTraditionCharterResource::collection([$this->charter]);
         }
 
