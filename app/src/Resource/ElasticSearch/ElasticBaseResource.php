@@ -44,7 +44,7 @@ class ElasticBaseResource extends BaseResource
             return [];
         }
 
-        $ret = parent::toArray(null);
+        $ret = $this->resource->attributesToArray();
 
         // add id_name if resource has name property
         $ret['id_name'] = $this->when(is_string($this->resource->getAttribute('name')), $this->resource->getId().'_'.$this->resource->name);
