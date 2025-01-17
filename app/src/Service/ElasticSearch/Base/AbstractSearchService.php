@@ -78,18 +78,19 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Pagination
         if (isset($params['limit']) && is_numeric($params['limit'])) {
-            $result['limit'] = $params['limit'];
+            $result['limit'] = intval($params['limit']);
         }
         if (isset($params['page']) && is_numeric($params['page'])) {
-            $result['page'] = $params['page'];
+            $result['page'] = intval($params['page']);
         }
 
         // Sorting
         if (isset($params['orderBy'])) {
-            if (isset($params['ascending']) && ($params['ascending'] == '0' || $params['ascending'] == '1')) {
-                $result['ascending'] = intval($params['ascending']);
-            }
-            $result['orderBy'] = $params['orderBy'];
+            $result['orderBy'] = is_array($params['orderBy']) ? $params['orderBy'] : [$params['orderBy']];
+        }
+        $result['ascending'] = true;
+        if (isset($params['ascending'])) {
+            $result['ascending'] = !in_array($params['ascending'], [0, '0', 'false', 'False'], true);
         }
 
         return $result;
@@ -625,13 +626,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 break;
             case self::FILTER_TEXT_PREFIX:
                 if ( $filterValue ) {
-//                    $filterQuery = [
-//                        'match_bool_prefix' => [
-//                            $filterField => [
-//                                'query' => $filterValue[0]
-//                            ]
-//                        ]
-//                    ];
                     $filterQuery = new Query\MatchPhrasePrefix();
                     $filterQuery->setFieldQuery($filterField, $filterValue[0]);
                     $query->addMust($filterQuery);
@@ -982,11 +976,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Sorting
         if (isset($searchParams['orderBy'])) {
-            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
-                $order = 'desc';
-            } else {
-                $order = 'asc';
-            }
+            $order = $searchParams['ascending'] ? 'asc' : 'desc';
             $sort = [];
             foreach ($searchParams['orderBy'] as $field) {
                 $sort[] = [$field => $order];
@@ -998,7 +988,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query->setTrackTotalHits();
 
         // Filtering
-//        dump($params);
         $searchFilters = $params['filters'] ?? [];
         if (count($searchFilters)) {
             $this->debug && dump($searchFilters);
@@ -1101,11 +1090,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Sorting
         if (isset($searchParams['orderBy'])) {
-            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
-                $order = 'desc';
-            } else {
-                $order = 'asc';
-            }
+            $order = $searchParams['ascending'] ? 'asc' : 'desc';
             $sort = [];
             foreach ($searchParams['orderBy'] as $field) {
                 $sort[] = [$field => $order];
@@ -1390,7 +1375,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                 }
 
-                // add filter query to aggretation (if not empty)
+                // add filter query to aggregation (if not empty)
                 if ($filterQuery->count()) {
                     $aggSubQuery = new Aggregation\Filter($aggName);
                     $aggSubQuery->setFilter($filterQuery);
