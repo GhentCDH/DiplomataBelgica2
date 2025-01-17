@@ -677,13 +677,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             case self::FILTER_TEXT:
                 $query->addMust(self::constructTextQuery($filterField, $filterValue, $filterConfig));
                 break;
-            case self::FILTER_TEXT_MULTIPLE:
-                $subQuery = new Query\BoolQuery();
-                foreach ($filterValue as $field => $value) {
-                    $subQuery->addShould(self::constructTextQuery($field, $value));
-                }
-                $query->addMust($subQuery);
-                break;
+            case self::FILTER_QUERYSTRING:
+                $query->addMust((new Query\QueryString($filterValue))->setDefaultField($filterField)->setAnalyzeWildcard());
             case self::FILTER_NUMERIC_RANGE_SLIDER:
                 $floorField = $filterConfig['floorField'] ?? $filterConfig['field'] ?? $filterName;
                 $ceilingField = $filterConfig['ceilingField'] ?? $filterConfig['field'] ?? $filterName;
@@ -1206,6 +1201,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $filterType = $filterConfig[$filterName]['type'] ?? false;
             switch ($filterType) {
                 case self::FILTER_TEXT:
+                case self::FILTER_QUERYSTRING:
                     $field = $filterValue['field'] ?? $filterName;
                     $highlights['fields'][$filterName] = new \stdClass();
                     break;
