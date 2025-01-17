@@ -262,12 +262,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
 
                 break;
-            case self::FILTER_TEXT_MULTIPLE:
-                if ($filterValue === null) break;
-                if (is_array($filterValue)) {
-                    $ret['value'] = $filterValue;
-                }
-                break;
             case self::FILTER_TEXT:
                 if ($filterValue === null) break;
                 if (is_array($filterValue)) {
@@ -681,7 +675,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $query->addMust($filterQuery);
                 break;
             case self::FILTER_TEXT:
-                $query->addMust(self::constructTextQuery($filterField, $filterValue));
+                $query->addMust(self::constructTextQuery($filterField, $filterValue, $filterConfig));
                 break;
             case self::FILTER_TEXT_MULTIPLE:
                 $subQuery = new Query\BoolQuery();
@@ -941,72 +935,30 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      * @param array $value Array with [combination] of match (any, all, phrase), the [text] to search for and optionally the [field] to search in (if not provided, $key is used)
      * @return AbstractQuery
      */
-    protected static function constructTextQuery(string $key, array $value): AbstractQuery
+    protected static function constructTextQuery(string $field, array $value, array $filterConfig): AbstractQuery
     {
-        // Verse initialization
-        if (isset($value['init']) && $value['init']) {
-            return new Query\MatchPhrase($key, $value['text']);
-        }
-
-        $field = $value['field'] ?? $key;
         // Replace multiple spaces with a single space
         $text = preg_replace('!\s+!', ' ', $value['text']);
+        $combination = $value['combination'] ?? 'any';
 
         // Remove colons
         $text = str_replace(':', '', $text);
 
-        // Queries with slop and fuzziness and group of words
-        // Convert /10() or () -> ("")~10 () ($pattern = "!/\d+\([^()]*\)(\s\w+)?|\([^()]*\)(\s\w+)?")
-        preg_match_all('!/\d+\([^()]*\)(\s\w+\s)?|\([^()]*\)(\s\w+\s)?!',$text, $match);
-        $modified_text = "";
-        if (sizeof($match[0]) >=1) {
-            for ($x = 0; $x < sizeof($match[0]); $x++) {
-                $single_group = $match[0][$x];
-                if (preg_match('!\/\d+!',$single_group) === 1) {
-                    preg_match('!\/\d+!',$single_group, $number_match);
-                    $number = str_replace(str_split('/'), '', $number_match[0]);
-                    preg_match('!\([^()]*\)!',$single_group, $brackets);
-                    $inside_brackets = str_replace(str_split('()'), '', $brackets[0]);
-                    
-                    if (preg_match('!\([^()]*\)(\s\w+\s)!',$single_group) ===1) {
-                        preg_match('!\)(\s\w+\s)!',$single_group, $concat);
-                        $concat_str = str_replace(str_split(')'), '', $concat[0]);
-                        $modified_text = $modified_text.'"'.$inside_brackets.'" ~'.$number.$concat_str;
-                    } else {
-                        $modified_text = $modified_text.'"'.$inside_brackets.'" ~'.$number;	
-                    }
+        // Check if user does not use advanced syntax
+        if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
+            if ($combination == 'phrase') {
+                if (preg_match('/[*?]/', $text) === 0) {
+                    $text = '"' . $text . '"';
                 } else {
-                    $modified_text = $modified_text.$single_group;
+                    $text = implode(' AND ', explode(' ', $text));
                 }
+            } elseif ($combination == 'all') {
+                $text = implode(' AND ', explode(' ', $text));
             }
-            $text = $modified_text;
         }
 
-        // Replace multiple spaces with a single space
-        $text = preg_replace('!\s+!', ' ', $text);
-
-        //     $text = str_replace(")", "", $text_array[1]);
-        //     $slop = str_replace("%","", $text_array[0]);
-
-        //     return (new Query\MatchPhrasePrefix($text));
-
-        // // Check if user does not use advanced syntax
-        // if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
-        //     if ($value['combination'] == 'phrase') {
-        //         if (preg_match('/[*?]/', $text) === 0) {
-        //             $text = '"' . $text . '"';
-        //         } else {
-        //             $text = implode(' AND ', explode(' ', $text));
-        //         }
-        //     } elseif ($value['combination'] == 'all') {
-        //         $text = implode(' AND ', explode(' ', $text));
-        //     }
-        // }
-
-        
-        return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzeWildcard();
+        return (new Query\QueryString($text))->setDefaultField($field);
     }
-
 
     protected function _search(array $params = null): array
     {
@@ -1083,16 +1035,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $filterValue = $filterValues[$filterName] ?? null;
                     if (isset($filterValue['field'])) {
                         $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                    }
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValues[$filterName] ?? null;
-                    if (is_array($filterValues)) {
-                        foreach ($filterValues as $filterValue) {
-                            if (isset($filterValue['field'])) {
-                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                            }
-                        }
                     }
                     break;
             }
@@ -1209,16 +1151,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
                     }
                     break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValues[$filterName] ?? null;
-                    if (is_array($filterValues)) {
-                        foreach ($filterValues as $filterValue) {
-                            if (isset($filterValue['field'])) {
-                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                            }
-                        }
-                    }
-                    break;
             }
         }
         foreach (($data['hits']['hits'] ?? []) as $result) {
@@ -1276,12 +1208,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 case self::FILTER_TEXT:
                     $field = $filterValue['field'] ?? $filterName;
                     $highlights['fields'][$filterName] = new \stdClass();
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    foreach ($filterValue as $key => $value) {
-                        $field = $value['field'] ?? $key;
-                        $highlights['fields'][$field] = new \stdClass();
-                    }
                     break;
             }
         }
@@ -1752,51 +1678,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     protected function isNestedAggregation($config): bool
     {
         return (in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD], true) || ($config['nestedPath'] ?? false));
-    }
-
-    protected function normalizeString(string $input): string
-    {
-        $result = $input;
-
-        // Get wildcard character position and remove wildcards
-        // question mark
-        $qPos = [];
-        $lastPos = 0;
-        while (($lastPos = strpos($result, '?', $lastPos)) !== false) {
-            $qPos[] = $lastPos;
-            $lastPos = $lastPos + strlen('*');
-        }
-        $result = str_replace('?', '', $result);
-        // asterisk
-        $aPos = [];
-        $lastPos = 0;
-        while (($lastPos = strpos($result, '*', $lastPos)) !== false) {
-            $aPos[] = $lastPos;
-            $lastPos = $lastPos + strlen('*');
-        }
-        $result = str_replace('*', '', $result);
-
-        $normalizedArray = $this->getIndex()->analyze(
-            [
-                'analyzer' => 'custom_greek_original',
-                'text' => $result,
-            ]
-        );
-        $normalizedTokens = [];
-        foreach ($normalizedArray as $token) {
-            $normalizedTokens[] = $token['token'];
-        }
-        $result = implode(' ', $normalizedTokens);
-
-        // Reinsert wildcards
-        foreach ($aPos as $a) {
-            $result = substr_replace($result, '*', $a, 0);
-        }
-        foreach ($qPos as $q) {
-            $result = substr_replace($result, '?', $q, 0);
-        }
-
-        return $result;
     }
 
     protected function sortAggregationResult(?array &$agg_result, array $aggConfig): void
