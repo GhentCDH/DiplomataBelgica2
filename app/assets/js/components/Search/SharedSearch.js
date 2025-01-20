@@ -52,7 +52,7 @@ export default {
             urls: {
                 paginate: this.getUrl('paginate'),
             },
-            count: this.data.count,
+            count: this?.data?.count ?? 0,
             params: this.getSearchParams()
         })
     }

@@ -2,7 +2,7 @@
     <div class="row search-app">
         <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical scrollable--mr">
             <div class="bg-tertiary padding-default">
-                <div v-if="showReset" class="form-group ptop-default">
+                <div v-if="showReset" class="form-group mbottom-default">
                     <button class="btn btn-primary" @click="resetAllFilters">
                         Reset all filters
                     </button>
@@ -10,7 +10,7 @@
                 <vue-form-generator
                     ref="form"
                     :model="model"
-                    :options="formOptions"
+                    :options="form.options"
                     :schema="schema"
                     @validated="onFormValidated"
                     @model-updated="onModelUpdated"
@@ -18,7 +18,7 @@
             </div>
         </aside>
 
-        <article class="col-sm-9 search-app__results">
+        <article class="col-sm-9 d-flex flex-column overflow-hidden _search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
 
@@ -37,57 +37,66 @@
                     </div>
                 </nav>
             </header>
-            <section>
-                <div class="tab-content w-100" id="nav-tabContent">
-                    <div class="tab-pane show active" id="nav-results" role="tabpanel"
+            <section class="d-flex flex-column flex-grow-1 overflow-hidden">
+                <div class="tab-content w-100 h-100 overflow-hidden" id="nav-tabContent">
+                    <div class="tab-pane show active w-100 h-100 overflow-hidden" id="nav-results" role="tabpanel"
                          aria-labelledby="nav-results-tab">
-                        <v-server-table
-                            ref="resultTable"
-                            :columns="tableColumns"
-                            :options="tableOptions"
-                            :url="urls['charter_search_api']"
-                            @data="onData"
-                            @loaded="onLoaded"
-                        >
-                            <template v-slot:beforeTable>
-                                <div class="VueTables__beforeTable row form-group">
-                                    <div class="VueTables__pagination col-lg-4">
-                                        <vt-pagination></vt-pagination>
-                                    </div>
-                                    <div class="VueTables__count col-lg-4 d-flex align-items-lg-center">
-                                        <vt-pagination-count></vt-pagination-count>
-                                    </div>
-                                    <div class="VueTables__limit col-lg-4 d-flex justify-content-lg-end">
-                                        <vt-per-page-selector
-                                            class="d-flex align-items-md-center"></vt-per-page-selector>
-                                    </div>
+                        <div class="d-flex flex-column w-100 h-100 overflow-hidden">
+                            <nav class="row form-group">
+                                <div class="col-lg-4 d-flex align-items-lg-center">
+                                    <b-pagination
+                                        :total-records="totalRecords"
+                                        :per-page="searchParams.limit"
+                                        :page="searchParams.page"
+                                        @update:page="onTablePagination"
+                                    ></b-pagination>
                                 </div>
-                            </template>
-                            <template #afterFilter>
-                                <b v-if="countRecords">{{ countRecords }}</b>
-                            </template>
-                            <template #id="props">
-                                <a target="_blank" :href="getCharterUrl(props.row.id, props.index)">
-                                    {{ props.row.id }}
-                                </a>
-                            </template>
-                            <template #summary="props">
-                                <charter-search-summary :charter="props.row"></charter-search-summary>
-                            </template>
-                            <template #date_sort="props">
-                                {{ formatDatationTime(getPreferentialDate(props.row.datations)) }}
-                            </template>
-                        </v-server-table>
+                                <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
+                                    <RecordCount :per-page="searchParams.limit" :total-records="totalRecords" :page="searchParams.page"></RecordCount>
+                                </div>
+                                <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
+                                    <b-select :id="'per-page'"
+                                              :label="'Per page'"
+                                              :selected="searchParams.page"
+                                              :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
+                                              @update:selected="onTableLimit"
+                                              class="w-auto"
+                                    ></b-select>
+                                </div>
+                            </nav>
+
+                            <div class="d-flex flex-grow-1 scrollable">
+                                <b-table :items="tableData"
+                                         :fields="tableOptions.fields"
+                                         :sort-by="searchParams.orderBy"
+                                         :sort-ascending="searchParams.ascending"
+                                         @sort="onTableSort"
+                                         class="table table-striped table-bordered table-hover m-0"
+                                >
+                                    <template #id="props">
+                                        <a target="_blank" :href="getCharterUrl(props.row.id, props.index)">
+                                            {{ props.row.id }}
+                                        </a>
+                                    </template>
+                                    <template #summary="props">
+                                        <charter-search-summary :charter="props.row"></charter-search-summary>
+                                    </template>
+                                    <template #date_sort="props">
+                                        {{ formatDatationTime(getPreferentialDate(props.row.datations)) }}
+                                    </template>
+                                </b-table>
+                            </div>
+                        </div>
                     </div>
-                    <div class="tab-pane" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
+                    <div class="tab-pane w-100 h-100" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
                         <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]"
-                                    v-if="mapVisible"></LeafletMap>
+                                    v-if="mapVisible" class="w-100 h-100"></LeafletMap>
                     </div>
                 </div>
             </section>
         </article>
         <div
-            v-if="openRequests"
+            v-if="searchClient.openRequests"
             class="loading-overlay"
         >
             <div class="spinner"/>
@@ -98,7 +107,7 @@
 import Vue from 'vue'
 
 import AbstractField from '../components/FormFields/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearch'
+import AbstractSearch from '../components/Search/AbstractSearchClient'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 
 import CharterSearchSummary from "../components/Charter/CharterSearchSummary.vue";
@@ -112,10 +121,12 @@ import FormatValue from "../components/Sidebar/FormatValue";
 import fieldDMYRange from '../components/FormFields/fieldDMYRange';
 import fieldCheckbox from '../components/FormFields/fieldCheckbox';
 
-import VtPerPageSelector from "vue-tables-2-premium/compiled/components/VtPerPageSelector";
-import VtPagination from "vue-tables-2-premium/compiled/components/VtPagination";
-import VtPaginationCount from "vue-tables-2-premium/compiled/components/VtPaginationCount";
 import qs from "qs";
+
+import BPagination from "../components/Bootstrap/BPagination.vue";
+import BSelect from "../components/Bootstrap/BSelect.vue";
+import RecordCount from "../components/Bootstrap/RecordCount.vue";
+import BTable from "../components/Bootstrap/BTable.vue";
 
 Vue.component('fieldDMYRange', fieldDMYRange);
 Vue.component('fieldCheckboxBS5', fieldCheckbox);
@@ -129,20 +140,18 @@ export default {
         CollapsibleGroups,
     ],
     components: {
+        RecordCount,
         CharterSearchSummary,
         FormatValue, LeafletMap,
-        VtPerPageSelector,
-        VtPagination,
-        VtPaginationCount
+        BPagination,
+        BSelect, BTable,
     },
     props: {},
     data() {
-        let data = {
+        return {
             model: {
-                date_search_type: 'exact',
                 dating_scholary_preferential: true,
             },
-            persons: null,
             schema: {
                 groups: [
                     {
@@ -334,54 +343,28 @@ export default {
                 ],
             },
             tableOptions: {
-                filterByColumn: false,
-                filterable: false,
-                headings: {
-                    id: 'Id',
-                    summary: 'Summary',
-                    date_sort: 'Date',
-                },
-                columnsClasses: {
-                    id: 'no-wrap ',
-                    date: 'no-wrap ',
-                },
+                fields: [
+                    {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
+                    {key: 'summary', label: 'Summary'},
+                    {key: 'date_sort', label: 'Date', sortable: true, thClass: 'no-wrap'},
+                ],
                 orderBy: {
-                    'column': 'date_preferential'
-                },
-                addSortedClassToCells: true,
-                perPage: 25,
-                perPageValues: [25, 50, 100],
-                sortable: ['id', 'date_sort'],
-                customFilters: ['filters'],
-                requestFunction: AbstractSearch.requestFunction,
-                rowClassCallback: function (row) {
-                    return '';
-                    // return (row.public == null || row.public) ? '' : 'warning'
+                    column: 'date_sort',
+                    ascending: false,
                 },
                 pagination: {
-                    show: false,
-                    chunk: 5
+                    chunk: 5,
+                    perPage: 25,
+                    page: 1,
+                    perPageValues: [25, 50, 100],
                 },
-                sortIcon: {base: 'fa-solid', up: 'fa-chevron-up', down: 'fa-chevron-down', is: 'fa-sort'}
             },
-            submitModel: {
-                submitType: 'charter',
-                person: {},
-            },
-            defaultOrdering: 'date_sort',
             mapVisible: null
         }
-
-        // Add view internal only fields
-        if (this.isViewInternal) {
-        }
-
-        return data
     },
     computed: {
-        tableColumns() {
-            let columns = ['id', 'summary', 'date_sort']
-            return columns
+        requestUrl() {
+            return this.urls['charter_search_api']
         },
         markers() {
             let places = this.aggregation?.charter_place_name ?? []
@@ -416,15 +399,9 @@ export default {
     },
     watch: {},
     methods: {
-        update() {
-            // Don't create a new history item
-            this.noHistory = true;
-            this.$refs.resultTable.refresh();
-        },
         updateMapVisibility(value) {
             this.mapVisible = value;
         },
-
         getCharterUrl(id, index) {
             let context = {
                 params: this.data.filters,
