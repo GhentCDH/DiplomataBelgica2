@@ -78,18 +78,19 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Pagination
         if (isset($params['limit']) && is_numeric($params['limit'])) {
-            $result['limit'] = $params['limit'];
+            $result['limit'] = intval($params['limit']);
         }
         if (isset($params['page']) && is_numeric($params['page'])) {
-            $result['page'] = $params['page'];
+            $result['page'] = intval($params['page']);
         }
 
         // Sorting
         if (isset($params['orderBy'])) {
-            if (isset($params['ascending']) && ($params['ascending'] == '0' || $params['ascending'] == '1')) {
-                $result['ascending'] = intval($params['ascending']);
-            }
-            $result['orderBy'] = $params['orderBy'];
+            $result['orderBy'] = is_array($params['orderBy']) ? $params['orderBy'] : [$params['orderBy']];
+        }
+        $result['ascending'] = true;
+        if (isset($params['ascending'])) {
+            $result['ascending'] = !in_array($params['ascending'], [0, '0', 'false', 'False'], true);
         }
 
         return $result;
@@ -261,12 +262,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $ret['value'] = $rangeFilter;
                 }
 
-                break;
-            case self::FILTER_TEXT_MULTIPLE:
-                if ($filterValue === null) break;
-                if (is_array($filterValue)) {
-                    $ret['value'] = $filterValue;
-                }
                 break;
             case self::FILTER_TEXT:
                 if ($filterValue === null) break;
@@ -631,13 +626,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 break;
             case self::FILTER_TEXT_PREFIX:
                 if ( $filterValue ) {
-//                    $filterQuery = [
-//                        'match_bool_prefix' => [
-//                            $filterField => [
-//                                'query' => $filterValue[0]
-//                            ]
-//                        ]
-//                    ];
                     $filterQuery = new Query\MatchPhrasePrefix();
                     $filterQuery->setFieldQuery($filterField, $filterValue[0]);
                     $query->addMust($filterQuery);
@@ -681,15 +669,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $query->addMust($filterQuery);
                 break;
             case self::FILTER_TEXT:
-                $query->addMust(self::constructTextQuery($filterField, $filterValue));
+                $query->addMust(self::constructTextQuery($filterField, $filterValue, $filterConfig));
                 break;
-            case self::FILTER_TEXT_MULTIPLE:
-                $subQuery = new Query\BoolQuery();
-                foreach ($filterValue as $field => $value) {
-                    $subQuery->addShould(self::constructTextQuery($field, $value));
-                }
-                $query->addMust($subQuery);
-                break;
+            case self::FILTER_QUERYSTRING:
+                $query->addMust((new Query\QueryString($filterValue))->setDefaultField($filterField)->setAnalyzeWildcard());
             case self::FILTER_NUMERIC_RANGE_SLIDER:
                 $floorField = $filterConfig['floorField'] ?? $filterConfig['field'] ?? $filterName;
                 $ceilingField = $filterConfig['ceilingField'] ?? $filterConfig['field'] ?? $filterName;
@@ -941,72 +924,30 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      * @param array $value Array with [combination] of match (any, all, phrase), the [text] to search for and optionally the [field] to search in (if not provided, $key is used)
      * @return AbstractQuery
      */
-    protected static function constructTextQuery(string $key, array $value): AbstractQuery
+    protected static function constructTextQuery(string $field, array $value, array $filterConfig): AbstractQuery
     {
-        // Verse initialization
-        if (isset($value['init']) && $value['init']) {
-            return new Query\MatchPhrase($key, $value['text']);
-        }
-
-        $field = $value['field'] ?? $key;
         // Replace multiple spaces with a single space
         $text = preg_replace('!\s+!', ' ', $value['text']);
+        $combination = $value['combination'] ?? 'any';
 
         // Remove colons
         $text = str_replace(':', '', $text);
 
-        // Queries with slop and fuzziness and group of words
-        // Convert /10() or () -> ("")~10 () ($pattern = "!/\d+\([^()]*\)(\s\w+)?|\([^()]*\)(\s\w+)?")
-        preg_match_all('!/\d+\([^()]*\)(\s\w+\s)?|\([^()]*\)(\s\w+\s)?!',$text, $match);
-        $modified_text = "";
-        if (sizeof($match[0]) >=1) {
-            for ($x = 0; $x < sizeof($match[0]); $x++) {
-                $single_group = $match[0][$x];
-                if (preg_match('!\/\d+!',$single_group) === 1) {
-                    preg_match('!\/\d+!',$single_group, $number_match);
-                    $number = str_replace(str_split('/'), '', $number_match[0]);
-                    preg_match('!\([^()]*\)!',$single_group, $brackets);
-                    $inside_brackets = str_replace(str_split('()'), '', $brackets[0]);
-                    
-                    if (preg_match('!\([^()]*\)(\s\w+\s)!',$single_group) ===1) {
-                        preg_match('!\)(\s\w+\s)!',$single_group, $concat);
-                        $concat_str = str_replace(str_split(')'), '', $concat[0]);
-                        $modified_text = $modified_text.'"'.$inside_brackets.'" ~'.$number.$concat_str;
-                    } else {
-                        $modified_text = $modified_text.'"'.$inside_brackets.'" ~'.$number;	
-                    }
+        // Check if user does not use advanced syntax
+        if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
+            if ($combination == 'phrase') {
+                if (preg_match('/[*?]/', $text) === 0) {
+                    $text = '"' . $text . '"';
                 } else {
-                    $modified_text = $modified_text.$single_group;
+                    $text = implode(' AND ', explode(' ', $text));
                 }
+            } elseif ($combination == 'all') {
+                $text = implode(' AND ', explode(' ', $text));
             }
-            $text = $modified_text;
         }
 
-        // Replace multiple spaces with a single space
-        $text = preg_replace('!\s+!', ' ', $text);
-
-        //     $text = str_replace(")", "", $text_array[1]);
-        //     $slop = str_replace("%","", $text_array[0]);
-
-        //     return (new Query\MatchPhrasePrefix($text));
-
-        // // Check if user does not use advanced syntax
-        // if (preg_match('/AND|OR|[\/~\-"()]/', $text) === 0) {
-        //     if ($value['combination'] == 'phrase') {
-        //         if (preg_match('/[*?]/', $text) === 0) {
-        //             $text = '"' . $text . '"';
-        //         } else {
-        //             $text = implode(' AND ', explode(' ', $text));
-        //         }
-        //     } elseif ($value['combination'] == 'all') {
-        //         $text = implode(' AND ', explode(' ', $text));
-        //     }
-        // }
-
-        
-        return (new Query\QueryString($text))->setDefaultField($field)->setAnalyzeWildcard();
+        return (new Query\QueryString($text))->setDefaultField($field);
     }
-
 
     protected function _search(array $params = null): array
     {
@@ -1035,11 +976,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Sorting
         if (isset($searchParams['orderBy'])) {
-            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
-                $order = 'desc';
-            } else {
-                $order = 'asc';
-            }
+            $order = $searchParams['ascending'] ? 'asc' : 'desc';
             $sort = [];
             foreach ($searchParams['orderBy'] as $field) {
                 $sort[] = [$field => $order];
@@ -1051,7 +988,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query->setTrackTotalHits();
 
         // Filtering
-//        dump($params);
         $searchFilters = $params['filters'] ?? [];
         if (count($searchFilters)) {
             $this->debug && dump($searchFilters);
@@ -1083,16 +1019,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $filterValue = $filterValues[$filterName] ?? null;
                     if (isset($filterValue['field'])) {
                         $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                    }
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValues[$filterName] ?? null;
-                    if (is_array($filterValues)) {
-                        foreach ($filterValues as $filterValue) {
-                            if (isset($filterValue['field'])) {
-                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                            }
-                        }
                     }
                     break;
             }
@@ -1164,11 +1090,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // Sorting
         if (isset($searchParams['orderBy'])) {
-            if (isset($searchParams['ascending']) && $searchParams['ascending'] == 0) {
-                $order = 'desc';
-            } else {
-                $order = 'asc';
-            }
+            $order = $searchParams['ascending'] ? 'asc' : 'desc';
             $sort = [];
             foreach ($searchParams['orderBy'] as $field) {
                 $sort[] = [$field => $order];
@@ -1207,16 +1129,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $filterValue = $filterValues[$filterName] ?? null;
                     if (isset($filterValue['field'])) {
                         $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                    }
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    $filterValues = $filterValues[$filterName] ?? null;
-                    if (is_array($filterValues)) {
-                        foreach ($filterValues as $filterValue) {
-                            if (isset($filterValue['field'])) {
-                                $rename[$filterValue['field']] = explode('_', $filterValue['field'])[0];
-                            }
-                        }
                     }
                     break;
             }
@@ -1274,14 +1186,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $filterType = $filterConfig[$filterName]['type'] ?? false;
             switch ($filterType) {
                 case self::FILTER_TEXT:
+                case self::FILTER_QUERYSTRING:
                     $field = $filterValue['field'] ?? $filterName;
                     $highlights['fields'][$filterName] = new \stdClass();
-                    break;
-                case self::FILTER_TEXT_MULTIPLE:
-                    foreach ($filterValue as $key => $value) {
-                        $field = $value['field'] ?? $key;
-                        $highlights['fields'][$field] = new \stdClass();
-                    }
                     break;
             }
         }
@@ -1395,13 +1302,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 $aggFilterValues = array_diff_key($arrFilterValues, array_flip($aggConfig['excludeFilter'] ?? []));
                 unset($aggFilterValues[$aggName]);
 
-//                if (count($aggSearchFilters)) {
-//                if (count($aggFilterValues)) {
-//                    $filterQuery = $this->createSearchQuery($aggFilterValues, [], $aggSearchFilters);
-                $filterQuery = $this->createSearchQuery($aggFilterValues);
-//                } else {
-//                    $filterQuery = new Query\BoolQuery();
-//                }
+                // fixed!
+                $filterQuery = $this->createSearchQuery($aggFilterValues, $aggFilterConfigs);
 
                 $aggSubQuery = new Aggregation\Filter($aggName);
                 $aggSubQuery->setFilter($filterQuery);
@@ -1468,7 +1370,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     );
                 }
 
-                // add filter query to aggretation (if not empty)
+                // add filter query to aggregation (if not empty)
                 if ($filterQuery->count()) {
                     $aggSubQuery = new Aggregation\Filter($aggName);
                     $aggSubQuery->setFilter($filterQuery);
@@ -1752,51 +1654,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     protected function isNestedAggregation($config): bool
     {
         return (in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD], true) || ($config['nestedPath'] ?? false));
-    }
-
-    protected function normalizeString(string $input): string
-    {
-        $result = $input;
-
-        // Get wildcard character position and remove wildcards
-        // question mark
-        $qPos = [];
-        $lastPos = 0;
-        while (($lastPos = strpos($result, '?', $lastPos)) !== false) {
-            $qPos[] = $lastPos;
-            $lastPos = $lastPos + strlen('*');
-        }
-        $result = str_replace('?', '', $result);
-        // asterisk
-        $aPos = [];
-        $lastPos = 0;
-        while (($lastPos = strpos($result, '*', $lastPos)) !== false) {
-            $aPos[] = $lastPos;
-            $lastPos = $lastPos + strlen('*');
-        }
-        $result = str_replace('*', '', $result);
-
-        $normalizedArray = $this->getIndex()->analyze(
-            [
-                'analyzer' => 'custom_greek_original',
-                'text' => $result,
-            ]
-        );
-        $normalizedTokens = [];
-        foreach ($normalizedArray as $token) {
-            $normalizedTokens[] = $token['token'];
-        }
-        $result = implode(' ', $normalizedTokens);
-
-        // Reinsert wildcards
-        foreach ($aPos as $a) {
-            $result = substr_replace($result, '*', $a, 0);
-        }
-        foreach ($qPos as $q) {
-            $result = substr_replace($result, '?', $q, 0);
-        }
-
-        return $result;
     }
 
     protected function sortAggregationResult(?array &$agg_result, array $aggConfig): void

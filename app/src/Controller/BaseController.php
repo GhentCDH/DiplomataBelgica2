@@ -58,20 +58,25 @@ class BaseController extends AbstractController
     }
 
     protected function _searchAPI(Request $request): Response {
-        // get data
-        $data = $this->searchService->searchAndAggregate(
-            $this->sanitizeSearchRequest($request->query->all())
-        );
+        try {
+            if ($request->query->getBoolean('aggregate', true)) {
+                // get data
+                $data = $this->searchService->searchAndAggregate(
+                    $this->sanitizeSearchRequest($request->query->all())
+                );
+            } else {
+                $data = $this->searchService->search(
+                    $this->sanitizeSearchRequest($request->query->all())
+                );
+            }
 
-        return new JsonResponse($data);
+            return new JsonResponse($data);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => $e->getMessage(), 'type' => get_class($e) ], 400);
+        }
     }
 
     protected function _search(Request $request, array $props = [], array $extraRoutes = []): Response {
-        // get data
-        $data = $this->searchService->searchAndAggregate(
-            $this->sanitizeSearchRequest($request->query->all())
-        );
-
         // urls
         $urls = $this->getSharedAppUrls();
         foreach( $extraRoutes as $key => $val ) {
@@ -83,9 +88,6 @@ class BaseController extends AbstractController
             $this->templateFolder. '/overview.html.twig',
             [
                 'urls' => json_encode($urls),
-                'data' => json_encode($data),
-                'identifiers' => json_encode([]),
-                'managements' => json_encode([]),
             ] + $props
         );
     }

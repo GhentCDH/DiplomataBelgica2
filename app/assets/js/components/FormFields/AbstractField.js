@@ -174,20 +174,20 @@ export default {
             let modelName = field.model.split('.').pop()
 
             // only keep current value(s) if it is in the list of possible values
-            if (model[modelName] != null) {
-                if (Array.isArray(model[modelName])) {
-                    let newValues = []
-                    for (let index of model[modelName].keys()) {
-                        if ((field.values.filter(v => v.id === model[modelName][index].id)).length !== 0) {
-                            newValues.push(model[modelName][index])
-                        }
-                    }
-                    model[modelName] = newValues
-                }
-                else if ((field.values.filter(v => v.id === model[modelName].id)).length === 0) {
-                    model[modelName] = null
-                }
-            }
+            // if (model[modelName] != null) {
+            //     if (Array.isArray(model[modelName])) {
+            //         let newValues = []
+            //         for (let index of model[modelName].keys()) {
+            //             if ((field.values.filter(v => v.id === model[modelName][index].id)).length !== 0) {
+            //                 newValues.push(model[modelName][index])
+            //             }
+            //         }
+            //         model[modelName] = newValues
+            //     }
+            //     else if ((field.values.filter(v => v.id === model[modelName].id)).length === 0) {
+            //         model[modelName] = null
+            //     }
+            // }
 
             field.selectOptions.loading = false
             field.disabled = field.originalDisabled == null ? false : field.originalDisabled;

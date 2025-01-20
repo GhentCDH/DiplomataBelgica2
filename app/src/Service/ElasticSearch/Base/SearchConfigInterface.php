@@ -13,7 +13,7 @@ interface SearchConfigInterface
     const FILTER_EXISTS = "exists"; 
 
     const FILTER_TEXT = "text";
-    const FILTER_TEXT_MULTIPLE = "text_multiple";
+    const FILTER_QUERYSTRING = "query_string";
 
     const FILTER_OBJECT_ID = "object_id";
     const FILTER_NESTED_ID = "nested_id";

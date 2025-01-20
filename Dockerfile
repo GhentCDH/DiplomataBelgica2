@@ -109,7 +109,8 @@ COPY app/composer.* ./
 # install composer dependencies
 RUN --mount=type=ssh \
     set -eux; \
-    composer install --no-scripts --no-dev --no-progress;
+    composer install --no-scripts --no-dev --no-progress; \
+    composer dump-autoload --optimize --no-dev --classmap-authoritative;
 
 # ----------------------------------------------------------
 # PRODUCTION
@@ -117,6 +118,8 @@ RUN --mount=type=ssh \
 
 FROM webdevops/php-apache:${PHP_VERSION} AS prod
 # USER application
+
+# todo: add tmux?
 
 COPY --link --from=symfony-prod --chown=1000:1000 /app /app
 COPY --link --from=node-prod --chown=1000:1000 /app/public/build /app/public/build

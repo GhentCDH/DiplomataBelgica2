@@ -25,7 +25,8 @@
         </template>
         <template v-if="charter.summary">
             <h6 class="mtop-small">Summary</h6>
-            {{ charter.summary }}
+            <div v-html="charter.summary[0]" v-if="Array.isArray(charter.summary)"></div>
+            <div v-html="charter.summary" v-if="!Array.isArray(charter.summary)"></div>
         </template>
     </div>
 </template>
