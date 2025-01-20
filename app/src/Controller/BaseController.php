@@ -58,12 +58,22 @@ class BaseController extends AbstractController
     }
 
     protected function _searchAPI(Request $request): Response {
-        // get data
-        $data = $this->searchService->searchAndAggregate(
-            $this->sanitizeSearchRequest($request->query->all())
-        );
+        try {
+            if ($request->query->getBoolean('aggregate', true)) {
+                // get data
+                $data = $this->searchService->searchAndAggregate(
+                    $this->sanitizeSearchRequest($request->query->all())
+                );
+            } else {
+                $data = $this->searchService->search(
+                    $this->sanitizeSearchRequest($request->query->all())
+                );
+            }
 
-        return new JsonResponse($data);
+            return new JsonResponse($data);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['error' => $e->getMessage(), 'type' => get_class($e) ], 400);
+        }
     }
 
     protected function _search(Request $request, array $props = [], array $extraRoutes = []): Response {
