@@ -77,11 +77,6 @@ class BaseController extends AbstractController
     }
 
     protected function _search(Request $request, array $props = [], array $extraRoutes = []): Response {
-        // get data
-        $data = $this->searchService->searchAndAggregate(
-            $this->sanitizeSearchRequest($request->query->all())
-        );
-
         // urls
         $urls = $this->getSharedAppUrls();
         foreach( $extraRoutes as $key => $val ) {
@@ -93,9 +88,6 @@ class BaseController extends AbstractController
             $this->templateFolder. '/overview.html.twig',
             [
                 'urls' => json_encode($urls),
-                'data' => json_encode($data),
-                'identifiers' => json_encode([]),
-                'managements' => json_encode([]),
             ] + $props
         );
     }
