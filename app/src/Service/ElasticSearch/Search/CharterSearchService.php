@@ -2,6 +2,7 @@
 
 namespace App\Service\ElasticSearch\Search;
 
+use App\Helper\DibeQueryToElasticQuery;
 use App\Service\ElasticSearch\Base\AbstractSearchService;
 
 class CharterSearchService extends AbstractSearchService
@@ -55,12 +56,14 @@ class CharterSearchService extends AbstractSearchService
             ],
 
             'fulltext' => [
-                'type' => self::FILTER_TEXT,
+                'type' => self::FILTER_QUERYSTRING,
+                'aggregationFilter' => false, // filter can be applied before aggregations
                 'field' => '*'
             ],
 
             'summary' => [
-                'type' => self::FILTER_TEXT,
+                'type' => self::FILTER_QUERYSTRING,
+                'aggregationFilter' => false, // filter can be applied before aggregations
                 'field' => 'summary'
             ]
         ];
@@ -122,17 +125,6 @@ class CharterSearchService extends AbstractSearchService
             'charter_language' => [
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'language'
-            ],
-
-            'fulltext' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => '*'
-            ],
-
-
-            'summary' => [
-                'type' => self::AGG_KEYWORD,
-                'field' => '*'
             ],
 
             'charter_place_name' => [
@@ -244,13 +236,36 @@ class CharterSearchService extends AbstractSearchService
         return parent::sanitizeSearchParameters($params);
     }
 
+    protected function sanitizeSearchFilters(array $params): array
+    {
+        // convert summary/fulltext search syntax
+        if (isset($params['summary'])) {
+            $params['summary'] = DibeQueryToelasticQuery::translate($params['summary']);
+        }
+        if (isset($params['fulltext'])) {
+            $params['fulltext'] = DibeQueryToelasticQuery::translate($params['fulltext']);
+        }
+
+        return parent::sanitizeSearchFilters($params);
+    }
+
     protected function actorCondition(int $index): \Closure
     {
-        return function($aggName, $aggConfig, $arrFilterValues) use ($index) {
+        $getActorProperties = fn($i) => [
+            "actor_name_full_name_{$i}",
+            "actor_place_name_{$i}",
+            "actor_place_diocese_name_{$i}",
+            "actor_place_principality_name_{$i}",
+            "actor_capacity_{$i}",
+            "actor_role_{$i}",
+            "actor_order_name_{$i}",
+        ];
+
+        return function($aggName, $aggConfig, $arrFilterValues) use ($index, $getActorProperties) {
             // check if any of the current & previous actor filters have a value
             $indexes = array_filter([$index, $index > 1 ? ($index - 1) : null]);
             foreach($indexes as $i) {
-                $actorProperties = $this->actorProperties($i);
+                $actorProperties = $getActorProperties($i);
                 foreach($actorProperties as $actorProperty) {
                     if (isset($arrFilterValues[$actorProperty]) && $arrFilterValues[$actorProperty]['value']) {
                         return true;
@@ -259,17 +274,5 @@ class CharterSearchService extends AbstractSearchService
             }
             return false;
         };
-    }
-
-    protected function actorProperties(string $index) {
-        return [
-            "actor_name_full_name_{$index}",
-            "actor_place_name_{$index}",
-            "actor_place_diocese_name_{$index}",
-            "actor_place_principality_name_{$index}",
-            "actor_capacity_{$index}",
-            "actor_role_{$index}",
-            "actor_order_name_{$index}",
-        ];
     }
 }
