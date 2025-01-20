@@ -453,9 +453,7 @@ export default {
             this.initSearchParams()
             this.initModelFromQueryString(true)
             // request data
-            this.requestData(true, false).then((response) => {
-                console.log('RequestFunction response:', response)
-            })
+            this.requestData(true, false)
         }
     },
     created() {
