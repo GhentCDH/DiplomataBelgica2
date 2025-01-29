@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Diplomata Belgica - Search{% endblock %}
+{% set page_title %}{{ 'Search traditions'|trans }}{% endset %}
 
 {% block body_class %}layout--fullscreen{% endblock %}
 
-{% block content %}
+{% block main %}
         <tradition-search-app
             id="tradition-search-app"
             init-urls="{{ urls }}"
-            title="{{ title }}"
+            title="{{ page_title }}"
         />
 {% endblock %}
 

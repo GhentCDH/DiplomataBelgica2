@@ -3,8 +3,6 @@
 namespace App\Controller;
 
 use App\Service\ElasticSearch\Search\CharterSearchService;
-use App\Service\ElasticSearch\Search\TraditionSearchService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class CharterController extends BaseController
 {
-    protected string $templateFolder = 'Charter';
+    protected string $templateFolder = 'pages/charter';
 
     public function __construct(CharterSearchService $searchService)
     {
@@ -22,7 +20,7 @@ class CharterController extends BaseController
     }
 
     /**
-     * @Route("/charter", name="charter", methods={"GET"})
+     * @Route("/{_locale}/charter", name="charter", methods={"GET"})
      */
     public function index(Request $request): RedirectResponse
     {
@@ -30,7 +28,7 @@ class CharterController extends BaseController
     }
 
     /**
-     * @Route("/charter/search", name="charter_search", methods={"GET"})
+     * @Route("/{_locale}/charter/search", name="charter_search", methods={"GET"})
      */
     public function search(Request $request): Response
     {
@@ -87,7 +85,20 @@ class CharterController extends BaseController
     }
 
     /**
-     * @Route("/charter/{id}", name="charter_get_single", methods={"GET"})
+     * @Route("/{_locale}/charter/search_syntax", name="charter_search_syntax", methods={"GET"})
+     */
+    public function searchSyntax(Request $request): Response
+    {
+        return $this->render(
+            $this->templateFolder. '/search_syntax.html.twig',
+            [
+                'page_title' => 'Search syntax',
+            ]
+        );
+    }
+
+    /**
+     * @Route("/{_locale}/charter/{id}", name="charter_get_single", methods={"GET"})
      */
     public function getSingle(string $id, Request $request): Response
     {
@@ -115,4 +126,6 @@ class CharterController extends BaseController
             );
         }
     }
+
+
 }

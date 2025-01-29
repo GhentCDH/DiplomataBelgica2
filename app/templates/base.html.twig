@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title> {% block title %}{% endblock %} </title>
+    <title>Diplomata Belgica - {{ page_title }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     {% block stylesheets %}
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.1.2/css/all.css">
@@ -37,55 +37,7 @@
                 <div class="row pageheader pbottom-large">
                     <div class="col-12">
                         <!-- NAVBAR -->
-                        <nav class="navbar navbar-expand-lg navbar-light bg-tertiary">
-                            <div class="container-fluid">
-                                <a class="navbar-brand" href="{{ path('default') }}">
-                                    <span class="logo logo--diplomata">Diplomata</span><span class="logo logo--belgica">Belgica</span>
-                                    {% if app.environment != 'prod' %}
-                                        <span class="text-danger">
-                                                [{{ app.environment }}]
-                                            </span>
-                                    {% endif %}
-                                </a>
-                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                                <i class="fa fa-bars"></i>
-                            </button>
-                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                                    
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ app.request.get('_route') == 'charter_search' ? 'active' }}" href="{{ path('charter_search') }}">
-                                            Charter
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ app.request.get('_route') == 'tradition_search' ? 'active' }}" href="{{ path('tradition_search') }}">
-                                            Tradition
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ app.request.get('_route') == 'about' ? 'active' }}" href="{{ path('about') }}">
-                                            About
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ app.request.get('_route') == 'copyright' ? 'active' }}" href="{{ path('copyright') }}">
-                                            Copyright
-                                        </a>
-                                    </li>
-
-                                    <li class="nav-item">
-                                        <a class="nav-link {{ app.request.get('_route') == 'contact' ? 'active' }}" href="{{ path('contact') }}">
-                                            Contact
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                            </div>
-                        </nav>
+                        {{ include('blocks/navbar.html.twig') }}
                     </div>
                 </div>
         {% endblock %}
@@ -103,12 +55,11 @@
                 {% endfor %}
             {% endfor %}
         {% endif %}
-        {% block content %}{% endblock %}
+        {% block main %}{% endblock %}
     </main>
 
     {# FOOTER #}
     <footer class="container-xl page__footer">
-        <footer class="">
             <div class="container-fluid padding-default bg-tertiary">
                 <div class="row">
                     <div class="col-12 col-sm-9">
@@ -153,43 +104,9 @@
             </div>
             <div class="container-fluid padding-default">
 
-                <div class="row justify-content-center">
-                    <div class="col-12">
-                        <div class="row justify-content-center">
-                            <div class="col-1 d-flex align-items-end">
-                                <a target="_blank" href="https://www.ugent.be/">
-                                    <img src="{{ asset('build/static/images/logo-ugent.png') }}" class="w-100"/>
-                                </a>
-                            </div>
-                            <div class="col-1 d-flex align-items-end">
-                                <a target="_blank" href="https://www.belspo.be/belspo/index_en.stm">
-                                    <img src="{{ asset('build/static/images/logo-belspo.jpeg') }}" class="w-100"/>
-                                </a>
-                            </div>
-                            <div class="col-2 d-flex align-items-end">
-                                <img src="{{ asset('build/static/images/logo-hercules.png') }}" class="w-100"/>
-                            </div>
-                            <div class="col-1 d-flex align-items-end">
-                                <a target="_blank" href="https://www.fwo.be/">
-                                    <img src="{{ asset('build/static/images/logo-fwo.png') }}" class="w-100"/>
-                                </a>
-                            </div>
-                            <div class="col-1 d-flex align-items-end">
-                                <a target="_blank" href="https://www.ugent.be/pirenne/en">
-                                    <img src="{{ asset('build/static/images/logo-pirenne.png') }}" class="w-100"/>
-                                </a>
-                            </div>
-                            <div class="col-2 d-flex align-items-end">
-                                <a target="_blank" href="https://ddcm.ugent.be/">
-                                    <img src="{{ asset('build/static/images/logo-ddcm.png') }}" class="w-100"/>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
 
             </div>
-        </footer>
     </footer>
     {% block javascript %}
         {{ encore_entry_script_tags('main') }}

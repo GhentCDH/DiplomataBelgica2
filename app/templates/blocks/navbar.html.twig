@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-tertiary">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="{{ path('default') }}">
+            <span class="logo logo--diplomata">Diplomata</span><span class="logo logo--belgica">Belgica</span>
+            {% if app.environment != 'prod' %}
+                <span class="text-danger">[{{ app.environment }}]</span>
+            {% endif %}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="fa fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'charter_search' ? 'active' }}"
+                       href="{{ path('charter_search') }}">
+                        {{ 'Charter'|trans }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'tradition_search' ? 'active' }}"
+                       href="{{ path('tradition_search') }}">
+                        {{ 'Tradition'|trans }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'about' ? 'active' }}"
+                       href="{{ path('about') }}">
+                        {{ 'About'|trans }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'copyright' ? 'active' }}"
+                       href="{{ path('copyright') }}">
+                        {{ 'Copyright'|trans }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'colophon' ? 'active' }}"
+                       href="{{ path('colophon') }}">
+                        {{ 'Colophon'|trans }}
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {{ app.request.get('_route') == 'contact' ? 'active' }}"
+                       href="{{ path('contact') }}">
+                        {{ 'Contact'|trans }}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

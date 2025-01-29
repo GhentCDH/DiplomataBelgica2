@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class TraditionController extends BaseController
 {
-    protected string $templateFolder = 'Tradition';
+    protected string $templateFolder = 'pages/tradition';
 
     public function __construct(TraditionSearchService $searchService)
     {
