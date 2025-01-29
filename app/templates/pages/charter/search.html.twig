@@ -1,14 +1,14 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Diplomata Belgica - Search{% endblock %}
+{% set page_title %}Search charters{% endset %}
 
 {% block body_class %}layout--fullscreen{% endblock %}
 
-{% block content %}
+{% block main %}
     <charter-search-app
         id="charter-search-app"
         init-urls="{{ urls }}"
-        title="{{ title }}"
+        title="{{ page_title }}"
     />
 {% endblock %}
 

@@ -1,0 +1,193 @@
+{# Remove comments to add a view app to the template #}
+{% extends 'static.html.twig' %}
+
+{% block page_content %}
+    <h2>
+        Wildcards, operators and other search facilities in Diplomata Belgica
+    </h2>
+
+    <p class=textItalic>
+        Only for use in the Summary-field and the Full text-field
+    </p>
+
+    <h3 class="textStress">
+        . : wildcard replacing 1 character
+    </h3>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;g.nterus&rdquo; will retrieve &ldquo;gunterus&rdquo; and &ldquo;gonterus&rdquo;
+    </p>
+    <p>&nbsp;</p>
+    <h3 class="textStress">
+        * : wildcard replacing 0, 1 or more character
+    </h3>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;flandr*&rdquo; will retrieve &ldquo;flandras&rdquo;, &ldquo;flandrensis&rdquo;, &ldquo;flandris&rdquo;,
+        &ldquo;flandrense&rdquo;, etc.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;*episc*&rdquo; will retrieve &ldquo;episcopus&rdquo;, &ldquo;archiepiscopus&rdquo;, &ldquo;episcoporum&rdquo;,
+        &ldquo;archiepiscoporum&rdquo;, etc.
+    </p>
+    <p>&nbsp;</p>
+    <p>
+        Entering two or more wordforms separated by a blank space will result in the occurrences of these words in this
+        specific order. The use of the wildcards . or * remains possible.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;in nomine patris&rdquo; will only retrieve the occurrences of &ldquo;in nomine patris&rdquo;.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;pro anim*&rdquo; will retrieve the occurrences of &ldquo;pro anima&rdquo;, &ldquo;pro anime&rdquo;,
+        &ldquo;pro animabus&rdquo;, etc.<br>
+        <br>
+    </p>
+    <h3 class="textStress">
+        + : Boolean
+        <span style="color: #000000">
+									AND
+								</span>
+        operator
+    </h3>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;comes + imperator&rdquo; will retrieve all documents containing both &ldquo;comes&rdquo; and &ldquo;imperator&rdquo;,
+        regardless the order in which they occur. The + operator can also be used to search for more than two wordforms
+        and can be combined with the . and * wildcards.
+    </p>
+    <h3 class="textStress">
+        , : Boolean
+        <span style="color: #000000">
+									OR
+								</span>
+        operator
+    </h3>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;comes, imperator&rdquo; will retrieve all documents containing only &ldquo;comes&rdquo;, only &ldquo;imperator&rdquo;
+        or both &ldquo;comes&rdquo; and &ldquo;imperator&rdquo;. The , operator can also be used to search for more than
+        two wordforms and can be combined with the . and * wildcards.
+    </p>
+    <h3 class="textStress">
+        # : Boolean
+        <span style="color: #000000">
+									NOT
+								</span>
+        operator
+    </h3>
+    <p>
+        Preceding a wordform with # implies that documents containing this wordform will not be selected. The # operator
+        can be combined with the + operator and with the . and * wildcards.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;comes + dux + #imperator*&rdquo; will retrieve all documents containing both &ldquo;comes&rdquo; and
+        &ldquo;dux&rdquo;, regardless the order in which they occur, but not containing &ldquo;imperator&rdquo;,
+        imperatorem&rdquo;, &ldquo;imperatoris&rdquo; etc.
+    </p>
+    <h3 class="textStress">
+        parentheses
+    </h3>
+    <p>
+        The use of parentheses makes it possible to combine the use of different Boolean operators.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;(comes + dux), imperator&rdquo; will retrieve documents containing &ldquo;imperator&rdquo; or the
+        co-occurrence of &ldquo;comes&rdquo; and &ldquo;dux&rdquo;, or both &ldquo;imperator&rdquo; and the
+        co-occurrence of &ldquo;comes&rdquo; and &ldquo;dux&rdquo;.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;(comes, imperator) + deus&rdquo; will retrieve documents containing &ldquo;deus&rdquo; and either the
+        co-occurrence of &ldquo;comes&rdquo; and &ldquo;imperator&rdquo; or the occurrence of only one of the two latter
+        wordforms.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;#(imperator, deus)&rdquo; will retrieve documents that do not contain either &ldquo;imperator&rdquo; or
+        &ldquo;deus&rdquo; or the combination of both &ldquo;imperator&rdquo; and &ldquo;deus&rdquo;. <br>
+        <br>
+    </p>
+    <h3 class="textStress">
+        /n(abc; def; ghi) : search for different wordforms within a specific range of n words, regardless the order in
+        which they occur
+    </h3>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;/15(sciant; futuri; presentes)&rdquo; will retrieve all documents containing the wordforms &ldquo;sciant&rdquo;,
+        &ldquo;futuri&rdquo; and &ldquo;presentes&rdquo; within a range of 15 words, regardless the order in which they
+        occur.<br>
+        Wordforms should be separated by semicolons and put between parentheses. There is no limit on the number of
+        wordforms that can be searched. The use of wildcards is not possible between the parentheses used to define such
+        queries.
+    </p>
+    <p>
+        <br>
+    </p>
+    <p>&nbsp;</p>
+    <p>
+        Queries of different wordforms (ordered or not) within a specific range of words can be combined with other
+        queries by using Boolean operators and parentheses. This allows for very complex queries.
+    </p>
+    <p>
+								<span class="kopstijl3">
+									Example:
+								</span>
+        &ldquo;%15(sciant; futuri; presentes) + (imperator*, comit*) + #*episc*&rdquo;.
+    </p>
+    <p>&nbsp;</p>
+    <p>
+    <h2>
+        General remarks
+    </h2>
+    <p>
+    <ul>
+        <li>
+            searching for wordforms is case-insensitive
+        </li>
+        <li>
+            wildcards will never consider blank spaces
+        </li>
+        <li>
+            unnecessary blank spaces in a search string will never influence the search result
+        </li>
+    </ul>
+    </p>
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}

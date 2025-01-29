@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,54 +8,64 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultController extends AbstractController
 {
-    protected $defaultTemplateFolder = 'Default';
-    protected $aboutTemplateFolder = 'About';
-    protected $copyrightTemplateFolder = 'Copyright';
-    protected $contactTemplateFolder = 'Contact';
-
-
     /**
-     * @Route("/", name="default", methods={"GET"})
+     * @Route("/{_locale}/", name="default", methods={"GET"})
      * @param Request $request
      * @return Response
      */
     public function index(Request $request)
     {
+        $locale = $request->getLocale();
         return $this->render(
-            $this->defaultTemplateFolder. '/index.html.twig');
+            'pages/index.html.twig');
     }
 
     /**
-     * @Route("/", name="about", methods={"GET"})
+     * @Route("/{_locale}/about", name="about", methods={"GET"})
      * @param Request $request
      * @return Response
      */
     public function about(Request $request)
     {
+        $locale = $request->getLocale();
         return $this->render(
-            $this->aboutTemplateFolder. '/about.html.twig');
+            "pages/about/about.$locale.html.twig");
     }
 
     /**
-     * @Route("/", name="copyright", methods={"GET"})
+     * @Route("/{_locale}/copyright", name="copyright", methods={"GET"})
      * @param Request $request
      * @return Response
      */
     public function copyright(Request $request)
     {
+        $locale = $request->getLocale();
         return $this->render(
-            $this->copyrightTemplateFolder. '/copyright.html.twig');
+            "pages/copyright/copyright.$locale.html.twig");
     }
 
     /**
-     * @Route("/", name="contact", methods={"GET"})
+     * @Route("/{_locale}/contact", name="contact", methods={"GET"})
      * @param Request $request
      * @return Response
      */
     public function contact(Request $request)
     {
+        $locale = $request->getLocale();
         return $this->render(
-            $this->contactTemplateFolder. '/contact.html.twig');
+            "pages/contact/contact.$locale.html.twig");
+    }
+
+    /**
+     * @Route("/{_locale}/colophon", name="colophon", methods={"GET"})
+     * @param Request $request
+     * @return Response
+     */
+    public function colophon(Request $request)
+    {
+        $locale = $request->getLocale();
+        return $this->render(
+            "pages/colophon/colophon.$locale.html.twig");
     }
 
 }

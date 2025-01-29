@@ -85,7 +85,7 @@ class BaseController extends AbstractController
 
         // html response
         return $this->render(
-            $this->templateFolder. '/overview.html.twig',
+            $this->templateFolder. '/search.html.twig',
             [
                 'urls' => json_encode($urls),
             ] + $props
