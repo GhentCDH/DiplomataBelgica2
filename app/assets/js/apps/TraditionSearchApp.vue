@@ -1,7 +1,7 @@
 <template>
     <div class="row search-app">
-        <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical scrollable--mr">
-            <div class="bg-tertiary padding-default">
+        <aside class="col-sm-3 search-app__filters h-100 position-relative">
+            <div class="bg-tertiary padding-default mh-100 scrollable scrollable--vertical">
                 <div v-if="showReset" class="form-group mbottom-default">
                     <button class="btn btn-primary" @click="resetAllFilters">
                         Reset all filters
@@ -17,8 +17,8 @@
                 />
             </div>
         </aside>
-        
-        <article class="col-sm-9 d-flex flex-column overflow-hidden _search-app__results">
+
+        <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
             </header>

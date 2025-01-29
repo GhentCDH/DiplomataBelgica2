@@ -1,7 +1,7 @@
 <template>
-    <div class="row search-app">
-        <aside class="col-sm-3 search-app__filters scrollable scrollable--vertical scrollable--mr">
-            <div class="bg-tertiary padding-default">
+    <div class="row w-100 h-100 search-app">
+        <aside class="col-sm-3 search-app__filters h-100 position-relative">
+            <div class="bg-tertiary padding-default mh-100 scrollable scrollable--vertical">
                 <div v-if="showReset" class="form-group mbottom-default">
                     <button class="btn btn-primary" @click="resetAllFilters">
                         Reset all filters
@@ -18,7 +18,7 @@
             </div>
         </aside>
 
-        <article class="col-sm-9 d-flex flex-column overflow-hidden _search-app__results">
+        <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
 
@@ -38,10 +38,10 @@
                 </nav>
             </header>
             <section class="d-flex flex-column flex-grow-1 overflow-hidden">
-                <div class="tab-content w-100 h-100 overflow-hidden" id="nav-tabContent">
-                    <div class="tab-pane show active w-100 h-100 overflow-hidden" id="nav-results" role="tabpanel"
+                <div class="tab-content w-100 h-100" id="nav-tabContent">
+                    <div class="tab-pane show active w-100 h-100" id="nav-results" role="tabpanel"
                          aria-labelledby="nav-results-tab">
-                        <div class="d-flex flex-column w-100 h-100 overflow-hidden">
+                        <div class="d-flex flex-column w-100 h-100">
                             <nav class="row form-group">
                                 <div class="col-lg-4 d-flex align-items-lg-center">
                                     <b-pagination
@@ -52,7 +52,8 @@
                                     ></b-pagination>
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                                    <RecordCount :per-page="searchParams.limit" :total-records="totalRecords" :page="searchParams.page"></RecordCount>
+                                    <RecordCount :per-page="searchParams.limit" :total-records="totalRecords"
+                                                 :page="searchParams.page"></RecordCount>
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
                                     <b-select :id="'per-page'"
@@ -156,173 +157,232 @@ export default {
                 groups: [
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Identification',
+                        legend: this.$t('filter.legend.identification'),
                         fields: [
                             {
                                 type: 'input',
                                 inputType: 'text',
-                                label: 'Charter ID',
+                                label: this.$t('filter.field.charter_id.label'),
+                                help: this.$t('filter.field.charter_id.help'),
                                 labelClasses: 'form-label',
                                 placeholder: 'Charter ID',
                                 model: 'id',
                             },
                             this.createMultiSelect('Language',
                                 {
-                                    model: 'charter_language'
+                                    model: 'charter_language',
+                                    label: this.$t('filter.field.language.label'),
+                                    help: this.$t('filter.field.language.help'),
                                 }
                             )
                         ]
                     },
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Actor(s)',
+                        legend: this.$t('filter.legend.actors'),
                         fields: [
                             {
                                 type: 'label',
-                                label: 'Actor 1',
+                                label: this.$t('filter.field.actor.label', {index: 1}),
                                 model: 'actor_1',
                                 styleClasses: 'actor actor-1'
                             },
                             this.createMultiSelect(
-                                'Name',
-                                {model: 'actor_name_full_name_1', styleClasses: 'actor actor-1'},
+                                this.$t('filter.field.actor_name.label'),
+                                {
+                                    model: 'actor_name_full_name_1',
+                                    styleClasses: 'actor actor-1',
+                                    help: this.$t('filter.field.actor_name.help'),
+                                },
                                 {onSearch: this.onAutocomplete('actor_name_full_name_1'), internalSearch: false}
                             ),
-                            this.createMultiSelect('Role', {model: 'actor_role_1', styleClasses: 'actor actor-1'}),
-                            this.createMultiSelect('Function', {
+                            this.createMultiSelect(this.$t('filter.field.actor_role.label'), {
+                                model: 'actor_role_1',
+                                styleClasses: 'actor actor-1',
+                                help: this.$t('filter.field.actor_role.help'),
+                            }),
+                            this.createMultiSelect(this.$t('filter.field.actor_function.label'), {
                                 model: 'actor_capacity_1',
-                                styleClasses: 'actor actor-1'
+                                styleClasses: 'actor actor-1',
+                                help: this.$t('filter.field.actor_function.help'),
                             }),
-                            this.createMultiSelect('Institution/jurisdiction', {
+                            this.createMultiSelect(this.$t('filter.field.actor_institution.label'), {
                                 model: 'actor_place_name_1',
-                                styleClasses: 'actor actor-1'
+                                styleClasses: 'actor actor-1',
+                                help: this.$t('filter.field.actor_institution.help'),
                             }),
-                            this.createMultiSelect('Diocese', {
+                            this.createMultiSelect(this.$t('filter.field.actor_diocese.label'), {
                                 model: 'actor_place_diocese_name_1',
-                                styleClasses: 'actor actor-1'
+                                styleClasses: 'actor actor-1',
+                                help: this.$t('filter.field.actor_diocese.help'),
                             }),
-                            this.createMultiSelect('Principality', {
+                            this.createMultiSelect(this.$t('filter.field.actor_principality.label'), {
                                 model: 'actor_place_principality_name_1',
-                                styleClasses: 'actor actor-1'
+                                styleClasses: 'actor actor-1',
+                                help: this.$t('filter.field.actor_principality.help'),
                             }),
-                            this.createMultiSelect('Religious Order', {
+                            this.createMultiSelect(this.$t('filter.field.actor_order.label'), {
                                 model: 'actor_order_name_1',
-                                styleClasses: 'actor actor-1 !mbottom-default'
+                                styleClasses: 'actor actor-1 !mbottom-default',
+                                help: this.$t('filter.field.actor_order.help'),
                             }),
 
                             {
                                 type: 'label',
-                                label: 'Actor 2',
+                                label: this.$t('filter.field.actor.label', {index: 2}),
                                 model: 'actor_2',
                                 styleClasses: 'actor actor-2',
-                                visible: this.actorFieldIsVisible,
+                                visible: this.actorFieldIsVisible
                             },
                             this.createMultiSelect(
-                                'Name',
-                                {model: 'actor_name_full_name_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible},
+                                this.$t('filter.field.actor_name.label'),
+                                {
+                                    model: 'actor_name_full_name_2',
+                                    styleClasses: 'actor actor-2',
+                                    visible: this.actorFieldIsVisible,
+                                    help: this.$t('filter.field.actor_name.help'),
+                                },
                                 {onSearch: this.onAutocomplete('actor_name_full_name_2'), internalSearch: false}
                             ),
-                            this.createMultiSelect('Role', {model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible}),
-                            this.createMultiSelect('Function', {
+                            this.createMultiSelect(this.$t('filter.field.actor_role.label'), {
+                                model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
+                                help: this.$t('filter.field.actor_role.help'),
+                            }),
+                            this.createMultiSelect(this.$t('filter.field.actor_function.label'), {
                                 model: 'actor_capacity_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
+                                help: this.$t('filter.field.actor_function.help'),
                             }),
-                            this.createMultiSelect('Institution/jurisdiction', {
+                            this.createMultiSelect(this.$t('filter.field.actor_institution.label'), {
                                 model: 'actor_place_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
+                                help: this.$t('filter.field.actor_institution.help'),
                             }),
-                            this.createMultiSelect('Diocese', {
+                            this.createMultiSelect(this.$t('filter.field.actor_diocese.label'), {
                                 model: 'actor_place_diocese_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
+                                help: this.$t('filter.field.actor_diocese.help'),
                             }),
-                            this.createMultiSelect('Principality', {
+                            this.createMultiSelect(this.$t('filter.field.actor_principality.label'), {
                                 model: 'actor_place_principality_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
+                                help: this.$t('filter.field.actor_principality.help'),
                             }),
-                            this.createMultiSelect('Religious Order', {
+                            this.createMultiSelect(this.$t('filter.field.actor_order.label'), {
                                 model: 'actor_order_name_2',
-                                styleClasses: 'actor actor-2 !mbottom-default', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-2 !mbottom-default', visible: this.actorFieldIsVisible,
+                                help: this.$t('filter.field.actor_order.help'),
                             }),
 
                             {
                                 type: 'label',
-                                label: 'Actor 3',
+                                label: this.$t('filter.field.actor.label', {index: 3}),
                                 model: 'actor_3',
                                 styleClasses: 'actor actor-3',
                                 visible: this.actorFieldIsVisible
                             },
                             this.createMultiSelect(
-                                'Name',
-                                {model: 'actor_name_full_name_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible},
+                                this.$t('filter.field.actor_name.label'),
+                                {
+                                    model: 'actor_name_full_name_3',
+                                    styleClasses: 'actor actor-3',
+                                    visible: this.actorFieldIsVisible,
+                                    label: this.$t('filter.field.actor_name.label'),
+                                    help: this.$t('filter.field.actor_name.help'),
+                                },
                                 {onSearch: this.onAutocomplete('actor_name_full_name_3'), internalSearch: false}
                             ),
-                            this.createMultiSelect('Role', {model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible}),
-                            this.createMultiSelect('Function', {
+                            this.createMultiSelect(this.$t('filter.field.actor_role.label'), {
+                                model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
+                                label: this.$t('filter.field.actor_role.label'),
+                                help: this.$t('filter.field.actor_role.help'),
+                            }),
+                            this.createMultiSelect(this.$t('filter.field.actor_function.label'), {
                                 model: 'actor_capacity_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
+                                label: this.$t('filter.field.actor_function.label'),
+                                help: this.$t('filter.field.actor_function.help'),
                             }),
-                            this.createMultiSelect('Institution/jurisdiction', {
+                            this.createMultiSelect(this.$t('filter.field.actor_institution.label'), {
                                 model: 'actor_place_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
+                                label: this.$t('filter.field.actor_institution.label'),
+                                help: this.$t('filter.field.actor_institution.help'),
                             }),
-                            this.createMultiSelect('Diocese', {
+                            this.createMultiSelect(this.$t('filter.field.actor_diocese.label'), {
                                 model: 'actor_place_diocese_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
+                                label: this.$t('filter.field.actor_diocese.label'),
+                                help: this.$t('filter.field.actor_diocese.help'),
                             }),
-                            this.createMultiSelect('Principality', {
+                            this.createMultiSelect(this.$t('filter.field.actor_principality.label'), {
                                 model: 'actor_place_principality_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
+                                label: this.$t('filter.field.actor_principality.label'),
+                                help: this.$t('filter.field.actor_principality.help'),
                             }),
-                            this.createMultiSelect('Religious Order', {
+                            this.createMultiSelect(this.$t('filter.field.actor_order.label'), {
                                 model: 'actor_order_name_3',
-                                styleClasses: 'actor actor-3 !mbottom-default', visible: this.actorFieldIsVisible
+                                styleClasses: 'actor actor-3 !mbottom-default', visible: this.actorFieldIsVisible,
+                                label: this.$t('filter.field.actor_order.label'),
+                                help: this.$t('filter.field.actor_order.help'),
                             }),
 
                         ]
                     },
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Datation',
+                        legend: this.$t('filter.legend.datation'),
                         fields: [
                             {
                                 type: 'DMYRange',
                                 model: 'dating_scholary',
-                                label: 'Scholary dating',
+                                label: this.$t('filter.field.date_scholarly_any.label'),
+                                help: this.$t('filter.field.date_scholarly_any.help'),
+
                                 labelClasses: 'form-label'
                             },
                             {
                                 type: 'checkboxBS5',
                                 model: 'dating_scholary_preferential',
-                                label: 'Preferential dates only',
+                                label: this.$t('filter.field.date_scholarly_preferential.label'),
+                                help: this.$t('filter.field.date_scholarly_preferential.help'),
+
                                 labelClasses: 'd-none',
                                 default: true,
                             },
                             {
                                 type: 'DMYRange',
                                 model: 'dating_charter',
-                                label: 'Date in the charter',
+                                label: this.$t('filter.field.date_unconverted.label'),
+                                help: this.$t('filter.field.date_unconverted.help'),
                                 labelClasses: 'form-label'
                             },
-                            this.createMultiSelect('Place-date', {model: 'charter_place_name'}),
+                            this.createMultiSelect(this.$t('filter.field.place_date.label'), {
+                                model: 'charter_place_name',
+                                help: this.$t('filter.field.place_date.help'),
+                            }),
                         ]
                     },
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Analysis',
+                        legend: this.$t('filter.legend.analysis'),
                         fields: [
                             {
                                 type: 'input',
                                 inputType: 'text',
                                 model: 'summary',
-                                label: 'Search in summary (in French only)',
+                                label: this.$t('filter.field.summary.label'),
+                                help: this.$t('filter.field.summary.help'),
                                 placeholder: 'Search in summary',
-                                labelClasses: 'form-label'
+                                labelClasses: 'form-label',
                             },
                             {
                                 type: 'input',
                                 inputType: 'text',
                                 model: 'fulltext',
-                                label: 'Search in full text of charter',
+                                label: this.$t('filter.field.fulltext.label'),
+                                help: this.$t('filter.field.fulltext.help'),
                                 placeholder: 'Search in charter',
                                 labelClasses: 'form-label'
                             },
@@ -330,10 +390,11 @@ export default {
                     },
                     {
                         styleClasses: 'collapsible collapsed',
-                        legend: 'Images',
+                        legend: this.$t('filter.legend.images'),
                         fields: [
                             {
-                                label: 'Images available',
+                                label: this.$t('filter.field.images.label'),
+                                help: this.$t('filter.field.images.help'),
                                 type: 'checkboxBS5',
                                 model: 'has_images',
                                 labelClasses: 'd-none',
@@ -454,7 +515,7 @@ export default {
 
             const modelKey = field.model
             const actorIndex = modelKey.split('_').pop()
-            const actorFields = [ ...getActorFields(actorIndex), ...(actorIndex > 1 ? getActorFields(actorIndex - 1) : []) ]
+            const actorFields = [...getActorFields(actorIndex), ...(actorIndex > 1 ? getActorFields(actorIndex - 1) : [])]
             let res = actorFields.filter((key) => model?.[key] && model?.[key]?.length > 0)
             return res.length > 0
         },
