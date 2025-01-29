@@ -18,6 +18,7 @@
   .form-group {
     label {
       margin-bottom: 4px;
+      position: relative; // needed for help text
     }
   }
 }
