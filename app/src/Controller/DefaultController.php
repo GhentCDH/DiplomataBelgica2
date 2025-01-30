@@ -9,23 +9,25 @@ use Symfony\Component\Routing\Annotation\Route;
 class DefaultController extends AbstractController
 {
     /**
-     * @Route("/{_locale}/", name="default", methods={"GET"})
-     * @param Request $request
-     * @return Response
+     * @Route("/", name="default", methods={"GET"})
      */
-    public function index(Request $request)
+    public function index(Request $request): Response
     {
-        $locale = $request->getLocale();
-        return $this->render(
-            'pages/index.html.twig');
+        return $this->redirectToRoute("colophon");
     }
 
     /**
-     * @Route("/{_locale}/about", name="about", methods={"GET"})
-     * @param Request $request
-     * @return Response
+     * @Route("/{_locale}/", name="default_locale", methods={"GET"})
      */
-    public function about(Request $request)
+    public function index_locale(Request $request): Response
+    {
+        return $this->redirectToRoute("colophon");
+    }
+
+    /**
+     * @Route("/{_locale}/aboutt", name="about", methods={"GET"})
+     */
+    public function about(Request $request): Response
     {
         $locale = $request->getLocale();
         return $this->render(
@@ -34,10 +36,8 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/{_locale}/copyright", name="copyright", methods={"GET"})
-     * @param Request $request
-     * @return Response
      */
-    public function copyright(Request $request)
+    public function copyright(Request $request): Response
     {
         $locale = $request->getLocale();
         return $this->render(
@@ -46,10 +46,8 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/{_locale}/contact", name="contact", methods={"GET"})
-     * @param Request $request
-     * @return Response
      */
-    public function contact(Request $request)
+    public function contact(Request $request): Response
     {
         $locale = $request->getLocale();
         return $this->render(
@@ -58,14 +56,11 @@ class DefaultController extends AbstractController
 
     /**
      * @Route("/{_locale}/colophon", name="colophon", methods={"GET"})
-     * @param Request $request
-     * @return Response
      */
-    public function colophon(Request $request)
+    public function colophon(Request $request): Response
     {
         $locale = $request->getLocale();
         return $this->render(
             "pages/colophon/colophon.$locale.html.twig");
     }
-
 }

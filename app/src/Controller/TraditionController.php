@@ -21,7 +21,7 @@ class TraditionController extends BaseController
     }
 
     /**
-     * @Route("/tradition", name="charter", methods={"GET"})
+     * @Route("/{_locale}/tradition", name="charter", methods={"GET"})
      */
     public function index(Request $request): RedirectResponse
     {
@@ -29,7 +29,7 @@ class TraditionController extends BaseController
     }
 
     /**
-     * @Route("/tradition/search", name="tradition_search", methods={"GET"})
+     * @Route("/{_locale}/tradition/search", name="tradition_search", methods={"GET"})
      */
     public function search(Request $request): Response {
         return $this->_search(
@@ -59,7 +59,7 @@ class TraditionController extends BaseController
     }
 
     /**
-     * @Route("/tradition/{tradition_type}/{id}", name="tradition_get_single", methods={"GET"})
+     * @Route("/{_locale}/tradition/{tradition_type}/{id}", name="tradition_get_single", methods={"GET"})
      */
     public function getSingle(string $id, string $tradition_type, Request $request, ContainerInterface $container): Response
     {
