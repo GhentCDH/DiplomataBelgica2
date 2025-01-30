@@ -1,0 +1,53 @@
+{# Remove comments to add a view app to the template #}
+{% extends 'static.html.twig' %}
+
+{% block page_content %}
+    <h2 class="textTitel">Caract&egrave;res g&eacute;n&eacute;riques, op&eacute;rateurs et autres moyens de recherche</h2>
+    <p>Utilisables seulement dans les champs Analyse et Texte de Diplomata Belgica</p>
+    <p><span class="textStress">&nbsp;. : caract&egrave;re g&eacute;n&eacute;rique rempla&ccedil;ant 1 caract&egrave;re </span></p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;g.nterus&rdquo; recherchera &ldquo;gunterus&rdquo; et &ldquo;gonterus&rdquo;</p>
+    <p>&nbsp;</p>
+    <p><span class="textStress"> * : : caract&egrave;re g&eacute;n&eacute;rique rempla&ccedil;ant 0, 1 ou plusieurs caract&egrave;res </span></p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;flandr*&rdquo; recherchera &ldquo;flandras&rdquo;, &ldquo;flandrensis&rdquo;, &ldquo;flandris&rdquo;, &ldquo;flandrense&rdquo; etc.</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;*episc*&rdquo; recherchera &ldquo;episcopus&rdquo;, &ldquo;archiepiscopus&rdquo;, &ldquo;episcoporum&rdquo;, &ldquo;archiepiscoporum&rdquo; etc.</p>
+    <p>&nbsp;</p>
+    <p>L&rsquo;introduction d&rsquo;une expression de recherche form&eacute;e de deux ou de plusieurs mots s&eacute;par&eacute;s par un caract&egrave;re d&rsquo;espace blanc retrouvera les occurrences de ces mots dans l&rsquo;ordre d&eacute;finis dans cette expression. L&rsquo;utilisation des caract&egrave;res g&eacute;n&eacute;riques . ou * reste possible.</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;in nomine patris&rdquo; retrouvera uniquement les occurrences de &ldquo;in nomine patris&rdquo;</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;pro anima*&rdquo; retrouvera les occurrences de &ldquo;pro anima&rdquo;, &ldquo;pro anime&rdquo;, &ldquo;pro animabus&rdquo; <br><br></p>
+    <p class="textStress">+ : Op&eacute;rateur logique <span style="color: #000000;"> AND </span></p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;comes + imperator&rdquo; retrouvera tous les documents contenant &agrave; la fois &ldquo;comes&rdquo; et &ldquo;imperator&rdquo; ind&eacute;pendamment de leur ordre dans ceux-ci. L&rsquo;op&eacute;rateur + peut &ecirc;tre &eacute;galement utilis&eacute; pour rechercher plus de de deux mots et &ecirc;tre associ&eacute; aux caract&egrave;res g&eacute;n&eacute;riques . and *</p>
+    <p>&nbsp;</p>
+    <p class="textStress">, : Op&eacute;rateur logique <span style="color: #000000;"> OR </span></p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;comes, imperator&rdquo; retrouvera tous les documents contenant soit uniquement &ldquo;comes&rdquo;, soit uniquement &ldquo;imperator&rdquo; o&ugrave; &agrave; la fois &ldquo;comes&rdquo; et &ldquo;imperator&rdquo;. L&rsquo;op&eacute;rateur, peut &ecirc;tre &eacute;galement utilis&eacute; pour rechercher plus de de deux mots et &ecirc;tre associ&eacute; aux caract&egrave;res g&eacute;n&eacute;riques . and *</p>
+    <p>&nbsp;</p>
+    <p class="textStress"># : Op&eacute;rateur logique <span style="color: #000000;"> NOT </span></p>
+    <p>Faire pr&eacute;c&eacute;der un mot de l&rsquo;op&eacute;rateur # a pour cons&eacute;quence d&rsquo;exclure du r&eacute;sultat de la recherche tous les documents contenant ce mot. L&rsquo;op&eacute;rateur # peut &ecirc;tre &ecirc;tre associ&eacute; aux caract&egrave;res g&eacute;n&eacute;riques . and *</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;comes + dux + #imperator*&rdquo; retrouvera tous les documents contenant &agrave; la fois &ldquo;comes&rdquo; et &ldquo;dux&rdquo;, quel que soit leur ordre d&rsquo;apparition, mais ne contenant pas &ldquo;imperator&rdquo;, imperatorem&rdquo;, &ldquo;imperatoris&rdquo; etc.</p>
+    <p><span class="textStress"> parenth&egrave;ses </span></p>
+    <p>Le placement de parenth&egrave;ses permet de combiner plusieurs op&eacute;rateurs logiques.</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;(comes + dux), imperator&rdquo; retrouvera soit les documents contenant soit seulement &ldquo;imperator&rdquo; ou l&rsquo;occurrence conjointe de &ldquo;comes&rdquo; et &ldquo;dux&rdquo;, soit &agrave; la fois l&rsquo;occurrence conjointe de ces deux derniers mots et &ldquo;imperator&rdquo;</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;(comes, imperator) + deus&rdquo; retrouvera les documents contenant &ldquo;deus&rdquo; et, soit l&rsquo;occurrence conjointe de &ldquo;comes&rdquo; et d&rsquo; &ldquo;imperator&rdquo;, soit l&rsquo;occurrence d&rsquo;un seul de ces deux mots</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;#(imperator, deus)&rdquo; retrouvera les documents ne contenant ni &ldquo;imperator&rdquo;, ni &ldquo;deus&rdquo; que ces mots soient employ&eacute;s seuls ou conjointement <br><br></p>
+    <p><span class="textStress"> /n(abc; def; ghi) : cette expression de recherche retrouvera diff&eacute;rents mots pr&eacute;sents dans une suite de n mots ind&eacute;pendamment de leur ordre dans cette suite </span></p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;/15(sciant; futuri; presentes)&rdquo; retrouvera tous les documents contenant les mots &ldquo;sciant&rdquo;, &ldquo;futuri&rdquo; and &ldquo;presentes&rdquo; &agrave; l&rsquo;int&eacute;rieur d&rsquo;une suite de 15 mots , ind&eacute;pendamment de leur ordre dans cette suite<br>Les mots recherch&eacute;s doivent &ecirc;tre s&eacute;par&eacute;s par des points-virgules et plac&eacute;s entre parenth&egrave;ses. Le nombre de mots qui peuvent &ecirc;tre recherch&eacute;s est illimit&eacute;. L&rsquo;utilisation des caract&egrave;res g&eacute;n&eacute;riques . and * est autoris&eacute;e &agrave; l&rsquo;int&eacute;rieur des parenth&egrave;ses. L&rsquo;utilisation des op&eacute;rateurs logiques n&rsquo;est pas autoris&eacute; &agrave; l&rsquo;int&eacute;rieur des parenth&egrave;ses.</p>
+    <p>&nbsp;</p>
+    <p><span class="textStress"> %n(abc; def; ghi) : cette expression de recherche retrouvera diff&eacute;rents mots pr&eacute;sents dans une suite de n mots &agrave; condition que leur ordre dans cette suite soit identique &agrave; celui pr&eacute;cis&eacute; entre parenth&egrave;ses </span></p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;%15(sciant; futuri; presentes)&rdquo; retrouvera tous les documents contenant les mots &ldquo;sciant&rdquo;, &ldquo;futuri&rdquo; and &ldquo;presentes&rdquo; &agrave; l&rsquo;int&eacute;rieur d&rsquo;une suite de 15 mots , &agrave; condition que leur ordre dans cette suite soit identique &agrave; celui pr&eacute;cis&eacute; entre parenth&egrave;ses<br>Les mots recherch&eacute;s doivent &ecirc;tre s&eacute;par&eacute;s par des points-virgules et plac&eacute;s entre parenth&egrave;ses. Le nombre de mots qui peuvent &ecirc;tre recherch&eacute;s est illimit&eacute;. L&rsquo;utilisation des caract&egrave;res g&eacute;n&eacute;riques . and * est autoris&eacute;e &agrave; l&rsquo;int&eacute;rieur des parenth&egrave;ses. L&rsquo;utilisation des op&eacute;rateurs logiques n&rsquo;est pas autoris&eacute; &agrave; l&rsquo;int&eacute;rieur des parenth&egrave;ses.</p>
+    <p>&nbsp;</p>
+    <p>La recherche d&rsquo;une s&eacute;rie (ordonn&eacute;e ou non) de mots &agrave; l&rsquo;int&eacute;rieur d&rsquo;une suite de taille d&eacute;finie peut &ecirc;tre employ&eacute;e en combinaison avec d&rsquo;autres expressions de recherche en utilisant les op&eacute;rateurs logiques et les parenth&egrave;ses. Cela autorise des s&eacute;lections complexes.</p>
+    <p><span class="kopstijl3"> Exemple: </span> &ldquo;%15(sciant; futuri; presentes) + (imperator*, comit*) + #*episc*&rdquo;.</p>
+    <h2><span class="textStress"> Remarques g&eacute;n&eacute;rales</span></h2>
+    <ul>
+        <li>la recherche&nbsp;de mots est insensible &agrave; la casse</li>
+        <li>les caract&egrave;res g&eacute;n&eacute;riques ne tiennent jamais compte des espaces blancs</li>
+        <li>la&nbsp;pr&eacute;sence d&rsquo;espace blancs superflus dans une cha&icirc;ne de recherche est sans cons&eacute;quence sur le r&eacute;sultat de cette recherche</li>
+    </ul>
+{% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+{% endblock %}
