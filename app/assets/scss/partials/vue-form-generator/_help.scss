@@ -15,21 +15,20 @@
 
     .helpText {
       background-color: #444;
-      bottom: 30px;
+      top: 30px;
       color: #fff;
       display: block;
       left: 0px;
-      //margin-bottom: 15px;
       opacity: 0;
       padding: 20px;
       pointer-events: none;
       position: absolute;
-      text-align: justify;
-      width: 300px;
-      //transform: translateY(10%);
+      text-align: left;
+      width: 100%;
       transition: all 0.25s ease-out;
       box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
       border-radius: 6px;
+      z-index: 1000;
 
       a {
         font-weight: bold;

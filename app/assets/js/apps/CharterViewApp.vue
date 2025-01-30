@@ -101,7 +101,7 @@
             </div>
         </article>
         <aside class="d-flex col-sm-4 overflow-hidden">
-            <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100">
+            <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
 
                 <Widget v-if="isValidResultSet()" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
