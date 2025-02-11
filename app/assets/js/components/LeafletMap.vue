@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import {LControl, LGeoJson, LMap, LMarker, LTileLayer, LWMSTileLayer, LControlLayers, LIcon, LPopup} from 'vue2-leaflet';
+import {LControl, LGeoJson, LMap, LMarker, LTileLayer, LWmsTileLayer, LControlLayers, LIcon, LPopup} from '@vue-leaflet/vue-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // icon fix
@@ -61,7 +61,7 @@ export default {
         LControl,
         LControlLayers,
         LPopup,
-        'l-wms-tile-layer': LWMSTileLayer
+        'l-wms-tile-layer': LWmsTileLayer
     },
     props: {
         layers: {
