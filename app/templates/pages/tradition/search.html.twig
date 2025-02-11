@@ -5,11 +5,11 @@
 {% block body_class %}layout--fullscreen{% endblock %}
 
 {% block main %}
+    <div id="app" class="w-100 h-100">
         <tradition-search-app
-            id="tradition-search-app"
             init-urls="{{ urls }}"
-            title="{{ page_title }}"
-        />
+            title="{{ page_title }}"></tradition-search-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}

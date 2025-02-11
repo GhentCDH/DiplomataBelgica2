@@ -6,10 +6,11 @@
 {% block body_class %}layout--fullscreen layout--compact{% endblock %}
 
 {% block main %}
-    <tradition-view-app id="tradition-view-app"
-                   init-urls="{{ urls }}"
-                   init-data="{{ data }}"
-    />
+    <div id="app" class="row">
+        <tradition-view-app id="tradition-view-app"
+                init-urls="{{ urls }}"
+                init-data="{{ data }}"></tradition-view-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}

@@ -6,10 +6,11 @@
 {% block body_class %}layout--fullscreen layout--compact{% endblock %}
 
 {% block main %}
-    <charter-view-app id="charter-view-app"
-                   init-urls="{{ urls }}"
-                   init-data="{{ data }}"
-    />
+    <div id="app" class="row">
+        <charter-view-app
+                init-urls="{{ urls }}"
+                init-data="{{ data }}"></charter-view-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}

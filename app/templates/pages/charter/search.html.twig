@@ -5,11 +5,11 @@
 {% block body_class %}layout--fullscreen{% endblock %}
 
 {% block main %}
-    <charter-search-app
-        id="charter-search-app"
-        init-urls="{{ urls }}"
-        title="{{ page_title }}"
-    />
+    <div id="app" class="w-100 h-100">
+        <charter-search-app
+                init-urls="{{ urls }}"
+                title="{{ page_title }}"></charter-search-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}
