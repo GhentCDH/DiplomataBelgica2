@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
-import CharterSearchApp from '@/apps/CharterSearchApp'
+import CharterSearchApp from '@/components/Charter/CharterSearchApp.vue'
 import VueCookies from 'vue-cookies'
 
-import { i18n } from "./i18n";
+import { i18n } from "../locales/i18n";
 import { useI18n } from "vue-i18n";
 
 // vue3-form-generator-legacy custom fields

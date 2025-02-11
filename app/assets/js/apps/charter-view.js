@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
-import CharterViewApp from '../apps/CharterViewApp.vue'
+import CharterViewApp from '../components/Charter/CharterViewApp.vue'
 import VueCookies from 'vue-cookies'
 
-import {i18n} from "./i18n";
+import {i18n} from "../locales/i18n";
 
 const app = createApp({})
 app.use(i18n)
