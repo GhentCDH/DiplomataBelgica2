@@ -11,11 +11,11 @@ export default defineConfig({
     build: {
         rollupOptions: {
             input: {
-                'main': "./assets/js/main/main.js",
-                'charter-search': "./assets/js/main/charter-search.js",
-                'charter-view': "./assets/js/main/charter-view.js",
-                'tradition-view': "./assets/js/main/tradition-view.js",
-                'tradition-search': "./assets/js/main/tradition-search.js"
+                'main': "./assets/js/apps/main.js",
+                'charter-search': "./assets/js/apps/charter-search.js",
+                'charter-view': "./assets/js/apps/charter-view.js",
+                'tradition-view': "./assets/js/apps/tradition-view.js",
+                'tradition-search': "./assets/js/apps/tradition-search.js"
             },
         }
     },
