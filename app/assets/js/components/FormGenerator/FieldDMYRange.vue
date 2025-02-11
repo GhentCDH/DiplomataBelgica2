@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import {abstractField} from 'vue-form-generator/dist/vfg-core.js'
+import {abstractField} from 'vue3-form-generator-legacy'
 import {debounce as _debounce} from 'lodash';
 
 export default {
@@ -150,9 +150,12 @@ export default {
             }
             return value;
         },
-        onChange: _debounce(function (e) {
+        onChange() {
             this.updateModelValue(this.range, this.value)
-        }, 300)
+        }
+        // onChange: _debounce(function (e) {
+        //     this.updateModelValue(this.range, this.value)
+        // }, 300)
     }
 };
 </script>

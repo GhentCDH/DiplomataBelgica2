@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { abstractField } from 'vue-form-generator/dist/vfg-core.js'
+import { abstractField } from 'vue3-form-generator-legacy'
 
 export default {
     mixins: [ abstractField ]
