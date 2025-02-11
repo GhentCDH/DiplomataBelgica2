@@ -14,7 +14,8 @@ export default defineConfig({
                 'main': "./assets/js/main/main.js",
                 'charter-search': "./assets/js/main/charter-search.js",
                 'charter-view': "./assets/js/main/charter-view.js",
-                'tradition-view': "./assets/js/main/tradition-view.js"
+                'tradition-view': "./assets/js/main/tradition-view.js",
+                'tradition-search': "./assets/js/main/tradition-search.js"
             },
         }
     },
