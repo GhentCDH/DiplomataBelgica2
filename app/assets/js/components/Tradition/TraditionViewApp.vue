@@ -64,19 +64,19 @@
 </template>
 
 <script>
-import Widget from '../components/Sidebar/Widget'
-import LabelValue from '../components/Sidebar/LabelValue'
-import PropertyGroup from '../components/Sidebar/PropertyGroup'
-import InlineLinkList from '../components/InlineLinkList'
+import Widget from '../Sidebar/Widget.vue'
+import LabelValue from '../Sidebar/LabelValue.vue'
+import PropertyGroup from '../Sidebar/PropertyGroup.vue'
+import InlineLinkList from '../InlineLinkList.vue'
 
-import PersistentConfig from "../components/Shared/PersistentConfig";
-import ResultSet from "../components/Search/ResultSet";
-import SearchSession from "../components/Search/SearchSession";
-import SearchContext from "../components/Search/SearchContext";
+import PersistentConfig from "../../mixins/PersistentConfig";
+import ResultSet from "../../mixins/ResultSet";
+import SearchSession from "../../mixins/SearchSession";
+import SearchContext from "../../mixins/SearchContext";
 
 import axios from 'axios'
-import FormatValue from "../components/Sidebar/FormatValue";
-import ImageThumbnail from '../components/ImageThumbnail.vue'
+import FormatValue from "../Sidebar/FormatValue.vue";
+import ImageThumbnail from '../ImageThumbnail.vue'
 
 export default {
     name: "TraditionViewApp",

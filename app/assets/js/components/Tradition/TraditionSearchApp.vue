@@ -7,11 +7,11 @@
                         Reset all filters
                     </button>
                 </div>
-                <vue-form-generator
+                <VueFormGenerator
                     ref="form"
                     :model="model"
                     :options="form.options"
-                    :schema="schema"
+                    :schema="formSchema"
                     @validated="onFormValidated"
                     @model-updated="onModelUpdated"
                 />
@@ -85,20 +85,20 @@
     </div>
 </template>
 <script>
-import AbstractField from '../components/FormGenerator/AbstractField'
+import AbstractField from '../../mixins/FormGeneratorFieldCreators'
 
-import AbstractSearch from '../components/Search/AbstractSearchClient'
-import CollapsibleGroups from '../components/Search/CollapsibleGroups'
-import PersistentConfig from "../components/Shared/PersistentConfig"
-import SharedSearch from "../components/Search/SharedSearch";
+import AbstractSearch from '../../mixins/SearchClient'
+import CollapsibleGroups from '../../mixins/FormGeneratorCollapsibleGroups'
+import PersistentConfig from "../../mixins/PersistentConfig"
+import SharedSearch from "../../mixins/SharedSearch";
 
-import FormatValue from "../components/Sidebar/FormatValue";
+import FormatValue from "../Sidebar/FormatValue.vue";
 
-import BSelect from "../components/Bootstrap/BSelect.vue";
-import BPagination from "../components/Bootstrap/BPagination.vue";
-import RecordCount from "../components/Bootstrap/RecordCount.vue";
-import CharterSearchSummary from "../components/Charter/CharterSearchSummary.vue";
-import BTable from "../components/Bootstrap/BTable.vue";
+import BSelect from "../Bootstrap/BSelect.vue";
+import BPagination from "../Bootstrap/BPagination.vue";
+import RecordCount from "../Bootstrap/RecordCount.vue";
+import CharterSearchSummary from "../Charter/CharterSearchSummary.vue";
+import BTable from "../Bootstrap/BTable.vue";
 
 export default {
     mixins: [
@@ -122,20 +122,20 @@ export default {
             schema: {
                 groups: [
                     {
-                        styleClasses: 'collapsible collapsed',
+                        styleClasses: 'collapsible',
                         legend: 'Repository',
                         fields: [
-                            this.createMultiSelect('Place',
+                            this.formGeneratorCreateMultiSelect('Place',
                                 {
                                     model: 'repository_location'
                                 }
                             ),
-                            this.createMultiSelect('Name',
+                            this.formGeneratorCreateMultiSelect('Name',
                                 {
                                     model: 'repository_name'
                                 }
                             ),
-                            this.createMultiSelect('Reference',
+                            this.formGeneratorCreateMultiSelect('Reference',
                                 {
                                     model: 'repository_reference_number'
                                 }
@@ -146,27 +146,27 @@ export default {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Tradition',
                         fields: [
-                            this.createMultiSelect('Type',
+                            this.formGeneratorCreateMultiSelect('Type',
                                 {
                                     model: 'tradition_type'
                                 }
                             ),
-                            this.createMultiSelect('Stein Number',
+                            this.formGeneratorCreateMultiSelect('Stein Number',
                                 {
                                     model: 'codex_stein_number'
                                 }
                             ),
-                            this.createMultiSelect('Title of the manuscript',
+                            this.formGeneratorCreateMultiSelect('Title of the manuscript',
                                 {
                                     model: 'codex_title'
                                 }
                             ),
-                            this.createMultiSelect('Institutions covered by the manuscript',
+                            this.formGeneratorCreateMultiSelect('Institutions covered by the manuscript',
                                 {
                                     model: 'codex_institutions'
                                 }
                             ),
-                            this.createMultiSelect('Writing material',
+                            this.formGeneratorCreateMultiSelect('Writing material',
                                 {
                                     model: 'codex_material'
                                 }
@@ -206,6 +206,11 @@ export default {
         }
     },
     computed: {
+        formSchema() {
+            const schema = this.schema
+            this.formGeneratorCollapseGroups(schema)
+            return schema
+        },
         requestUrl() {
             return this.urls['tradition_search_api']
         },

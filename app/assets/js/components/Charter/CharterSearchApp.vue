@@ -7,11 +7,11 @@
                         Reset all filters
                     </button>
                 </div>
-                <vue-form-generator
+                <VueFormGenerator
                     ref="form"
                     :model="model"
                     :options="form.options"
-                    :schema="schema"
+                    :schema="formSchema"
                     @validated="onFormValidated"
                     @model-updated="onModelUpdated"
                 />
@@ -105,34 +105,32 @@
     </div>
 </template>
 <script>
-import AbstractField from '../components/FormGenerator/AbstractField'
-import AbstractSearch from '../components/Search/AbstractSearchClient'
-import CollapsibleGroups from '../components/Search/CollapsibleGroups'
+import FormGeneratorFieldCreators from '../../mixins/FormGeneratorFieldCreators'
+import SearchClient from '../../mixins/SearchClient'
+import FormGeneratorCollapsibleGroups from '../../mixins/FormGeneratorCollapsibleGroups'
 
-import CharterSearchSummary from "../components/Charter/CharterSearchSummary.vue";
+import CharterSearchSummary from "./CharterSearchSummary.vue";
 
-import PersistentConfig from "../components/Shared/PersistentConfig"
-import SharedSearch from "../components/Search/SharedSearch";
-import LeafletMap from "../components/LeafletMap"
+import PersistentConfig from "../../mixins/PersistentConfig"
+import SharedSearch from "../../mixins/SharedSearch";
+import LeafletMap from "../LeafletMap.vue"
 
-import FormatValue from "../components/Sidebar/FormatValue";
-
-
+import FormatValue from "../Sidebar/FormatValue.vue";
 
 import qs from "qs";
 
-import BPagination from "../components/Bootstrap/BPagination.vue";
-import BSelect from "../components/Bootstrap/BSelect.vue";
-import RecordCount from "../components/Bootstrap/RecordCount.vue";
-import BTable from "../components/Bootstrap/BTable.vue";
+import BPagination from "../Bootstrap/BPagination.vue";
+import BSelect from "../Bootstrap/BSelect.vue";
+import RecordCount from "../Bootstrap/RecordCount.vue";
+import BTable from "../Bootstrap/BTable.vue";
 
 export default {
     mixins: [
         PersistentConfig('CharterSearchConfig'),
-        AbstractField,
-        AbstractSearch,
+        FormGeneratorFieldCreators,
+        SearchClient,
         SharedSearch,
-        CollapsibleGroups,
+        FormGeneratorCollapsibleGroups,
     ],
     components: {
         RecordCount,
@@ -150,7 +148,7 @@ export default {
             schema: {
                 groups: [
                     {
-                        styleClasses: 'collapsible collapsed',
+                        styleClasses: 'collapsible',
                         legend: this.$t('filter.legend.identification'),
                         fields: [
                             {
@@ -161,8 +159,9 @@ export default {
                                 labelClasses: 'form-label',
                                 placeholder: 'Charter ID',
                                 model: 'id',
+                                validateDebounceTime: 1000,
                             },
-                            this.createMultiSelect('Language',
+                            this.formGeneratorCreateMultiSelect('Language',
                                 {
                                     model: 'charter_language',
                                     label: this.$t('filter.field.language.label'),
@@ -181,7 +180,7 @@ export default {
                                 model: 'actor_1',
                                 styleClasses: 'actor actor-1'
                             },
-                            this.createMultiSelect(
+                            this.formGeneratorCreateMultiSelect(
                                 this.$t('filter.field.actor_name.label'),
                                 {
                                     model: 'actor_name_full_name_1',
@@ -190,32 +189,32 @@ export default {
                                 },
                                 {onSearch: this.onAutocomplete('actor_name_full_name_1'), internalSearch: false}
                             ),
-                            this.createMultiSelect(this.$t('filter.field.actor_role.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_role.label'), {
                                 model: 'actor_role_1',
                                 styleClasses: 'actor actor-1',
                                 help: this.$t('filter.field.actor_role.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_function.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_function.label'), {
                                 model: 'actor_capacity_1',
                                 styleClasses: 'actor actor-1',
                                 help: this.$t('filter.field.actor_function.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_institution.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_institution.label'), {
                                 model: 'actor_place_name_1',
                                 styleClasses: 'actor actor-1',
                                 help: this.$t('filter.field.actor_institution.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_diocese.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_diocese.label'), {
                                 model: 'actor_place_diocese_name_1',
                                 styleClasses: 'actor actor-1',
                                 help: this.$t('filter.field.actor_diocese.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_principality.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_principality.label'), {
                                 model: 'actor_place_principality_name_1',
                                 styleClasses: 'actor actor-1',
                                 help: this.$t('filter.field.actor_principality.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_order.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_order.label'), {
                                 model: 'actor_order_name_1',
                                 styleClasses: 'actor actor-1 !mbottom-default',
                                 help: this.$t('filter.field.actor_order.help'),
@@ -228,7 +227,7 @@ export default {
                                 styleClasses: 'actor actor-2',
                                 visible: this.actorFieldIsVisible
                             },
-                            this.createMultiSelect(
+                            this.formGeneratorCreateMultiSelect(
                                 this.$t('filter.field.actor_name.label'),
                                 {
                                     model: 'actor_name_full_name_2',
@@ -238,31 +237,31 @@ export default {
                                 },
                                 {onSearch: this.onAutocomplete('actor_name_full_name_2'), internalSearch: false}
                             ),
-                            this.createMultiSelect(this.$t('filter.field.actor_role.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_role.label'), {
                                 model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
                                 help: this.$t('filter.field.actor_role.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_function.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_function.label'), {
                                 model: 'actor_capacity_2',
                                 styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
                                 help: this.$t('filter.field.actor_function.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_institution.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_institution.label'), {
                                 model: 'actor_place_name_2',
                                 styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
                                 help: this.$t('filter.field.actor_institution.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_diocese.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_diocese.label'), {
                                 model: 'actor_place_diocese_name_2',
                                 styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
                                 help: this.$t('filter.field.actor_diocese.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_principality.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_principality.label'), {
                                 model: 'actor_place_principality_name_2',
                                 styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
                                 help: this.$t('filter.field.actor_principality.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_order.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_order.label'), {
                                 model: 'actor_order_name_2',
                                 styleClasses: 'actor actor-2 !mbottom-default', visible: this.actorFieldIsVisible,
                                 help: this.$t('filter.field.actor_order.help'),
@@ -275,7 +274,7 @@ export default {
                                 styleClasses: 'actor actor-3',
                                 visible: this.actorFieldIsVisible
                             },
-                            this.createMultiSelect(
+                            this.formGeneratorCreateMultiSelect(
                                 this.$t('filter.field.actor_name.label'),
                                 {
                                     model: 'actor_name_full_name_3',
@@ -286,36 +285,36 @@ export default {
                                 },
                                 {onSearch: this.onAutocomplete('actor_name_full_name_3'), internalSearch: false}
                             ),
-                            this.createMultiSelect(this.$t('filter.field.actor_role.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_role.label'), {
                                 model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
                                 label: this.$t('filter.field.actor_role.label'),
                                 help: this.$t('filter.field.actor_role.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_function.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_function.label'), {
                                 model: 'actor_capacity_3',
                                 styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
                                 label: this.$t('filter.field.actor_function.label'),
                                 help: this.$t('filter.field.actor_function.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_institution.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_institution.label'), {
                                 model: 'actor_place_name_3',
                                 styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
                                 label: this.$t('filter.field.actor_institution.label'),
                                 help: this.$t('filter.field.actor_institution.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_diocese.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_diocese.label'), {
                                 model: 'actor_place_diocese_name_3',
                                 styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
                                 label: this.$t('filter.field.actor_diocese.label'),
                                 help: this.$t('filter.field.actor_diocese.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_principality.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_principality.label'), {
                                 model: 'actor_place_principality_name_3',
                                 styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
                                 label: this.$t('filter.field.actor_principality.label'),
                                 help: this.$t('filter.field.actor_principality.help'),
                             }),
-                            this.createMultiSelect(this.$t('filter.field.actor_order.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_order.label'), {
                                 model: 'actor_order_name_3',
                                 styleClasses: 'actor actor-3 !mbottom-default', visible: this.actorFieldIsVisible,
                                 label: this.$t('filter.field.actor_order.label'),
@@ -334,7 +333,8 @@ export default {
                                 label: this.$t('filter.field.date_scholarly_any.label'),
                                 help: this.$t('filter.field.date_scholarly_any.help'),
 
-                                labelClasses: 'form-label'
+                                labelClasses: 'form-label',
+                                validateDebounceTime: 500,
                             },
                             {
                                 type: 'checkboxBS5',
@@ -350,9 +350,10 @@ export default {
                                 model: 'dating_charter',
                                 label: this.$t('filter.field.date_unconverted.label'),
                                 help: this.$t('filter.field.date_unconverted.help'),
-                                labelClasses: 'form-label'
+                                labelClasses: 'form-label',
+                                validateDebounceTime: 500,
                             },
-                            this.createMultiSelect(this.$t('filter.field.place_date.label'), {
+                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.place_date.label'), {
                                 model: 'charter_place_name',
                                 help: this.$t('filter.field.place_date.help'),
                             }),
@@ -370,6 +371,7 @@ export default {
                                 help: this.$t('filter.field.summary.help'),
                                 placeholder: 'Search in summary',
                                 labelClasses: 'form-label',
+                                validateDebounceTime: 1000,
                             },
                             {
                                 type: 'input',
@@ -378,7 +380,8 @@ export default {
                                 label: this.$t('filter.field.fulltext.label'),
                                 help: this.$t('filter.field.fulltext.help'),
                                 placeholder: 'Search in charter',
-                                labelClasses: 'form-label'
+                                labelClasses: 'form-label',
+                                validateDebounceTime: 1000,
                             },
                         ]
                     },
@@ -418,6 +421,11 @@ export default {
         }
     },
     computed: {
+        formSchema() {
+            const schema = this.schema
+            this.formGeneratorCollapseGroups(schema)
+            return schema
+        },
         requestUrl() {
             return this.urls['charter_search_api']
         },
