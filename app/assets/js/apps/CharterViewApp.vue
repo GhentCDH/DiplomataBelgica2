@@ -163,7 +163,6 @@
 import Widget from '../components/Sidebar/Widget'
 import LabelValue from '../components/Sidebar/LabelValue'
 import PropertyGroup from '../components/Sidebar/PropertyGroup'
-import CheckboxSwitch from '../components/FormFields/CheckboxSwitch'
 import InlineLinkList from '../components/InlineLinkList'
 
 import PersistentConfig from "../components/Shared/PersistentConfig";
@@ -187,7 +186,7 @@ export default {
     components: {
         ActorListDetailed,
       FormatValue,
-        Widget, LabelValue, PropertyGroup, CheckboxSwitch, InlineLinkList, ImageThumbnail, LeafletMap,
+        Widget, LabelValue, PropertyGroup, InlineLinkList, ImageThumbnail, LeafletMap,
         ActorDetails
     },
     mixins: [

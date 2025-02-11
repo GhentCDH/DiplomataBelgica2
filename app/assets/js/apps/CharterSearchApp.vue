@@ -105,9 +105,7 @@
     </div>
 </template>
 <script>
-import Vue from 'vue'
-
-import AbstractField from '../components/FormFields/AbstractField'
+import AbstractField from '../components/FormGenerator/AbstractField'
 import AbstractSearch from '../components/Search/AbstractSearchClient'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
 
@@ -119,8 +117,7 @@ import LeafletMap from "../components/LeafletMap"
 
 import FormatValue from "../components/Sidebar/FormatValue";
 
-import fieldDMYRange from '../components/FormFields/fieldDMYRange';
-import fieldCheckbox from '../components/FormFields/fieldCheckbox';
+
 
 import qs from "qs";
 
@@ -128,9 +125,6 @@ import BPagination from "../components/Bootstrap/BPagination.vue";
 import BSelect from "../components/Bootstrap/BSelect.vue";
 import RecordCount from "../components/Bootstrap/RecordCount.vue";
 import BTable from "../components/Bootstrap/BTable.vue";
-
-Vue.component('fieldDMYRange', fieldDMYRange);
-Vue.component('fieldCheckboxBS5', fieldCheckbox);
 
 export default {
     mixins: [

@@ -85,9 +85,7 @@
     </div>
 </template>
 <script>
-import Vue from 'vue'
-
-import AbstractField from '../components/FormFields/AbstractField'
+import AbstractField from '../components/FormGenerator/AbstractField'
 
 import AbstractSearch from '../components/Search/AbstractSearchClient'
 import CollapsibleGroups from '../components/Search/CollapsibleGroups'
@@ -96,17 +94,11 @@ import SharedSearch from "../components/Search/SharedSearch";
 
 import FormatValue from "../components/Sidebar/FormatValue";
 
-import fieldCheckbox from '../components/FormFields/fieldCheckbox';
-import fieldCheckboxes from '../components/FormFields/fieldCheckboxes'
-
 import BSelect from "../components/Bootstrap/BSelect.vue";
 import BPagination from "../components/Bootstrap/BPagination.vue";
 import RecordCount from "../components/Bootstrap/RecordCount.vue";
 import CharterSearchSummary from "../components/Charter/CharterSearchSummary.vue";
 import BTable from "../components/Bootstrap/BTable.vue";
-
-Vue.component('fieldCheckboxBS5', fieldCheckbox);
-Vue.component('fieldCheckboxes', fieldCheckboxes)
 
 export default {
     mixins: [

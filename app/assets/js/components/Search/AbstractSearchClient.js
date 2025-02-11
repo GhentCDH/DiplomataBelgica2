@@ -1,21 +1,6 @@
 import qs from 'qs'
 
-import Vue from 'vue'
-import VueFormGenerator from 'vue-form-generator/dist/vfg-core.js'
-import VueMultiselect from 'vue-multiselect'
-
-import fieldMultiselectClear from '../FormFields/fieldMultiselectClear'
-import fieldCheckboxes from '../FormFields/fieldCheckboxes'
-import fieldNoUiSlider from '../FormFields/fieldNoUiSlider'
-
 import axios from 'axios'
-
-Vue.use(VueFormGenerator)
-
-Vue.component('multiselect', VueMultiselect)
-Vue.component('fieldMultiselectClear', fieldMultiselectClear)
-Vue.component('fieldCustomNoUiSlider', fieldNoUiSlider)
-Vue.component('fieldCheckboxes', fieldCheckboxes)
 
 export default {
     props: {

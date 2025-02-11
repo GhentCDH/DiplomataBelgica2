@@ -1,5 +1,3 @@
-import Vue from 'vue'
-import qs from "qs";
 import _merge from "lodash.merge";
 
 export default {
