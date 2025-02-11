@@ -26,7 +26,7 @@ export default {
             type: String,
         },
         value: {
-            type: String | Number | Object | Array
+            type: [String, Number, Object, Array]
         },
         unknown: {
             type: String,
@@ -53,7 +53,7 @@ export default {
             default: 'string'
         },
         url: {
-            type: String | Function,
+            type: [String, Function],
             default: null
         },
         ignoreValue: {
