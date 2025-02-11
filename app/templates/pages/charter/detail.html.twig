@@ -14,10 +14,10 @@
 
 {% block javascript %}
     {{ parent() }}
-    {{ encore_entry_script_tags('charter-view') }}
+    {{ vite_entry_script_tags('charter-view') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_link_tags('charter-view') }}
+    {{ vite_entry_link_tags('charter-view') }}
 {% endblock %}
