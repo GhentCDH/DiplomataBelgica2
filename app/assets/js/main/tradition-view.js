@@ -1,17 +1,11 @@
-import Vue from 'vue'
-import TraditionViewApp from '../apps/TraditionViewApp'
+import { createApp } from 'vue'
+import TraditionViewApp from '../apps/TraditionViewApp.vue'
+import VueCookies from 'vue-cookies'
 
-new Vue({
-    el: '#tradition-view-app',
-    components: {
-        TraditionViewApp
-    }
-})
+import {i18n} from "./i18n";
 
-// (function () {
-//     // Set proper page title
-//     let id = document.getElementById('detail-page-id');
-//     if (id) {
-//         document.title += ' ' + id.innerText.split(' ')[1];
-//     }
-// }());
+const app = createApp({})
+app.use(i18n)
+app.use(VueCookies)
+app.component('tradition-view-app', TraditionViewApp)
+app.mount('#app')

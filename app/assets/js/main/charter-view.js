@@ -1,17 +1,11 @@
-import Vue from 'vue'
-import CharterViewApp from '../apps/CharterViewApp'
+import { createApp } from 'vue'
+import CharterViewApp from '../apps/CharterViewApp.vue'
+import VueCookies from 'vue-cookies'
 
-new Vue({
-    el: '#charter-view-app',
-    components: {
-        CharterViewApp
-    }
-})
+import {i18n} from "./i18n";
 
-// (function () {
-//     // Set proper page title
-//     let id = document.getElementById('detail-page-id');
-//     if (id) {
-//         document.title += ' ID ' + id.innerText.split(' ')[2];
-//     }
-// }());
+const app = createApp({})
+app.use(i18n)
+app.use(VueCookies)
+app.component('charter-view-app', CharterViewApp)
+app.mount('#app')
