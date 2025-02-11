@@ -1,5 +1,5 @@
 import _merge from "lodash.merge";
-import _isEqual from "lodash.isequal";
+import * as util from 'node:util';
 
 export default {
     data() {
@@ -23,7 +23,7 @@ export default {
         updateSearchSession(data) {
             let sessionData = this.getSearchSession();
             // check if search parameters have changed. If not, session hash stays unchanged
-            if ( !_isEqual(sessionData?.params ?? {}, data?.params ?? {}) ) {
+            if ( !util.isDeepStrictEqual(sessionData?.params ?? {}, data?.params ?? {}) ) {
                 sessionData.hash = Date.now();
             }
             sessionData.params = {} // clear params

@@ -34,7 +34,7 @@ export default {
                 openRequests: 0,
                 abortController: null,
                 prevFilterValues: {},
-                debug: false,
+                debug: true,
             },
             // used to set timeout on free input fields
             // Remove requesting the same data that is already displayed
@@ -180,24 +180,8 @@ export default {
         },
         onFormValidated(isValid, errors) {
             this.searchClient.debug && console.log('onFormValidated', isValid, errors)
-            const calculateInputTimeout = (fieldName) => {
-                const delayedFieldTypes = {
-                    input: 1000,
-                    textArea: 1000,
-                    noUiSlider: 500,
-                    DMYRange: 500,
-                }
-                const fieldType = this.fields[fieldName]?.type ?? null;
-                return fieldType ? (delayedFieldTypes[fieldType] ?? 0) : 0;
-            }
 
-            // cancel previous debounce
-            if (this.inputCancel !== null) {
-                window.clearTimeout(this.inputCancel)
-                this.inputCancel = null
-            }
-
-            // of not valid, do nothing
+            // if not valid, do nothing
             if (!isValid) {
                 return
             }
@@ -209,37 +193,26 @@ export default {
                 return
             }
 
-            // calculate debounce timeout value
-            let timeoutValue = 0;
-            if (this.searchClient.lastChangedFieldName) {
-                timeoutValue = calculateInputTimeout(this.searchClient.lastChangedFieldName)
-            }
-
-            // send request after timeout
-            this.inputCancel = window.setTimeout(() => {
-                this.searchParams.page = 1
-                this.searchClient.prevFilterValues = JSON.parse(JSON.stringify(filterValues))
-                this.requestData()
-            }, timeoutValue)
+            // send request
+            this.searchParams.page = 1 // reset page
+            this.searchClient.prevFilterValues = JSON.parse(JSON.stringify(filterValues))
+            this.requestData()
         },
         onData(data) {
         },
         onLoaded(data) {
+            this.searchClient.debug && console.log('onLoaded', data)
             this.data = data
-            if (data?.aggregation) {
-                this.aggregation = data.aggregation
-            }
-
-            // update table state
-            // this.updateTableState(data)
 
             // Update aggregation fields
             if (data?.aggregation) {
+                this.aggregation = data.aggregation
                 this.updateAggregations(this.aggregation);
             }
 
             this.searchClient.openRequests--
 
+            // todo: fix Vue3 missing eventbus
             this.$emit('data', data)
         },
         updateAggregations(data, fieldNames = null, keepModelData = false) {
@@ -267,7 +240,8 @@ export default {
                     // active values? update model
                     let activeValues = fieldConfig.values.filter(item => item?.active)
                     if (activeValues.length) {
-                        this.$set(this.model, fieldName, activeValues)
+                        this.model[fieldName] = activeValues
+                        // this.$set(this.model, fieldName, activeValues)
                     }
                     // update dependency field?
                     if (fieldConfig?.dependency && this.model[fieldConfig.dependency] == null) {
@@ -359,16 +333,20 @@ export default {
             this.model = model
         },
         onTableSort(data) {
-            this.$set(this.searchParams, 'orderBy', data.sortBy)
-            this.$set(this.searchParams, 'ascending', data.sortAscending)
+            this.searchParams['orderBy'] = data.sortBy
+            this.searchParams['ascending'] = data.sortAscending
+            // this.$set(this.searchParams, 'orderBy', data.sortBy)
+            // this.$set(this.searchParams, 'ascending', data.sortAscending)
             this.requestData(false)
         },
         onTableLimit(limit) {
-            this.$set(this.searchParams, 'limit', limit)
+            this.searchParams['limit'] = limit
+            // this.$set(this.searchParams, 'limit', limit)
             this.requestData(false)
         },
         onTablePagination(page) {
-            this.$set(this.searchParams, 'page', page)
+            this.searchParams['page'] = page
+            // this.$set(this.searchParams, 'page', page)
             this.requestData(false)
         },
         requestData(aggregate = true, pushHistory = true) {
@@ -408,7 +386,8 @@ export default {
                     return response
                 })
                 .then((response) => {
-                    this.$emit('loaded', response.data)
+                    this.onLoaded(response.data);
+                    // this.$emit('loaded', response.data)
                     return response
                 })
                 .catch((error) => {
@@ -432,8 +411,6 @@ export default {
             window.onpopstate = ((event) => {
                 this.popHistory(event)
             })
-            // register data events
-            this.$on('loaded', this.onLoaded)
             // init model from querystring
             this.initSearchParams()
             this.initModelFromQueryString(true)

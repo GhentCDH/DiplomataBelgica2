@@ -8,7 +8,7 @@ const RANGE_MAX_INVALID = 10000
 
 export default {
     methods: {
-        createSelect(label, extra = null, extraSelectOptions = null) {
+        formGeneratorCreateSelect(label, extra = null, extraSelectOptions = null) {
             let result = {
                 type: 'multiselectClear',
                 label: label,
@@ -46,11 +46,11 @@ export default {
             }
             return result
         },
-        createMultiSelect(label, extra = null, extraSelectOptions) {
+        formGeneratorCreateMultiSelect(label, extra = null, extraSelectOptions) {
             const selectOptions = { multiple: true, closeOnSelect: false, ...extraSelectOptions }
-            return this.createSelect(label, extra, selectOptions)
+            return this.formGeneratorCreateSelect(label, extra, selectOptions)
         },
-        createRangeSlider(model, label, min, max, step, decimals = 0, unit = null, extra = null) {
+        formGeneratorCreateRangeSlider(model, label, min, max, step, decimals = 0, unit = null, extra = null) {
             let result = {
                 type: "customNoUiSlider",
                 styleClasses: "field-noUiSlider",
@@ -73,7 +73,7 @@ export default {
 
             return result;
         },
-        createOperators(model, extra, allowedOperators = [])
+        formGeneratorCreateOperators(model, extra, allowedOperators = [])
         {
             let result = {
                 type: "checkboxes",

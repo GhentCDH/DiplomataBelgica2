@@ -1,8 +1,7 @@
-import Vue from 'vue'
 import qs from "qs";
 import SearchSession from "./SearchSession";
 import SearchContext from "./SearchContext";
-import CollapsibleGroups from "./CollapsibleGroups";
+import CollapsibleGroups from "./FormGeneratorCollapsibleGroups";
 
 export default {
     mixins: [
@@ -11,6 +10,7 @@ export default {
         CollapsibleGroups,
     ],
     methods: {
+        // todo: watch .data and update search session
         onData(data) {
             // update search session
             let params = this.getSearchParams();
@@ -20,11 +20,10 @@ export default {
             })
 
             // update local data
-            this.aggregation = data.aggregation
-            // todo: ditch .data?
-            this.data.search = data.search
-            this.data.filters = data.filters
-            this.data.count = data.count
+            // this.aggregation = data.aggregation // done in onLoaded
+            // this.data.search = data.search // done in onLoaded
+            // this.data.filters = data.filters // done in onLoaded
+            // this.data.count = data.count // done in onLoaded
         },
         getUrl(route) {
             return this.urls[route] ?? ''
