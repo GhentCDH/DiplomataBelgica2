@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="field-DMYRange">
         <div class="input-group mbottom-small from" :class="{'has-from': hasFrom}">
             <span class="input-group-text">{{ hasTill ? fromLabel : exactLabel }}</span>
             <input
@@ -7,36 +7,36 @@
                 type="text"
                 style="text-align:center;"
                 size="2"
-                v-model="range.from.day"
+                :value="range.from.day"
                 :disabled="disabled"
                 :maxlength="2"
                 :placeholder="placeholder.day"
                 :readonly="schema.readonly"
-                @change="onChange" @keyup="onChange"
+                @input="range.from.day = $event.target.value; onChange()"
             >
             <input
                 class="form-control date-input"
                 type="text"
                 style="text-align:center;"
                 size="2"
-                v-model="range.from.month"
+                :value="range.from.month"
                 :disabled="disabled"
                 :maxlength="2"
                 :placeholder="placeholder.month"
                 :readonly="schema.readonly"
-                @change="onChange" @keyup="onChange"
+                @input="range.from.month = $event.target.value; onChange()"
             >
             <input
                 class="form-control date-input"
                 type="text"
                 style="text-align:center;"
                 size="4"
-                v-model="range.from.year"
+                :value="range.from.year"
                 :disabled="disabled"
                 :maxlength="4"
                 :placeholder="placeholder.year"
                 :readonly="schema.readonly"
-                @change="onChange" @keyup="onChange"
+                @input="range.from.year = $event.target.value; onChange()"
             >
         </div>
         <div class="input-group till" :class="{'has-till': hasTill}">
@@ -46,36 +46,36 @@
                 type="text"
                 style="text-align:center;"
                 size="2"
-                v-model="range.till.day"
+                :value="range.till.day"
                 :disabled="disabled"
                 :maxlength="2"
                 :placeholder="placeholder.day"
                 :readonly="schema.readonly"
-                @change="onChange" @keyup="onChange"
+                @input="range.till.day = $event.target.value; onChange()"
             >
             <input
                 class="form-control date-input"
                 type="text"
                 style="text-align:center;"
                 size="2"
-                v-model="range.till.month"
+                :value="range.till.month"
                 :disabled="disabled"
                 :maxlength="2"
                 :placeholder="placeholder.month"
                 :readonly="schema.readonly"
-                @change="onChange" @keyup="onChange"
+                @input="range.till.month = $event.target.value; onChange()"
             >
             <input
                 class="form-control date-input"
                 type="text"
                 style="text-align:center;"
                 size="4"
-                v-model="range.till.year"
+                :value="range.till.year"
                 :disabled="disabled"
                 :maxlength="4"
                 :placeholder="placeholder.year"
                 :readonly="schema.readonly"
-                @change="onChange" @keyup="onChange"
+                @input="range.till.year = $event.target.value; onChange()"
             >
         </div>
     </div>
@@ -83,7 +83,7 @@
 
 <script>
 import {abstractField} from 'vue3-form-generator-legacy'
-import {debounce as _debounce} from 'lodash';
+import {toRaw} from "vue";
 
 export default {
     mixins: [abstractField],
@@ -124,38 +124,48 @@ export default {
         };
     },
     watch: {
-        value: {
-            deep: true,
-            handler(val) {
-                if (typeof val === 'object') {
-                    this.range = JSON.parse(JSON.stringify(val));
-                } else {
-                    this.range = JSON.parse(JSON.stringify(val))
-                }
-            }
-        }
     },
     computed: {
         hasFrom() {
-            return !!this.range.from.year || !!this.range.from.month || !!this.range.from.day;
+            return !!this.value.from.year || !!this.value.from.month || !!this.value.from.day;
         },
         hasTill() {
-            return !!this.range.till.year || !!this.range.till.month || !!this.range.till.day;
+            return !!this.value.till.year || !!this.value.till.month || !!this.value.till.day;
         }
     },
     methods: {
         formatValueToField(value) {
-            if (value === null || value == undefined) {
+            if (value === null || value === undefined) {
+                // console.log('formatValueToField', this.default)
                 return JSON.parse(JSON.stringify(this.default))
+            }
+            const newValue = {
+                from: {
+                    day: value?.from?.day,
+                    month: value?.from?.month,
+                    year: value?.from?.year
+                },
+                till: {
+                    day: value?.till?.day,
+                    month: value?.till?.month,
+                    year: value?.till?.year
+                }
+            };
+            // console.log('formatValueToField', newValue)
+            this.range = newValue;
+            return newValue;
+        },
+        formatValueToModel(value) {
+            // console.log('formatValueToModel', value)
+            if (Object.values(value.from).every(v => v === null || v === '') && Object.values(value.till).every(v => v === null || v === '')) {
+                return null;
             }
             return value;
         },
         onChange() {
-            this.updateModelValue(this.range, this.value)
+            // console.log('onChange', this.range)
+            this.value = JSON.parse(JSON.stringify(this.range))
         }
-        // onChange: _debounce(function (e) {
-        //     this.updateModelValue(this.range, this.value)
-        // }, 300)
     }
 };
 </script>
