@@ -1,6 +1,7 @@
 import qs from 'qs'
 
 import axios from 'axios'
+import {toRaw} from "vue";
 
 export default {
     props: {
@@ -120,7 +121,7 @@ export default {
                             }
                             break;
                         default:
-                            result[fieldName] = this.model[fieldName]
+                            result[fieldName] = structuredClone(toRaw(this.model[fieldName]))
                             break;
                     }
                 }
@@ -236,10 +237,11 @@ export default {
             }
         },
         pushHistory(data) {
-            this.searchClient.debug && console.log('push history', data)
+            // todo: why not push search state & model to history?
+            this.searchClient.debug && console.log('push history', toRaw(data))
             history.pushState(data, document.title, document.location.href.split('?')[0] + '?' + qs.stringify(data))
         },
-        popHistory(event) {
+        onPopHistory(event) {
             this.searchClient.debug && console.log('pop history', event.target)
             this.model = {}
             this.initSearchParams()
@@ -296,7 +298,6 @@ export default {
                             break;
                         case 'DMYRange':
                             model[key] = value
-                            // todo: parse value
                             break
                         default:
                             if (value === 'true') {
@@ -392,7 +393,7 @@ export default {
             this.form.defaultModel = JSON.parse(JSON.stringify(this.model))
             // register onpopstate event
             window.onpopstate = ((event) => {
-                this.popHistory(event)
+                this.onPopHistory(event)
             })
             // init model from querystring
             this.initSearchParams()
