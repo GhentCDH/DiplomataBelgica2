@@ -123,23 +123,6 @@ export default {
                             result[fieldName] = this.model[fieldName]
                             break;
                     }
-
-                    // fieldtype multiselectClear? create array of id's
-                    if (this.fields[fieldName] != null && this.fields[fieldName].type === 'multiselectClear') {
-                        if (this.model[fieldName] != null) {
-                            if (Array.isArray(this.model[fieldName])) {
-                                var ids = []
-                                for (let value of this.model[fieldName]) {
-                                    ids.push(value['id'])
-                                }
-                                result[fieldName] = ids
-                            } else {
-                                result[fieldName] = this.model[fieldName]['id']
-                            }
-                        }
-                    } else {
-                        result[fieldName] = this.model[fieldName]
-                    }
                 }
             }
             return result
