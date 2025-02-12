@@ -1,4 +1,4 @@
-import * as _merge from 'lodash.merge';
+import merge from 'lodash.merge';
 
 export default function(cookieName) {
     return {
@@ -25,8 +25,8 @@ export default function(cookieName) {
                 try {
                     let ret
                     ret = this.$cookies.get(name)
-                    if (ret) {
-                        ret = _merge({}, defaultValue, ret)
+                    if (typeof ret === 'object' && ret !== null) {
+                        ret = merge({}, defaultValue, ret)
                         return ret
                     }
                 } catch(error) {

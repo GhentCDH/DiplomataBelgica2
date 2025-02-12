@@ -12,6 +12,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": true,
+    "esModuleInterop": true, // required for lodash imports
 
     /* Linting */
     "strict": true,
