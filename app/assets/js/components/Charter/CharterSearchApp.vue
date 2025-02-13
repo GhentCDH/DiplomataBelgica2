@@ -1,5 +1,5 @@
 <template>
-    <div class="row w-100 h-100 search-app">
+    <div class="row search-app">
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
                 <div v-if="showReset" class="form-group mbottom-default">
@@ -113,6 +113,7 @@ import CharterSearchSummary from "./CharterSearchSummary.vue";
 
 import PersistentConfig from "../../mixins/PersistentConfig"
 import SharedSearch from "../../mixins/SharedSearch";
+
 import LeafletMap from "../LeafletMap.vue"
 
 import FormatValue from "../Sidebar/FormatValue.vue";
@@ -128,9 +129,9 @@ export default {
     mixins: [
         PersistentConfig('CharterSearchConfig'),
         FormGeneratorFieldCreators,
+        FormGeneratorCollapsibleGroups,
         SearchClient,
         SharedSearch,
-        FormGeneratorCollapsibleGroups,
     ],
     components: {
         RecordCount,
@@ -334,7 +335,7 @@ export default {
                                 help: this.$t('filter.field.date_scholarly_any.help'),
 
                                 labelClasses: 'form-label',
-                                validateDebounceTime: 500,
+                                validateDebounceTime: 1000,
                             },
                             {
                                 type: 'checkboxBS5',
@@ -351,7 +352,7 @@ export default {
                                 label: this.$t('filter.field.date_unconverted.label'),
                                 help: this.$t('filter.field.date_unconverted.help'),
                                 labelClasses: 'form-label',
-                                validateDebounceTime: 500,
+                                validateDebounceTime: 1000,
                             },
                             this.formGeneratorCreateMultiSelect(this.$t('filter.field.place_date.label'), {
                                 model: 'charter_place_name',

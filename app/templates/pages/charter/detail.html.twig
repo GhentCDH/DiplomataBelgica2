@@ -6,8 +6,9 @@
 {% block body_class %}layout--fullscreen layout--compact{% endblock %}
 
 {% block main %}
-    <div id="app" class="row">
+    <div id="app" class="w-100 h-100 overflow-hidden">
         <charter-view-app
+                class="h-100"
                 init-urls="{{ urls }}"
                 init-data="{{ data }}"></charter-view-app>
     </div>
