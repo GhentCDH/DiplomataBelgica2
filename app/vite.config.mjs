@@ -1,12 +1,21 @@
 import { defineConfig } from "vite";
-import symfonyPlugin from "vite-plugin-symfony";
 import vue from "@vitejs/plugin-vue";
-import path from "path";
+import symfonyPlugin from "vite-plugin-symfony";
+import { viteStaticCopy } from 'vite-plugin-static-copy'
+import path from "node:path";
 
 export default defineConfig({
     plugins: [
         vue(),
         symfonyPlugin(),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: './assets/images',
+                    dest: 'images'
+                }
+            ]
+        })
     ],
     build: {
         rollupOptions: {
@@ -21,7 +30,7 @@ export default defineConfig({
     },
     server: {
         // Respond to all network requests
-        host: true,
+        host: 'localhost',
         port: 5173,
         strictPort: true,
     },
@@ -35,8 +44,9 @@ export default defineConfig({
     css: {
         preprocessorOptions: {
             scss: {
-                // hide sass deprecations
-                quietDeps: true
+                quietDeps: true,
+                // hide sass @import deprecations
+                silenceDeprecations: ['import']
             }
         }
     }
