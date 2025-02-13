@@ -127,7 +127,7 @@
                     </div>
                 </Widget>
 
-                <Widget title="Actors" :collapsed.sync="config.widgets.actors.isOpen">
+                <Widget title="Actors" v-model:collapsed="config.widgets.actors.isOpen">
                     <actor-list-detailed label="Issuer <small>(author)</small>"
                                          label-plural="Issuers <small>(authors)</small>" :actors="issuers"
                                          :url-generator="urlGeneratorIssuer"></actor-list-detailed>
@@ -140,7 +140,7 @@
                                          :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
 
-                <Widget title="Date" :collapsed.sync="config.widgets.date.isOpen">
+                <Widget title="Date" v-model:collapsed="config.widgets.date.isOpen">
                   <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
                   <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
                   <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
