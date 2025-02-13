@@ -1,6 +1,6 @@
 import axios from "axios";
 import qs from "qs";
-import _merge from "lodash.merge";
+import merge from "lodash.merge";
 
 export default {
     data() {
@@ -20,7 +20,7 @@ export default {
     },
     methods: {
         initResultSet(url, params, count) {
-            this.resultSet = _merge(
+            this.resultSet = merge(
                 {},
                 this.defaultResultSet,
                 {

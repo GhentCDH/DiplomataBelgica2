@@ -1,5 +1,5 @@
-import _merge from "lodash.merge";
-import * as util from 'node:util';
+import merge from "lodash.merge";
+import deepEqual from 'deep-equal';
 
 export default {
     data() {
@@ -16,18 +16,18 @@ export default {
     },
     methods: {
         initSearchSession(data) {
-            let sessionData = _merge({}, this.defaultSearchSession, data)
+            let sessionData = merge({}, this.defaultSearchSession, data)
             sessionData.hash = Date.now();
             window.sessionStorage.setItem('search_session', JSON.stringify(sessionData));
         },
         updateSearchSession(data) {
             let sessionData = this.getSearchSession();
             // check if search parameters have changed. If not, session hash stays unchanged
-            if ( !util.isDeepStrictEqual(sessionData?.params ?? {}, data?.params ?? {}) ) {
+            if ( !deepEqual(sessionData?.params ?? {}, data?.params ?? {}) ) {
                 sessionData.hash = Date.now();
             }
             sessionData.params = {} // clear params
-            sessionData = _merge({}, sessionData, data)
+            sessionData = merge({}, sessionData, data)
             window.sessionStorage.setItem('search_session', JSON.stringify(sessionData));
         },
         getSearchSession(sessionHash) {
