@@ -294,8 +294,8 @@ export default {
                 {
                   id: actor.role.name+ '_'+actor.place.name,
                   latLng: [actor.place.latitude,actor.place.longitude],
-                  name : actor.capacity.name,
-                  role : actor.role.name,
+                  name: actor.capacity.name,
+                  role: actor.role.name,
                 }
               )
               duplicate.push(actor.role.name+ '_'+actor.place.name)
