@@ -3,21 +3,22 @@
 
 {% set page_title %}{{ 'Tradition'|trans }}{% endset %}
 
-{% block body_class %}layout--fullscreen layout--compact{% endblock %}
+{% block body_class %}layout--compact{% endblock %}
 
 {% block main %}
-    <tradition-view-app id="tradition-view-app"
-                   init-urls="{{ urls }}"
-                   init-data="{{ data }}"
-    />
+    <div id="app">
+        <tradition-view-app id="tradition-view-app"
+                init-urls="{{ urls }}"
+                init-data="{{ data }}"></tradition-view-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}
     {{ parent() }}
-    {{ encore_entry_script_tags('tradition-view') }}
+    {{ vite_entry_script_tags('tradition-view') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_link_tags('tradition-view') }}
+    {{ vite_entry_link_tags('tradition-view') }}
 {% endblock %}

@@ -5,19 +5,20 @@
 {% block body_class %}layout--fullscreen{% endblock %}
 
 {% block main %}
+    <div id="app" class="w-100 h-100">
         <tradition-search-app
-            id="tradition-search-app"
+            class="h-100"
             init-urls="{{ urls }}"
-            title="{{ page_title }}"
-        />
+            title="{{ page_title }}"></tradition-search-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}
     {{ parent() }}
-    {{ encore_entry_script_tags('tradition-search') }}
+    {{ vite_entry_script_tags('tradition-search') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_link_tags('tradition-search') }}
+    {{ vite_entry_link_tags('tradition-search') }}
 {% endblock %}

@@ -7,17 +7,9 @@ The search and edit pages consist of Vue.js applications.
 
 ## Getting Started
 
-Read the [Important Notes](#important-notes) thoroughly before starting!
-
 First, check that `.env` contains the correct default configuration (see `example.env`).
 
-Next, make sure ssh-agent is running on your machine and exposes the correct key. To add a key run `ssh-add ~/.ssh/id_rsa`. To check the keys exposed by ssh-agent, run `ssh-add -l`.
-
-```sh
-ssh-add ~/.ssh/id_rsa
-```
-
-Finally, run the following command to run the docker services:
+Run the following command to run the docker services:
 
 - PHP Symfony
 - Elasticsearch
@@ -48,31 +40,3 @@ To index more records, run the following command:
 docker exec -it dibe-dev-symfony-1 bin/console app:elasticsearch:index charter [max limit]
 docker exec -it dibe-dev-symfony-1 bin/console app:elasticsearch:index tradition [max limit]
 ```
-
-## Docker production build
-
-Add the correct SSH key to the agent if building in production, and then run:
-
-```sh
-# For production build
-docker buildx build --tag dibe-web --target prod --ssh default .
-```
-
-#### Notes:
-
-- Ensure you have the ssh-agent active with the correct SSH key!
-- If an external MariaDB database or Elasticsearch is used, update or remove the services in `docker-compose.yaml` (
-  or create a `docker-composer.override.yaml` file).
-
-## IMPORTANT NOTES
-
-- Ensure that your ssh agent is running and that your key(s) are added before building or starting the containers. For
-  production builds, it is necessary to start and add your SSH key in the same terminal window (unless set up via config
-  file) as where the build command is executed.
-
-- The SQL scripts in `initdb` should be named in the correct order. A good example is naming the first script
-  `001-<first file>.sql`, the next script `010-<second file>.sql`, and the last script `100-<third file>.sql`.
-
-- When running in development, three folders will be created locally: `node_modules`, `vendor`, and `var` (for
-  MariaDB and Elasticsearch data). If you want to run in production after development, be sure to delete these three
-  folders!

@@ -1,6 +1,6 @@
 <template>
     <div class="widget" :class="{collapsed: collapsed, collapsible: collapsible}">
-        <div class="sticky-block" @click="toggleOpen()">
+        <div class="sticky-block" @click="toggleCollapsed()">
             <div class="title">
                 <span class="toggle__collapsed" >
                     <i class="fa fa-angle-down" aria-hidden="true"></i>
@@ -42,7 +42,7 @@ export default {
         }
     },
     methods: {
-        toggleOpen: function() {
+        toggleCollapsed: function() {
             this.$emit('update:collapsed', !this.collapsed)
         },
     },

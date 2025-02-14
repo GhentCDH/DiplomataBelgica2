@@ -6,18 +6,20 @@
 {% block body_class %}layout--fullscreen layout--compact{% endblock %}
 
 {% block main %}
-    <charter-view-app id="charter-view-app"
-                   init-urls="{{ urls }}"
-                   init-data="{{ data }}"
-    />
+    <div id="app" class="w-100 h-100 overflow-hidden">
+        <charter-view-app
+                class="h-100"
+                init-urls="{{ urls }}"
+                init-data="{{ data }}"></charter-view-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}
     {{ parent() }}
-    {{ encore_entry_script_tags('charter-view') }}
+    {{ vite_entry_script_tags('charter-view') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_link_tags('charter-view') }}
+    {{ vite_entry_link_tags('charter-view') }}
 {% endblock %}

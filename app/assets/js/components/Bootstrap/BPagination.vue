@@ -1,7 +1,7 @@
 <template>
     <nav aria-label="Page navigation">
-        <ul class="pagination m-0">
-            <li v-if="showFirst && startPage > 1" class="page-item">
+        <ul class="pagination m-0 user-select-none">
+            <li v-if="showFirst" class="page-item" :class="{ disabled: currentPage === 1 }">
                 <a class="page-link box-shadow-none" href="#" @click.prevent="changePage(1)">{{ firstText }}</a>
             </li>
             <li class="page-item" :class="{ disabled: currentPage === 1 }">

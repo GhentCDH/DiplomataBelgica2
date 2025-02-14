@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import {LControl, LGeoJson, LMap, LMarker, LTileLayer, LWMSTileLayer, LControlLayers, LIcon, LPopup} from 'vue2-leaflet';
+import {LControl, LGeoJson, LMap, LMarker, LTileLayer, LWmsTileLayer, LControlLayers, LIcon, LPopup} from '@vue-leaflet/vue-leaflet';
 import 'leaflet/dist/leaflet.css';
 
 // icon fix
@@ -38,10 +38,14 @@ import {Icon} from 'leaflet';
 
 delete Icon.Default.prototype._getIconUrl;
 
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
+
 let iconDefaults = {
-    iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-    iconUrl: require('leaflet/dist/images/marker-icon.png'),
-    shadowUrl: require('leaflet/dist/images/marker-shadow.png')
+    iconRetinaUrl: iconRetinaUrl,
+    iconUrl: iconUrl,
+    shadowUrl: shadowUrl
 }
 
 Icon.Default.mergeOptions(iconDefaults)
@@ -57,7 +61,7 @@ export default {
         LControl,
         LControlLayers,
         LPopup,
-        'l-wms-tile-layer': LWMSTileLayer
+        'l-wms-tile-layer': LWmsTileLayer
     },
     props: {
         layers: {

@@ -5,19 +5,20 @@
 {% block body_class %}layout--fullscreen{% endblock %}
 
 {% block main %}
-    <charter-search-app
-        id="charter-search-app"
-        init-urls="{{ urls }}"
-        title="{{ page_title }}"
-    />
+    <div id="app" class="w-100 h-100">
+        <charter-search-app
+                class="h-100"
+                init-urls="{{ urls }}"
+                title="{{ page_title }}"></charter-search-app>
+    </div>
 {% endblock %}
 
 {% block javascript %}
     {{ parent() }}
-    {{ encore_entry_script_tags('charter-search') }}
+    {{ vite_entry_script_tags('charter-search') }}
 {% endblock %}
 
 {% block stylesheets %}
     {{ parent() }}
-    {{ encore_entry_link_tags('charter-search') }}
+    {{ vite_entry_link_tags('charter-search') }}
 {% endblock %}

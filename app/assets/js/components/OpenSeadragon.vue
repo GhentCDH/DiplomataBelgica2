@@ -6,7 +6,7 @@
 </template>
 <script>
 
-let openseadragon = require('openseadragon')
+import * as openseadragon from 'openseadragon'
 
 export default {
     props: {

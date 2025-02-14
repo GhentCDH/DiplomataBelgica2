@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import MasonryWall from '@yeger/vue2-masonry-wall';
+import MasonryWall from '@yeger/vue-masonry-wall';
 import OpenSeadragon from './OpenSeadragon.vue';
 
 export default {

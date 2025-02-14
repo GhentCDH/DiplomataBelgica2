@@ -23,6 +23,8 @@ RUN apt-get update -qq && \
 RUN mkdir -p -m 0600 ~/.ssh && \
     ssh-keyscan github.com >> ~/.ssh/known_hosts
 
+# instal pnpm
+RUN npm install --global corepack@latest
 RUN corepack enable
 
 # NODE-PROD
@@ -33,7 +35,7 @@ COPY ./app /app
 
 # add ssh key (add context .ssh default in docker compose)
 RUN --mount=type=ssh pnpm install && \
-    pnpm encore production
+    pnpm run build
 
 # NODE-DEV
 FROM node-base AS node-dev
@@ -43,7 +45,7 @@ WORKDIR "/app"
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 
-CMD pnpm install; pnpm encore dev --watch
+CMD pnpm install; pnpm run dev
 
 # ----------------------------------------------------------
 # PHP/SYMFONY

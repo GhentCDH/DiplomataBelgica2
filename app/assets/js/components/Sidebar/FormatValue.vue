@@ -17,7 +17,7 @@ export default {
   name: "FormatValue",
   props: {
     value: {
-      type: String|Number
+      type: [String, Number, Object],
     },
     unknown: {
       type: [Boolean, String],

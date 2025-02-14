@@ -1,5 +1,5 @@
 <template>
-    <table class="table table-striped table-hover">
+    <table class="table">
         <thead>
         <tr>
             <th v-for="field in fieldData" :key="field.key" :class="getFieldHeaderClass(field)" @click="changeSort(field)">
