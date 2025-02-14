@@ -26,12 +26,12 @@
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
                                 data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results"
-                                aria-selected="true" @click="updateMapVisibility(false)"><i
+                                aria-selected="true"><i
                             class="fa-solid fa-bars"></i> Browse results
                         </button>
                         <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map"
                                 type="button" role="tab" aria-controls="nav-map" aria-selected="false"
-                                @click="updateMapVisibility(true)"><i class="fa-solid fa-map-location-dot"></i> Browse
+                                @click="setMapVisible()"><i class="fa-solid fa-map-location-dot"></i> Browse
                             map
                         </button>
                     </div>
@@ -90,8 +90,7 @@
                         </div>
                     </div>
                     <div class="tab-pane w-100 h-100" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
-                        <LeafletMap :markers="markers" :layers="layers" :center="[47.413220, -1.219482]"
-                                    v-if="mapVisible" class="w-100 h-100"></LeafletMap>
+                        <LeafletMap ref="leafletMap" v-if="mapVisible" :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" class="w-100 h-100"></LeafletMap>
                     </div>
                 </div>
             </section>
@@ -463,8 +462,9 @@ export default {
     },
     watch: {},
     methods: {
-        updateMapVisibility(value) {
-            this.mapVisible = value;
+        setMapVisible() {
+            this.mapVisible = true;
+            window.dispatchEvent(new Event('resize'));
         },
         getCharterUrl(id, index) {
             let context = {
