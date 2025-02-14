@@ -182,8 +182,6 @@ export default {
             this.searchClient.prevFilterValues = JSON.parse(JSON.stringify(filterValues))
             this.requestData()
         },
-        onData(data) {
-        },
         onLoaded(data) {
             this.searchClient.debug && console.log('onLoaded', data)
             this.data = data
@@ -197,7 +195,7 @@ export default {
             this.searchClient.openRequests--
 
             // todo: fix Vue3 missing eventbus
-            this.$emit('data', data)
+            // this.$emit('data', data)
         },
         updateAggregations(data, fieldNames = null, keepModelData = false) {
             fieldNames = fieldNames && Array.isArray(fieldNames) ? fieldNames : Object.keys(this.fields)

@@ -1,14 +1,17 @@
 import qs from "qs";
 import SearchSession from "./SearchSession";
 import SearchContext from "./SearchContext";
-import CollapsibleGroups from "./FormGeneratorCollapsibleGroups";
 
 export default {
     mixins: [
         SearchSession,
         SearchContext,
-        CollapsibleGroups,
     ],
+    watch: {
+        data(data) {
+            this.onData(data)
+        }
+    },
     methods: {
         // todo: watch .data and update search session
         onData(data) {
@@ -18,12 +21,6 @@ export default {
                 params: params,
                 count: data?.count ?? 0
             })
-
-            // update local data
-            // this.aggregation = data.aggregation // done in onLoaded
-            // this.data.search = data.search // done in onLoaded
-            // this.data.filters = data.filters // done in onLoaded
-            // this.data.count = data.count // done in onLoaded
         },
         getUrl(route) {
             return this.urls[route] ?? ''
