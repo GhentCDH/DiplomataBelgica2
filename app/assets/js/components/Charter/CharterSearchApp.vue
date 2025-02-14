@@ -72,10 +72,10 @@
                                          :sort-by="searchParams.orderBy"
                                          :sort-ascending="searchParams.ascending"
                                          @sort="onTableSort"
-                                         class="table table-striped table-bordered table-hover m-0"
+                                         class="m-0"
                                 >
                                     <template #id="props">
-                                        <a target="_blank" :href="getCharterUrl(props.row.id, props.index)">
+                                        <a class="btn btn-tertiary btn-sm" target="_blank" :href="getCharterUrl(props.row.id, props.index)">
                                             {{ props.row.id }}
                                         </a>
                                     </template>

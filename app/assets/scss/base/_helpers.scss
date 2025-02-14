@@ -2,6 +2,17 @@
     background-color: $tertiary;
 }
 
+.bg-primary-light {
+    background-color: $primary-light !important;
+}
+
+.btn-tertiary {
+    background-color: $tertiary;
+    &:hover {
+        background-color: darken($tertiary, 10%);
+    }
+}
+
 .no-float {
     float: none !important;
 }
