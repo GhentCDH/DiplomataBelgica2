@@ -96,8 +96,16 @@
                 <h2>Map</h2>
 
                 <div id="map" class="map">
-                  <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
+                    <MapLibreMap :geojson="geojson" @marker-over="onMarkerOver" @marker-out="onMarkerOut">
+                        <template #popup>
+                            <div class="popup">
+                                <div v-if="popupActor?.role?.name"><b>{{ popupActor?.role?.name }}</b></div>
+                                <ActorDetailsFlat :actor="popupActor"/>
+                            </div>
+                        </template>
+                    </MapLibreMap>
                 </div>
+
             </div>
         </article>
         <aside class="d-flex col-sm-4 overflow-hidden">
@@ -176,17 +184,19 @@ import qs from 'qs'
 import FormatValue from "../Sidebar/FormatValue.vue";
 import ImageThumbnail from '../ImageThumbnail.vue'
 
-import LeafletMap from "../LeafletMap.vue"
-
 import ActorDetails from "../Actor/ActorDetails.vue"
 import ActorListDetailed from "../Actor/ActorListDetailed.vue";
+import MapLibreMap from "@/components/MapLibreMap.vue";
+import ActorDetailsFlat from "@/components/Actor/ActorDetailsFlat.vue";
 
 export default {
     name: "CharterViewApp",
     components: {
+        ActorDetailsFlat,
+        MapLibreMap,
         ActorListDetailed,
       FormatValue,
-        Widget, LabelValue, PropertyGroup, InlineLinkList, ImageThumbnail, LeafletMap,
+        Widget, LabelValue, PropertyGroup, InlineLinkList, ImageThumbnail,
         ActorDetails
     },
     mixins: [
@@ -219,6 +229,7 @@ export default {
                 }
             },
             openRequests: false,
+            popupActorId: null,
         }
     },
     computed: {
@@ -266,52 +277,29 @@ export default {
         secondaryLiteratureFormatted() {
             return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
         },
-        layers() {
-            return [
-                {
-                    id: 'google-satellite',
-                    type: 'tileLayer',
-                    options: {
-                        // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-                        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        attribution: 'Google',
-                        maxZoom: 18,
-                        name: 'Google satelliet',
-                        visible: true,
-                        opacity: 1,
-                        layerType: 'base',
-                        zIndex: 10,
-                    }
-                },
-            ]
-        },
-        markers() {
-          var marker = [];
-          var duplicate =[];
-          for (const actor of this.charter.actors) {
-            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.role.name+ '_'+actor.place.name) && actor.place.latitude != null){
-              marker.push(
-                {
-                  id: actor.role.name+ '_'+actor.place.name,
-                  latLng: [actor.place.latitude,actor.place.longitude],
-                  name: actor.capacity.name,
-                  role: actor.role.name,
+        geojson() {
+            const geojson = { type: 'FeatureCollection', features: [] };
+            for (const actor of this.charter.actors) {
+                if (actor?.place?.latitude) {
+                    geojson.features.push({
+                        'type': 'Feature',
+                        'geometry': {
+                            type: 'Point',
+                            coordinates: [parseFloat(actor.place.longitude), parseFloat(actor.place.latitude)],
+                        },
+                        'properties': {
+                            actorId: actor.id,
+                            roleId: actor.role.id,
+                            roleLabel: { 1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
+                        }
+                    })
                 }
-              )
-              duplicate.push(actor.role.name+ '_'+actor.place.name)
             }
-          }
-          return marker
+            return geojson;
         },
-        center(){
-          var lat = [];
-          var lng = [];
-          for (const coords of this.markers) {
-            lat.push(Number(coords.latLng[0]))
-            lng.push(Number(coords.latLng[1]))
-          }
-          return([this.getMiddle('lat', lat), this.getMiddle('lng',lng)])
-        },      
+        popupActor() {
+            return this.popupActorId ? this.charter.actors.find( actor => actor.id === this.popupActorId ) : null
+        }
     },
     methods: {
         getUrl(route) {
@@ -335,20 +323,6 @@ export default {
                 url += '#' + this.getContextHash()
             }
             return url
-        },
-        getMiddle(prop, values) {
-          let min = Math.min(...values);
-          let max = Math.max(...values);
-          if (prop === 'lng' && (max - min > 180)) {
-            values = values.map(val => val < max - 180 ? val + 360 : val);
-            min = Math.min(...values);
-            max = Math.max(...InlineLinkListvalues);
-          }
-          let result = (min + max) / 2;
-          if (prop === 'lng' && result > 180) {
-            result -= 360
-          }
-          return result;
         },
         loadCharter(id) {
             this.openRequests += 1
@@ -596,7 +570,13 @@ export default {
         updateTitle(id) {
           // Set proper page title
           document.title = 'Diplomata Belgica - Charter ID ' + id;
-        }  
+        },
+        onMarkerOver(feature) {
+            this.popupActorId = feature.properties.actorId
+        },
+        onMarkerOut() {
+            this.popupActorId = null
+        }
     },
     created() {
         // init context
