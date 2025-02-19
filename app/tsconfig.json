@@ -6,10 +6,13 @@
   ],
   "compilerOptions": {
     "allowJs": true,
-//    "paths": {
-//      "@/*": [
-//        "./assets/js/*"
-//      ]
-//    }
+    "paths": {
+      "@/*": [
+        "./assets/js/*"
+      ],
+      "@assets/*": [
+        "./assets/*"
+      ]
+    }
   }
 }
