@@ -14,7 +14,11 @@ trait TraitCustomModelSchema {
     private function initSchema() {
         // default table name = class name converted to snake case
         if ( !$this->table ) {
-            $this->table = u((new ReflectionClass($this))->getShortName())->snake();
+            $parts = explode('_', (new ReflectionClass($this))->getShortName());
+            $parts = array_map(function($part) {
+                return u($part)->snake();
+            }, $parts);
+            $this->table = implode('__', $parts);
         }
         // default primary key = tablename_id
         if ( !$this->primaryKey ) {
