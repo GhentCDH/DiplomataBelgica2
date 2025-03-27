@@ -12,7 +12,22 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
     const SEARCH_RAW_MAX_RESULTS = 500;
-    private const DEFAULT_FILTER_TYPE = self::FILTER_KEYWORD;
+
+    private SearchConfig $searchConfig;
+    private AggregationConfig $aggregationConfig;
+
+    public function __construct(Client $client, string $indexPrefix, bool $debug = false)
+    {
+        parent::__construct($client, $indexPrefix, $debug);
+
+        // init search config
+        $this->searchConfig = new SearchConfig();
+        $this->searchConfig->setConfig($this->initSearchConfig());
+
+        // init aggregation config
+        $this->aggregationConfig = new AggregationConfig();
+        $this->aggregationConfig->setConfig($this->initAggregationConfig());
+    }
 
     /**
      * Add search filter details to search service
@@ -32,9 +47,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      */
     protected abstract function initAggregationConfig(): array;
 
-    public function aggregate(array $filters, ?array $configKeys = null): array {
+    public function aggregate(array $filters, ?array $limitConfigKeys = null, ?array $excludeConfigKeys = null): array {
         $filters = $this->sanitizeSearchFilters($filters);
-        return $this->_aggregate($filters, $configKeys);
+        return $this->_aggregate($filters, $limitConfigKeys, $excludeConfigKeys);
     }
 
     public function search(array $query): array
@@ -43,7 +58,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $this->_search($query);
     }
 
-    public function searchAndAggregate(array $query): array
+    public function searchAndAggregate(array $query, ?array $limitConfigKeys = null, ?array $excludeConfigKeys = null): array
     {
         // sanitize query
         $query = $this->sanitizeQuery($query);
@@ -52,7 +67,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $result = $this->_search($query);
 
         // aggregate
-        $result['aggregation'] = $this->_aggregate($query['filters']);
+        $result['aggregation'] = $this->_aggregate($query['filters'], $limitConfigKeys, $excludeConfigKeys);
 
         return $result;
     }
@@ -299,97 +314,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
-    private function sanitizeSearchFilterConfig(string $name, array $config, string $prefix = null): array
-    {
-        $arrFieldPrefix = [];
-        if ( $prefix ) {
-            $arrFieldPrefix[] = $prefix;
-        }
-
-        $config['name'] = $name;
-        $config['type'] = $config['type'] ?? self::DEFAULT_FILTER_TYPE;
-        if ( $config['type'] !== self::FILTER_NESTED_MULTIPLE ) {
-            $config['field'] = $config['field'] ?? $config['name'];
-        }
-        if($this->isNestedFilter($config)) {
-            $config['nestedPath'] = $config['nestedPath'] ?? $config['field'];
-            $arrFieldPrefix[] = $config['nestedPath'];
-        }
-        $config['anyKey'] = $config['anyKey'] ?? self::ANY_KEY;
-        $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
-
-        // subfilters?
-        if($config['filters'] ?? []) {
-            foreach($config['filters'] as $sub_name => $sub_config) {
-                $config['filters'][$sub_name] = $this->sanitizeSearchFilterConfig($sub_name, $sub_config, $config['nestedPath'] ?? null);
-            }
-        }
-
-        // fix lazy configuration
-        if ( count($arrFieldPrefix) ) {
-            $fieldPrefix = implode('.', $arrFieldPrefix).'.';
-            // add missing field prefix?
-            if ( isset($config['field']) && $config['field'] && !(str_starts_with($config['field'], $fieldPrefix) || $fieldPrefix === $config['field'].'.') ) {
-                $config['field'] = $fieldPrefix.$config['field'];
-            }
-        }
-
-        return $config;
-    }
-
-    private function sanitizeAggregationConfig(string $name, array $config, string $prefix = null): array
-    {
-        $arrFieldPrefix = [];
-        if ( $prefix ) {
-            $arrFieldPrefix[] = $prefix;
-        }
-
-        $config['name'] = $name;
-        $config['field'] = $config['field'] ?? $config['name'];
-        $config['active'] = (bool) ($config['active'] ?? true);
-        $config['limit'] = isset($config['limit']) ? intval($config['limit']) : null;
-        $config['safeLimit'] = isset($config['safeLimit']) ? intval($config['safeLimit']) : null;
-        if($this->isNestedAggregation($config)) {
-            $config['nestedPath'] = $config['nestedPath'] ?? $config['field'];
-            $arrFieldPrefix[] = $config['nestedPath'];
-        }
-        $config['countTopDocuments'] = (bool) ($config['countTopDocuments'] ?? True);
-
-        $config['countMissing'] = (bool) ($config['countMissing'] ?? false);
-        $config['countAny'] = (bool) ($config['countAny'] ?? false);
-        $config['anyKey'] = $config['anyKey'] ?? self::ANY_KEY;
-        $config['anyLabel'] = $config['anyLabel'] ?? self::ANY_LABEL;
-        $config['noneKey'] = $config['noneKey'] ?? self::NONE_KEY;
-        $config['noneLabel'] = $config['noneLabel'] ?? self::NONE_LABEL;
-
-        // sanitize filters
-        $config['filters'] = $config['filters'] ?? [];
-        if($config['filters']) {
-            foreach($config['filters'] as $sub_name => $sub_config) {
-                $config['filters'][$sub_name] = $this->sanitizeSearchFilterConfig($sub_name, $sub_config, $config['nestedPath'] ?? null);
-            }
-        }
-
-        // sanitize sub aggregations
-        $config['aggregations'] = $config['aggregations'] ?? [];
-        if($config['aggregations']) {
-            foreach($config['filters'] as $sub_name => $sub_config) {
-                $config['filters'][$sub_name] = $this->sanitizeAggregationConfig($sub_name, $sub_config, $config['nestedPath'] ?? null);
-            }
-        }
-
-        // fix lazy configuration
-        if ( count($arrFieldPrefix) ) {
-            $fieldPrefix = implode('.', $arrFieldPrefix).'.';
-            // add missing field prefix?
-            if ( isset($config['field']) && !str_starts_with($config['field'], $fieldPrefix) ) {
-                $config['field'] = $fieldPrefix.$config['field'];
-            }
-        }
-
-        return $config;
-    }
-
     private function sanitizeTermAggregationItems(array $items, array $aggConfig, array $aggFilterValues): array
     {
         $must = [];
@@ -454,34 +378,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     protected function onInitAggregationConfig(array &$arrAggregationConfigs, array $arrFilterValues): void {
     }
 
-    protected final function getAggregationConfig(): array
+    public final function getAggregationConfig(): array
     {
-        static $config = null;
-
-        if ($config) {
-            return $config;
-        }
-
-        $config = $this->initAggregationConfig();
-        foreach ($config as $filterName => $filterConfig) {
-            $config[$filterName] = $this->sanitizeAggregationConfig($filterName, $filterConfig);
-        }
-        return $config;
+        return $this->aggregationConfig->getConfig();
     }
 
-    protected final function getSearchConfig(): array
+    public final function getSearchConfig(): array
     {
-        static $config = null;
-
-        if ($config) {
-            return $config;
-        }
-
-        $config = $this->initSearchConfig();
-        foreach ($config as $filterName => $filterConfig) {
-            $config[$filterName] = $this->sanitizeSearchFilterConfig($filterName, $filterConfig);
-        }
-        return $config;
+        return $this->searchConfig->getConfig();
     }
 
     protected function createSearchQuery(array $filterValues, ?array $filterConfigs = null): Query\BoolQuery
@@ -514,17 +418,18 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $query_top = $query;
 
         // nested filter?
-        $boolIsNestedFilter = $this->isNestedFilter($filterConfig);
+        $boolIsNestedFilter = SearchConfig::isNestedFilter($filterConfig);
 
         $filterName = $filterConfig['name'];
         $filterField = $this->calculateFilterField($filterConfig);
-//        $filterValue = $filterConfig['value'] ?? $filterValues[$filterName]['value'] ?? $filterConfig['defaultValue'] ?? null; // filter can have fixed value, query value or default value
+        // values are sanitized already, line below is not needed
+        // $filterValue = $filterConfig['value'] ?? $filterValues[$filterName]['value'] ?? $filterConfig['defaultValue'] ?? null; // filter can have fixed value, query value or default value
         $filterValue = $filterValues[$filterName]['value'] ?? null;
         $filterType = $filterConfig['type'];
         $filterNestedPath = $filterConfig['nestedPath'] ?? null;
 
         // skip filter if no filter value and no subfilters
-        if (!isset($filterConfig['filters']) && !$filterValue) {
+        if (!isset($filterConfig['filters']) && !$filterValue ) {
             return;
         }
 
@@ -878,12 +783,37 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 }
 
                 break;
-        }
-    }
+            case self::BOOL_QUERY_OR:
+//                dump($filterConfig);
+//                dump($filterValues);
+                $queryOR = new Query\BoolQuery();
+                foreach($filterConfig['filters'] as $subFilterConfig) {
+                    $querySUB = new Query\BoolQuery();
+                    $this->addFieldQuery($querySUB, $subFilterConfig, $filterValues);
+                    if ($querySUB->count()) {
+                        $queryOR->addShould($querySUB);
+                    }
+                }
+//                dump($queryOR);
+                if ($queryOR->count()) {
+                    $query->addMust($queryOR);
+                }
 
-    protected function isNestedFilter($config)
-    {
-        return (in_array($config['type'], [self::FILTER_NESTED_ID, self::FILTER_NESTED_MULTIPLE], true) || ($config['nestedPath'] ?? false));
+                break;
+            case self::BOOL_QUERY_AND:
+//                dump($filterConfig);
+//                dump($filterValues);
+                $queryAND = new Query\BoolQuery();
+                foreach($filterConfig['filters'] as $subFilterConfig) {
+                    $this->addFieldQuery($queryAND, $subFilterConfig, $filterValues);
+                }
+//                dump($queryAND);
+                if ($queryAND->count()) {
+                    $query->addMust($queryAND);
+                }
+
+                break;
+        }
     }
 
     private static function createNestedQuery(string $filterNestedPath, array $filterConfig = []): Query\Nested
@@ -1216,6 +1146,278 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $result;
     }
 
+    protected function addAggregations(Query|Aggregation\AbstractAggregation $aggParentQuery, array $aggConfigs, array $arrFilterValues): void
+    {
+        foreach ($aggConfigs as $aggName => $aggConfig) {
+            $this->addAggregation($aggParentQuery, $aggConfig, $arrFilterValues);
+        }
+    }
+
+    protected function addAggregation(Query|Aggregation\AbstractAggregation $aggParentQuery, array $aggConfig, array $arrFilterValues): void
+    {
+        $aggName = $aggConfig['name'];
+        $aggType = $aggConfig['type'];
+        $aggField = $aggConfig['field'];
+        $countTopDocuments = $aggConfig['countTopDocuments'];
+        $aggLimit = $aggConfig['limit'] ?? self::MAX_AGG;
+        $aggIsNested = AggregationConfig::isNestedAggregation($aggConfig);
+
+        switch ($aggType) {
+            case self::AGG_GLOBAL_STATS:
+                $aggParentQuery->addAggregation(
+                    (new Aggregation\Stats($aggName))
+                        ->setField($aggField)
+                );
+                break;
+            case self::AGG_CARDINALITY:
+                $aggParentQuery->addAggregation(
+                    (new Aggregation\Cardinality($aggName))
+                        ->setField($aggField)
+                );
+                break;
+            case self::AGG_KEYWORD:
+                $aggField = $aggField . '.keyword';
+            case self::AGG_TERMS:
+                $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
+
+                $aggTerm = (new Aggregation\Terms($aggName))
+                    ->setSize($aggLimit)
+                    ->setField($aggField);
+
+                // allow 0 doc count if aggregation is filtered
+                if ( count($aggFilterValues) ) {
+                    $aggTerm->setMinimumDocumentCount(0);
+                }
+
+                // count top documents?
+                $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+
+                // subaggregations
+                $this->addAggregations($aggTerm, $aggConfig['aggregations'], $arrFilterValues);
+//                foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+//                    $this->addAggregation($aggTerm, $subAggConfig, $arrFilterValues);
+//                }
+
+                $aggParentQuery->addAggregation($aggTerm);
+                break;
+            case self::AGG_BOOLEAN:
+            case self::AGG_NUMERIC:
+                $aggTerm = (new Aggregation\Terms($aggName))
+                    ->setSize($aggLimit)
+                    ->setField($aggField);
+
+                // count top documents?
+                $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+
+                // subaggregations
+                $this->addAggregations($aggTerm, $aggConfig['aggregations'], $arrFilterValues);
+//                foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+//                    $this->addAggregation($aggTerm, $subAggConfig, $arrFilterValues);
+//                }
+
+                $aggParentQuery->addAggregation($aggTerm);
+                break;
+            case self::AGG_OBJECT_ID_NAME:
+                // todo: remove 'locale' option, add 'keywordField' that overrides default '.id_name.keyword'
+                $aggLocalePrefix = ($aggConfig['locale'] ?? null) ? '.'.$aggConfig['locale'] : '';
+                $aggField = $aggField . '.id_name'.$aggLocalePrefix.'.keyword';
+                $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
+
+                $aggTerm = (new Aggregation\Terms($aggName))
+                    ->setSize($aggLimit)
+                    ->setField($aggField);
+
+                // count top documents?
+                $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+
+                // allow 0 doc count if aggregation is filtered
+                if ( count($aggFilterValues) ) {
+                    $aggTerm->setMinimumDocumentCount(0);
+                }
+
+                // subaggregations
+                $this->addAggregations($aggTerm, $aggConfig['aggregations'], $arrFilterValues);
+//                foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+//                    $this->addAggregation($aggTerm, $subAggConfig, $arrFilterValues);
+//                }
+
+                $aggParentQuery->addAggregation($aggTerm);
+
+                // count missing
+                if ($config['countMissing'] ?? false) {
+                    $aggCountMissing = new Aggregation\Missing('count_missing', $aggField);
+                    $aggIsNested && $countTopDocuments && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggParentQuery->addAggregation($aggCountMissing);
+                }
+                // count any
+                if ($config['countAny'] ?? false) {
+                    $aggCountAny = new Aggregation\Filters('count_any');
+                    $aggIsNested && $countTopDocuments && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
+                    $aggCountAny->addFilter(new Query\Exists($aggField));
+                    $aggParentQuery->addAggregation($aggCountAny);
+                }
+                break;
+            case self::AGG_REVERSE_NESTED:
+                $aggReverseNested = new Aggregation\ReverseNested($aggName);
+
+                $this->addAggregations($aggReverseNested, $aggConfig['aggregations'], $arrFilterValues);
+//                foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+//                    $this->addAggregation($aggReverseNested, $subAggConfig, $arrFilterValues);
+//                }
+
+                $aggParentQuery->addAggregation($aggReverseNested);
+                break;
+        }
+    }
+
+    protected function parseAggregationResult(array $arrAggData, array $aggConfig, array $arrFilterValues = []): mixed
+    {
+        $aggName = $aggConfig['name'];
+        $aggType = $aggConfig['type'];
+        $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
+
+        // get aggregation results
+        $aggData = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
+
+        $results = [];
+
+        switch ($aggType) {
+            case self::AGG_GLOBAL_STATS:
+            case self::AGG_CARDINALITY:
+                $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                $results = $aggResults;
+                break;
+            case self::AGG_BOOLEAN:
+                $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                $items = [];
+                foreach ($aggResults['buckets'] ?? [] as $result) {
+                    if (!isset($result['key'])) continue;
+                    $items[] = [
+                        'id' => $result['key'],
+                        'name' => $result['key_as_string'],
+                        'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
+                    ];
+                }
+                $results = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterValues);
+                break;
+            case self::AGG_NUMERIC:
+            case self::AGG_KEYWORD:
+            case self::AGG_TERMS:
+                $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                $aggFilterValuesFlipped = array_flip($aggFilterValues);
+                $aggFormatter = $aggConfig['formatter'] ?? "facet";
+
+                $items = [];
+
+                switch($aggFormatter)
+                {
+                    case 'key':
+                        $results = $aggResults['buckets'][0]['key'] ?? null;
+                        break;
+                    case 'keys':
+                        foreach ($aggResults['buckets'] ?? [] as $bucket) {
+                            if (!isset($bucket['key'])) continue;
+                            $items[] = $bucket['key'];
+                        }
+                        $results = $items;
+
+                        break;
+                    case 'facet':
+                    default:
+                        foreach ($aggResults['buckets'] ?? [] as $bucket) {
+                            if (!isset($bucket['key'])) continue;
+
+                            // output facet
+                            $item = [
+                                'id' => $bucket['key'],
+                                'name' => $bucket['key'],
+                                'count' => (int) ($bucket['top_reverse_nested']['doc_count'] ?? $bucket['doc_count'])
+                            ];
+                            if ( isset($aggFilterValuesFlipped[$bucket['key']]) ) {
+                                $item['active'] = true;
+                            }
+
+                            // subaggregations
+                            foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                                $item[$subAggName] = $this->parseAggregationResult($bucket, $subAggConfig, $arrFilterValues);
+                            }
+
+                            $items[] = $item;
+                        }
+                        $results = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterValues);
+                        break;
+                }
+
+                break;
+            case self::AGG_OBJECT_ID_NAME:
+                $items = [];
+                $aggFilterValuesFlipped = array_flip($aggFilterValues);
+
+                // get none count
+                if ($aggConfig['countMissing'] ?? false) {
+                    $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
+                    if ( $aggResults['doc_count'] ?? null) {
+                        $item = [
+                            'id' => $aggConfig['noneKey'],
+                            'name' => $aggConfig['noneLabel'],
+                            'count' => (int) ($aggResults['top_reverse_nested']['doc_count'] ?? $aggResults['doc_count'])
+                        ];
+                        if ( isset($aggFilterValuesFlipped[(int) $aggConfig['noneKey']]) ) {
+                            $item['active'] = true;
+                        }
+                        $items[] = $item;
+                    }
+                }
+
+                // get any count
+                if ($aggConfig['countAny'] ?? false) {
+                    $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
+                    if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
+                        $item = [
+                            'id' => $aggConfig['anyKey'],
+                            'name' => $aggConfig['anyLabel'],
+                            'count' => (int) ($aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count'])
+                        ];
+                        if ( isset($aggFilterValuesFlipped[(int) $aggConfig['anyKey']]) ) {
+                            $item['active'] = true;
+                        }
+                        $items[] = $item;
+                    }
+                }
+
+                // get values
+                $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
+                foreach ($aggResults['buckets'] ?? [] as $bucket) {
+                    if (!isset($bucket['key'])) continue;
+                    $parts = explode('_', $bucket['key'], 2);
+                    // create item
+                    $item = [
+                        'id' => $parts[0],
+                        'name' => $parts[1],
+                        'count' => (int) ($bucket['top_reverse_nested']['doc_count'] ?? $bucket['doc_count'])
+                    ];
+                    // item active?
+                    if ( isset($aggFilterValuesFlipped[$parts[0]]) ) {
+                        $item['active'] = true;
+                    }
+                    // collect sub aggregations
+                    foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                        $item[$subAggName] = $this->parseAggregationResult($bucket, $subAggConfig, $arrFilterValues);
+                    }
+
+                    $items[] = $item;
+                }
+                $results = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterValues);
+                break;
+            case self::AGG_REVERSE_NESTED:
+                foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
+                    $results[$subAggName] = $this->parseAggregationResult($aggData, $subAggConfig, $arrFilterValues);
+                }
+                break;
+        }
+
+        return $results;
+    }
 
     /**
      * @param array $arrFilterValues
@@ -1231,7 +1433,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
      *
      */
 
-    protected function _aggregate(array $arrFilterValues, ?array $configKeys = null): array
+    protected function _aggregate(array $arrFilterValues, ?array $limitConfigKeys = null, ?array $excludeConfigKeys = null): array
     {
         // get aggregation configurations
         $arrAggregationConfigs = $this->getAggregationConfig();
@@ -1240,8 +1442,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         }
 
         // limit aggregation configs?
-        if ( $configKeys ) {
-            $arrAggregationConfigs = array_intersect_key($arrAggregationConfigs, array_flip($configKeys));
+        if ( $limitConfigKeys ) {
+            $arrAggregationConfigs = array_intersect_key($arrAggregationConfigs, array_flip($limitConfigKeys));
+        }
+
+        // exclude aggregation configs?
+        if ( $excludeConfigKeys ) {
+            $arrAggregationConfigs = array_diff_key($arrAggregationConfigs, array_flip($excludeConfigKeys));
         }
 
         $arrFilterConfigs = $this->getSearchConfig();
@@ -1267,11 +1474,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
         // walk aggregation configs
         foreach ($arrAggregationConfigs as $aggName => $aggConfig) {
-            $aggType = $aggConfig['type'];
             $aggField = $aggConfig['field'];
-            $aggIsGlobal = $this->isGlobalAggregation($aggConfig); // global aggregation?
-            $countTopDocuments = $aggConfig['countTopDocuments'];
-            $aggLimit = $aggConfig['limit'] ?? self::MAX_AGG;
+            $aggIsGlobal = AggregationConfig::isGlobalAggregation($aggConfig); // global aggregation?
 
             // skip inactive aggregations
             if (!$aggConfig['active']) {
@@ -1313,7 +1517,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
 
             // nested aggregation? filter nested set!
-            $aggIsNested = $this->isNestedAggregation($aggConfig);
+            $aggIsNested = AggregationConfig::isNestedAggregation($aggConfig);
             if ($aggIsNested) {
                 // add nested path to filed
                 $aggNestedPath = $aggConfig['nestedPath'];
@@ -1333,7 +1537,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                 // todo: instead of manual filter list, can this be done by getting all filters with the same nested path?
                 // all filters with the same nested path? not always needed,
                 $aggNestedFilterConfigs = $aggConfig['filters'];
-                if ( !$aggNestedFilterConfigs ) {
+                if ( !is_array($aggNestedFilterConfigs) ) {
                     foreach( $arrAggregationFilterConfigs as $config ) {
                         if ( ($config['nestedPath'] ?? null) === $aggNestedPath ) {
                             $aggNestedFilterConfigs = array_merge($aggNestedFilterConfigs, $config['filters'] ?? []);
@@ -1354,12 +1558,15 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                         $arrExcludeFilterKeys = array_merge($arrExcludeFilterKeys, array_keys($arrFilterConfigs[$filterKey]['filters']) );
                     }
                 }
-                $aggFilterValues = array_intersect_key($arrFilterValues, $aggNestedFilterConfigs);
-                $aggFilterValues = array_diff_key($aggFilterValues, array_flip($arrExcludeFilterKeys));
+                $aggFilterValues = $arrFilterValues;
+                // todo 25/02/21: are the 2 lines below needed? we limit the number of filters,
+                // so we don't need to limit the filter values, only unset our own filter value
+//                $aggFilterValues = array_intersect_key($arrFilterValues, $aggNestedFilterConfigs);
+//                $aggFilterValues = array_diff_key($aggFilterValues, array_flip($arrExcludeFilterKeys));
                 unset($aggFilterValues[$aggName]);
 //                $this->debug && dump($aggFilterValues);
 
-                // create query to reduce nested set
+                // create query to reduce set of nested documents
                 $filterQuery = $this->createSearchQuery($aggFilterValues, $aggNestedFilterConfigs);
 
                 // aggregation has a limit on allowed values?
@@ -1381,100 +1588,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
 
             // add aggregation
-            switch ($aggType) {
-                case self::AGG_GLOBAL_STATS:
-                    $aggParentQuery->addAggregation(
-                        (new Aggregation\Stats($aggName))
-                            ->setField($aggField)
-                    );
-                    break;
-                case self::AGG_CARDINALITY:
-                    $aggParentQuery->addAggregation(
-                        (new Aggregation\Cardinality($aggName))
-                            ->setField($aggField)
-                    );
-                    break;
-                case self::AGG_KEYWORD:
-                    $aggField = $aggField . '.keyword';
-                    $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
-
-                    $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize($aggLimit)
-                        ->setField($aggField);
-
-                    // allow 0 doc count if aggregation is filtered
-                    if ( count($aggFilterValues) ) {
-                        $aggTerm->setMinimumDocumentCount(0);
-                    }
-
-                    // count top documents?
-                    $aggIsNested && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-
-                    // subaggregations
-                    // todo: fix hard coded aggregation type!!
-                    foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
-                        $aggTerm->addAggregation((new Aggregation\Terms($subAggName))
-                            ->setField($subAggConfig['field'].".keyword")
-                        );
-                    }
-
-                    $aggParentQuery->addAggregation($aggTerm);
-                    break;
-                case self::AGG_BOOLEAN:
-                case self::AGG_NUMERIC:
-                    $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize($aggLimit)
-                        ->setField($aggField);
-
-                    // count top documents?
-                    $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-
-                    $aggParentQuery->addAggregation($aggTerm);
-                    break;
-                case self::AGG_OBJECT_ID_NAME:
-                case self::AGG_NESTED_ID_NAME:
-                    // todo: remove 'locale' option, add 'keywordField' that overrides default '.id_name.keyword'
-                    $aggLocalePrefix = ($aggConfig['locale'] ?? null) ? '.'.$aggConfig['locale'] : '';
-                    $aggField = $aggField . '.id_name'.$aggLocalePrefix.'.keyword';
-                    $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
-
-                    $aggTerm = (new Aggregation\Terms($aggName))
-                        ->setSize($aggLimit)
-                        ->setField($aggField);
-
-                    // count top documents?
-                    $aggIsNested && $countTopDocuments && $aggTerm->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-
-                    // allow 0 doc count if aggregation is filtered
-                    if ( count($aggFilterValues) ) {
-                        $aggTerm->setMinimumDocumentCount(0);
-                    }
-
-                    // subaggregations
-                    // todo: fix hard coded aggregation type!!
-                    foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
-                        $aggTerm->addAggregation((new Aggregation\Terms($subAggName))
-                            ->setField($subAggConfig['field'].".keyword")
-                        );
-                    }
-
-                    $aggParentQuery->addAggregation($aggTerm);
-
-                    // count missing
-                    if ($config['countMissing'] ?? false) {
-                        $aggCountMissing = new Aggregation\Missing('count_missing', $aggField);
-                        $aggIsNested && $countTopDocuments && $aggCountMissing->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-                        $aggParentQuery->addAggregation($aggCountMissing);
-                    }
-                    // count any
-                    if ($config['countAny'] ?? false) {
-                        $aggCountAny = new Aggregation\Filters('count_any');
-                        $aggIsNested && $countTopDocuments && $aggCountAny->addAggregation(new Aggregation\ReverseNested('top_reverse_nested'));
-                        $aggCountAny->addFilter(new Query\Exists($aggField));
-                        $aggParentQuery->addAggregation($aggCountAny);
-                    }
-                    break;
-            }
+            $this->addAggregation($aggParentQuery, $aggConfig, $arrFilterValues);
         }
 
         $this->debug && dump(json_encode($query->toArray(),JSON_PRETTY_PRINT));
@@ -1483,124 +1597,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $searchResult = $this->getIndex()->search($query);
         $results = [];
 
+        // parse aggregation results
         $arrAggData = $searchResult->getAggregations();
-//        dump($arrAggData);
+        $this->debug && dump($arrAggData);
 
         foreach ($arrAggregationConfigs as $aggName => $aggConfig) {
-            $aggType = $aggConfig['type'];
-
-            // get aggregation results
-            $aggData = $arrAggData['global_aggregation'][$aggName] ?? $arrAggData[$aggName] ?? [];
-//            dump($aggName);
-//            dump($aggData);
-
-            switch ($aggType) {
-                case self::AGG_GLOBAL_STATS:
-                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-                    $results[$aggName] = $aggResults;
-                    break;
-                case self::AGG_CARDINALITY:
-                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-                    $results[$aggName] = $aggResults;
-                    break;
-                case self::AGG_NUMERIC:
-                case self::AGG_KEYWORD:
-                    $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
-                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-
-                    $items = [];
-                    foreach ($aggResults['buckets'] ?? [] as $result) {
-                        if (!isset($result['key'])) continue;
-
-                        $item = [
-                            'id' => $result['key'],
-                            'name' => $result['key'],
-                            'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
-                        ];
-                        foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
-                            $item[$subAggName] = $result[$subAggName]['buckets'][0]['key'] ?? null;
-                        }
-
-                        $items[] = $item;
-//                        dump($item);
-                    }
-                    $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterConfigs);
-                    break;
-                case self::AGG_OBJECT_ID_NAME:
-                case self::AGG_NESTED_ID_NAME:
-                    $items = [];
-                    $aggFilterValues = $arrFilterValues[$aggName]['value'] ?? [];
-
-                    // get none count
-                    if ($aggConfig['countMissing'] ?? false) {
-                        $aggResults = $this->getAggregationData($aggData, $aggName, 'count_missing');
-                        if ( $aggResults['doc_count'] ?? null) {
-                            $item = [
-                                'id' => $aggConfig['noneKey'],
-                                'name' => $aggConfig['noneLabel'],
-                                'count' => (int) ($aggResults['top_reverse_nested']['doc_count'] ?? $aggResults['doc_count'])
-                            ];
-                            if ( in_array((int) $aggConfig['noneKey'], $aggFilterValues) ) {
-                                $item['active'] = true;
-                            }
-                            $items[] = $item;
-                        }
-                    }
-
-                    // get any count
-                    if ($aggConfig['countAny'] ?? false) {
-                        $aggResults = $this->getAggregationData($aggData, $aggName, 'count_any');
-                        if ( $aggResults['buckets'][0]['doc_count'] ?? null) {
-                            $item = [
-                                'id' => $aggConfig['anyKey'],
-                                'name' => $aggConfig['anyLabel'],
-                                'count' => (int) ($aggResults['buckets'][0]['top_reverse_nested']['doc_count'] ?? $aggResults['buckets'][0]['doc_count'])
-                            ];
-                            if ( in_array((int) $aggConfig['anyKey'], $aggFilterValues) ) {
-                                $item['active'] = true;
-                            }
-                            $items[] = $item;
-                        }
-                    }
-
-                    // get values
-                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-                    foreach ($aggResults['buckets'] ?? [] as $result) {
-                        if (!isset($result['key'])) continue;
-                        $parts = explode('_', $result['key'], 2);
-                        // create item
-                        $item = [
-                            'id' => (int) $parts[0],
-                            'name' => $parts[1],
-                            'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
-                        ];
-                        // item active?
-                        if ( in_array((int) $parts[0], $aggFilterValues) ) {
-                            $item['active'] = true;
-                        }
-                        // collect sub aggregations
-                        foreach($aggConfig['aggregations'] as $subAggName => $subAggConfig) {
-                            $item[$subAggName] = $result[$subAggName]['buckets'][0]['key'] ?? null;
-                        }
-
-                        $items[] = $item;
-                    }
-                    $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterConfigs);
-                    break;
-                case self::AGG_BOOLEAN:
-                    $aggResults = $this->getAggregationData($aggData, $aggName, $aggName);
-                    $items = [];
-                    foreach ($aggResults['buckets'] ?? [] as $result) {
-                        if (!isset($result['key'])) continue;
-                        $items[] = [
-                            'id' => $result['key'],
-                            'name' => $result['key_as_string'],
-                            'count' => (int) ($result['top_reverse_nested']['doc_count'] ?? $result['doc_count'])
-                        ];
-                    }
-                    $results[$aggName] = $this->sanitizeTermAggregationItems($items, $aggConfig, $aggFilterConfigs);
-                    break;
-            }
+            $results[$aggName] = $this->parseAggregationResult($arrAggData, $aggConfig, $arrFilterValues);
         }
 
         return $results;
@@ -1645,17 +1647,6 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         return $aggOrFilters;
     }
 
-    /** check if aggregation works on global dataset or filtered dataset */
-    protected function isGlobalAggregation($config): bool
-    {
-        return (in_array($config['type'], [self::AGG_GLOBAL_STATS], true) || ($config['globalAggregation'] ?? false));
-    }
-
-    protected function isNestedAggregation($config): bool
-    {
-        return (in_array($config['type'], [self::AGG_NESTED_ID_NAME, self::AGG_NESTED_KEYWORD], true) || ($config['nestedPath'] ?? false));
-    }
-
     protected function sortAggregationResult(?array &$agg_result, array $aggConfig): void
     {
         if (!$agg_result) {
@@ -1677,8 +1668,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
             if ($a['name'] === 'true' && $b['name'] === 'false') {
                 return -1;
-            }            
-            
+            }
+
             return strnatcasecmp($a['name'], $b['name']);
         });
     }
