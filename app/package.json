@@ -5,6 +5,7 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vue/tsconfig": "^0.7.0",
+    "@vueuse/core": "^12.8.1",
     "@yeger/vue-masonry-wall": "^5.0.17",
     "articles": "^0.2.2",
     "axios": "^1.7.9",
