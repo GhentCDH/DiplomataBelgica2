@@ -75,7 +75,6 @@ export default {
             return this.sortIcon.base + ' ' + (this.sortAscending ? this.sortIcon.up : this.sortIcon.down);
         },
         changeSort(field) {
-            console.log(field, this.sortBy, this.sortAscending);
             if (!field.sortable) return;
             if (this.sortBy === field.key) {
                 this.$emit('update:sortAscending', !this.sortAscending);
