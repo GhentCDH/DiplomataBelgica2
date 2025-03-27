@@ -17,6 +17,7 @@ composer install
 
 # clear cache
 echo "Clearing cache..."
+rm -rf /root/.symfony5
 php bin/console cache:clear
 
 # wait for Elasticsearch to be up
