@@ -130,18 +130,202 @@ class CharterSearchService extends AbstractSearchService
             'charter_place_name' => [
                 'type' => self::AGG_OBJECT_ID_NAME,
                 'field' => 'place',
+            ],
+
+            'actorPlaces' => [
+                'type' => self::AGG_TERMS,
+                'nestedPath' => 'actors',
+                'field' => 'actors.place.hash',
+                'filters' => [],
                 'aggregations' => [
+//                    'name' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'actors.place.name',
+//                        'formatter' => 'key'
+//                    ],
                     'latitude' => [
-                        'type' => self::AGG_KEYWORD,
-                        'field' => 'place.latitude'
+                        'type' => self::AGG_TERMS,
+                        'field' => 'actors.place.latitude',
+                        'formatter' => 'key'
                     ],
                     'longitude' => [
-                        'type' => self::AGG_KEYWORD,
-                        'field' => 'place.longitude'
+                        'type' => self::AGG_TERMS,
+                        'field' => 'actors.place.longitude',
+                        'formatter' => 'key'
+                    ],
+                    'actors' => [
+                        'type' => self::AGG_NUMERIC,
+                        'field' => 'actors.id',
+                        'aggregations' => [
+                            'label' => [
+                                'type' => self::AGG_TERMS,
+                                'field' => 'actors.label',
+                                'formatter' => 'key'
+                            ],
+                            'roles' => [
+                                'type' => self::AGG_TERMS,
+                                'field' => 'actors.role.id',
+                                'formatter' => 'facet',
+                                'aggregations' => [
+                                    'charters' => [
+                                        'type' => self::AGG_REVERSE_NESTED,
+                                        'aggregations' => [
+                                            'charter_id' => [
+                                                'type' => self::AGG_TERMS,
+                                                'field' => 'id',
+                                                'formatter' => 'keys'
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ],
+                        ]
                     ]
                 ]
             ],
+
+            'charterPlaces' => [
+                'type' => self::AGG_TERMS,
+                'field' => 'place.hash',
+                'aggregations' => [
+//                    'name' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'place.name',
+//                        'formatter' => 'key'
+//                    ],
+                    'latitude' => [
+                        'type' => self::AGG_TERMS,
+                        'field' => 'place.latitude',
+                        'formatter' => 'key'
+                    ],
+                    'longitude' => [
+                        'type' => self::AGG_TERMS,
+                        'field' => 'place.longitude',
+                        'formatter' => 'key'
+                    ],
+                    'charter_id' => [
+                        'type' => self::AGG_NUMERIC,
+                        'field' => 'id',
+                        'formatter' => 'keys',
+                    ]
+                ]
+
+            ],
+
+//            'actors' => [
+//                'type' => self::AGG_NUMERIC,
+//                'field' => 'actors.id',
+//                'nestedPath' => 'actors',
+//                'filters' => [],
+////                'filters' => [
+////                    [
+////                        'type' => self::BOOL_QUERY_OR,
+////                        'filters' => [
+////                            [
+////                                'type' => self::BOOL_QUERY_AND,
+////                                'filters' => $searchFilters[ "actors_1" ]['filters'] ?? []
+////                            ],
+////                            [
+////                                'type' => self::BOOL_QUERY_AND,
+////                                'filters' => $searchFilters[ "actors_2" ]['filters'] ?? []
+////                            ],
+////                            [
+////                                'type' => self::BOOL_QUERY_AND,
+////                                'filters' => $searchFilters[ "actors_3" ]['filters'] ?? []
+////                            ]
+////                        ]
+////                    ]
+////                ],
+//                'aggregations' => [
+//                    'label' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'actors.label',
+//                        'formatter' => 'key'
+//                    ],
+//                    'place_id' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'actors.place.id',
+//                        'formatter' => 'key'
+//                    ],
+//                    'latitude' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'actors.place.latitude',
+//                        'formatter' => 'key'
+//                    ],
+//                    'longitude' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'actors.place.longitude',
+//                        'formatter' => 'key'
+//                    ],
+//                    'role_id' => [
+//                        'type' => self::AGG_TERMS,
+//                        'field' => 'actors.role.id',
+//                        'formatter' => 'facet'
+//                    ],
+//                    'charters' => [
+//                        'type' => self::AGG_REVERSE_NESTED,
+//                        'aggregations' => [
+//                            'charter_id' => [
+//                                'type' => self::AGG_TERMS,
+//                                'field' => 'id',
+//                                'formatter' => 'keys'
+//                            ]
+//                        ]
+//                    ]
+//
+//                ]
+//            ]
         ];
+
+
+// simpelere config:
+// - create nested aggregation
+// - add subaggregations for each actor property, add filters that apply to that subaggregation
+// -
+//        foreach( range(1, $this->actorLimit) as $index ) {
+//            $agg['actor_1'] = [
+//                'type' => self::AGG_NESTED,
+//                'nestedPath' => 'actors',
+//                'aggregations' => [
+//                    "actor_name_full_name_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.name',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                        'safeLimit' => 100,
+//                    ],
+//                    "actor_place_name_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.place',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                    ],
+//                    "actor_place_diocese_name_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.place.diocese',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                    ],
+//                    "actor_place_principality_name_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.place.principality',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                    ],
+//                    "actor_capacity_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.capacity',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                    ],
+//                    "actor_role_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.role',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                    ],
+//                    "actor_order_name_{$index}" => [
+//                        'type' => self::AGG_OBJECT_ID_NAME,
+//                        'field' => 'actors.order',
+//                        'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+//                    ],
+//                ]
+//            ];
+//        }
 
         // actor filters
         foreach( range(1, $this->actorLimit) as $index ) {

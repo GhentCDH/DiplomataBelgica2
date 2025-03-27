@@ -28,7 +28,8 @@ class ElasticPlaceResource extends ElasticBaseResource
 
         $ret['diocese'] = new ElasticBaseResource($place->diocese);
         $ret['principality'] = new ElasticBaseResource($place->principality);
-        $ret['place_localisation'] = new ElasticBaseResource($place->placeLocalisation);
+
+        $ret['hash'] = md5($ret['latitude'] . ',' . $ret['longitude']);
 
         return $ret;
     }
