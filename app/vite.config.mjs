@@ -30,9 +30,10 @@ export default defineConfig({
     },
     server: {
         // Respond to all network requests
-        host: 'localhost',
+        host: true,
         port: 5173,
         strictPort: true,
+        origin: 'http://localhost:5173'
     },
     resolve: {
         alias: {
