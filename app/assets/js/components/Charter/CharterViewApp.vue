@@ -96,14 +96,14 @@
                 <h2>Map</h2>
 
                 <div id="map" class="map">
-                    <MapLibreMap :geojson="geojson" @marker-over="onMarkerOver" @marker-out="onMarkerOut">
+                    <actor-map :geojson="geojson" @marker-over="onMarkerOver" @marker-out="onMarkerOut">
                         <template #popup>
                             <div class="popup">
                                 <div v-if="popupActor?.role?.name"><b>{{ popupActor?.role?.name }}</b></div>
                                 <ActorDetailsFlat :actor="popupActor"/>
                             </div>
                         </template>
-                    </MapLibreMap>
+                    </actor-map>
                 </div>
 
             </div>
@@ -186,14 +186,14 @@ import ImageThumbnail from '../ImageThumbnail.vue'
 
 import ActorDetails from "../Actor/ActorDetails.vue"
 import ActorListDetailed from "../Actor/ActorListDetailed.vue";
-import MapLibreMap from "@/components/MapLibreMap.vue";
+import ActorMap from "@/components/Actor/ActorMap.vue";
 import ActorDetailsFlat from "@/components/Actor/ActorDetailsFlat.vue";
 
 export default {
     name: "CharterViewApp",
     components: {
         ActorDetailsFlat,
-        MapLibreMap,
+        ActorMap,
         ActorListDetailed,
       FormatValue,
         Widget, LabelValue, PropertyGroup, InlineLinkList, ImageThumbnail,

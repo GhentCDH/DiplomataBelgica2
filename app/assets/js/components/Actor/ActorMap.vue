@@ -136,7 +136,7 @@ function calculateBounds(geojson) {
 
 onMounted(() => {
     map.value = useMap('actors').map
-    map.value.fitBounds(geojsonBounds.value, {padding: 200});
+    map.value.fitBounds(geojsonBounds.value, {padding: 200, animate: false, maxZoom: 15});
 });
 
 // inspect a cluster on click
