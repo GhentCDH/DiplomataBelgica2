@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-
 class BaseController extends AbstractController
 {
     /**
@@ -27,6 +26,7 @@ class BaseController extends AbstractController
             'charter_search' => $this->generateUrl('charter_search'),
             'charter_search_api' => $this->generateUrl('charter_search_api'),
             'charter_paginate' => $this->generateUrl('charter_paginate'),
+            'charter_locate' => $this->generateUrl('charter_locate'),
             'charter_get_single' => $this->generateUrl('charter_get_single', ['id' => 'charter_id']),
             'charter_aggregation_suggest' => $this->generateUrl('charter_aggregation_suggest'),
 
@@ -57,21 +57,52 @@ class BaseController extends AbstractController
         return new JsonResponse($result);
     }
 
-    protected function _searchAPI(Request $request): Response {
+    protected function _searchAPI(Request $request, SearchMode $mode = SearchMode::SEARCH_AGGREGATE, ?array $useAggregationKeys = null, ?array $excludeAggregationKeys = null, callable|array|null $callback = null): Response {
         try {
-            if ($request->query->getBoolean('aggregate', true)) {
-                // get data
-                $data = $this->searchService->searchAndAggregate(
-                    $this->sanitizeSearchRequest($request->query->all())
-                );
-            } else {
-                $data = $this->searchService->search(
-                    $this->sanitizeSearchRequest($request->query->all())
-                );
+            switch ($mode) {
+                case SearchMode::SEARCH_AGGREGATE:
+                    $data = $this->searchService->searchAndAggregate(
+                        $this->sanitizeSearchRequest($request->query->all()),
+                        $useAggregationKeys,
+                        $excludeAggregationKeys
+                    );
+                    break;
+                case SearchMode::SEARCH:
+                    $data = $this->searchService->search(
+                        $this->sanitizeSearchRequest($request->query->all())
+                    );
+                    break;
+                case SearchMode::AGGREGATE:
+                    $data = $this->searchService->aggregate(
+                        $this->sanitizeSearchRequest($request->query->all()['filters'] ?? []),
+                        $useAggregationKeys,
+                        $excludeAggregationKeys
+                    );
+                    break;
             }
-
+            // apply callback
+            if ($callback && is_callable($callback)) {
+                $data = $callback($data);
+            }
+            // debug?
+            if ($request->query->getBoolean('debug', false)) {
+                return $this->render('pages/default/index.html.twig', [
+                    'page_title' => 'debug',
+                    'controller_name' => 'TestController',
+                ]);
+            }
+            // return json response
             return new JsonResponse($data);
         } catch (\Throwable $e) {
+            // debug?
+            if ($request->query->getBoolean('debug', false)) {
+                dump($e);
+                return $this->render('pages/default/index.html.twig', [
+                    'page_title' => 'debug',
+                    'controller_name' => 'TestController',
+                ]);
+            }
+            // return json error response
             return new JsonResponse(['error' => $e->getMessage(), 'type' => get_class($e) ], 400);
         }
     }
