@@ -596,7 +596,6 @@ Object.entries(filters).forEach(([k,v]) => {
     } else {
         tmpModel[k] = v;
     }
-
 })
 setModel({...defaultModel, ...tmpModel})
 if (Number(params['page'])){

@@ -1,5 +1,6 @@
 import {Ref, toRef} from "vue";
 import {useStorage} from "@vueuse/core";
+import type {DataTableState} from "./useTablePagination.ts";
 
 export interface Context {
     params: object,
@@ -27,7 +28,7 @@ export function useSearchContext(
     const maxLocalStorageContexts = toRef<number>(initialMaxLocalStorage);
 
     /**
-     * This is a LRU storage for the search contexts using useStorage with localStorage. It stores the last MAX_LOCALSTORAGE_CONTEXTS contexts.
+     * This is an LRU storage for the search contexts using useStorage with localStorage. It stores the last MAX_LOCALSTORAGE_CONTEXTS contexts.
      */
     const contextState = useStorage('context',
         {
@@ -54,7 +55,7 @@ export function useSearchContext(
         return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
     }
 
-    const handleRedirect = (event: Event) => {
+    const handleRedirect = (event: Event, dataTableState: DataTableState) => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target.getAttribute("href");
@@ -63,7 +64,7 @@ export function useSearchContext(
             let index = Number(sessionStorage.getItem(hash));
             let context: Context = {
                 params: this.data.filters,
-                searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // TODO fix this
+                searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index,
                 prev_url: window.location.href,
             }
 
