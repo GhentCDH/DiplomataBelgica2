@@ -584,6 +584,25 @@ setSchema(createSchema({
     onAutocomplete
 }))
 
+let params = qs.parse(window.location.href.split('?', 2)[1])
+const filters = params['filters'] ?? {}
+setFilterState(filters)
+let tmpModel = {}
+Object.entries(filters).forEach(([k,v]) => {
+    if (v === 'true') {
+        tmpModel[k] = true
+    }else if (v === 'false') {
+        tmpModel[k] = false
+    } else {
+        tmpModel[k] = v;
+    }
+
+})
+setModel({...defaultModel, ...tmpModel})
+if (Number(params['page'])){
+    setCurrentPage(Number(params['page']))
+}
+
 const query = createSearchQuery(paginationState.value, filterState.value, true);
 fetch(query, 'search_aggregate');
 updatePlaceData()
