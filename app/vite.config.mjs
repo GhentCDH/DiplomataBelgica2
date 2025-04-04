@@ -51,5 +51,9 @@ export default defineConfig({
                 silenceDeprecations: ['import']
             }
         }
+    },
+    test: {
+        globals: true,
+        environment: 'jsdom',
     }
 });
