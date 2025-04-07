@@ -4,10 +4,10 @@ import {useLocalStorage} from "@vueuse/core";
 
 export function useVueFormGeneratorCollapsibleGroups(formSchema: Ref<Schema>, storageId: string) {
 
-    const state = useLocalStorage(toValue(storageId), {groupIsCollapsed: []}, {deep: true})
+    const state = useLocalStorage(toValue(storageId), {groupIsCollapsed: [] as boolean[]}, {deep: true})
     const schema = toRef(formSchema)
 
-    const onFormGeneratorCollapseGroup = (e: ClickEvent) => {
+    const onFormGeneratorCollapseGroup = (e) => {
         const group = e.target.parentElement;
         // get element index
         let index = Array.from(group.parentNode.children).indexOf(group)
@@ -16,7 +16,7 @@ export function useVueFormGeneratorCollapsibleGroups(formSchema: Ref<Schema>, st
 
     // make legends clickable
     const registerEvents = () => {
-        const collapsableLegends = document.querySelectorAll('.vue-form-generator .collapsible legend');
+        const collapsableLegends: NodeListOf<HTMLLegendElement> = document.querySelectorAll('.vue-form-generator .collapsible legend');
         collapsableLegends.forEach(legend => legend.onclick = onFormGeneratorCollapseGroup);
     }
 

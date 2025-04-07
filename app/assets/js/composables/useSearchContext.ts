@@ -1,15 +1,9 @@
-import {Ref, toRef} from "vue";
+import {toRef} from "vue";
 import {useStorage} from "@vueuse/core";
-import type {DataTableState} from "./useTablePagination.ts";
-
-export interface Context {
-    params: object,
-    searchIndex: number,
-    prevUrl: string,
-}
+import type {Context, DataTableState} from "@/types";
 
 /**
- * Composable in order to manage and retrieve search contexts.
+ * Composable used to manage and retrieve search contexts.
  * @param initialDefaultBaseUrl
  * @param initialContext
  * @param initialMaxLocalStorage
@@ -23,12 +17,12 @@ export function useSearchContext(
     },
     initialMaxLocalStorage: number = 20
 ){
-    const context: Ref<Context> = toRef<Context>(initialContext);
-    const defaultBaseUrl: Ref<string> = toRef<string>(initialDefaultBaseUrl);
+    const context = toRef<Context>(initialContext);
+    const defaultBaseUrl = toRef<string>(initialDefaultBaseUrl);
     const maxLocalStorageContexts = toRef<number>(initialMaxLocalStorage);
 
     /**
-     * This is an LRU storage for the search contexts using useStorage with localStorage. It stores the last MAX_LOCALSTORAGE_CONTEXTS contexts.
+     * This is an LRU storage for the search contexts using useStorage with localStorage. It stores the last maxLocalStorageContexts contexts.
      */
     const contextState = useStorage('context',
         {
@@ -51,24 +45,24 @@ export function useSearchContext(
 
     const getUrl = (id: number, index: number, baseUrl:string = defaultBaseUrl.value) => {
         let hash = getContextHash();
-        sessionStorage.setItem(hash, index);
+        sessionStorage.setItem(hash, index.toString());
         return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
     }
 
-    const handleRedirect = (event: Event, dataTableState: DataTableState) => {
+    const handleRedirect = (event, dataTableState: DataTableState) => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
-            const href = event.target.getAttribute("href");
+            const href = event.target?.getAttribute("href");
             const url = new URL(href, window.location.origin);
             const hash = url.hash.substring(1);
             let index = Number(sessionStorage.getItem(hash));
             let context: Context = {
-                params: this.data.filters,
+                params: {}, //TODO fix this
                 searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index,
-                prev_url: window.location.href,
+                prevUrl: window.location.href,
             }
 
-            saveContextHash(hash, context);
+            saveContextHash(context, hash);
         }
     }
 
@@ -91,10 +85,10 @@ export function useSearchContext(
     }
 
     const initContextFromUrl = () => {
-        let readContext: Context = {}
+        let readContext: Context = initialContext;
         try {
             let hash = window.location.hash.substring(1);
-            readContext = JSON.parse(localStorage.getItem("context"))[hash]["data"]
+            readContext = JSON.parse(localStorage.getItem("context") ?? "")[hash]["data"]
         } catch (e) {}
         context.value = {...initialContext, ...readContext, ...context.value}
     }

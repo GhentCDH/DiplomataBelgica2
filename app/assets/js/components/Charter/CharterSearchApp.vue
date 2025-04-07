@@ -81,7 +81,7 @@
                                 >
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
-                                           :href="getCharterUrl(props.row.id, props.index)">
+                                           :href="getUrl(props.row.id, props.index)">
                                             {{ props.row.id }}
                                         </a>
                                     </template>
@@ -186,8 +186,6 @@ type FilteredPlaceData = Map<number, FilteredPlace>
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n'
 
-const {t} = useI18n()
-
 import {computed, onMounted, ref, shallowRef, toRaw, watch} from 'vue'
 
 import CharterSearchSummary from "./CharterSearchSummary.vue";
@@ -196,18 +194,30 @@ import BPagination from "../Bootstrap/BPagination.vue";
 import BSelect from "../Bootstrap/BSelect.vue";
 import RecordCount from "../Bootstrap/RecordCount.vue";
 import BTable from "../Bootstrap/BTable.vue";
-import {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
 import BRadioList from "@/components/Bootstrap/BRadioList.vue";
 import CharterMap from "@/components/Charter/CharterMap.vue";
 
 import charterRepository from "@/repositories/CharterRepository";
-import {type DataTableState, useTablePagination} from "@/composables/useTablePagination";
-import {useSimpleState} from "@/composables/useSimpleState";
+import {useTablePagination} from "@/composables/useTablePagination";
+import type {DataTableState, Filters, RadioItem, SearchQuery} from "@/types";
+import {useSimpleState} from "@/composables/useSimpleState.ts";
 import {useVueFormGenerator} from "@/composables/useVueFormGenerator";
 import {useSearchApi} from "@/composables/useSearchApi";
 import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
+import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
+import qs from "qs";
+import {useSearchContext} from "@/composables/useSearchContext.ts";
+
+const {t} = useI18n()
 
 // props
+
+let test: DataTableState = {
+  currentPage: 1,
+  rowsPerPage: 1,
+  orderBy: "",
+  orderAsc: true,
+};
 
 const props = defineProps({
     initUrls: {
@@ -284,11 +294,9 @@ const {
 } = useTablePagination(defaultPaginationState)
 
 // filter state
-
 const {state: filterState, setState: setFilterState} = useSimpleState([]);
 
 // form schema & model
-
 const defaultModel = {
     dating_scholary_preferential: true,
 }
@@ -302,6 +310,11 @@ const {
     flattenModel,
     updateFieldValues
 } = useVueFormGenerator({}, defaultModel);
+
+const {
+    getUrl,
+    handleRedirect,
+} = useSearchContext('/en/charters/')
 
 const formSchema = computed(() => {
     schema.value
@@ -354,7 +367,7 @@ const filteredPlaceData = computed<FilteredPlaceData>((): Map<number, any> => {
 
     // filter actors based on role
     for (const place of places) {
-        const filteredActors = [];
+        const filteredActors: PlaceActor[] = [];
         const actorsCharterIds = new Set();
         for (const actor of place?.actors ?? []) {
             const filteredRoles = roleFilterValue.value !== 0
@@ -396,7 +409,7 @@ const filteredPlaceData = computed<FilteredPlaceData>((): Map<number, any> => {
 })
 
 const geojson = computed(() => {
-    const geojson = {type: 'FeatureCollection', features: []};
+    const geojson: {type: string, features: any[]} = {type: 'FeatureCollection', features: []};
     for (const place of filteredPlaceData.value.values()) {
         const feature = createPlaceFeature(place);
         geojson.features.push(feature);
@@ -424,7 +437,7 @@ const createPlaceFeature = (place: FilteredPlace) => {
         type: 'Feature',
         geometry: {
             type: 'Point',
-            coordinates: [parseFloat(place.longitude), parseFloat(place.latitude)]
+            coordinates: [parseFloat(place.longitude.toString()), parseFloat(place.latitude.toString())]
         },
         properties: {
             id: place.id,
@@ -491,7 +504,7 @@ const onMarkerOut = () => {
 }
 
 const createSearchQuery = (paginationState: DataTableState, filterState: any) => {
-    const query = {
+    const query: SearchQuery = {
         orderBy: paginationState.orderBy,
         ascending: paginationState.orderAsc,
         limit: paginationState.rowsPerPage,
@@ -499,10 +512,10 @@ const createSearchQuery = (paginationState: DataTableState, filterState: any) =>
     }
 
     // Add filter values if necessary
-    query['filters'] = {...filterState}
-    if (query['filters'] == null || query['filters'] == '') {
-        delete query['filters']
-    }
+    query.filters = {...filterState}
+    // if (query['filters'] == null || query['filters'] == '') {
+    //     delete query['filters']
+    // }
     return query
 }
 
@@ -576,8 +589,6 @@ const updateFilterState = (payload: any) => {
 }
 
 // init form schema
-import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
-import qs from "qs";
 
 setSchema(createSchema({
     t,
@@ -602,7 +613,7 @@ if (Number(params['page'])){
     setCurrentPage(Number(params['page']))
 }
 
-const query = createSearchQuery(paginationState.value, filterState.value, true);
+const query = createSearchQuery(paginationState.value, filterState.value);
 fetch(query, 'search_aggregate');
 updatePlaceData()
 

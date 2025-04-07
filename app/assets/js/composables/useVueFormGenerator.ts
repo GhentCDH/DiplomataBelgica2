@@ -1,5 +1,5 @@
 import {computed, reactive, ref, toValue, toRef, toRaw} from "vue";
-import Articles from 'articles'
+import Articles from "articles";
 
 export interface Model {
     [key: string]: any
@@ -45,7 +45,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
         schema.value?.fields
         schema.value?.groups
         if (Array.isArray(schema.value?.fields)) {
-            schema.value.fields.forEach( (field: Object) => {
+            schema.value.fields.forEach( (field: Field) => {
                 res[field.model] = field;
             });
         }
@@ -58,7 +58,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
                 }
             });
         }
-        return res;
+        return <Field[]>res;
     });
 
     const convertEmptyToNull = (value: any) => {
@@ -141,7 +141,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
 
         let label = field.dependencyName ?? getFieldConfig(field.dependency).label.toLowerCase()
 
-        delete model.value[modelName]
+        modelName && delete model.value[modelName]
         field.disabled = true
         field.selectOptions.loading = false
         field.placeholder = 'Please select ' + Articles.articlize(label) + ' first'
@@ -189,7 +189,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
         if (!search) {
             // get everything after last '.'
             let modelName = field.model.split('.').pop()
-            delete model.value[modelName]
+            modelName && delete model.value[modelName]
         }
 
         field.disabled = true
@@ -232,7 +232,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
                 switch (fieldType) {
                     case 'multiselectClear':
                         if (Array.isArray(model[fieldName])) {
-                            var ids = []
+                            let ids: any[] = []
                             for (let value of model[fieldName]) {
                                 ids.push(value['id'])
                             }

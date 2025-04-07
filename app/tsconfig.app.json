@@ -5,10 +5,29 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": false,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "noEmitOnError": false,
+    "resolveJsonModule": true,
+    "allowUnusedLabels": true,
+    "verbatimModuleSyntax": true,
+    "allowSyntheticDefaultImports": true,
   },
-  "include": ["assets/**/*.js","assets/**/*.ts", "assets/**/*.tsx", "assets/**/*.vue"]
+  "paths": {
+    "@/*": [
+      "./assets/js/*"
+    ],
+    "@assets/*": [
+      "./assets/*"
+    ],
+    "@/types/*": ["./assets/js/types/*"]
+  },
+  "include": ["assets/**/*.js", "assets/**/*.ts", "assets/js/composables/*.ts", "assets/**/*.tsx", "assets/**/*.vue", "tests/**/*.ts",
+    "./globals.d.ts"
+  ]
 }

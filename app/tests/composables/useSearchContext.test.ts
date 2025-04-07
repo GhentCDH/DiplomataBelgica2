@@ -70,7 +70,7 @@ describe('Test useSearchContext composable', () => {
                 data: { params: {param3: "value3"}, searchIndex: 3, prevUrl: 'prevurl3' },
                 next: ''
             }
-        })
+        });
     });
 
     it('should remove the oldest context when max contexts is reached', () => {

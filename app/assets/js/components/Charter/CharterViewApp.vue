@@ -111,7 +111,7 @@
         <aside class="d-flex col-sm-4 overflow-hidden">
             <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
 
-                <Widget v-if="isValidResultSet()" title="Search" :collapsed="false">
+                <Widget v-if="true" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
                         <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)"> 
