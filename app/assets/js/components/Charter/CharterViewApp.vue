@@ -167,6 +167,19 @@
     </div>
 </template>
 
+<script setup>
+
+import {useSearchContext} from "@/composables/useSearchContext";
+
+const {
+    context: searchContext,
+    initContextFromUrl
+} = useSearchContext()
+
+initContextFromUrl()
+console.log(searchContext)
+</script>
+
 <script>
 import Widget from '../Sidebar/Widget.vue'
 import LabelValue from '../Sidebar/LabelValue.vue'
@@ -188,6 +201,7 @@ import ActorDetails from "../Actor/ActorDetails.vue"
 import ActorListDetailed from "../Actor/ActorListDetailed.vue";
 import ActorMap from "@/components/Actor/ActorMap.vue";
 import ActorDetailsFlat from "@/components/Actor/ActorDetailsFlat.vue";
+import {useSearchContext} from "@/composables/useSearchContext";
 
 export default {
     name: "CharterViewApp",

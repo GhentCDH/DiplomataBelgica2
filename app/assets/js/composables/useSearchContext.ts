@@ -1,4 +1,4 @@
-import {toRef} from "vue";
+import {type Ref, toRef} from "vue";
 import {useStorage} from "@vueuse/core";
 import type {Context, DataTableState} from "@/types";
 
@@ -17,7 +17,7 @@ export function useSearchContext(
     },
     initialMaxLocalStorage: number = 20
 ){
-    const context = toRef<Context>(initialContext);
+    const context: Ref<Context> = toRef<Context>(initialContext);
     const defaultBaseUrl = toRef<string>(initialDefaultBaseUrl);
     const maxLocalStorageContexts = toRef<number>(initialMaxLocalStorage);
 
@@ -31,9 +31,8 @@ export function useSearchContext(
             "default": {
                 "data": {},
                 "next": ""
-            }
-        },
-    );
+            },
+        }, localStorage, {deep: true});
 
     const setDefaultBaseUrl = (url: string) => {
         defaultBaseUrl.value = url;
@@ -49,7 +48,8 @@ export function useSearchContext(
         return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
     }
 
-    const handleRedirect = (event, dataTableState: DataTableState) => {
+    const handleRedirect = (event, dataTableState: DataTableState, params={}): void => {
+        console.log("handleRedirect", event, dataTableState, params);
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target?.getAttribute("href");
@@ -57,7 +57,7 @@ export function useSearchContext(
             const hash = url.hash.substring(1);
             let index = Number(sessionStorage.getItem(hash));
             let context: Context = {
-                params: {}, //TODO fix this
+                params: params,
                 searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index,
                 prevUrl: window.location.href,
             }
@@ -82,15 +82,18 @@ export function useSearchContext(
             contextState.value.LRU = contextState.value[contextState.value.LRU].next;
             delete contextState.value[lru];
         }
+        contextState.value = { ...contextState.value };
     }
 
     const initContextFromUrl = () => {
         let readContext: Context = initialContext;
         try {
             let hash = window.location.hash.substring(1);
-            readContext = JSON.parse(localStorage.getItem("context") ?? "")[hash]["data"]
-        } catch (e) {}
-        context.value = {...initialContext, ...readContext, ...context.value}
+            readContext = contextState.value[hash]["data"]
+        } catch (e) {
+            console.log(e)
+        }
+        context.value = {...initialContext, ...context.value, ...readContext}
     }
 
     return {

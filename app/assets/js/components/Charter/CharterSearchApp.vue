@@ -50,19 +50,19 @@
                                 <div class="col-lg-4 d-flex align-items-lg-center">
                                     <b-pagination
                                         :total-records="totalRecords"
-                                        :per-page="paginationState.rowsPerPage"
-                                        :page="paginationState.currentPage"
+                                        :per-page="dataTableState.rowsPerPage"
+                                        :page="dataTableState.currentPage"
                                         @update:page="(page) => updateDataTableState({currentPage: parseInt(page)})"
                                     ></b-pagination>
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                                    <RecordCount :per-page="paginationState.rowsPerPage" :total-records="totalRecords"
-                                                 :page="paginationState.currentPage"></RecordCount>
+                                    <RecordCount :per-page="dataTableState.rowsPerPage" :total-records="totalRecords"
+                                                 :page="dataTableState.currentPage"></RecordCount>
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
                                     <b-select :id="'per-page'"
                                               :label="'Per page'"
-                                              :selected="paginationState.rowsPerPage"
+                                              :selected="dataTableState.rowsPerPage"
                                               :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
                                               @update:selected="(value) => updateDataTableState({rowsPerPage: parseInt(value)})"
                                               class="w-auto"
@@ -73,15 +73,17 @@
                             <div class="d-flex flex-grow-1 scrollable">
                                 <b-table :items="tableData"
                                          :fields="tableOptions.fields"
-                                         :sort-by="paginationState.orderBy"
-                                         :sort-ascending="paginationState.orderAsc"
+                                         :sort-by="dataTableState.orderBy"
+                                         :sort-ascending="dataTableState.orderAsc"
                                          @update:sort-by="(value) => updateDataTableState({orderBy: value})"
                                          @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                          class="m-0"
                                 >
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
-                                           :href="getUrl(props.row.id, props.index)">
+                                           :href="getUrl(props.row.id, props.index)"
+                                           @mouseup="(event) => handleRedirect(event, dataTableState, filterState)"
+                                        >
                                             {{ props.row.id }}
                                         </a>
                                     </template>
@@ -113,7 +115,7 @@
                                                     <span>{{ actor.name }}</span>
                                                     <template v-for="charterId of actor.charterIds">
                                                         <a class="btn btn-tertiary btn-sm me-1"
-                                                           :href="getCharterUrl(charterId, 0)"
+                                                           :href="getUrl(charterId, 0)"
                                                            target="_blank">
                                                             {{ charterId }}
                                                         </a>
@@ -125,7 +127,7 @@
                                             <h3>Placedate Charters</h3>
                                             <template v-for="charterId of activePlace.charterIds">
                                                 <a class="btn btn-tertiary btn-sm me-1"
-                                                   :href="getCharterUrl(charterId, 0)"
+                                                   :href="getUrl(charterId, 0)"
                                                    target="_blank">
                                                     {{ charterId }}
                                                 </a>
@@ -211,14 +213,6 @@ import {useSearchContext} from "@/composables/useSearchContext.ts";
 const {t} = useI18n()
 
 // props
-
-let test: DataTableState = {
-  currentPage: 1,
-  rowsPerPage: 1,
-  orderBy: "",
-  orderAsc: true,
-};
-
 const props = defineProps({
     initUrls: {
         type: String,
@@ -279,7 +273,7 @@ const roleFilterValue = ref(0)
 
 // pagination state
 
-const defaultPaginationState: DataTableState = {
+const defaultDataTableState: DataTableState = {
     orderBy: 'date_sort',
     orderAsc: false,
     rowsPerPage: 25,
@@ -287,11 +281,11 @@ const defaultPaginationState: DataTableState = {
 }
 
 const {
-    state: paginationState,
+    state: dataTableState,
     setCurrentPage,
     setState: setDataTableState,
     updateState: patchDataTableState
-} = useTablePagination(defaultPaginationState)
+} = useTablePagination(defaultDataTableState)
 
 // filter state
 const {state: filterState, setState: setFilterState} = useSimpleState([]);
@@ -448,19 +442,6 @@ const createPlaceFeature = (place: FilteredPlace) => {
     }
 }
 
-// todo: rework context!
-const getCharterUrl = (id, index) => {
-    return '/en/charters/' + id
-
-    // let context = {
-    //     params: this.data.filters,
-    //     searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
-    //     searchSessionHash: this.getSearchSessionHash()
-    // }
-    // return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
-}
-
-
 const getPreferentialDate = (datations) => {
     return datations.find((datation) => datation.preference == 0)
 }
@@ -511,11 +492,7 @@ const createSearchQuery = (paginationState: DataTableState, filterState: any) =>
         page: paginationState.currentPage,
     }
 
-    // Add filter values if necessary
     query.filters = {...filterState}
-    // if (query['filters'] == null || query['filters'] == '') {
-    //     delete query['filters']
-    // }
     return query
 }
 
@@ -528,7 +505,7 @@ const resetAllFilters = () => {
 const pushHistory = (query: string) => {
     const state = {
         model: JSON.parse(JSON.stringify(model.value)),
-        paginationState: JSON.parse(JSON.stringify(paginationState.value)),
+        paginationState: JSON.parse(JSON.stringify(dataTableState.value)),
     }
     history.pushState(state, '', document.location.href.split('?')[0] + '?' + qs.stringify(query))
 }
@@ -544,7 +521,7 @@ const onPopHistory = (event: PopStateEvent) => {
         setDataTableState(event.state.paginationState)
         setFilterState(flattenModel(model.value))
 
-        const query = createSearchQuery(paginationState.value, filterState.value);
+        const query = createSearchQuery(dataTableState.value, filterState.value);
 
         // search & aggregate
         fetch(query, 'search_aggregate');
@@ -560,7 +537,7 @@ const updateDataTableState = (payload: Partial<DataTableState>) => {
     patchDataTableState(payload)
 
     // create search query
-    const query = createSearchQuery(paginationState.value, filterState.value);
+    const query = createSearchQuery(dataTableState.value, filterState.value);
 
     // push query to history
     pushHistory(query)
@@ -576,7 +553,7 @@ const updateFilterState = (payload: any) => {
     setCurrentPage(1)
 
     // create search query
-    const query = createSearchQuery(paginationState.value, filterState.value);
+    const query = createSearchQuery(dataTableState.value, filterState.value);
 
     // push query to history
     pushHistory(query)
@@ -613,7 +590,7 @@ if (Number(params['page'])){
     setCurrentPage(Number(params['page']))
 }
 
-const query = createSearchQuery(paginationState.value, filterState.value);
+const query = createSearchQuery(dataTableState.value, filterState.value);
 fetch(query, 'search_aggregate');
 updatePlaceData()
 

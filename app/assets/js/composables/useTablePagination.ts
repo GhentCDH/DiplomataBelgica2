@@ -1,4 +1,4 @@
-import {ref, toValue, watch} from "vue";
+import {type Ref, ref, toValue, watch} from "vue";
 import type {DataTableState} from "@/types";
 
 
@@ -6,7 +6,7 @@ export type onChangeCallback = (state: DataTableState) => void;
 
 export function useTablePagination(initialState: DataTableState) {
 
-  const state = ref<DataTableState>(toValue(initialState));
+  const state: Ref<DataTableState> = ref<DataTableState>(toValue(initialState));
 
   const setCurrentPage = (page: number) => {
     state.value.currentPage = page;
