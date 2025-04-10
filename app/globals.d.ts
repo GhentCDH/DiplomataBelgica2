@@ -1,7 +1,7 @@
 declare module '*.vue';
 declare module '@/types' {
     export {
-        DataTableState, RadioItem, Filters, SearchQuery, Context
+        DataTableState, RadioItem, Filters, SearchQuery, Context, ResultSet
     } from "./assets/js/types";
 }
 declare module '@/*';

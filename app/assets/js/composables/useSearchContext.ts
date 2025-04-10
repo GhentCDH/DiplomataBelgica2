@@ -11,9 +11,15 @@ import type {Context, DataTableState} from "@/types";
 export function useSearchContext(
     initialDefaultBaseUrl: string = "",
     initialContext: Context = {
-        params: {},
+        params: {
+            filters: {},
+            limit: 25,
+            page: 1
+        },
         searchIndex: null,
         prevUrl: null,
+        count: 0,
+        ids: null,
     },
     initialMaxLocalStorage: number = 20
 ){
@@ -42,14 +48,14 @@ export function useSearchContext(
         maxLocalStorageContexts.value = max;
     }
 
-    const getUrl = (id: number, index: number, baseUrl:string = defaultBaseUrl.value) => {
+    const getHashedUrl = (id: number, index: number, baseUrl:string = defaultBaseUrl.value) => {
         let hash = getContextHash();
         sessionStorage.setItem(hash, index.toString());
         return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
     }
 
-    const handleRedirect = (event, dataTableState: DataTableState, params={}): void => {
-        console.log("handleRedirect", event, dataTableState, params);
+    const handleRedirect = (event, dataTableState: DataTableState, count: number, filters={},  ids: number[] | null = null): void => {
+        console.log("handleRedirect", event, dataTableState, filters);
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target?.getAttribute("href");
@@ -57,9 +63,15 @@ export function useSearchContext(
             const hash = url.hash.substring(1);
             let index = Number(sessionStorage.getItem(hash));
             let context: Context = {
-                params: params,
+                params: {
+                    filters: filters,
+                    limit: dataTableState.rowsPerPage,
+                    page: dataTableState.currentPage,
+                },
                 searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index,
                 prevUrl: window.location.href,
+                count: count,
+                ids: ids,
             }
 
             saveContextHash(context, hash);
@@ -98,7 +110,7 @@ export function useSearchContext(
 
     return {
         setDefaultBaseUrl,
-        getUrl,
+        getHashedUrl,
         handleRedirect,
         initContextFromUrl,
         context,

@@ -167,20 +167,32 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
 import {useSearchContext} from "@/composables/useSearchContext";
+import {useResultSet} from "@/composables/useResultSet";
+import {toValue} from "vue";
+import type {Context} from "@/types";
 
 const {
     context: searchContext,
     initContextFromUrl
-} = useSearchContext()
+} = useSearchContext();
+
+const {
+    resultSetState,
+    initResultSet,
+    getResultSetIdByIndex
+} = useResultSet();
 
 initContextFromUrl()
-console.log(searchContext)
+console.log(toValue(searchContext))
+let readContext: Context = toValue(searchContext);
+initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
+console.log(toValue(resultSetState));
 </script>
 
-<script>
+<script lang="ts">
 import Widget from '../Sidebar/Widget.vue'
 import LabelValue from '../Sidebar/LabelValue.vue'
 import PropertyGroup from '../Sidebar/PropertyGroup.vue'
@@ -201,7 +213,6 @@ import ActorDetails from "../Actor/ActorDetails.vue"
 import ActorListDetailed from "../Actor/ActorListDetailed.vue";
 import ActorMap from "@/components/Actor/ActorMap.vue";
 import ActorDetailsFlat from "@/components/Actor/ActorDetailsFlat.vue";
-import {useSearchContext} from "@/composables/useSearchContext";
 
 export default {
     name: "CharterViewApp",

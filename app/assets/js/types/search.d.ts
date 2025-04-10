@@ -11,7 +11,24 @@ export type Filters = {
 }
 
 export type Context = {
-    params: object;
+    params: {
+        filters: object;
+        limit: number;
+        page: number;
+    };
     searchIndex: number | null;
     prevUrl: string | null;
+    count: number;
+    ids: number[] | null;
+}
+
+export type ResultSet = {
+    params: {
+        filters: object;
+        limit: number;
+        page: number;
+    };
+    ids: number[];
+    count: number;
+    url: string | null;
 }

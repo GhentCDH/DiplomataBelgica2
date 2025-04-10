@@ -81,8 +81,8 @@
                                 >
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
-                                           :href="getUrl(props.row.id, props.index)"
-                                           @mouseup="(event) => handleRedirect(event, dataTableState, filterState)"
+                                           :href="getHashedUrl(props.row.id, props.index)"
+                                           @mouseup="(event) => handleRedirect(event, dataTableState, totalRecords, filterState)"
                                         >
                                             {{ props.row.id }}
                                         </a>
@@ -115,7 +115,7 @@
                                                     <span>{{ actor.name }}</span>
                                                     <template v-for="charterId of actor.charterIds">
                                                         <a class="btn btn-tertiary btn-sm me-1"
-                                                           :href="getUrl(charterId, 0)"
+                                                           :href="getHashedUrl(charterId, 0)"
                                                            target="_blank">
                                                             {{ charterId }}
                                                         </a>
@@ -127,7 +127,7 @@
                                             <h3>Placedate Charters</h3>
                                             <template v-for="charterId of activePlace.charterIds">
                                                 <a class="btn btn-tertiary btn-sm me-1"
-                                                   :href="getUrl(charterId, 0)"
+                                                   :href="getHashedUrl(charterId, 0)"
                                                    target="_blank">
                                                     {{ charterId }}
                                                 </a>
@@ -306,7 +306,7 @@ const {
 } = useVueFormGenerator({}, defaultModel);
 
 const {
-    getUrl,
+    getHashedUrl,
     handleRedirect,
 } = useSearchContext('/en/charters/')
 
