@@ -15,11 +15,12 @@ export type Context = {
         filters: object;
         limit: number;
         page: number;
+        [key: string]: any;
     };
     searchIndex: number | null;
     prevUrl: string | null;
     count: number;
-    ids: number[] | null;
+    ids: number[] | null; // IDs selected by the user
 }
 
 export type ResultSet = {
@@ -28,7 +29,7 @@ export type ResultSet = {
         limit: number;
         page: number;
     };
-    ids: number[];
+    ids: number[]; // Calculated IDs
     count: number;
     url: string | null;
 }

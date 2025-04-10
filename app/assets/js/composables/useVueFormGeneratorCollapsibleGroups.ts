@@ -21,7 +21,6 @@ export function useVueFormGeneratorCollapsibleGroups(formSchema: Ref<Schema>, st
     }
 
     const updateGroupClasses = () => {
-        console.log('updateGroupClasses')
         if (!Array.isArray(schema.value?.groups)) return
 
         schema.value.groups.forEach(function (group, index) {

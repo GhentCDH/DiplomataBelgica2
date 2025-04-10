@@ -111,24 +111,27 @@
         <aside class="d-flex col-sm-4 overflow-hidden">
             <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
 
-                <Widget v-if="true" title="Search" :collapsed="false">
+                <Widget v-if="validContextAndResultSet()" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
-                        <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)"> 
+                        <div class="form-group">
+                            <span class="btn btn-sm btn-primary" @click="returnToSearchResult">&lt; Return to list</span>
+                        </div>
+                        <div class="col col-3" :class="{ disabled: searchContext.searchIndex === 1}">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">
                                 <i class="fa-solid fa-angles-left"></i>
                             </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(searchContext.searchIndex - 1)">
                                 <i class="fa-solid fa-angle-left"></i>
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
-                        <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
+                        <div class="col col-6 text-center"><span>Result {{ searchContext.searchIndex }} of {{ searchResultSet.count }}</span></div>
+                        <div class="col col-3 text-right" :class="{ disabled: searchContext.searchIndex === searchContext.count}">
                           
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(searchContext.searchIndex + 1)">
                                 <i class="fa-solid fa-angle-right"></i>
                             </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( searchResultSet.count )">
                                 <i class="fa-solid fa-angles-right"></i>
                             </span>
                         </div>
@@ -170,26 +173,22 @@
 <script setup lang="ts">
 
 import {useSearchContext} from "@/composables/useSearchContext";
-import {useResultSet} from "@/composables/useResultSet";
 import {toValue} from "vue";
 import type {Context} from "@/types";
 
 const {
     context: searchContext,
-    initContextFromUrl
+    initContextFromUrl,
+    resultSet: searchResultSet,
+    initResultSet,
+    loadByIndex: loadCharterByIndex,
+    returnToSearchResult,
+    validContextAndResultSet,
 } = useSearchContext();
 
-const {
-    resultSetState,
-    initResultSet,
-    getResultSetIdByIndex
-} = useResultSet();
-
 initContextFromUrl()
-console.log(toValue(searchContext))
 let readContext: Context = toValue(searchContext);
 initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
-console.log(toValue(resultSetState));
 </script>
 
 <script lang="ts">

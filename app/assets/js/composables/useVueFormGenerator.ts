@@ -87,7 +87,6 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
     }
 
     const updateFieldValues = (data: any, fieldNames: Array<string>|null = null, keepModelData: boolean = false) => {
-        console.log('updateFieldValues', data, fieldNames, keepModelData)
         fieldNames = fieldNames && Array.isArray(fieldNames) ? fieldNames : Object.keys(fieldConfigs.value)
         for (const fieldName of fieldNames) {
             const fieldConfig = getFieldConfig(fieldName);

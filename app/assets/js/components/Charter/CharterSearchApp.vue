@@ -81,8 +81,8 @@
                                 >
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
-                                           :href="getHashedUrl(props.row.id, props.index)"
-                                           @mouseup="(event) => handleRedirect(event, dataTableState, totalRecords, filterState)"
+                                           :href="getHashedUrl(props.row.id)"
+                                           @mouseup="(event) => handleRedirect(event, dataTableState, props.index, totalRecords, filterState)"
                                         >
                                             {{ props.row.id }}
                                         </a>
@@ -284,7 +284,9 @@ const {
     state: dataTableState,
     setCurrentPage,
     setState: setDataTableState,
-    updateState: patchDataTableState
+    updateState: patchDataTableState,
+    setOrderBy,
+    setOrderAsc
 } = useTablePagination(defaultDataTableState)
 
 // filter state
@@ -588,6 +590,13 @@ Object.entries(filters).forEach(([k,v]) => {
 setModel({...defaultModel, ...tmpModel})
 if (Number(params['page'])){
     setCurrentPage(Number(params['page']))
+}
+
+if (params['orderBy']) {
+    setOrderBy(params['orderBy'])
+}
+if (params['ascending']) {
+    setOrderAsc(params['ascending'] == 'true')
 }
 
 const query = createSearchQuery(dataTableState.value, filterState.value);

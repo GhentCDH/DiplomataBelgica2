@@ -1,12 +1,16 @@
-import {type Ref, toRef} from "vue";
+import {type Ref, toRef, toValue} from "vue";
 import {useStorage} from "@vueuse/core";
-import type {Context, DataTableState} from "@/types";
+import type {Context, DataTableState, ResultSet} from "@/types";
+import axios from "axios";
+import qs from "qs";
+import merge from "lodash.merge";
 
 /**
- * Composable used to manage and retrieve search contexts.
+ * Composable used to save, retrieve and manage search contexts.
  * @param initialDefaultBaseUrl
  * @param initialContext
  * @param initialMaxLocalStorage
+ * @param initialResultSet
  */
 export function useSearchContext(
     initialDefaultBaseUrl: string = "",
@@ -14,15 +18,28 @@ export function useSearchContext(
         params: {
             filters: {},
             limit: 25,
-            page: 1
+            page: 1,
         },
         searchIndex: null,
         prevUrl: null,
         count: 0,
         ids: null,
     },
-    initialMaxLocalStorage: number = 20
+    initialMaxLocalStorage: number = 20,
+    initialResultSet: ResultSet = {
+        params: {
+            filters: {},
+            limit: 10,
+            page: 1,
+        },
+        ids: [],
+        count: 0,
+        url: ""
+    }
 ){
+    /**
+     * State of the retrieved search context.
+     */
     const context: Ref<Context> = toRef<Context>(initialContext);
     const defaultBaseUrl = toRef<string>(initialDefaultBaseUrl);
     const maxLocalStorageContexts = toRef<number>(initialMaxLocalStorage);
@@ -40,35 +57,56 @@ export function useSearchContext(
             },
         }, localStorage, {deep: true});
 
+    /**
+     * set the default base url for the detailed view of the items
+     * @param url
+     */
     const setDefaultBaseUrl = (url: string) => {
         defaultBaseUrl.value = url;
     }
 
+    /**
+     * Set the maximum number of contexts to be saved in localStorage
+     * @param max
+     */
     const setMaxLocalStorageContexts = (max: number) => {
         maxLocalStorageContexts.value = max;
     }
 
-    const getHashedUrl = (id: number, index: number, baseUrl:string = defaultBaseUrl.value) => {
+    /**
+     * Get a url to the detailed view of an item with a hash to the search context.
+     * @param id
+     * @param baseUrl defaults to the set defaultBaseUrl
+     */
+    const getHashedUrl = (id: number, baseUrl:string = defaultBaseUrl.value) => {
         let hash = getContextHash();
-        sessionStorage.setItem(hash, index.toString());
         return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
     }
 
-    const handleRedirect = (event, dataTableState: DataTableState, count: number, filters={},  ids: number[] | null = null): void => {
-        console.log("handleRedirect", event, dataTableState, filters);
+    /**
+     * Handle redirecting to the detailed view of an item and saving the context. Only use this on urls gotten by getHashedUrl
+     * @param event
+     * @param dataTableState
+     * @param index
+     * @param count
+     * @param filters
+     * @param ids
+     */
+    const handleRedirect = (event, dataTableState: DataTableState, index: number, count: number, filters={},  ids: number[] | null = null): void => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target?.getAttribute("href");
             const url = new URL(href, window.location.origin);
             const hash = url.hash.substring(1);
-            let index = Number(sessionStorage.getItem(hash));
             let context: Context = {
                 params: {
                     filters: filters,
                     limit: dataTableState.rowsPerPage,
                     page: dataTableState.currentPage,
+                    orderBy: dataTableState.orderBy,
+                    ascending: dataTableState.orderAsc ?? false,
                 },
-                searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index,
+                searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index + 1,
                 prevUrl: window.location.href,
                 count: count,
                 ids: ids,
@@ -97,6 +135,14 @@ export function useSearchContext(
         contextState.value = { ...contextState.value };
     }
 
+    const updateContextState = (context: Context, hash: string) => {
+        contextState.value[hash].data = context;
+        contextState.value = { ...contextState.value };
+    }
+
+    /**
+     * Retrieve a saved context based on the hash in the url.
+     */
     const initContextFromUrl = () => {
         let readContext: Context = initialContext;
         try {
@@ -108,6 +154,85 @@ export function useSearchContext(
         context.value = {...initialContext, ...context.value, ...readContext}
     }
 
+
+    //ResultSet
+
+    /**
+     * Result set containing details about the search and ids of the items in the search.
+     */
+    const resultSet: Ref<ResultSet> = toRef<ResultSet>(initialResultSet);
+
+    /**
+     * Initialize the result set based on the context and set the pagination url
+     * @param context obtained after running initContextFromUrl
+     * @param url
+     */
+    const initResultSet = (context: Context, url: string) => {
+        let newResultSet: ResultSet = {
+            params: merge(initialResultSet.params, context.params),
+            ids: [],
+            count: context.count,
+            url: url
+        }
+        resultSet.value = {...resultSet.value, ...newResultSet}
+        updateResultSetIndex().then();
+    }
+
+    const updateResultSetIndex = async () => {
+        let response = await axios.get(resultSet.value.url + '?' + qs.stringify(resultSet.value.params));
+        resultSet.value.ids = response.data;
+        resultSet.value = {...resultSet.value};
+    }
+
+    const getResultSetIdByIndex = async (index: number) => {
+        if ( !index || index < 1 || index > resultSet.value.count ) return null;
+
+        let limit = resultSet.value.params.limit
+        let page = Math.floor((index -1) / limit) + 1
+
+        if ( page !== resultSet.value.params.page ) {
+            resultSet.value.params.page = page
+            await updateResultSetIndex()
+        }
+
+        let rsIndex = (index - 1) - (page - 1)*limit
+        return resultSet.value.ids[rsIndex]
+    }
+
+    /**
+     * Load a new item based on the passed index in the result set.
+     * Only call this after the context and result set have been initialized.
+     * @param index
+     */
+    const loadByIndex = (index: number) => {
+        getResultSetIdByIndex(index).then((id) => {
+            context.value.searchIndex = index;
+            const hash = window.location.hash.substring(1);
+            updateContextState(context, hash);
+            const segments = window.location.pathname.split('/');
+            segments[segments.length - 1] = String(id);
+            const newPath = segments.join('/');
+
+            window.location.href = `${newPath}${window.location.hash}`;
+        })
+    }
+
+    /**
+     * Return to the previous url.
+     */
+    const returnToSearchResult = () => {
+        window.location.href = context.value.prevUrl;
+    }
+
+    /**
+     * Checks to make sure the context and result set are valid.
+     */
+    const validContextAndResultSet = (): boolean => {
+        const contextValue = toValue(context)
+        const resultSetValue = toValue(resultSet)
+        return !!contextValue.searchIndex && !!contextValue.prevUrl && !!resultSetValue.url && !!resultSetValue.count && !!resultSetValue.ids.length
+    }
+
     return {
         setDefaultBaseUrl,
         getHashedUrl,
@@ -117,6 +242,13 @@ export function useSearchContext(
         contextState,
         saveContextHash,
         getContextHash,
-        setMaxLocalStorageContexts
+        setMaxLocalStorageContexts,
+        initResultSet,
+        updateResultSetIndex,
+        getResultSetIdByIndex,
+        loadByIndex,
+        resultSet,
+        returnToSearchResult,
+        validContextAndResultSet,
     }
 }

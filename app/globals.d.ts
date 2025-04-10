@@ -7,3 +7,4 @@ declare module '@/types' {
 declare module '@/*';
 declare module 'articles';
 declare module 'qs';
+declare module 'lodash.merge';
