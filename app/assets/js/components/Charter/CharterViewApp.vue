@@ -179,7 +179,6 @@ import type {Context} from "@/types";
 const {
     context: searchContext,
     initContextFromUrl,
-    resultSet: searchResultSet,
     initResultSet,
     loadByIndex: loadCharterByIndex,
     returnToSearchResult,
