@@ -87,12 +87,13 @@ export function useSearchContext(
      * Handle redirecting to the detailed view of an item and saving the context. Only use this on urls gotten by getHashedUrl
      * @param event
      * @param dataTableState
+     * @param id
      * @param index
      * @param count
      * @param filters
-     * @param ids
+     * @param ids If the user has selected some items, these ids will be the only ones in the search context
      */
-    const handleRedirect = (event, dataTableState: DataTableState, index: number, count: number, filters={},  ids: number[] | null = null): void => {
+    const handleRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={},  ids: number[] | null = null): void => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target?.getAttribute("href");
@@ -110,6 +111,10 @@ export function useSearchContext(
                 prevUrl: window.location.href,
                 count: count,
                 ids: ids,
+            }
+            if (ids) {
+                context.searchIndex = ids.indexOf(id) + 1;
+                context.count = ids.length;
             }
 
             saveContextHash(context, hash);
@@ -205,16 +210,31 @@ export function useSearchContext(
      * @param index
      */
     const loadByIndex = (index: number) => {
-        getResultSetIdByIndex(index).then((id) => {
-            context.value.searchIndex = index;
-            const hash = window.location.hash.substring(1);
-            updateContextState(context, hash);
-            const segments = window.location.pathname.split('/');
-            segments[segments.length - 1] = String(id);
-            const newPath = segments.join('/');
+        let fixedIndex = Math.min(index, context.value.count);
+        fixedIndex = Math.max(fixedIndex, 1);
+        if (!context.value.ids){
+            getResultSetIdByIndex(index).then((id) => {
+                _handleRedirectToIndex(id, fixedIndex);
+            })
+        } else {
+            loadBySelectedIndex(fixedIndex);
+        }
+    }
 
-            window.location.href = `${newPath}${window.location.hash}`;
-        })
+    const loadBySelectedIndex = (index: number) => {
+        const id = context.value.ids[index-1];
+        _handleRedirectToIndex(id, index);
+    }
+
+    const _handleRedirectToIndex = (id: number, index: number) => {
+        context.value.searchIndex = index;
+        const hash = window.location.hash.substring(1);
+        updateContextState(context, hash);
+        const segments = window.location.pathname.split('/');
+        segments[segments.length - 1] = String(id);
+        const newPath = segments.join('/');
+
+        window.location.href = `${newPath}${window.location.hash}`;
     }
 
     /**
@@ -230,6 +250,7 @@ export function useSearchContext(
     const validContextAndResultSet = (): boolean => {
         const contextValue = toValue(context)
         const resultSetValue = toValue(resultSet)
+        return true;
         return !!contextValue.searchIndex && !!contextValue.prevUrl && !!resultSetValue.url && !!resultSetValue.count && !!resultSetValue.ids.length
     }
 

@@ -125,13 +125,13 @@
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ searchContext.searchIndex }} of {{ searchResultSet.count }}</span></div>
+                        <div class="col col-6 text-center"><span>Result {{ searchContext.searchIndex }} of {{ searchContext.count }}</span></div>
                         <div class="col col-3 text-right" :class="{ disabled: searchContext.searchIndex === searchContext.count}">
                           
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(searchContext.searchIndex + 1)">
                                 <i class="fa-solid fa-angle-right"></i>
                             </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( searchResultSet.count )">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( searchContext.count )">
                                 <i class="fa-solid fa-angles-right"></i>
                             </span>
                         </div>
@@ -186,9 +186,11 @@ const {
     validContextAndResultSet,
 } = useSearchContext();
 
-initContextFromUrl()
-let readContext: Context = toValue(searchContext);
-initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
+initContextFromUrl();
+if (!searchContext.value.ids){
+    let readContext: Context = toValue(searchContext);
+    initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
+}
 </script>
 
 <script lang="ts">
@@ -198,11 +200,7 @@ import PropertyGroup from '../Sidebar/PropertyGroup.vue'
 import InlineLinkList from '../InlineLinkList.vue'
 
 import PersistentConfig from "../../mixins/PersistentConfig";
-import ResultSet from "../../mixins/ResultSet";
-import SearchSession from "../../mixins/SearchSession";
-import SearchContext from "../../mixins/SearchContext";
 
-import axios from 'axios'
 import qs from 'qs'
 
 import FormatValue from "../Sidebar/FormatValue.vue";
@@ -225,9 +223,6 @@ export default {
     },
     mixins: [
         PersistentConfig('CharterViewConfig'),
-        ResultSet,
-        SearchSession,
-        SearchContext,
     ],
     props: {
         initUrls: {
@@ -244,9 +239,6 @@ export default {
             urls: JSON.parse(this.initUrls),
             data: JSON.parse(this.initData),
             defaultConfig: {
-                search: {
-                    useContext: true,
-                },
                 widgets: {
                     actors: { collapsed: false },
                     date: { collapsed: false }
@@ -302,7 +294,7 @@ export default {
             return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
         },
         geojson() {
-            const geojson = { type: 'FeatureCollection', features: [] };
+            const geojson = { type: 'FeatureCollection', features: [] as any[] };
             for (const actor of this.charter.actors) {
                 if (actor?.place?.latitude) {
                     geojson.features.push({
@@ -348,36 +340,8 @@ export default {
             }
             return url
         },
-        loadCharter(id) {
-            this.openRequests += 1
-            let url = this.getUrl('charter_get_single').replace('charter_id',id)
-            return axios.get(url).then( (response) => {
-                if (response.data) {
-                    this.data.charter = response.data;
-                }
-                this.openRequests -= 1
-                this.updateTitle(id);
-            })
-        },
-        loadCharterByIndex(index) {
-            let that = this;
-            if ( !this.resultSet.count ) return;
-
-            let newIndex = Math.max(1, Math.min(index, this.resultSet.count))
-            this.getResultSetIdByIndex(newIndex).then( function(id) {
-                that.loadCharter(id).then((response) => {
-                    // update context
-                    that.context.searchIndex = newIndex
-                    // update state
-                    window.history.replaceState({}, '', that.getCharterUrl(id));
-                });
-            })
-        },
-        isValidResultSet() {
-            return this.context?.searchIndex && this.resultSet?.count
-        },
         formatSource(edition) {
-          var res = [];
+          var res: any[] = [];
           if(edition.names_editors) {
             res.push(edition.names_editors);
           }
@@ -404,7 +368,7 @@ export default {
           return res;
         },
         formatDatations(datations) {
-          var arr = [];
+          var arr: any[] = [];
           for(const datation of datations) {
             var res = this.formatDate(datation.time);
             if (datation.time.interpretation) {
@@ -420,7 +384,7 @@ export default {
           return arr;
         },
         getDates(dates) {
-          var arr = [];
+          var arr: any[] = [];
           for(const date of dates) {
             arr.push(this.formatDate(date));
           }
@@ -431,7 +395,7 @@ export default {
           if(place.name) {
             res = place.name;
           }
-          var localisation = [];
+          var localisation: any[] = [];
           if(place.localisation) {
             if(place.localisation.land) {
               localisation.push(place.localisation.land.name);
@@ -449,7 +413,7 @@ export default {
           return res;
         },
         formatOriginal(original) {
-          var res = [];
+          var res: any[] = [];
           if(original.repository) {
             if(original.repository.location) {
               res.push(original.repository.location);
@@ -472,7 +436,7 @@ export default {
           }
         },
         formatCodex(codex, type) {
-          var res = [];
+          var res: any[] = [];
           if(codex.repository) {
             if(codex.repository.location) {
               res.push(codex.repository.location);
@@ -503,8 +467,8 @@ export default {
         },
 
         formatEdition(edition) {
-            let parts = [];
-            let links = [];
+            let parts: any[] = [];
+            let links: any[] = [];
             if(edition.edition) {
                 if(edition.edition.names_editors) {
                     parts.push(edition.edition.names_editors);
@@ -539,8 +503,8 @@ export default {
             return parts.length ? { text: parts.join(', '), links: links } : null
         },
         formatSecondaryLiterature(edition) {
-            let parts = [];
-            let links = [];
+            let parts: any[] = [];
+            let links: any[] = [];
             if(edition.secondary_literature) {
                 if(edition.secondary_literature.names_editors) {
                     parts.push(edition.secondary_literature.names_editors);
@@ -603,18 +567,6 @@ export default {
         }
     },
     created() {
-        // init context
-        this.initContextFromUrl()
-
-        // init ResultSet based on SearchSession
-        if ( this.context?.searchSessionHash ) {
-            let searchSession = this.getSearchSession(this.context.searchSessionHash)
-            if ( searchSession ) {
-                this.initResultSet(searchSession.urls.paginate, searchSession.params, searchSession.count)
-            }
-        }
-        
-        this.updateTitle(this.charter.id);
     },
 }
 </script>

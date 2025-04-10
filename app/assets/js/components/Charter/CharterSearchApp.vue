@@ -71,7 +71,7 @@
                             </nav>
 
                             <div class="d-flex flex-grow-1 scrollable">
-                                <b-table :items="tableData"
+                                <b-table :items="tableDataWithCheckbox"
                                          :fields="tableOptions.fields"
                                          :sort-by="dataTableState.orderBy"
                                          :sort-ascending="dataTableState.orderAsc"
@@ -79,10 +79,17 @@
                                          @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                          class="m-0"
                                 >
+                                    <template #selected="props">
+                                        <input
+                                            type="checkbox"
+                                            v-model="props.row.selected"
+                                            @change="() => toggleRowSelection(props.row.id)"
+                                        >
+                                    </template>
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getHashedUrl(props.row.id)"
-                                           @mouseup="(event) => handleRedirect(event, dataTableState, props.index, totalRecords, filterState)"
+                                           @mouseup="(event) => handleRedirect(event, dataTableState, props.row.id, props.index, totalRecords, filterState, selectedIds.length? selectedIds : null)"
                                         >
                                             {{ props.row.id }}
                                         </a>
@@ -209,6 +216,8 @@ import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGene
 import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
+import FieldCheckbox from "@/components/FormGenerator/FieldCheckbox.vue";
+import FieldCheckboxBS5 from "@/components/FormGenerator/FieldCheckbox.vue";
 
 const {t} = useI18n()
 
@@ -234,6 +243,7 @@ const map = ref(null)
 
 const tableOptions = {
     fields: [
+        {key: 'selected', label: ''},
         {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
         {key: 'summary', label: 'Summary'},
         {key: 'date_sort', label: 'Date', sortable: true, thClass: 'no-wrap'},
@@ -340,6 +350,23 @@ const {
     results: tableData,
     aggregations
 } = useSearchApi('/en/charters/search')
+
+const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
+
+function toggleRowSelection(id: number){
+    if (selectedIds.value.includes(id)){
+        setSelectedIds(selectedIds.value.filter((i: number) => i !== id));
+    } else {
+        setSelectedIds([...selectedIds.value, id]);
+    }
+}
+
+const tableDataWithCheckbox = computed(() => {
+    return tableData.value.map(row => ({
+        ...row,
+        selected: selectedIds.value.includes(row.id)
+    }))
+});
 
 watch(aggregations, (currentAggregations) => {
     if (currentAggregations) {
