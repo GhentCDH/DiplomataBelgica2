@@ -38,6 +38,27 @@
                                 ><i class="fa-solid fa-map-location-dot"></i> Browse
                             map
                         </button>
+                        <b-dropdown class="active ms-auto" :items="selectedIds">
+                            <template #display>
+                                {{selectedIds.length}} charter{{selectedIds.length != 1 ? "s" : ""}} selected
+                            </template>
+                            <template #header>
+                                <button class="btn" @click="() => {setSelectedIds([])}">unselect all</button>
+                            </template>
+                            <template #item="{item : id, index}">
+                                <a class="btn btn-tertiary btn-sm" target="_blank"
+                                   :href="getHashedUrl(id)"
+                                   @mouseup="(event) => handleRedirect(
+                                           event, dataTableState, id, index, totalRecords,
+                                           filterState, selectedIds.length? selectedIds : null)"
+                                >
+                                    {{id}}
+                                </a>
+                            </template>
+                            <template #postItem="{item, index}">
+                                <button class="btn-close btn-sm" @click="removeSelectedId(index)"></button>
+                            </template>
+                        </b-dropdown>
                     </div>
                 </nav>
             </header>
@@ -79,7 +100,7 @@
                                          @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                          class="m-0"
                                 >
-                                    <template #selected="props">
+                                    <template #actionsPreRow="props">
                                         <input
                                             type="checkbox"
                                             v-model="props.row.selected"
@@ -218,8 +239,7 @@ import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGene
 import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
-import FieldCheckbox from "@/components/FormGenerator/FieldCheckbox.vue";
-import FieldCheckboxBS5 from "@/components/FormGenerator/FieldCheckbox.vue";
+import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 
 const {t} = useI18n()
 
@@ -245,7 +265,6 @@ const map = ref(null)
 
 const tableOptions = {
     fields: [
-        {key: 'selected', label: ''},
         {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
         {key: 'summary', label: 'Summary'},
         {key: 'date_sort', label: 'Date', sortable: true, thClass: 'no-wrap'},
@@ -354,6 +373,10 @@ const {
 } = useSearchApi('/en/charters/search')
 
 const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
+
+function removeSelectedId(index: number){
+    selectedIds.value.splice(index, 1);
+}
 
 function toggleRowSelection(id: number){
     if (selectedIds.value.includes(id)){
