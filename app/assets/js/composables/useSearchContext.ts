@@ -115,6 +115,7 @@ export function useSearchContext(
             if (context.ids) {
                 if (!context.ids.includes(id)){
                     context.ids.push(id);
+                    context.ids.sort();
                 }
                 context.searchIndex = context.ids.indexOf(id) + 1;
                 context.count = context.ids.length;

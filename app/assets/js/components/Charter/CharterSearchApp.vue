@@ -359,7 +359,7 @@ function toggleRowSelection(id: number){
     if (selectedIds.value.includes(id)){
         setSelectedIds(selectedIds.value.filter((i: number) => i !== id));
     } else {
-        setSelectedIds([...selectedIds.value, id]);
+        setSelectedIds([...selectedIds.value, id].sort());
     }
 }
 
