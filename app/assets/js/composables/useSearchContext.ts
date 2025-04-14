@@ -110,11 +110,14 @@ export function useSearchContext(
                 searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index + 1,
                 prevUrl: window.location.href,
                 count: count,
-                ids: ids,
+                ids: ids? [...ids] : null,
             }
-            if (ids) {
-                context.searchIndex = ids.indexOf(id) + 1;
-                context.count = ids.length;
+            if (context.ids) {
+                if (!context.ids.includes(id)){
+                    context.ids.push(id);
+                }
+                context.searchIndex = context.ids.indexOf(id) + 1;
+                context.count = context.ids.length;
             }
 
             saveContextHash(context, hash);
@@ -250,8 +253,8 @@ export function useSearchContext(
     const validContextAndResultSet = (): boolean => {
         const contextValue = toValue(context)
         const resultSetValue = toValue(resultSet)
-        return true;
-        return !!contextValue.searchIndex && !!contextValue.prevUrl && !!resultSetValue.url && !!resultSetValue.count && !!resultSetValue.ids.length
+        // return true;
+        return (!!contextValue.searchIndex && !!contextValue.prevUrl) && (!!contextValue.ids || (!!resultSetValue.url && !!resultSetValue.count && !!resultSetValue.ids.length))
     }
 
     return {

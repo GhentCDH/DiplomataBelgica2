@@ -89,7 +89,9 @@
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getHashedUrl(props.row.id)"
-                                           @mouseup="(event) => handleRedirect(event, dataTableState, props.row.id, props.index, totalRecords, filterState, selectedIds.length? selectedIds : null)"
+                                           @mouseup="(event) => handleRedirect(
+                                               event, dataTableState, props.row.id, props.index, totalRecords,
+                                               filterState, selectedIds.length? selectedIds : null)"
                                         >
                                             {{ props.row.id }}
                                         </a>
