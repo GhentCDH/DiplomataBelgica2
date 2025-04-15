@@ -20,10 +20,17 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-                <div v-if="false">
+                <div v-if="true">
                     <div>{{ model }}</div>
+                    <div>{{getActiveFilterTagStrings(model)}}</div>
                     <div>{{ filterState }}</div>
                     <div>{{ filteredPlaceData.size }}</div>
+                </div>
+                <div class="flex-row align-items-start justify-content-center m-sm-2">
+                    <span v-for="props in getActiveFilterTagStrings(model)" class="badge bg-secondary ms-2">
+                        {{`${props.label}${props.value}`}}
+                        <button class="btn btn-close btn-sm ms-2" @click="onCloseActiveFilter(props)"></button>
+                    </span>
                 </div>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
@@ -240,6 +247,8 @@ import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
+import {type FilterTag, FilterType, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
+import type {Model} from "@/*";
 
 const {t} = useI18n()
 
@@ -335,8 +344,18 @@ const {
     setModel,
     modelHasChanged,
     flattenModel,
-    updateFieldValues
+    updateFieldValues,
 } = useVueFormGenerator({}, defaultModel);
+
+const {
+    getActiveFilterTagStrings,
+    closeActiveFilterTag
+} = useActiveFilterTags(["dating_scholary_preferential"])
+
+const onCloseActiveFilter = (tag: FilterTag) => {
+    closeActiveFilterTag(model.value, tag);
+    updateFilterState(flattenModel(model.value))
+}
 
 const {
     getHashedUrl,
