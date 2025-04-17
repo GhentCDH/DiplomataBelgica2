@@ -1,5 +1,4 @@
 import type {Model} from "@/composables/useVueFormGenerator";
-import type {Filters} from "../types";
 
 enum FilterType {
     INVALID,
@@ -9,7 +8,6 @@ enum FilterType {
     STRING,
 }
 
-// export type FilterTag = [string, string, string, FilterType]; // [label, value, key, type]
 export type FilterTag = {
     label: string,
     value: string,

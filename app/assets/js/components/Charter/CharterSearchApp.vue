@@ -20,7 +20,7 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-                <div v-if="true">
+                <div v-if="false">
                     <div>{{ model }}</div>
                     <div>{{getActiveFilterTagStrings(model)}}</div>
                     <div>{{ filterState }}</div>
@@ -111,7 +111,7 @@
                                         <input
                                             type="checkbox"
                                             v-model="props.row.selected"
-                                            @change="() => toggleRowSelection(props.row.id)"
+                                            @change="() => toggleRowSelection(props.row.id, props.index)"
                                         >
                                     </template>
                                     <template #id="props">
@@ -247,8 +247,7 @@ import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
-import {type FilterTag, FilterType, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
-import type {Model} from "@/*";
+import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 
 const {t} = useI18n()
 
@@ -350,7 +349,7 @@ const {
 const {
     getActiveFilterTagStrings,
     closeActiveFilterTag
-} = useActiveFilterTags(["dating_scholary_preferential"])
+} = useActiveFilterTags(Object.keys(defaultModel))
 
 const onCloseActiveFilter = (tag: FilterTag) => {
     closeActiveFilterTag(model.value, tag);
@@ -397,12 +396,17 @@ function removeSelectedId(index: number){
     selectedIds.value.splice(index, 1);
 }
 
-function toggleRowSelection(id: number){
+function toggleRowSelection(id: number, index: number){
     if (selectedIds.value.includes(id)){
-        setSelectedIds(selectedIds.value.filter((i: number) => i !== id));
+        removeSelectedId(index)
     } else {
         setSelectedIds([...selectedIds.value, id].sort());
     }
+}
+
+function selectAllVisibleRows(){
+    const ids = tableData.value.map((row: any) => row.id);
+    setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort());
 }
 
 const tableDataWithCheckbox = computed(() => {
