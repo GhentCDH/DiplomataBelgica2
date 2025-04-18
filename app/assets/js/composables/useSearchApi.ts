@@ -35,8 +35,42 @@ export function useSearchApi(url: string) {
         }
     })
 
+    function balancedParentheses(str: string): boolean {
+        let depth = 0;
+        for (const char of str) {
+            if (char === '(') {
+                depth++;
+            } else if (char === ')') {
+                if (depth === 0) return false;
+                depth--;
+            }
+        }
+        return depth === 0;
+    }
+
+    const validate_search = (search: string): boolean => {
+        const invalidOrAnd = /(^\s*[,+])|([,+]\s*$)|([,+]{2,})|([,+]\s*[^\s\w(#])|([^\w\s)]\s*[,+])/;
+        const invalidNot = /(#$)|(#[^\s\w(])/;
+        const invalidRange = /([%\/]\D)|([%/]\d+[^(])/
+        // console.log(`validate or and ${!invalidOrAnd.test(search)}`)
+        // console.log(`validate not ${!invalidNot.test(search)}`)
+        // console.log(`validate range ${!invalidRange.test(search)}`)
+        // console.log(`validate parentheses ${balancedParentheses(search)}`)
+        return !invalidNot.test(search) && !invalidOrAnd.test(search) && !invalidRange.test(search) && balancedParentheses(search);
+    }
+
     // fetch data from the api
     const fetch = async (params: any, mode: queryMode) => {
+        if ('fulltext' in params['filters']) {
+            if (!validate_search(params['filters']['fulltext'])) {
+                return;
+            }
+        }
+        if ('summary' in params['filters']) {
+            if (!validate_search(params['filters']['summary'])) {
+                return;
+            }
+        }
         const queryParams = {...params}
         queryParams['mode'] = mode
 
