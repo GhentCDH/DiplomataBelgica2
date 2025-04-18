@@ -38,7 +38,9 @@ export function useActiveFilterTags(ignore: string[] = []) {
 
     typesFunctionsMap.set(FilterType.STRING, (k: string, v: string) => {
         let res: FilterTag[] = [];
-        res.push({label: `${k}: `, value: v, key: k, type: FilterType.STRING});
+        if (v.length > 0){
+            res.push({label: `${k}: `, value: v, key: k, type: FilterType.STRING});
+        }
         return res;
     });
 
@@ -72,9 +74,7 @@ export function useActiveFilterTags(ignore: string[] = []) {
     typesFunctionsMap.set(FilterType.BOOLEAN, (k: string, v: boolean) => {
         let res: FilterTag[] = [];
         if (v) {
-            res.push({label: `${k}: `, value: "true", key: k, type: FilterType.BOOLEAN});
-        } else {
-            res.push({label: `${k}: `, value: "false", key: k, type: FilterType.BOOLEAN});
+            res.push({label: `${k}`, value: "", key: k, type: FilterType.BOOLEAN});
         }
         return res
     });
