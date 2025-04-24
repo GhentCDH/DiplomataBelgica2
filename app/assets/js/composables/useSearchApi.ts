@@ -51,11 +51,7 @@ export function useSearchApi(url: string) {
     const validate_search = (search: string): boolean => {
         const invalidOrAnd = /(^\s*[,+])|([,+]\s*$)|([,+]{2,})|([,+]\s*[^\s\w(#])|([^\w\s)]\s*[,+])/;
         const invalidNot = /(#$)|(#[^\s\w(])/;
-        const invalidRange = /([%\/]\D)|([%/]\d+[^(])/
-        // console.log(`validate or and ${!invalidOrAnd.test(search)}`)
-        // console.log(`validate not ${!invalidNot.test(search)}`)
-        // console.log(`validate range ${!invalidRange.test(search)}`)
-        // console.log(`validate parentheses ${balancedParentheses(search)}`)
+        const invalidRange = /([%/]\D)|([%/]\d+[^(])/
         return !invalidNot.test(search) && !invalidOrAnd.test(search) && !invalidRange.test(search) && balancedParentheses(search);
     }
 

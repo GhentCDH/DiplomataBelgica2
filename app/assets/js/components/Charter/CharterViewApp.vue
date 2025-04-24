@@ -263,9 +263,6 @@ export default {
         preferentialDates: function() {
           return this.charter.datations.filter( datation => datation.preference === 0 )
         },
-        hasSearchContext() {
-           return Object.keys(this.context.params ?? {} ).length > 0
-        },
         isOriginal() {
             if(!this.charter.originals) {
                 return "No";
