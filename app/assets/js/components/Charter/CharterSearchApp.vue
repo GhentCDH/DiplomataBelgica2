@@ -22,16 +22,11 @@
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
                 <div v-if="false">
                     <div>{{ model }}</div>
-                    <div>{{getActiveFilterTagStrings(model)}}</div>
+                    <div>{{getActiveFilterTagStrings()}}</div>
                     <div>{{ filterState }}</div>
                     <div>{{ filteredPlaceData.size }}</div>
                 </div>
-                <div class="flex-row align-items-start justify-content-center m-sm-2">
-                    <span v-for="props in getActiveFilterTagStrings(model)" class="badge bg-secondary ms-2">
-                        {{`${props.label}${props.value}`}}
-                        <button class="btn btn-close btn-sm ms-2" @click="onCloseActiveFilter(props)"></button>
-                    </span>
-                </div>
+                <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter"/>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
@@ -248,6 +243,7 @@ import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
+import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 
 const {t} = useI18n()
 
@@ -344,15 +340,16 @@ const {
     modelHasChanged,
     flattenModel,
     updateFieldValues,
+    getFieldConfig,
 } = useVueFormGenerator({}, defaultModel);
 
 const {
     getActiveFilterTagStrings,
     closeActiveFilterTag
-} = useActiveFilterTags(Object.keys(defaultModel))
+} = useActiveFilterTags(model, getFieldConfig)
 
 const onCloseActiveFilter = (tag: FilterTag) => {
-    closeActiveFilterTag(model.value, tag);
+    closeActiveFilterTag(tag);
     updateFilterState(flattenModel(model.value))
 }
 

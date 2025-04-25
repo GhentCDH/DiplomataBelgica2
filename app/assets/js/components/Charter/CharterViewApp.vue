@@ -186,7 +186,7 @@ const {
 } = useSearchContext();
 
 initContextFromUrl();
-if (!searchContext.value.ids){
+if (searchContext.value.validReadContext && !searchContext.value.ids){
     let readContext: Context = toValue(searchContext);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }

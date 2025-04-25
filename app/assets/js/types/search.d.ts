@@ -17,6 +17,7 @@ export type Context = {
         page: number;
         [key: string]: any;
     };
+    validReadContext: boolean | null;
     searchIndex: number | null;
     prevUrl: string | null;
     count: number;

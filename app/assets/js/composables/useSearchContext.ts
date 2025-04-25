@@ -20,6 +20,7 @@ export function useSearchContext(
             limit: 25,
             page: 1,
         },
+        validReadContext: false,
         searchIndex: null,
         prevUrl: null,
         count: 0,
@@ -156,11 +157,12 @@ export function useSearchContext(
         let readContext: Context = initialContext;
         try {
             let hash = window.location.hash.substring(1);
-            readContext = contextState.value[hash]["data"]
+            readContext = contextState.value[hash]["data"];
+            readContext.validReadContext = true;
         } catch (e) {
             console.log(e)
         }
-        context.value = {...initialContext, ...context.value, ...readContext}
+        context.value = {...initialContext, ...context.value, ...readContext};
     }
 
 
