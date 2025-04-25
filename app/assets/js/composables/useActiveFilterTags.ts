@@ -1,6 +1,5 @@
-import type {Field, Fields, Group, Model, Schema} from "@/composables/useVueFormGenerator";
-import {useVueFormGenerator} from "@/composables/useVueFormGenerator.ts";
-import {computed, type Ref, toRef, toValue, watch} from "vue";
+import type {Field, Model} from "@/composables/useVueFormGenerator";
+import {type Ref} from "vue";
 
 enum FilterType {
     INVALID,

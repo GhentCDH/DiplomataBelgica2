@@ -4,6 +4,7 @@ import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
 import type {DataTableState} from "@/composables/useTablePagination.ts";
+import charterRepository from "../repositories/CharterRepository.ts";
 
 export type Context = {
     params: {
@@ -137,6 +138,7 @@ export function useSearchContext(
                 prevUrl: window.location.href,
                 count: count,
                 ids: ids? [...ids] : null,
+                validReadContext: false,
             }
             if (context.ids) {
                 if (!context.ids.includes(id)){
@@ -239,40 +241,48 @@ export function useSearchContext(
      * Load a new item based on the passed index in the result set.
      * Only call this after the context and result set have been initialized.
      * @param index
+     * @param data
      */
-    const loadByIndex = (index: number) => {
+    const loadByIndex = (index: number, data: Ref<any>) => {
         let fixedIndex = Math.min(index, context.value.count);
         fixedIndex = Math.max(fixedIndex, 1);
         if (!context.value.ids){
             getResultSetIdByIndex(index).then((id) => {
-                _handleRedirectToIndex(id, fixedIndex);
+                if (id){
+                    _handleRedirectToIndex(id, fixedIndex, data);
+                }
             })
         } else {
-            loadBySelectedIndex(fixedIndex);
+            loadBySelectedIndex(fixedIndex, data);
         }
     }
 
-    const loadBySelectedIndex = (index: number) => {
-        const id = context.value.ids[index-1];
-        _handleRedirectToIndex(id, index);
+    const loadBySelectedIndex = (index: number, data: Ref<any>) => {
+        if (context.value.ids){
+            const id = context.value.ids[index-1];
+            _handleRedirectToIndex(id, index, data);
+        }
     }
 
-    const _handleRedirectToIndex = (id: number, index: number) => {
+    const _handleRedirectToIndex = (id: number, index: number, data: Ref<any>) => {
         context.value.searchIndex = index;
         const hash = window.location.hash.substring(1);
-        updateContextState(context, hash);
+        updateContextState(context.value, hash);
         const segments = window.location.pathname.split('/');
         segments[segments.length - 1] = String(id);
         const newPath = segments.join('/');
-
-        window.location.href = `${newPath}${window.location.hash}`;
+        charterRepository.get(id.toString()).then((result) => {
+            let dataCopy = {...data.value};
+            dataCopy.charter = result.data
+            data.value = {...dataCopy}
+        })
     }
 
     /**
      * Return to the previous url.
      */
     const returnToSearchResult = () => {
-        window.location.href = context.value.prevUrl;
+        window.location.href = context.value.prevUrl!;
     }
 
     /**
