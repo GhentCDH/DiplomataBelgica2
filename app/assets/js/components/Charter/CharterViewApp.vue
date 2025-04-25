@@ -173,20 +173,17 @@
 <script setup lang="ts">
 
 import {type Context, useSearchContext} from "@/composables/useSearchContext";
-import { ref, computed, toValue } from 'vue'
+import {ref, computed, toValue, watch} from 'vue'
 
 import Widget from '../Sidebar/Widget.vue'
 import LabelValue from '../Sidebar/LabelValue.vue'
-import PropertyGroup from '../Sidebar/PropertyGroup.vue'
 import InlineLinkList from '../InlineLinkList.vue'
-import FormatValue from '../Sidebar/FormatValue.vue'
 import ImageThumbnail from '../ImageThumbnail.vue'
-import ActorDetails from '../Actor/ActorDetails.vue'
 import ActorListDetailed from '../Actor/ActorListDetailed.vue'
 import ActorMap from '@/components/Actor/ActorMap.vue'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
-import PersistentConfig from '../../mixins/PersistentConfig'
 import * as qs from "qs";
+import charterRepository from "@/repositories/CharterRepository.ts";
 
 const props = defineProps({
     initUrls: {
@@ -202,8 +199,6 @@ const props = defineProps({
 const urls = JSON.parse(props.initUrls)
 const data = ref(JSON.parse(props.initData))
 
-console.log(data.value)
-
 const defaultConfig = {
     widgets: {
         actors: { collapsed: false },
@@ -216,64 +211,68 @@ const popupActorId = ref<number | null>(null)
 
 const charter = computed(() => data.value.charter)
 
-const issuers = computed(() => charter.value.actors.filter(actor => actor.role.id === 2))
-const authors = computed(() => charter.value.actors.filter(actor => actor.role.id === 1))
-const beneficiaries = computed(() => charter.value.actors.filter(actor => [3, 4].includes(actor.role.id)))
+const issuers = computed(() => charter.value.actors.filter(actor => actor.role.id === 2));
+const authors = computed(() => charter.value.actors.filter(actor => actor.role.id === 1));
+const beneficiaries = computed(() => charter.value.actors.filter(actor => [3, 4].includes(actor.role.id)));
 
-const preferentialDates = computed(() => charter.value.datations.filter(datation => datation.preference === 0))
+const preferentialDates = computed(() => charter.value.datations.filter(datation => datation.preference === 0));
 
 const isOriginal = computed(() => {
-    if (!charter.value.originals) return 'No'
-    for (const original of charter.value.originals) {
-        if (original.charter_id === charter.value.id) return 'Yes'
+    if (!charter.value.originals) {
+        return "No";
     }
-    return 'No'
+    for(const original of charter.value.originals) {
+        if(original.charter_id === charter.value.id) {
+            return "Yes";
+        }
+    }
+    return "No";
 })
 
-const originals = computed(() => charter.value.originals.map(formatOriginal).filter(Boolean))
-const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript')).filter(Boolean))
-const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy')).filter(Boolean))
-const editionsFormatted = computed(() => charter.value.edition_indications.map(formatEdition).filter(Boolean))
-const secondaryLiteratureFormatted = computed(() => charter.value.secondary_literature_indications.map(formatSecondaryLiterature).filter(Boolean))
+const originals = computed(() => charter.value.originals.map(formatOriginal).filter(Boolean));
+const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript')).filter(Boolean));
+const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy')).filter(Boolean));
+const editionsFormatted = computed(() => charter.value.edition_indications.map(formatEdition).filter(Boolean));
+const secondaryLiteratureFormatted = computed(() => charter.value.secondary_literature_indications.map(formatSecondaryLiterature).filter(Boolean));
 
 const geojson = computed(() => {
-    const features: any[] = []
+    const geojson = { type: 'FeatureCollection', features: [] as any[] };
     for (const actor of charter.value.actors) {
         if (actor?.place?.latitude) {
-            features.push({
-                type: 'Feature',
-                geometry: {
+            geojson.features.push({
+                'type': 'Feature',
+                'geometry': {
                     type: 'Point',
-                    coordinates: [parseFloat(actor.place.longitude), parseFloat(actor.place.latitude)]
+                    coordinates: [parseFloat(actor.place.longitude), parseFloat(actor.place.latitude)],
                 },
-                properties: {
+                'properties': {
                     actorId: actor.id,
                     roleId: actor.role.id,
-                    roleLabel: { 1: 'A', 2: 'I', 3: 'B' }[actor.role.id]
+                    roleLabel: { 1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
                 }
             })
         }
     }
-    return { type: 'FeatureCollection', features }
-})
+    return geojson;
+});
 
-const popupActor = computed(() => popupActorId.value ? charter.value.actors.find(actor => actor.id === popupActorId.value) : null)
+const popupActor = computed(() => popupActorId.value ? charter.value.actors.find(actor => actor.id === popupActorId.value) : null);
 
 function getUrl(route: string) {
-    return urls[route] ?? ''
+    return urls[route] ?? '';
 }
 
 function urlGeneratorIssuer(url, filter, filter_defaults = {}) {
-    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 2, [filter]: value.id } } ) )
+    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 2, [filter]: value.id } } ) );
 }
 function urlGeneratorAuthors(url, filter, filter_defaults = {}) {
-    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 1, [filter]: value.id } } ) )
+    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 1, [filter]: value.id } } ) );
 }
 function urlGeneratorBeneficiaries(url, filter, filter_defaults = {}) {
-    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 3, [filter]: value.id } } ) )
+    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 3, [filter]: value.id } } ) );
 }
 function urlGeneratorIdName(url: string, filter: string, defaults = {}) {
-    return (value: any) => `${getUrl(url)}?${qs.stringify({ filters: { ...defaults, [filter]: value.id } })}`
+    return (value: any) => `${getUrl(url)}?${qs.stringify({ filters: { ...defaults, [filter]: value.id } })}`;
 }
 
 function formatSource(edition: any) {
@@ -293,8 +292,12 @@ function formatSource(edition: any) {
 
 function formatDate(date: any) {
     let res = date.year ?? ''
-    if (date.month) res = `${date.month}/${res}`
-    if (date.day) res = `${date.day}/${res}`
+    if (date.month)  {
+        res = `${date.month}/${res}`
+    }
+    if (date.day) {
+        res = `${date.day}/${res}`
+    }
     return res
 }
 
@@ -315,53 +318,103 @@ function getDates(dates: any[]) {
 function getNormalisedPlace(place: any) {
     let res = place.name ?? ''
     const localisation: any[] = []
-    if (place.localisation?.land) localisation.push(place.localisation.land.name)
-    if (place.localisation?.echelon_1) localisation.push(place.localisation.echelon_1)
-    if (place.localisation?.echelon_2) localisation.push(place.localisation.echelon_2)
-    if (localisation.length) res += (res ? ' ' : '') + `(${localisation.join(', ')})`
+    if (place.localisation?.land) {
+        localisation.push(place.localisation.land.name)
+    }
+    if (place.localisation?.echelon_1) {
+        localisation.push(place.localisation.echelon_1)
+    }
+    if (place.localisation?.echelon_2) {
+        localisation.push(place.localisation.echelon_2)
+    }
+    if (localisation.length) {
+        res += (res ? ' ' : '') + `(${localisation.join(', ')})`
+    }
     return res
 }
 
 function formatOriginal(original: any) {
     const parts: any[] = []
-    if (original.repository?.location) parts.push(original.repository.location)
-    if (original.repository?.name) parts.push(original.repository.name)
-    if (original.repository_reference_number) parts.push(original.repository_reference_number)
+    if (original.repository?.location) {
+        parts.push(original.repository.location)
+    }
+    if (original.repository?.name) {
+        parts.push(original.repository.name)
+    }
+    if (original.repository_reference_number) {
+        parts.push(original.repository_reference_number)
+    }
     const text = parts.join(', ')
     return text ? (original.id ? { text, link: `/tradition/original/${original.id}` } : { text }) : null
 }
 
 function formatCodex(codex: any, type: string) {
     const parts: any[] = []
-    if (codex.repository?.location) parts.push(codex.repository.location)
-    if (codex.repository?.name) parts.push(codex.repository.name)
-    if (codex.repository_reference_number) parts.push(codex.repository_reference_number)
+    if (codex.repository?.location) {
+        parts.push(codex.repository.location)
+    }
+    if (codex.repository?.name) {
+        parts.push(codex.repository.name)
+    }
+    if (codex.repository_reference_number) {
+        parts.push(codex.repository_reference_number)
+    }
     let line = parts.join(', ')
-    if (codex.redaction_date) line += (line ? ' ' : '') + `(${codex.redaction_date})`
+    if (codex.redaction_date) {
+        line += (line ? ' ' : '') + `(${codex.redaction_date})`
+    }
     return line ? (codex.id ? { text: line, link: `/tradition/${type}/${codex.id}` } : { text: line }) : null
 }
 
 function formatEdition(edition: any) {
     const parts: any[] = [], links: any[] = []
-    if (edition.edition?.names_editors) parts.push(edition.edition.names_editors)
-    if (edition.edition?.full_title) parts.push(edition.edition.full_title)
-    if (edition.bookpart) parts.push(edition.bookpart)
-    if (edition.nr) parts.push(edition.nr)
-    if (edition.pages) parts.push(edition.pages)
-    if (edition.edition?.urls) links.push(...edition.edition.urls.map((u: any) => u.url).filter(Boolean))
-    if (edition.urls) links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
+    if (edition.edition?.names_editors) {
+        parts.push(edition.edition.names_editors)
+    }
+    if (edition.edition?.full_title) {
+        parts.push(edition.edition.full_title)
+    }
+    if (edition.bookpart) {
+        parts.push(edition.bookpart)
+    }
+    if (edition.nr) {
+        parts.push(edition.nr)
+    }
+    if (edition.pages) {
+        parts.push(edition.pages)
+    }
+    if (edition.edition?.urls) {
+        links.push(...edition.edition.urls.map((u: any) => u.url).filter(Boolean))
+    }
+    if (edition.urls) {
+        links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
+    }
     return parts.length ? { text: parts.join(', '), links } : null
 }
 
 function formatSecondaryLiterature(edition: any) {
     const parts: any[] = [], links: any[] = []
-    if (edition.secondary_literature?.names_editors) parts.push(edition.secondary_literature.names_editors)
-    if (edition.secondary_literature?.full_title) parts.push(edition.secondary_literature.full_title)
-    if (edition.bookpart) parts.push(edition.bookpart)
-    if (edition.nr) parts.push(edition.nr)
-    if (edition.pages) parts.push(edition.pages)
-    if (edition.secondary_literature?.urls) links.push(...edition.secondary_literature.urls.map((u: any) => u.url).filter(Boolean))
-    if (edition.urls) links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
+    if (edition.secondary_literature?.names_editors) {
+        parts.push(edition.secondary_literature.names_editors)
+    }
+    if (edition.secondary_literature?.full_title) {
+        parts.push(edition.secondary_literature.full_title)
+    }
+    if (edition.bookpart) {
+        parts.push(edition.bookpart)
+    }
+    if (edition.nr) {
+        parts.push(edition.nr)
+    }
+    if (edition.pages) {
+        parts.push(edition.pages)
+    }
+    if (edition.secondary_literature?.urls) {
+        links.push(...edition.secondary_literature.urls.map((u: any) => u.url).filter(Boolean))
+    }
+    if (edition.urls) {
+        links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
+    }
     return parts.length ? { text: parts.join(', '), links } : null
 }
 
@@ -400,23 +453,31 @@ const {
     context: searchContext,
     initContextFromUrl,
     initResultSet,
-    loadByIndex,
+    loadByIndex: loadCharterByIndex,
     returnToSearchResult,
     validContextAndResultSet,
 } = useSearchContext();
 
-function loadCharterByIndex(index: number) {
-    loadByIndex(index, data)
-}
+watch(() => searchContext.value.id, (newId) => {
+    charterRepository.get(newId).then((response) => {
+        data.value.charter = response.data;
+        const currentUrl = window.location.href;
+        const newUrl = currentUrl.replace(/(\/charters\/)\d+/, `$1${newId}`);
+        window.history.replaceState(null, '', newUrl);
+        updateTitle(newId);
+    });
+});
 
 initContextFromUrl();
 if (searchContext.value.validReadContext && !searchContext.value.ids){
     let readContext: Context = toValue(searchContext);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }
+updateTitle(data.value.charter.id)
 </script>
 
 <script lang="ts">
+import PersistentConfig from "../../mixins/PersistentConfig";
 export default {
     name: "CharterViewApp",
     mixins: [

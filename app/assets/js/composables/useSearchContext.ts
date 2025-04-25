@@ -4,7 +4,6 @@ import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
 import type {DataTableState} from "@/composables/useTablePagination.ts";
-import charterRepository from "../repositories/CharterRepository.ts";
 
 export type Context = {
     params: {
@@ -17,6 +16,7 @@ export type Context = {
     searchIndex: number | null;
     prevUrl: string | null;
     count: number;
+    id: number | null;
     ids: number[] | null; // IDs selected by the user
 }
 
@@ -51,6 +51,7 @@ export function useSearchContext(
         prevUrl: null,
         count: 0,
         ids: null,
+        id: null,
     },
     initialMaxLocalStorage: number = 20,
     initialResultSet: ResultSet = {
@@ -139,6 +140,7 @@ export function useSearchContext(
                 count: count,
                 ids: ids? [...ids] : null,
                 validReadContext: false,
+                id: id,
             }
             if (context.ids) {
                 if (!context.ids.includes(id)){
@@ -241,41 +243,33 @@ export function useSearchContext(
      * Load a new item based on the passed index in the result set.
      * Only call this after the context and result set have been initialized.
      * @param index
-     * @param data
      */
-    const loadByIndex = (index: number, data: Ref<any>) => {
+    const loadByIndex = (index: number) => {
         let fixedIndex = Math.min(index, context.value.count);
         fixedIndex = Math.max(fixedIndex, 1);
         if (!context.value.ids){
             getResultSetIdByIndex(index).then((id) => {
                 if (id){
-                    _handleRedirectToIndex(id, fixedIndex, data);
+                    _updateContext(id, fixedIndex);
                 }
-            })
+            });
         } else {
-            loadBySelectedIndex(fixedIndex, data);
+            loadBySelectedIndex(fixedIndex);
         }
     }
 
-    const loadBySelectedIndex = (index: number, data: Ref<any>) => {
+    const loadBySelectedIndex = (index: number) => {
         if (context.value.ids){
             const id = context.value.ids[index-1];
-            _handleRedirectToIndex(id, index, data);
+            _updateContext(id, index);
         }
     }
 
-    const _handleRedirectToIndex = (id: number, index: number, data: Ref<any>) => {
+    const _updateContext = (id: number, index: number) => {
         context.value.searchIndex = index;
+        context.value.id = id
         const hash = window.location.hash.substring(1);
         updateContextState(context.value, hash);
-        const segments = window.location.pathname.split('/');
-        segments[segments.length - 1] = String(id);
-        const newPath = segments.join('/');
-        charterRepository.get(id.toString()).then((result) => {
-            let dataCopy = {...data.value};
-            dataCopy.charter = result.data
-            data.value = {...dataCopy}
-        })
     }
 
     /**
