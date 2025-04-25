@@ -1,9 +1,34 @@
 import {type Ref, toRef, toValue} from "vue";
 import {useStorage} from "@vueuse/core";
-import type {Context, DataTableState, ResultSet} from "@/types";
 import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
+import type {DataTableState} from "@/composables/useTablePagination.ts";
+
+export type Context = {
+    params: {
+        filters: object;
+        limit: number;
+        page: number;
+        [key: string]: any;
+    };
+    validReadContext: boolean | null;
+    searchIndex: number | null;
+    prevUrl: string | null;
+    count: number;
+    ids: number[] | null; // IDs selected by the user
+}
+
+export type ResultSet = {
+    params: {
+        filters: object;
+        limit: number;
+        page: number;
+    };
+    ids: number[]; // Calculated IDs
+    count: number;
+    url: string | null;
+}
 
 /**
  * Composable used to save, retrieve and manage search contexts.

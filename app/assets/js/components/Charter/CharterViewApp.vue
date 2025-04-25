@@ -172,9 +172,8 @@
 
 <script setup lang="ts">
 
-import {useSearchContext} from "@/composables/useSearchContext";
+import {type Context, useSearchContext} from "@/composables/useSearchContext";
 import {toValue} from "vue";
-import type {Context} from "@/types";
 
 const {
     context: searchContext,

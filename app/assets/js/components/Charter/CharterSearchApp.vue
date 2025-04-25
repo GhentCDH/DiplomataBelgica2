@@ -215,6 +215,18 @@ interface FilteredPlace extends Place {
 
 type PlaceData = Place[]
 type FilteredPlaceData = Map<number, FilteredPlace>
+
+type SearchQuery = {
+    orderBy: string;
+    ascending: boolean;
+    limit: number;
+    page: number;
+    filters: Filters[] | null;
+}
+
+type Filters = {
+    [key: string]: any
+}
 </script>
 
 <script setup lang="ts">
@@ -228,12 +240,11 @@ import BPagination from "../Bootstrap/BPagination.vue";
 import BSelect from "../Bootstrap/BSelect.vue";
 import RecordCount from "../Bootstrap/RecordCount.vue";
 import BTable from "../Bootstrap/BTable.vue";
-import BRadioList from "@/components/Bootstrap/BRadioList.vue";
+import BRadioList, {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
 import CharterMap from "@/components/Charter/CharterMap.vue";
 
 import charterRepository from "@/repositories/CharterRepository";
-import {useTablePagination} from "@/composables/useTablePagination";
-import type {DataTableState, Filters, RadioItem, SearchQuery} from "@/types";
+import {type DataTableState, useTablePagination} from "@/composables/useTablePagination";
 import {useSimpleState} from "@/composables/useSimpleState.ts";
 import {useVueFormGenerator} from "@/composables/useVueFormGenerator";
 import {useSearchApi} from "@/composables/useSearchApi";
@@ -564,6 +575,7 @@ const createSearchQuery = (paginationState: DataTableState, filterState: any) =>
         ascending: paginationState.orderAsc,
         limit: paginationState.rowsPerPage,
         page: paginationState.currentPage,
+        filters: null,
     }
 
     query.filters = {...filterState}
