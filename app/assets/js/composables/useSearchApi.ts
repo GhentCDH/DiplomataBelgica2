@@ -51,7 +51,7 @@ export function useSearchApi(url: string) {
     const validate_search = (search: string): boolean => {
         const invalidOrAnd = /(^\s*[,+])|([,+]\s*$)|([,+]{2,})|([,+]\s*[^\s\w(#])|([^\w\s)]\s*[,+])/;
         const invalidNot = /(#$)|(#[^\s\w(])/;
-        const invalidRange = /([%/]\D)|([%/]\d+[^(])/
+        const invalidRange = /([%/]\D)|([%/]\d+[^(\d])/
         return !invalidNot.test(search) && !invalidOrAnd.test(search) && !invalidRange.test(search) && balancedParentheses(search);
     }
 

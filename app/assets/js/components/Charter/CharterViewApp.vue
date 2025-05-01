@@ -15,11 +15,10 @@
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
 
-                <template v-if="charter.full_text">
+                <template v-if="markedText">
                     <h2>Full text of charter</h2>
                     <div class="col-10 pbottom-small">
-                        <p class="charter-full-text">
-                            {{ charter.full_text }}
+                        <p class="charter-full-text" v-html="markedText">
                         </p>
                     </div>
                     <div v-if="charter.edition" class="mbottom-default">
@@ -173,7 +172,7 @@
 <script setup lang="ts">
 
 import {type Context, useSearchContext} from "@/composables/useSearchContext";
-import {ref, computed, toValue, watch} from 'vue'
+import {ref, computed, toValue, watch, toRef} from 'vue'
 
 import Widget from '../Sidebar/Widget.vue'
 import LabelValue from '../Sidebar/LabelValue.vue'
@@ -184,6 +183,7 @@ import ActorMap from '@/components/Actor/ActorMap.vue'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository.ts";
+import {useTextMarker} from "@/composables/useTextMarker.ts";
 
 const props = defineProps({
     initUrls: {
@@ -475,6 +475,13 @@ if (context.value.validReadContext && !context.value.ids){
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }
 updateTitle(data.value.charter.id)
+
+const fullTextRef = computed(() => data.value.charter.full_text)
+const search = toRef(context.value.params.filters['fulltext'] ?? null);
+const {
+    markedText
+} = useTextMarker(fullTextRef, search, "bg-primary-light")
+
 </script>
 
 <script lang="ts">
