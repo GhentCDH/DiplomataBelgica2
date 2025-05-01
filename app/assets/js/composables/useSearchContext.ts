@@ -1,9 +1,34 @@
 import {type Ref, toRef, toValue} from "vue";
 import {useStorage} from "@vueuse/core";
-import type {Context, DataTableState, ResultSet} from "@/types";
 import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
+import type {DataTableState} from "@/composables/useTablePagination.ts";
+
+export type Context = {
+    params: {
+        filters: object;
+        limit: number;
+        page: number;
+        [key: string]: any;
+    };
+    validReadContext: boolean | null;
+    searchIndex: number | null; // currently selected index in the resultset
+    prevUrl: string | null;
+    count: number;
+    ids: number[] | null; // IDs selected by the user
+}
+
+export type ResultSet = {
+    params: {
+        filters: object;
+        limit: number;
+        page: number;
+    };
+    ids: number[]; // Calculated IDs
+    count: number;
+    url: string | null;
+}
 
 /**
  * Composable used to save, retrieve and manage search contexts.
@@ -20,6 +45,7 @@ export function useSearchContext(
             limit: 25,
             page: 1,
         },
+        validReadContext: false,
         searchIndex: null,
         prevUrl: null,
         count: 0,
@@ -35,7 +61,7 @@ export function useSearchContext(
         ids: [],
         count: 0,
         url: ""
-    }
+    },
 ){
     /**
      * State of the retrieved search context.
@@ -93,7 +119,7 @@ export function useSearchContext(
      * @param filters
      * @param ids If the user has selected some items, these ids will be the only ones in the search context
      */
-    const handleRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={},  ids: number[] | null = null): void => {
+    const beforeRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={}, ids: number[] | null = null): void => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target?.getAttribute("href");
@@ -111,6 +137,7 @@ export function useSearchContext(
                 prevUrl: window.location.href,
                 count: count,
                 ids: ids? [...ids] : null,
+                validReadContext: false,
             }
             if (context.ids) {
                 if (!context.ids.includes(id)){
@@ -156,11 +183,12 @@ export function useSearchContext(
         let readContext: Context = initialContext;
         try {
             let hash = window.location.hash.substring(1);
-            readContext = contextState.value[hash]["data"]
+            readContext = contextState.value[hash]["data"];
+            readContext.validReadContext = true;
         } catch (e) {
             console.log(e)
         }
-        context.value = {...initialContext, ...context.value, ...readContext}
+        context.value = {...initialContext, ...context.value, ...readContext};
     }
 
 
@@ -218,34 +246,42 @@ export function useSearchContext(
         fixedIndex = Math.max(fixedIndex, 1);
         if (!context.value.ids){
             getResultSetIdByIndex(index).then((id) => {
-                _handleRedirectToIndex(id, fixedIndex);
-            })
+                if (id){
+                    _updateContext(id, fixedIndex);
+                }
+            });
         } else {
             loadBySelectedIndex(fixedIndex);
         }
     }
 
     const loadBySelectedIndex = (index: number) => {
-        const id = context.value.ids[index-1];
-        _handleRedirectToIndex(id, index);
+        if (context.value.ids){
+            const id = context.value.ids[index-1];
+            _updateContext(id, index);
+        }
     }
 
-    const _handleRedirectToIndex = (id: number, index: number) => {
+    const _updateContext = (id: number, index: number) => {
         context.value.searchIndex = index;
         const hash = window.location.hash.substring(1);
-        updateContextState(context, hash);
-        const segments = window.location.pathname.split('/');
-        segments[segments.length - 1] = String(id);
-        const newPath = segments.join('/');
+        updateContextState(context.value, hash);
+        if (onIdChanged.value){
+            onIdChanged.value(id.toString());
+        }
+    }
 
-        window.location.href = `${newPath}${window.location.hash}`;
+    const onIdChanged = toRef<null | ((id: string) => void)>(null)
+
+    const setOnIdChanged = (callback: (id: string) => void) => {
+        onIdChanged.value = callback;
     }
 
     /**
      * Return to the previous url.
      */
     const returnToSearchResult = () => {
-        window.location.href = context.value.prevUrl;
+        window.location.href = context.value.prevUrl!;
     }
 
     /**
@@ -261,7 +297,7 @@ export function useSearchContext(
     return {
         setDefaultBaseUrl,
         getHashedUrl,
-        handleRedirect,
+        beforeRedirect,
         initContextFromUrl,
         context,
         contextState,
@@ -275,5 +311,6 @@ export function useSearchContext(
         resultSet,
         returnToSearchResult,
         validContextAndResultSet,
+        setOnIdChanged
     }
 }

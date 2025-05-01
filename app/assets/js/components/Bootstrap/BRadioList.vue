@@ -16,9 +16,15 @@
   </div>
 </template>
 
+<script lang="ts">
+export type RadioItem = {
+    label: string;
+    value: string | number;
+}
+</script>
+
 <script setup lang="ts">
 import { ref, watch } from 'vue';
-import type {RadioItem} from "@/types";
 
 const props = defineProps<{
   items: RadioItem[];

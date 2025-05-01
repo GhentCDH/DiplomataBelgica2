@@ -1,6 +1,11 @@
 import {type Ref, ref, toValue, watch} from "vue";
-import type {DataTableState} from "@/types";
 
+export type DataTableState = {
+  currentPage: number;
+  rowsPerPage: number;
+  orderBy: string;
+  orderAsc: boolean;
+}
 
 export type onChangeCallback = (state: DataTableState) => void;
 

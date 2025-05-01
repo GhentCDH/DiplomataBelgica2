@@ -83,7 +83,6 @@
 
 <script>
 import {abstractField} from 'vue3-form-generator-legacy'
-import {toRaw} from "vue";
 
 export default {
     mixins: [abstractField],

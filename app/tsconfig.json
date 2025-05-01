@@ -13,7 +13,6 @@
       "@assets/*": [
         "./assets/*"
       ],
-      "@/types/*": ["./assets/js/types/*"]
     }
   }
 }

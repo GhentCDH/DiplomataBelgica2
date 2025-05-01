@@ -24,7 +24,6 @@
     "@assets/*": [
       "./assets/*"
     ],
-    "@/types/*": ["./assets/js/types/*"]
   },
   "include": ["assets/**/*.js", "assets/**/*.ts", "assets/js/composables/*.ts", "assets/**/*.tsx", "assets/**/*.vue", "tests/**/*.ts",
     "./globals.d.ts"

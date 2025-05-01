@@ -1,4 +1,5 @@
-import type {Model} from "@/composables/useVueFormGenerator";
+import type {Field, Model} from "@/composables/useVueFormGenerator";
+import {type Ref} from "vue";
 
 enum FilterType {
     INVALID,
@@ -15,23 +16,22 @@ export type FilterTag = {
     type: FilterType
 }
 
-export function useActiveFilterTags(ignore: string[] = []) {
+export function useActiveFilterTags(initModel: Ref<Model>, getFieldConfig: (key: string) => Field, ignore: string[] = []) {
+
+    const model = initModel;
+
+
+    const stringTypeToEnum = new Map<string, FilterType>(Object.entries({
+        "input": FilterType.STRING,
+        "multiselectClear": FilterType.OBJECTLIST,
+        "DMYRange": FilterType.DATERANGE,
+        "checkboxBS5": FilterType.BOOLEAN,
+        "checkbox": FilterType.BOOLEAN,
+    }))
 
     function getFilterType(k: string, v: any): FilterType {
-        if (typeof v === "string") {
-            return FilterType.STRING;
-        } else if (Array.isArray(v)) {
-            if (v.length > 0 && typeof v[0] === "object") {
-                return FilterType.OBJECTLIST;
-            }
-        } else if (typeof v === "object") {
-            if (isDateRange(v)) {
-                return FilterType.DATERANGE;
-            }
-        } else if (typeof v === "boolean" || v === 'true' || v === 'false') {
-            return FilterType.BOOLEAN;
-        }
-        return FilterType.INVALID;
+        const type = getFieldConfig(k).type;
+        return stringTypeToEnum.has(type) ? stringTypeToEnum.get(type)! : FilterType.INVALID;
     }
 
     const typesFunctionsMap: Map<FilterType, (k: string, v: any) => FilterTag[]> = new Map();
@@ -39,7 +39,8 @@ export function useActiveFilterTags(ignore: string[] = []) {
     typesFunctionsMap.set(FilterType.STRING, (k: string, v: string) => {
         let res: FilterTag[] = [];
         if (v.length > 0){
-            res.push({label: `${k}: `, value: v, key: k, type: FilterType.STRING});
+            const schemaField = getFieldConfig(k);
+            res.push({label: `${schemaField.label ? schemaField.label : k}: `, value: v, key: k, type: FilterType.STRING});
         }
         return res;
     });
@@ -48,7 +49,8 @@ export function useActiveFilterTags(ignore: string[] = []) {
         let res: FilterTag[] = [];
         v.forEach((item) => {
             if (item.name){
-                res.push({label: "", value: item.name, key: k, type: FilterType.OBJECTLIST});
+                const schemaField = getFieldConfig(k);
+                res.push({label: `${schemaField.label ? schemaField.label : ""}: `, value: item.name, key: k, type: FilterType.OBJECTLIST});
             }
         });
         return res
@@ -61,11 +63,12 @@ export function useActiveFilterTags(ignore: string[] = []) {
     typesFunctionsMap.set(FilterType.DATERANGE, (k: string, v: any) => {
         let res: FilterTag[] = [];
         if(isDateRange(v)){
-            if(v.from.day || v.from.month || v.from.year){
-                res.push({label: "from: ", value: `${v.from.day? v.from.day : "?"}/${v.from.month ? v.from.month : "?"}/${v.from.year ? v.from.year : "?"}`, key: k, type: FilterType.DATERANGE});
-            }
-            if (v.till.day || v.till.month || v.till.year){
-                res.push({label: "till: ", value: `${v.till.day ? v.till.day : "?"}/${v.till.month ? v.till.month : "?"}/${v.till.year ? v.till.year : "?"}`, key: k, type: FilterType.DATERANGE});
+            const schemaField = getFieldConfig(k);
+            if(!(v.till.day || v.till.month || v.till.year)){
+                res.push({label: `${schemaField.label ? schemaField.label : k}: `, value: `${v.from.day? v.from.day : "?"}/${v.from.month ? v.from.month : "?"}/${v.from.year ? v.from.year : "?"}`, key: k, type: FilterType.DATERANGE});
+            }else {
+                res.push({label: `${schemaField.label ? schemaField.label : k}: `, value: `${v.from.day? v.from.day : "?"}/${v.from.month ? v.from.month : "?"}/${v.from.year ? v.from.year : "?"} - 
+                ${v.till.day ? v.till.day : "?"}/${v.till.month ? v.till.month : "?"}/${v.till.year ? v.till.year : "?"}`, key: k, type: FilterType.DATERANGE});
             }
         }
         return res
@@ -74,14 +77,15 @@ export function useActiveFilterTags(ignore: string[] = []) {
     typesFunctionsMap.set(FilterType.BOOLEAN, (k: string, v: boolean) => {
         let res: FilterTag[] = [];
         if (v) {
-            res.push({label: `${k}`, value: "", key: k, type: FilterType.BOOLEAN});
+            const schemaField = getFieldConfig(k);
+            res.push({label: `${schemaField.label ? schemaField.label : k}`, value: "", key: k, type: FilterType.BOOLEAN});
         }
         return res
     });
 
-    const getActiveFilterTagStrings = (model: Model): FilterTag[] => {
+    const getActiveFilterTagStrings = (): FilterTag[] => {
         let res: FilterTag[] = [];
-        Object.entries(model).forEach(([k,v],_) => {
+        Object.entries(model.value).forEach(([k,v],_) => {
             if (!ignore.includes(k)){
                 const handle = typesFunctionsMap.get(getFilterType(k, v));
                 if (handle){
@@ -93,30 +97,31 @@ export function useActiveFilterTags(ignore: string[] = []) {
     }
 
 
-    const closeFilterFunctionsMap: Map<FilterType, (model: Model, tag: FilterTag) => void> = new Map();
+    const closeFilterFunctionsMap: Map<FilterType, (model: Model, tag: FilterTag) => Model> = new Map();
 
     closeFilterFunctionsMap.set(FilterType.STRING, (model: Model, tag: FilterTag) => {
         delete model[tag.key]
+        return model;
     });
 
     closeFilterFunctionsMap.set(FilterType.BOOLEAN, closeFilterFunctionsMap.get(FilterType.STRING)!);
 
     closeFilterFunctionsMap.set(FilterType.OBJECTLIST, (model: Model, tag: FilterTag) => {
         model[tag.key] = model[tag.key].filter((item: any) => item.name !== tag.value);
+        return model;
     });
 
     closeFilterFunctionsMap.set(FilterType.DATERANGE, (model: Model, tag: FilterTag) => {
-        if (tag.label.includes("from")) {
-            model[tag.key].from = {day: null, month: null, year: null};
-        } else if (tag.label.includes("till")) {
-            model[tag.key].till = {day: null, month: null, year: null};
-        }
+        model[tag.key].from = {day: null, month: null, year: null};
+        model[tag.key].till = {day: null, month: null, year: null};
+        return model;
     });
 
-    const closeActiveFilterTag = (model: Model, tag: FilterTag) => {
+    const closeActiveFilterTag = (tag: FilterTag) => {
         const handle = closeFilterFunctionsMap.get(tag.type);
         if (handle){
-            handle(model, tag)
+            let res = handle(model.value, tag);
+            model.value = {...res}
         }
     }
 
