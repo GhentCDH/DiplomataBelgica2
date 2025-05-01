@@ -116,29 +116,29 @@
                         <div class="form-group">
                             <span class="btn btn-sm btn-primary" @click="returnToSearchResult">&lt; Return to list</span>
                         </div>
-                        <div class="col col-3" :class="{ disabled: searchContext.searchIndex === 1}">
+                        <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">
                                 <i class="fa-solid fa-angles-left"></i>
                             </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(searchContext.searchIndex - 1)">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">
                                 <i class="fa-solid fa-angle-left"></i>
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ searchContext.searchIndex }} of {{ searchContext.count }}</span></div>
-                        <div class="col col-3 text-right" :class="{ disabled: searchContext.searchIndex === searchContext.count}">
+                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ context.count }}</span></div>
+                        <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
                           
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(searchContext.searchIndex + 1)">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
                                 <i class="fa-solid fa-angle-right"></i>
                             </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( searchContext.count)">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( context.count)">
                                 <i class="fa-solid fa-angles-right"></i>
                             </span>
                         </div>
                     </div>
                 </Widget>
 
-                <Widget title="Actors" v-model:collapsed="config.widgets.actors.isOpen">
+                <Widget title="Actors">
                     <actor-list-detailed label="Issuer <small>(author)</small>"
                                          label-plural="Issuers <small>(authors)</small>" :actors="issuers"
                                          :url-generator="urlGeneratorIssuer"></actor-list-detailed>
@@ -151,7 +151,7 @@
                                          :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
 
-                <Widget title="Date" v-model:collapsed="config.widgets.date.isOpen">
+                <Widget title="Date">
                   <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
                   <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
                   <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
@@ -450,27 +450,28 @@ function onMarkerOut() {
 
 //Context
 const {
-    context: searchContext,
+    context,
     initContextFromUrl,
     initResultSet,
     loadByIndex: loadCharterByIndex,
     returnToSearchResult,
     validContextAndResultSet,
+    setOnIdChanged,
 } = useSearchContext();
 
-watch(() => searchContext.value.id, (newId) => {
+setOnIdChanged((newId) => {
     charterRepository.get(newId).then((response) => {
         data.value.charter = response.data;
         const currentUrl = window.location.href;
         const newUrl = currentUrl.replace(/(\/charters\/)\d+/, `$1${newId}`);
-        window.history.replaceState(null, '', newUrl);
+        window.history.pushState(null, '', newUrl);
         updateTitle(newId);
     });
 });
 
 initContextFromUrl();
-if (searchContext.value.validReadContext && !searchContext.value.ids){
-    let readContext: Context = toValue(searchContext);
+if (context.value.validReadContext && !context.value.ids){
+    let readContext: Context = toValue(context);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }
 updateTitle(data.value.charter.id)

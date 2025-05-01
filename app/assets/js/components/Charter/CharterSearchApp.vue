@@ -50,7 +50,7 @@
                             <template #item="{item : id, index}">
                                 <a class="btn btn-tertiary btn-sm" target="_blank"
                                    :href="getHashedUrl(id)"
-                                   @mouseup="(event) => handleRedirect(
+                                   @mouseup="(event) => beforeRedirect(
                                            event, dataTableState, id, index, totalRecords,
                                            filterState, selectedIds.length? selectedIds : null)"
                                 >
@@ -112,7 +112,7 @@
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getHashedUrl(props.row.id)"
-                                           @mouseup="(event) => handleRedirect(
+                                           @mouseup="(event) => beforeRedirect(
                                                event, dataTableState, props.row.id, props.index, totalRecords,
                                                filterState, selectedIds.length? selectedIds : null)"
                                         >
@@ -366,7 +366,7 @@ const onCloseActiveFilter = (tag: FilterTag) => {
 
 const {
     getHashedUrl,
-    handleRedirect,
+    beforeRedirect,
 } = useSearchContext('/en/charters/')
 
 const formSchema = computed(() => {

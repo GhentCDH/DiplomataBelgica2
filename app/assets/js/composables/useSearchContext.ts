@@ -13,10 +13,9 @@ export type Context = {
         [key: string]: any;
     };
     validReadContext: boolean | null;
-    searchIndex: number | null;
+    searchIndex: number | null; // currently selected index in the resultset
     prevUrl: string | null;
     count: number;
-    id: number | null;
     ids: number[] | null; // IDs selected by the user
 }
 
@@ -51,7 +50,6 @@ export function useSearchContext(
         prevUrl: null,
         count: 0,
         ids: null,
-        id: null,
     },
     initialMaxLocalStorage: number = 20,
     initialResultSet: ResultSet = {
@@ -63,7 +61,7 @@ export function useSearchContext(
         ids: [],
         count: 0,
         url: ""
-    }
+    },
 ){
     /**
      * State of the retrieved search context.
@@ -121,7 +119,7 @@ export function useSearchContext(
      * @param filters
      * @param ids If the user has selected some items, these ids will be the only ones in the search context
      */
-    const handleRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={},  ids: number[] | null = null): void => {
+    const beforeRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={}, ids: number[] | null = null): void => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
             const href = event.target?.getAttribute("href");
@@ -140,7 +138,6 @@ export function useSearchContext(
                 count: count,
                 ids: ids? [...ids] : null,
                 validReadContext: false,
-                id: id,
             }
             if (context.ids) {
                 if (!context.ids.includes(id)){
@@ -267,9 +264,17 @@ export function useSearchContext(
 
     const _updateContext = (id: number, index: number) => {
         context.value.searchIndex = index;
-        context.value.id = id
         const hash = window.location.hash.substring(1);
         updateContextState(context.value, hash);
+        if (onIdChanged.value){
+            onIdChanged.value(id.toString());
+        }
+    }
+
+    const onIdChanged = toRef<null | ((id: string) => void)>(null)
+
+    const setOnIdChanged = (callback: (id: string) => void) => {
+        onIdChanged.value = callback;
     }
 
     /**
@@ -292,7 +297,7 @@ export function useSearchContext(
     return {
         setDefaultBaseUrl,
         getHashedUrl,
-        handleRedirect,
+        beforeRedirect,
         initContextFromUrl,
         context,
         contextState,
@@ -306,5 +311,6 @@ export function useSearchContext(
         resultSet,
         returnToSearchResult,
         validContextAndResultSet,
+        setOnIdChanged
     }
 }
