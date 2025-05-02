@@ -1,5 +1,5 @@
 <template>
-    <div class="row d-flex flex-direction-row flex-nowrap align-items-stretch">
+    <div class="row d-flex flex-direction-row flex-nowrap align-items-stretch" v-if="charter">
         <article class="d-flex col-sm-8 overflow-hidden">
             <div class="scrollable scrollable--vertical pe-2 pbottom-large w-100">
 
@@ -190,21 +190,16 @@ const props = defineProps({
         type: String,
         required: true
     },
-    initData: {
-        type: String,
-        required: true
-    }
 })
 
 const urls = JSON.parse(props.initUrls)
-const data = ref(JSON.parse(props.initData))
+const data = ref<{charter: any}>({} as {charter: any})
 
-const defaultConfig = {
-    widgets: {
-        actors: { collapsed: false },
-        date: { collapsed: false }
-    }
-}
+// Initialize
+const segments = window.location.pathname.split('/');
+const id = Number(segments[segments.length - 1]);
+getCharter(id);
+
 
 const openRequests = ref(false)
 const popupActorId = ref<number | null>(null)
@@ -286,7 +281,7 @@ function formatSource(edition: any) {
     if(res.length > 0) {
         return res.join(', ');
     } else {
-        return null;
+        return '';
     }
 }
 
@@ -459,14 +454,21 @@ const {
     setOnIdChanged,
 } = useSearchContext();
 
-setOnIdChanged((newId) => {
-    charterRepository.get(newId).then((response) => {
+function getCharter(id: number) {
+    charterRepository.get(id).then((response) => {
         data.value.charter = response.data;
         const currentUrl = window.location.href;
-        const newUrl = currentUrl.replace(/(\/charters\/)\d+/, `$1${newId}`);
+        const newUrl = currentUrl.replace(/(\/charters\/)\d+/, `$1${id}`);
         window.history.pushState(null, '', newUrl);
-        updateTitle(newId);
+        updateTitle(id);
     });
+}
+
+
+
+
+setOnIdChanged((newId: number) => {
+    getCharter(newId)
 });
 
 initContextFromUrl();
@@ -474,11 +476,9 @@ if (context.value.validReadContext && !context.value.ids){
     let readContext: Context = toValue(context);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }
-updateTitle(data.value.charter.id)
 
 const fullTextRef = computed(() => data.value.charter.full_text ?? "")
 const searchString = context.value.params.filters['fulltext'] ?? "";
-// const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)\b\w+\b/g)].map(m => m[0])
 const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)(^|$|[^\w.*])[\w.*]+(^|$|[^\w.*])/g)].map(m => m[0].replace(/\*/g, '[A-Za-z]*'))
 const {
     markedText
@@ -486,15 +486,6 @@ const {
 
 </script>
 
-<script lang="ts">
-import PersistentConfig from "../../mixins/PersistentConfig";
-export default {
-    name: "CharterViewApp",
-    mixins: [
-        PersistentConfig('CharterViewConfig'),
-    ],
-}
-</script>
 
 
 <style scoped lang="scss">

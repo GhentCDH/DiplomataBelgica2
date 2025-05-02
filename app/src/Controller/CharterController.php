@@ -53,15 +53,11 @@ class CharterController extends BaseController
             }
             return new JsonResponse($data);
         } else {
-            $data = $this->searchService->getSingle($id);
 
             return $this->render(
                 $this->templateFolder . '/detail.html.twig',
                 [
                     'urls' => json_encode($this->getSharedAppUrls()),
-                    'data' => json_encode([
-                        'charter' => $data
-                    ])
                 ]
             );
         }
