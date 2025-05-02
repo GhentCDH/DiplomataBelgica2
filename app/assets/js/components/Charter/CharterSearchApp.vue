@@ -47,6 +47,21 @@
                             <template #header>
                                 <button class="btn" @click="() => {setSelectedIds([])}">unselect all</button>
                             </template>
+                            <template #header2 v-if="selectedIds.length">
+                                <a class="btn" target="_blank"
+                                   :href="selectedIds.length ? getHashedUrl(selectedIds[0]) : null"
+                                   @mouseup="
+                                   (event) => {
+                                       if (selectedIds.length){
+                                           beforeRedirect(
+                                           event, dataTableState, selectedIds[0], 0, totalRecords,
+                                           filterState, selectedIds.length? selectedIds : null);
+                                       }
+                                   }"
+                                >
+                                    View Charters
+                                </a>
+                            </template>
                             <template #item="{item : id, index}">
                                 <a class="btn btn-tertiary btn-sm" target="_blank"
                                    :href="getHashedUrl(id)"
@@ -423,18 +438,18 @@ function toggleRowSelection(id: number){
     if (selectedIds.value.includes(id)){
         removeSelectedId(id)
     } else {
-        setSelectedIds([...selectedIds.value, id].sort());
+        setSelectedIds([...selectedIds.value, id].sort((a, b) => a-b));
     }
 }
 
 function toggleAllRowsSelection(){
-    const ids = tableData.value.map((row: any) => row.id);
+    const ids: number[] = tableData.value.map((row: any) => row.id);
     if (ids.every((v: number) => selectedIds.value.includes(v))){
         ids.forEach((id: number) => {
             removeSelectedId(id)
         })
     } else {
-        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort());
+        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a-b));
     }
 }
 

@@ -13,6 +13,9 @@
             <li class="dropdown-header">
                 <slot name="header"></slot>
             </li>
+            <li class="dropdown-header">
+                <slot name="header2"></slot>
+            </li>
             <li v-for="(item, index) in items" :key="index" class="dropdown-item d-flex justify-content-evenly align-items-center">
                 <slot name="preItem" :item="item" :index="index"></slot>
                 <slot name="item" :item="item" :index="index">
