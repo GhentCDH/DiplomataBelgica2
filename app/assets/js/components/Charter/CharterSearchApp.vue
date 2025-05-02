@@ -106,7 +106,14 @@
                                         <input
                                             type="checkbox"
                                             v-model="props.row.selected"
-                                            @change="() => toggleRowSelection(props.row.id, props.index)"
+                                            @change="() => toggleRowSelection(props.row.id)"
+                                        >
+                                    </template>
+                                    <template #actionsPreRowHeader>
+                                        <input
+                                            type="checkbox"
+                                            @change="toggleAllRowsSelection"
+                                            :checked="allSelected"
                                         >
                                     </template>
                                     <template #id="props">
@@ -400,22 +407,33 @@ const {
 
 const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
 
-function removeSelectedId(index: number){
-    selectedIds.value.splice(index, 1);
+function removeSelectedId(id: number){
+    selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
 }
 
-function toggleRowSelection(id: number, index: number){
+function toggleRowSelection(id: number){
     if (selectedIds.value.includes(id)){
-        removeSelectedId(index)
+        removeSelectedId(id)
     } else {
         setSelectedIds([...selectedIds.value, id].sort());
     }
 }
 
-function selectAllVisibleRows(){
+function toggleAllRowsSelection(){
     const ids = tableData.value.map((row: any) => row.id);
-    setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort());
+    if (ids.every((v: number) => selectedIds.value.includes(v))){
+        ids.forEach((id: number) => {
+            removeSelectedId(id)
+        })
+    } else {
+        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort());
+    }
 }
+
+const allSelected = computed(() => {
+    const ids = tableData.value.map((row: any) => row.id);
+    return ids.every((v: number) => selectedIds.value.includes(v))
+});
 
 const tableDataWithCheckbox = computed(() => {
     return tableData.value.map(row => ({
