@@ -478,7 +478,8 @@ updateTitle(data.value.charter.id)
 
 const fullTextRef = computed(() => data.value.charter.full_text ?? "")
 const searchString = context.value.params.filters['fulltext'] ?? "";
-const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)\b\w+\b/g)].map(m => m[0])
+// const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)\b\w+\b/g)].map(m => m[0])
+const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)(^|$|[^\w.*])[\w.*]+(^|$|[^\w.*])/g)].map(m => m[0].replace(/\*/g, '[A-Za-z]*'))
 const {
     markedText
 } = useTextMarker(fullTextRef, words, "bg-primary-light")
