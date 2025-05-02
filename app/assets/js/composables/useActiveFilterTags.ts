@@ -16,24 +16,39 @@ export type FilterTag = {
     type: FilterType
 }
 
-export function useActiveFilterTags(initModel: Ref<Model>, getFieldConfig: (key: string) => Field, ignore: string[] = []) {
+/**
+ * Composable to manage active filter tags
+ * @param modelRef a ref to the model holding the current filters
+ * @param getFieldConfig function that given the name (key) of a field will return its Field object which also contains the type which we need
+ * @param ignore list of field names to ignore. Those fields will not appear in as a filter tag
+ */
+export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: string) => Field, ignore: string[] = []) {
 
-    const model = initModel;
+    const model = modelRef;
 
-
+    /**
+     * Converts supported types into matching FilterType enum
+     */
     const stringTypeToEnum = new Map<string, FilterType>(Object.entries({
         "input": FilterType.STRING,
         "multiselectClear": FilterType.OBJECTLIST,
         "DMYRange": FilterType.DATERANGE,
         "checkboxBS5": FilterType.BOOLEAN,
         "checkbox": FilterType.BOOLEAN,
-    }))
+    }));
 
-    function getFilterType(k: string, v: any): FilterType {
+    /**
+     * Gets a FilterType enum
+     * @param k key of the Field
+     */
+    function getFilterType(k: string): FilterType {
         const type = getFieldConfig(k).type;
         return stringTypeToEnum.has(type) ? stringTypeToEnum.get(type)! : FilterType.INVALID;
     }
 
+    /**
+     * Mapping a FilterType to the function that has to be executed on it's key and value to get a correct FilterTag
+     */
     const typesFunctionsMap: Map<FilterType, (k: string, v: any) => FilterTag[]> = new Map();
 
     typesFunctionsMap.set(FilterType.STRING, (k: string, v: string) => {
@@ -83,11 +98,14 @@ export function useActiveFilterTags(initModel: Ref<Model>, getFieldConfig: (key:
         return res
     });
 
+    /**
+     * Returns a list of FilterTags based on the model
+     */
     const getActiveFilterTagStrings = (): FilterTag[] => {
         let res: FilterTag[] = [];
         Object.entries(model.value).forEach(([k,v],_) => {
             if (!ignore.includes(k)){
-                const handle = typesFunctionsMap.get(getFilterType(k, v));
+                const handle = typesFunctionsMap.get(getFilterType(k));
                 if (handle){
                     res = res.concat(handle(k,v))
                 }
@@ -96,7 +114,9 @@ export function useActiveFilterTags(initModel: Ref<Model>, getFieldConfig: (key:
         return res
     }
 
-
+    /**
+     * Maps a FilterType to a function that given the current model value and a FilterTag will return an updated model value
+     */
     const closeFilterFunctionsMap: Map<FilterType, (model: Model, tag: FilterTag) => Model> = new Map();
 
     closeFilterFunctionsMap.set(FilterType.STRING, (model: Model, tag: FilterTag) => {
@@ -117,6 +137,10 @@ export function useActiveFilterTags(initModel: Ref<Model>, getFieldConfig: (key:
         return model;
     });
 
+    /**
+     * Close an active filter tag and update the model
+     * @param tag tag to close
+     */
     const closeActiveFilterTag = (tag: FilterTag) => {
         const handle = closeFilterFunctionsMap.get(tag.type);
         if (handle){
