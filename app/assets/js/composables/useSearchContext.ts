@@ -271,7 +271,7 @@ export function useSearchContext(
         }
     }
 
-    const onIdChanged = toRef<null | ((id: string) => void)>(null)
+    const onIdChanged = toRef<null | ((id: string) => void)>(null);
 
     const setOnIdChanged = (callback: (id: string) => void) => {
         onIdChanged.value = callback;

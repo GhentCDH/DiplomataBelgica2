@@ -476,11 +476,12 @@ if (context.value.validReadContext && !context.value.ids){
 }
 updateTitle(data.value.charter.id)
 
-const fullTextRef = computed(() => data.value.charter.full_text)
-const search = toRef(context.value.params.filters['fulltext'] ?? null);
+const fullTextRef = computed(() => data.value.charter.full_text ?? "")
+const searchString = context.value.params.filters['fulltext'] ?? "";
+const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)\b\w+\b/g)].map(m => m[0])
 const {
     markedText
-} = useTextMarker(fullTextRef, search, "bg-primary-light")
+} = useTextMarker(fullTextRef, words, "bg-primary-light")
 
 </script>
 
