@@ -71,6 +71,10 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
         return res
     });
 
+    /**
+     * This is just used to really make sure date ranges have the correct till, from fields with day, month or year
+     * @param v
+     */
     function isDateRange(v: any): boolean {
         return !!v && v.from && v.till && (v.from.day || v.till.day || v.from.month || v.till.month || v.from.year || v.till.year);
     }

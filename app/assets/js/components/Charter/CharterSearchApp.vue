@@ -58,7 +58,7 @@
                                 </a>
                             </template>
                             <template #postItem="{item, index}">
-                                <button class="btn-close btn-sm" @click="removeSelectedId(index)"></button>
+                                <button class="btn-close btn-sm" @click="removeSelectedIndex(index)"></button>
                             </template>
                         </b-dropdown>
                     </div>
@@ -409,6 +409,10 @@ const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
 
 function removeSelectedId(id: number){
     selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
+}
+
+function removeSelectedIndex(index: number){
+    selectedIds.value.splice(index, 1);
 }
 
 function toggleRowSelection(id: number){

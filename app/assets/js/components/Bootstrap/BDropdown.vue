@@ -9,7 +9,7 @@
         >
             <slot name="display"></slot>
         </button>
-        <ul class="dropdown-menu">
+        <ul class="dropdown-menu overflow-auto" style="max-height: 300px">
             <li class="dropdown-header">
                 <slot name="header"></slot>
             </li>

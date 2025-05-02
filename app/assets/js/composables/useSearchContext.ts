@@ -273,6 +273,10 @@ export function useSearchContext(
 
     const onIdChanged = toRef<null | ((id: string) => void)>(null);
 
+    /**
+     * Set a callback that will be executed when the currently selected index/id in the context/resultset is changed
+     * @param callback
+     */
     const setOnIdChanged = (callback: (id: string) => void) => {
         onIdChanged.value = callback;
     }
@@ -290,7 +294,6 @@ export function useSearchContext(
     const validContextAndResultSet = (): boolean => {
         const contextValue = toValue(context)
         const resultSetValue = toValue(resultSet)
-        // return true;
         return (!!contextValue.searchIndex && !!contextValue.prevUrl) && (!!contextValue.ids || (!!resultSetValue.url && !!resultSetValue.count && !!resultSetValue.ids.length))
     }
 
