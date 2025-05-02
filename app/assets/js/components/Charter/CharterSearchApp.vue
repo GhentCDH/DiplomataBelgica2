@@ -102,19 +102,23 @@
                                          @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                          class="m-0"
                                 >
-                                    <template #actionsPreRow="props">
-                                        <input
-                                            type="checkbox"
-                                            v-model="props.row.selected"
-                                            @change="() => toggleRowSelection(props.row.id)"
-                                        >
-                                    </template>
                                     <template #actionsPreRowHeader>
-                                        <input
-                                            type="checkbox"
-                                            @change="toggleAllRowsSelection"
-                                            :checked="allSelected"
-                                        >
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                @change="toggleAllRowsSelection"
+                                                :checked="allSelected"
+                                            >
+                                        </th>
+                                    </template>
+                                    <template #actionsPreRow="props">
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                v-model="props.row.selected"
+                                                @change="() => toggleRowSelection(props.row.id)"
+                                            >
+                                        </td>
                                     </template>
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"

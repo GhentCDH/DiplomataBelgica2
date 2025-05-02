@@ -2,37 +2,29 @@
     <table class="table">
         <thead>
         <tr>
-            <th>
-                <slot name="actionsPreRowHeader">
-                </slot>
-            </th>
+            <slot name="actionsPreRowHeader">
+            </slot>
             <th v-for="field in fieldData" :key="field.key" :class="getFieldHeaderClass(field)" @click="changeSort(field)">
                 <span class="heading-label">{{ field.label }}</span>
                 <template v-if="field.sortable">
                     <span :class="getSortIcon(field.key)"></span>
                 </template>
             </th>
-            <th>
-                <slot name="actionsPostRowHeader">
-                </slot>
-            </th>
+            <slot name="actionsPostRowHeader">
+            </slot>
         </tr>
         </thead>
         <tbody>
         <tr v-for="(item, index) in items" :key="item.id">
-            <td>
-                <slot name="actionsPreRow" :item="item" :index="index" :row="item">
-                </slot>
-            </td>
+            <slot name="actionsPreRow" :item="item" :index="index" :row="item">
+            </slot>
             <td v-for="field in fields" :key="field.key" :class="field.tdClass">
                 <slot :name="field.key" :item="item" :index="index" :row="item">
                     {{ fieldValue(item, field.key) }}
                 </slot>
             </td>
-            <td>
-                <slot name="actionsPostRow" :item="item" :index="index" :row="item">
-                </slot>
-            </td>
+            <slot name="actionsPostRow" :item="item" :index="index" :row="item">
+            </slot>
         </tr>
         </tbody>
     </table>
