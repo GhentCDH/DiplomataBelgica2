@@ -20,6 +20,7 @@ export default defineConfig({
     ],
     build: {
         manifest: true,
+        outDir: "public/build",
         rollupOptions: {
             input: {
                 'main': "./assets/js/apps/main.js",
@@ -27,7 +28,6 @@ export default defineConfig({
                 'charter-view': "./assets/js/apps/charter-view.js",
                 'tradition-view': "./assets/js/apps/tradition-view.js",
                 'tradition-search': "./assets/js/apps/tradition-search.js",
-                manifest: resolve(__dirname, 'public/build/.vite/manifest.json')
             },
         }
     },
