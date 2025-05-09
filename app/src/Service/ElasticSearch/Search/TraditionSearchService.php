@@ -62,7 +62,6 @@ class TraditionSearchService extends AbstractSearchService
     }
 
     protected function initAggregationConfig(): array {
-        $searchFilters = $this->initSearchConfig();
 
         $aggregationFilters = [
             'repository_name' => [

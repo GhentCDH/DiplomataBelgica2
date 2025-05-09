@@ -85,7 +85,7 @@
     </div>
 </template>
 <script>
-import AbstractField from '../../mixins/FormGeneratorFieldCreators'
+import AbstractField from '../../mixins/FormGeneratorHelpers'
 
 import AbstractSearch from '../../mixins/SearchClient'
 import CollapsibleGroups from '../../mixins/FormGeneratorCollapsibleGroups'
@@ -99,6 +99,7 @@ import BPagination from "../Bootstrap/BPagination.vue";
 import RecordCount from "../Bootstrap/RecordCount.vue";
 import CharterSearchSummary from "../Charter/CharterSearchSummary.vue";
 import BTable from "../Bootstrap/BTable.vue";
+import FormGeneratorFieldCreator from "@/helpers/FormGeneratorFieldCreator";
 
 export default {
     mixins: [
@@ -125,17 +126,17 @@ export default {
                         styleClasses: 'collapsible',
                         legend: 'Repository',
                         fields: [
-                            this.formGeneratorCreateMultiSelect('Place',
+                            FormGeneratorFieldCreator.createMultiSelect('Place',
                                 {
                                     model: 'repository_location'
                                 }
                             ),
-                            this.formGeneratorCreateMultiSelect('Name',
+                            FormGeneratorFieldCreator.createMultiSelect('Name',
                                 {
                                     model: 'repository_name'
                                 }
                             ),
-                            this.formGeneratorCreateMultiSelect('Reference',
+                            FormGeneratorFieldCreator.createMultiSelect('Reference',
                                 {
                                     model: 'repository_reference_number'
                                 }
@@ -146,27 +147,27 @@ export default {
                         styleClasses: 'collapsible collapsed',
                         legend: 'Tradition',
                         fields: [
-                            this.formGeneratorCreateMultiSelect('Type',
+                            FormGeneratorFieldCreator.createMultiSelect('Type',
                                 {
                                     model: 'tradition_type'
                                 }
                             ),
-                            this.formGeneratorCreateMultiSelect('Stein Number',
+                            FormGeneratorFieldCreator.createMultiSelect('Stein Number',
                                 {
                                     model: 'codex_stein_number'
                                 }
                             ),
-                            this.formGeneratorCreateMultiSelect('Title of the manuscript',
+                            FormGeneratorFieldCreator.createMultiSelect('Title of the manuscript',
                                 {
                                     model: 'codex_title'
                                 }
                             ),
-                            this.formGeneratorCreateMultiSelect('Institutions covered by the manuscript',
+                            FormGeneratorFieldCreator.createMultiSelect('Institutions covered by the manuscript',
                                 {
                                     model: 'codex_institutions'
                                 }
                             ),
-                            this.formGeneratorCreateMultiSelect('Writing material',
+                            FormGeneratorFieldCreator.createMultiSelect('Writing material',
                                 {
                                     model: 'codex_material'
                                 }

@@ -34,17 +34,8 @@ class Place extends AbstractModel
         'place_localisation_published' => 'boolean'
     ];
     protected $with = [
-        'localisation', 'diocese', 'principality', 'placeLocalisation'
+        'diocese', 'principality',
     ];
-
-    /**
-     * @return BelongsTo|PlaceLocalisation
-     * @throws ReflectionException
-     */
-    public function localisation(): BelongsTo
-    {
-        return $this->belongsTo(PlaceLocalisation::class);
-    }
 
     /**
      * @return BelongsTo|Diocese

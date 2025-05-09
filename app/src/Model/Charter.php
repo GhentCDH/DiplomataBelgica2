@@ -138,7 +138,7 @@ class Charter extends AbstractModel
     {
         return $this->belongsToMany(Actor::class)
             ->using(Charter_Actor::class)
-            ->withPivot('charter_actor_role_id');
+            ->withPivot(['charter_actor_role_id', 'charter__actor_id']);
     }
 
     public function issuers(): BelongsToMany

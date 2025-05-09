@@ -20,32 +20,65 @@ class CharterController extends BaseController
     }
 
     /**
-     * @Route("/{_locale}/charter", name="charter", methods={"GET"})
+     * @Route("/{_locale}/charters", name="charter_search", methods={"GET"})
      */
-    public function index(Request $request): RedirectResponse
+    public function charters(Request $request): Response
     {
-        return $this->redirectToRoute('charter_search', ['request' =>  $request], 301);
-    }
-
-    /**
-     * @Route("/{_locale}/charter/search", name="charter_search", methods={"GET"})
-     */
-    public function search(Request $request): Response
-    {
-        return $this->_search(
-            $request,
+        $urls = $this->getSharedAppUrls();
+        return $this->render(
+            $this->templateFolder . '/search.html.twig',
             [
-                'title' => 'Charters'
-            ],
-            [
-                'search_api' => 'charter_search_api',
-                'paginate' => 'charter_paginate',
+                'title' => 'Charters',
+                'urls' => json_encode(array_merge($urls, [
+                    'search_api' => $urls['charter_search_api'],
+                    'paginate' => $urls['charter_paginate'],
+                ])),
             ]
         );
     }
 
     /**
-     * @Route("/charter/aggregation_suggest", name="charter_aggregation_suggest", methods={"GET"})
+     * @Route("/{_locale}/charters/{id}", name="charter_get_single", priority=-10, methods={"GET"})
+     */
+    public function charter(string $id, Request $request): Response
+    {
+        if (in_array('application/json', $request->getAcceptableContentTypes())) {
+            try {
+                $data = $this->searchService->getSingle($id);
+            } catch (NotFoundHttpException $e) {
+                return new JsonResponse(
+                    ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+            return new JsonResponse($data);
+        } else {
+
+            return $this->render(
+                $this->templateFolder . '/detail.html.twig',
+                [
+                    'urls' => json_encode($this->getSharedAppUrls()),
+                ]
+            );
+        }
+    }
+
+    /**
+     * @Route("/{_locale}/charters/search_syntax", name="charter_search_syntax", methods={"GET"})
+     */
+    public function searchSyntax(Request $request): Response
+    {
+        $locale = $request->getLocale();
+        return $this->render(
+            $this->templateFolder . "/search_syntax.$locale.html.twig",
+            [
+                'page_title' => 'Search syntax',
+            ]
+        );
+    }
+
+    /**
+     * @Route("/{_locale}/charters/aggregation_suggest", name="charter_aggregation_suggest", methods={"GET"})
      */
     public function aggregation_suggest(Request $request): Response
     {
@@ -63,70 +96,96 @@ class CharterController extends BaseController
         // get data
         $data = $this->searchService->aggregate(
             $filters,
-            [ $field ]
+            [$field]
         );
 
         return new JsonResponse($data);
     }
 
     /**
-     * @Route("/charter/search_api", name="charter_search_api", methods={"GET"})
+     * @Route("/{_locale}/charters/search", name="charter_search_api", methods={"GET"})
      */
-    public function searchAPI(Request $request): Response
+    public function search(Request $request): Response
     {
-        return $this->_searchAPI($request);
+        $mode = SearchMode::fromValue($request->query->get('mode', null)) ?: SearchMode::SEARCH_AGGREGATE;
+
+        return $this->_searchAPI($request, $mode, excludeAggregationKeys: ['actorPlaces', 'charterPlaces']);
     }
 
     /**
-     * @Route("/charter/paginate", name="charter_paginate", methods={"GET"})
+     * @Route("/{_locale}/charters/locate", name="charter_locate", methods={"GET"})
      */
-    public function paginate(Request $request): Response {
+    public function locate(Request $request): Response
+    {
+        return $this->_searchAPI($request, SearchMode::AGGREGATE, useAggregationKeys: ['actorPlaces', 'charterPlaces'], callback: [$this, 'cleanLocationData']);
+    }
+
+    /**
+     * @Route("/{_locale}/charters/paginate", name="charter_paginate", methods={"GET"})
+     */
+    public function paginate(Request $request): Response
+    {
         return $this->_paginate($request);
     }
 
-    /**
-     * @Route("/{_locale}/charter/search_syntax", name="charter_search_syntax", methods={"GET"})
-     */
-    public function searchSyntax(Request $request): Response
+    protected function cleanLocationData($data)
     {
-        $locale = $request->getLocale();
-        return $this->render(
-            $this->templateFolder. "/search_syntax.$locale.html.twig",
-            [
-                'page_title' => 'Search syntax',
-            ]
-        );
-    }
-
-    /**
-     * @Route("/{_locale}/charter/{id}", name="charter_get_single", methods={"GET"})
-     */
-    public function getSingle(string $id, Request $request): Response
-    {
-        if (in_array('application/json', $request->getAcceptableContentTypes())) {
-            try {
-                $data = $this->searchService->getSingle($id);
-            } catch (NotFoundHttpException $e) {
-                return new JsonResponse(
-                    ['error' => ['code' => Response::HTTP_NOT_FOUND, 'message' => $e->getMessage()]],
-                    Response::HTTP_NOT_FOUND
-                );
+        $places = [];
+        // walk actorPlaces aggregation
+        $actorPlaces = $data['actorPlaces'] ?? [];
+        foreach ($data['actorPlaces'] as $actorPlace) {
+            // skip if no lat/long
+            if (!isset($actorPlace['latitude']) || !isset($actorPlace['longitude'])) {
+                continue;
             }
-            return new JsonResponse($data);
-        } else {
-            $data = $this->searchService->getSingle($id);
+            if (!isset($places[$actorPlace['id']])) {
+                $actors = [];
+                // clean actor data
+                foreach ($actorPlace['actors'] as $actor) {
+                    $actors[] = [
+                        'id' => $actor['id'],
+                        'name' => $actor['label'],
+                        'count' => $actor['count'],
+                        'roles' => array_map(fn($role) => [
+                            'id' => $role['id'],
+                            'charterIds' => $role['charters']['charter_id'] ?? [],
+                        ], $actor['roles'] ?? []),
+                    ];
+                }
 
-            return $this->render(
-                $this->templateFolder. '/detail.html.twig',
-                [
-                    'urls' => json_encode($this->getSharedAppUrls()),
-                    'data' => json_encode([
-                        'charter' => $data
-                    ])
-                ]
-            );
+                // add place
+                $places[$actorPlace['id']] = [
+                    'id' => $actorPlace['id'],
+                    'name' => $actorPlace['name'],
+                    'latitude' => $actorPlace['latitude'],
+                    'longitude' => $actorPlace['longitude'],
+                    'actors' => $actors,
+                    'charterIds' => [],
+                ];
+            }
         }
-    }
 
+        // walk charterPlaces aggregation
+        $charterPlaces = $data['charterPlaces'] ?? [];
+        foreach ($charterPlaces as $charterPlace) {
+            if (!isset($charterPlace['latitude']) || !isset($charterPlace['longitude'])) {
+                continue;
+            }
+            if (!isset($places[$charterPlace['id']])) {
+                $places[$charterPlace['id']] = [
+                    'id' => $charterPlace['id'],
+                    'name' => $charterPlace['name'],
+                    'latitude' => $charterPlace['latitude'],
+                    'longitude' => $charterPlace['longitude'],
+                    'actors' => [],
+                    'charterIds' => $charterPlace['charter_id'] ?? [],
+                ];
+            } else {
+                $places[$charterPlace['id']]['charterIds'] = $charterPlace['charter_id'] ?? [];
+            }
+        }
+
+        return array_values($places);
+    }
 
 }

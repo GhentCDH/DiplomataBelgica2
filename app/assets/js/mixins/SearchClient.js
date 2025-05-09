@@ -2,8 +2,10 @@ import qs from 'qs'
 
 import axios from 'axios'
 import {toRaw} from "vue";
+import FormGeneratorFieldCreators from "@/mixins/FormGeneratorHelpers";
 
 export default {
+    mixins: [FormGeneratorFieldCreators],
     props: {
         initUrls: {
             type: String,
@@ -19,8 +21,6 @@ export default {
             urls: JSON.parse(this.initUrls),
             aggregation: null,
             data: null,
-            model: {},
-            schema: {},
             form: {
                 options: {
                     validateAfterLoad: false,
@@ -29,13 +29,12 @@ export default {
                     validationSuccessClass: "success"
                 },
                 defaultModel: {},
-                lastChangedFieldName: null,
             },
             searchClient: {
                 openRequests: 0,
                 abortController: null,
                 prevFilterValues: {},
-                debug: true,
+                debug: false,
             },
             // used to set timeout on free input fields
             // Remove requesting the same data that is already displayed
@@ -43,26 +42,6 @@ export default {
         }
     },
     computed: {
-        fields() {
-            let res = {};
-            if (this.schema && this.schema.fields) {
-                this.schema.fields.forEach(field => {
-                    if (!this.multiple || field.multi === true)
-                        res[field.model] = field;
-                });
-            }
-            if (this.schema && this.schema.groups) {
-                this.schema.groups.forEach(group => {
-                    if (group.fields) {
-                        group.fields.forEach(field => {
-                            if (!this.multiple || field.multi === true)
-                                res[field.model] = field;
-                        });
-                    }
-                });
-            }
-            return res;
-        },
         showReset() {
             const convertEmptyToNull = (value) => {
                 if (Array.isArray(value) && value.length === 0) {
@@ -104,7 +83,7 @@ export default {
             let result = {}
             if (this.model != null) {
                 for (const [fieldName, fieldValue] of Object.entries(this.model)) {
-                    const fieldType = this.fields[fieldName]?.type ?? null;
+                    const fieldType = this.getFieldConfig(fieldName)?.type ?? null;
                     if (!fieldType || fieldValue == null) {
                         continue
                     }
@@ -128,48 +107,12 @@ export default {
             }
             return result
         },
-        sortByName(a, b) {
-            const a_name = a.name.toString()
-            const b_name = b.name.toString()
-
-            // Place 'any', 'none' filters above
-            if ((a_name === 'none' || a_name === 'any') && (b_name !== 'any' && b_name !== 'none')) {
-                return -1
-            }
-            if ((a_name !== 'any' && a_name !== 'none') && (b_name === 'any' || b_name === 'none')) {
-                return 1
-            }
-
-            // Place true before false
-            if (a_name === 'false' && b_name === 'true') {
-                return 1
-            }
-            if (a_name === 'true' && b_name === 'false') {
-                return -1
-            }
-
-            // Default
-            return a_name.localeCompare(b_name, 'en', {sensitivity: 'base'})
-        },
         resetAllFilters() {
             this.searchClient.debug && console.log('resetallFilters')
             this.model = JSON.parse(JSON.stringify(this.form.defaultModel))
-            this.searchClient.lastChangedFieldName = null
             this.onFormValidated(true)
         },
-        onModelUpdated(value, fieldName) {
-            this.searchClient.debug && console.log('onModelUpdated', value, fieldName)
-            // console.trace();
-            this.searchClient.lastChangedFieldName = fieldName
-        },
-        onFormValidated(isValid, errors) {
-            this.searchClient.debug && console.log('onFormValidated', isValid, errors)
-
-            // if not valid, do nothing
-            if (!isValid) {
-                return
-            }
-
+        filterData(isValid, errors) {
             // only send request if the filters have changed
             // filters are always in the same order, so we can compare serialization
             let filterValues = this.constructFilterValues()
@@ -189,7 +132,7 @@ export default {
             // Update aggregation fields
             if (data?.aggregation) {
                 this.aggregation = data.aggregation
-                this.updateAggregations(this.aggregation);
+                this.updateFieldValues(this.aggregation);
             }
 
             this.searchClient.openRequests--
@@ -197,43 +140,7 @@ export default {
             // todo: fix Vue3 missing eventbus
             // this.$emit('data', data)
         },
-        updateAggregations(data, fieldNames = null, keepModelData = false) {
-            fieldNames = fieldNames && Array.isArray(fieldNames) ? fieldNames : Object.keys(this.fields)
-            for (let fieldName of fieldNames) {
-                const fieldConfig = this?.fields?.[fieldName]
-                if (fieldConfig && fieldConfig.type === 'multiselectClear') {
-                    // get aggregation values
-                    const values = data?.[fieldName] ?? [];
 
-                    // add current model data?
-                    if (keepModelData && this.model?.[fieldName]?.length) {
-                        const ids = new Set(values.map(item => item.id))
-                        for (const item of this.model?.[fieldName] ?? []) {
-                            if (!ids.has(item.id)) {
-                                values.push(item)
-                            }
-                        }
-                    }
-
-                    // sort values
-                    // field.values = values.sort(this.sortByName)
-                    fieldConfig.values = fieldConfig?.sortBy === 'name' ? values.sort(this.sortByName) : values
-
-                    // active values? update model
-                    let activeValues = fieldConfig.values.filter(item => item?.active)
-                    if (activeValues.length) {
-                        this.model[fieldName] = activeValues
-                        // this.$set(this.model, fieldName, activeValues)
-                    }
-                    // update dependency field?
-                    if (fieldConfig?.dependency && this.model[fieldConfig.dependency] == null) {
-                        this.dependencyField(fieldConfig)
-                    } else {
-                        this.enableField(fieldConfig)
-                    }
-                }
-            }
-        },
         pushHistory(data) {
             // todo: why not push search state & model to history?
             this.searchClient.debug && console.log('push history', toRaw(data))
@@ -283,7 +190,7 @@ export default {
             let model = JSON.parse(JSON.stringify(this.model))
 
             for (const [key, value] of Object.entries(filters)) {
-                const fieldConfig = this.fields[key] ?? null;
+                const fieldConfig = this.getFieldConfig(key) ?? null;
                 if (fieldConfig) {
                     switch (fieldConfig.type) {
                         case 'multiselectClear':
@@ -314,22 +221,41 @@ export default {
             this.searchClient.debug && console.log('InitModelFromQueryString after', model)
             this.model = model
         },
-        onTableSort(data) {
-            this.searchParams['orderBy'] = data.sortBy
-            this.searchParams['ascending'] = data.sortAscending
-            // this.$set(this.searchParams, 'orderBy', data.sortBy)
-            // this.$set(this.searchParams, 'ascending', data.sortAscending)
-            this.requestData(false)
+        // onTableSort(data) {
+        //     this.searchParams['orderBy'] = data.sortBy
+        //     this.searchParams['ascending'] = data.sortAscending
+        //     // this.$set(this.searchParams, 'orderBy', data.sortBy)
+        //     // this.$set(this.searchParams, 'ascending', data.sortAscending)
+        //     this.requestData(false)
+        // },
+        // onTableLimit(limit) {
+        //     this.searchParams['limit'] = limit
+        //     // this.$set(this.searchParams, 'limit', limit)
+        //     this.requestData(false)
+        // },
+        // onTablePagination(page) {
+        //     this.searchParams['page'] = page
+        //     // this.$set(this.searchParams, 'page', page)
+        //     this.requestData(false)
+        // },
+        createSearchQuery(paginationState, filterState) {
+            const query = {
+                orderBy: paginationState.sortBy,
+                ascending: paginationState.sortAscending,
+                limit: paginationState.perPage,
+                page: paginationState.page,
+            }
+
+            // Add filter values if necessary
+            query['filters'] = {...filterState}
+            if (query['filters'] == null || query['filters'] == '') {
+                delete query['filters']
+            }
+
+            return query
         },
-        onTableLimit(limit) {
-            this.searchParams['limit'] = limit
-            // this.$set(this.searchParams, 'limit', limit)
-            this.requestData(false)
-        },
-        onTablePagination(page) {
-            this.searchParams['page'] = page
-            // this.$set(this.searchParams, 'page', page)
-            this.requestData(false)
+        requestData2(query, aggregate) {
+
         },
         requestData(aggregate = true, pushHistory = true) {
             this.searchClient.debug && console.log('requestData')
@@ -342,28 +268,30 @@ export default {
             this.searchClient.abortController = new AbortController()
 
             // get table state
-            let data = {}
-            data = {...data, ...this.searchParams}
+            let query = {}
+            query = {...query, ...this.searchParams}
 
             // Add filter values if necessary
-            data['filters'] = this.constructFilterValues()
-            if (data['filters'] == null || data['filters'] == '') {
-                delete data['filters']
+            query['filters'] = this.constructFilterValues()
+            if (query['filters'] == null || query['filters'] == '') {
+                delete query['filters']
             }
 
             // Add aggregation if necessary
-            data['aggregate'] = aggregate
+            if (!aggregate) {
+                query['mode'] = "search"
+            }
 
             // Send request
             this.searchClient.openRequests++
             return axios.get(this.requestUrl, {
-                params: data,
+                params: query,
                 paramsSerializer: (params) => qs.stringify(params),
                 signal: this.searchClient.abortController.signal,
             })
                 .then((response) => {
                     if (pushHistory) {
-                        this.pushHistory(data)
+                        this.pushHistory(query)
                     }
                     return response
                 })

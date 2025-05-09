@@ -2,18 +2,22 @@
     <div class="row search-app">
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
-                <div v-if="showReset" class="form-group mbottom-default">
-                    <button class="btn btn-primary" @click="resetAllFilters">
-                        Reset all filters
-                    </button>
+                <div v-if="modelHasChanged" class="form-group mbottom-default flex-row">
+
+                    <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter">
+                        <template #startButton>
+                            <button class="btn btn-primary" @click="resetAllFilters">
+                                Reset all filters
+                            </button>
+                        </template>
+                    </b-filter-tags>
                 </div>
                 <VueFormGenerator
                     ref="form"
                     :model="model"
-                    :options="form.options"
+                    :options="formOptions"
                     :schema="formSchema"
                     @validated="onFormValidated"
-                    @model-updated="onModelUpdated"
                 />
             </div>
         </aside>
@@ -21,19 +25,35 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-
+                <div v-if="false">
+                    <div>{{ model }}</div>
+                    <div>{{getActiveFilterTagStrings()}}</div>
+                    <div>{{ filterState }}</div>
+                    <div>{{ filteredPlaceData.size }}</div>
+                </div>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
                                 data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results"
-                                aria-selected="true"><i
+                                aria-selected="true"
+                                ><i
                             class="fa-solid fa-bars"></i> Browse results
                         </button>
                         <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map"
                                 type="button" role="tab" aria-controls="nav-map" aria-selected="false"
-                                @click="setMapVisible()"><i class="fa-solid fa-map-location-dot"></i> Browse
+                                ><i class="fa-solid fa-map-location-dot"></i> Browse
                             map
                         </button>
+                        <selected-items-basket
+                            :selected-ids="selectedIds"
+                            :get-hashed-url="getHashedUrl"
+                            :set-selected-ids="setSelectedIds"
+                            :remove-selected-index="removeSelectedIndex"
+                            :data-table-state="dataTableState"
+                            :total-records="totalRecords"
+                            :filter-state="filterState"
+                            :before-redirect="beforeRedirect"
+                        />
                     </div>
                 </nav>
             </header>
@@ -46,36 +66,60 @@
                                 <div class="col-lg-4 d-flex align-items-lg-center">
                                     <b-pagination
                                         :total-records="totalRecords"
-                                        :per-page="searchParams.limit"
-                                        :page="searchParams.page"
-                                        @update:page="onTablePagination"
+                                        :per-page="dataTableState.rowsPerPage"
+                                        :page="dataTableState.currentPage"
+                                        @update:page="(page) => updateDataTableState({currentPage: parseInt(page)})"
                                     ></b-pagination>
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                                    <RecordCount :per-page="searchParams.limit" :total-records="totalRecords"
-                                                 :page="searchParams.page"></RecordCount>
+                                    <RecordCount :per-page="dataTableState.rowsPerPage" :total-records="totalRecords"
+                                                 :page="dataTableState.currentPage"></RecordCount>
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
                                     <b-select :id="'per-page'"
                                               :label="'Per page'"
-                                              :selected="searchParams.page"
+                                              :selected="dataTableState.rowsPerPage"
                                               :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
-                                              @update:selected="onTableLimit"
+                                              @update:selected="(value) => updateDataTableState({rowsPerPage: parseInt(value)})"
                                               class="w-auto"
                                     ></b-select>
                                 </div>
                             </nav>
 
                             <div class="d-flex flex-grow-1 scrollable">
-                                <b-table :items="tableData"
+                                <b-table :items="tableDataWithCheckbox"
                                          :fields="tableOptions.fields"
-                                         :sort-by="searchParams.orderBy"
-                                         :sort-ascending="searchParams.ascending"
-                                         @sort="onTableSort"
+                                         :sort-by="dataTableState.orderBy"
+                                         :sort-ascending="dataTableState.orderAsc"
+                                         @update:sort-by="(value) => updateDataTableState({orderBy: value})"
+                                         @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                          class="m-0"
                                 >
+                                    <template #actionsPreRowHeader>
+                                        <th>
+                                            <input
+                                                type="checkbox"
+                                                @change="toggleAllRowsSelection"
+                                                :checked="allSelected"
+                                            >
+                                        </th>
+                                    </template>
+                                    <template #actionsPreRow="props">
+                                        <td>
+                                            <input
+                                                type="checkbox"
+                                                v-model="props.row.selected"
+                                                @change="() => toggleRowSelection(props.row.id)"
+                                            >
+                                        </td>
+                                    </template>
                                     <template #id="props">
-                                        <a class="btn btn-tertiary btn-sm" target="_blank" :href="getCharterUrl(props.row.id, props.index)">
+                                        <a class="btn btn-tertiary btn-sm" target="_blank"
+                                           :href="getHashedUrl(props.row.id)"
+                                           @mouseup="(event) => beforeRedirect(
+                                               event, dataTableState, props.row.id, props.index, totalRecords,
+                                               filterState, selectedIds.length? selectedIds : null)"
+                                        >
                                             {{ props.row.id }}
                                         </a>
                                     </template>
@@ -90,438 +134,594 @@
                         </div>
                     </div>
                     <div class="tab-pane w-100 h-100" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
-                        <LeafletMap ref="leafletMap" v-if="mapVisible" :markers="markers" :layers="layers" :center="[47.413220, -1.219482]" class="w-100 h-100"></LeafletMap>
+                        <div class="position-relative w-100 h-100">
+                            <CharterMap :geojson="geojson" class="w-100 h-100" @marker-click="onMarkerClick" ref="map" :popup-visible="!!activePlaceId">
+                                <template #control>
+                                    <BRadioList :items="roleFilters" :modelValue="roleFilterValue"
+                                                @update:modelValue="onUpdateRoleFilter" class="m-2"></BRadioList>
+                                </template>
+                                <template #popup>
+                                    <div class="popup" v-if="activePlace">
+                                        <h2>{{ activePlace.name }}</h2><span class="btn-close" @click="activePlaceId=null"></span>
+                                        <template v-if="activePlace.actors.length">
+                                            <h3>Actors</h3>
+
+                                            <ul>
+                                                <li v-for="actor of activePlace.actors">
+                                                    <span>{{ actor.name }}</span>
+                                                    <template v-for="charterId of actor.charterIds">
+                                                        <a class="btn btn-tertiary btn-sm me-1"
+                                                           :href="getHashedUrl(charterId, 0)"
+                                                           target="_blank">
+                                                            {{ charterId }}
+                                                        </a>
+                                                    </template>
+                                                </li>
+                                            </ul>
+                                        </template>
+                                        <template v-if="activePlace.charterIds.length">
+                                            <h3>Placedate Charters</h3>
+                                            <template v-for="charterId of activePlace.charterIds">
+                                                <a class="btn btn-tertiary btn-sm me-1"
+                                                   :href="getHashedUrl(charterId, 0)"
+                                                   target="_blank">
+                                                    {{ charterId }}
+                                                </a>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </template>
+                            </CharterMap>
+                        </div>
                     </div>
                 </div>
             </section>
         </article>
         <div
-            v-if="searchClient.openRequests"
+            v-if="isFetching"
             class="loading-overlay"
         >
             <div class="spinner"/>
         </div>
     </div>
 </template>
-<script>
-import FormGeneratorFieldCreators from '../../mixins/FormGeneratorFieldCreators'
-import SearchClient from '../../mixins/SearchClient'
-import FormGeneratorCollapsibleGroups from '../../mixins/FormGeneratorCollapsibleGroups'
+
+<script lang="ts">
+interface PlaceActorRole {
+    id: number,
+    charterIds: number[],
+}
+interface PlaceActor {
+    id: number,
+    name: string,
+    roles: PlaceActorRole[],
+    charterIds: number[],
+}
+interface Place {
+    id: number,
+    name: string,
+    latitude: number,
+    longitude: number,
+    actors: PlaceActor[],
+    charterIds: number[],
+}
+
+interface Stats {
+    actors: number,
+    charters: number,
+    actorsCharters: number,
+    placeDateCharters: number,
+}
+
+interface FilteredPlace extends Place {
+    stats: Stats
+}
+
+type PlaceData = Place[]
+type FilteredPlaceData = Map<number, FilteredPlace>
+
+type SearchQuery = {
+    orderBy: string;
+    ascending: boolean;
+    limit: number;
+    page: number;
+    filters: Filters[] | null;
+}
+
+type Filters = {
+    [key: string]: any
+}
+</script>
+
+<script setup lang="ts">
+import {useI18n} from 'vue-i18n'
+
+import {computed, onMounted, ref, shallowRef, watch} from 'vue'
 
 import CharterSearchSummary from "./CharterSearchSummary.vue";
-
-import PersistentConfig from "../../mixins/PersistentConfig"
-import SharedSearch from "../../mixins/SharedSearch";
-
-import LeafletMap from "../LeafletMap.vue"
-
-import FormatValue from "../Sidebar/FormatValue.vue";
-
-import qs from "qs";
 
 import BPagination from "../Bootstrap/BPagination.vue";
 import BSelect from "../Bootstrap/BSelect.vue";
 import RecordCount from "../Bootstrap/RecordCount.vue";
 import BTable from "../Bootstrap/BTable.vue";
+import BRadioList, {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
+import CharterMap from "@/components/Charter/CharterMap.vue";
 
-export default {
-    mixins: [
-        PersistentConfig('CharterSearchConfig'),
-        FormGeneratorFieldCreators,
-        FormGeneratorCollapsibleGroups,
-        SearchClient,
-        SharedSearch,
+import charterRepository from "@/repositories/CharterRepository";
+import {type DataTableState, useTablePagination} from "@/composables/useTablePagination";
+import {useSimpleState} from "@/composables/useSimpleState.ts";
+import {useVueFormGenerator} from "@/composables/useVueFormGenerator";
+import {useSearchApi} from "@/composables/useSearchApi";
+import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
+import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
+import qs from "qs";
+import {useSearchContext} from "@/composables/useSearchContext.ts";
+import BDropdown from "@/components/Bootstrap/BDropdown.vue";
+import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
+import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
+import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
+
+const {t} = useI18n()
+
+// props
+const props = defineProps({
+    initUrls: {
+        type: String,
+        default: '{}',
+    },
+    title: {
+        type: String,
+        default: null
+    }
+})
+
+const {initUrls, title} = props
+
+// refs
+
+const map = ref(null)
+
+// table options
+
+const tableOptions = {
+    fields: [
+        {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
+        {key: 'summary', label: 'Summary'},
+        {key: 'date_sort', label: 'Date', sortable: true, thClass: 'no-wrap'},
     ],
-    components: {
-        RecordCount,
-        CharterSearchSummary,
-        FormatValue, LeafletMap,
-        BPagination,
-        BSelect, BTable,
-    },
-    props: {},
-    data() {
-        return {
-            model: {
-                dating_scholary_preferential: true,
-            },
-            schema: {
-                groups: [
-                    {
-                        styleClasses: 'collapsible',
-                        legend: this.$t('filter.legend.identification'),
-                        fields: [
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                label: this.$t('filter.field.charter_id.label'),
-                                help: this.$t('filter.field.charter_id.help'),
-                                labelClasses: 'form-label',
-                                placeholder: 'Charter ID',
-                                model: 'id',
-                                validateDebounceTime: 1000,
-                            },
-                            this.formGeneratorCreateMultiSelect('Language',
-                                {
-                                    model: 'charter_language',
-                                    label: this.$t('filter.field.language.label'),
-                                    help: this.$t('filter.field.language.help'),
-                                }
-                            )
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: this.$t('filter.legend.actors'),
-                        fields: [
-                            {
-                                type: 'label',
-                                label: this.$t('filter.field.actor.label', {index: 1}),
-                                model: 'actor_1',
-                                styleClasses: 'actor actor-1'
-                            },
-                            this.formGeneratorCreateMultiSelect(
-                                this.$t('filter.field.actor_name.label'),
-                                {
-                                    model: 'actor_name_full_name_1',
-                                    styleClasses: 'actor actor-1',
-                                    help: this.$t('filter.field.actor_name.help'),
-                                },
-                                {onSearch: this.onAutocomplete('actor_name_full_name_1'), internalSearch: false}
-                            ),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_role.label'), {
-                                model: 'actor_role_1',
-                                styleClasses: 'actor actor-1',
-                                help: this.$t('filter.field.actor_role.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_function.label'), {
-                                model: 'actor_capacity_1',
-                                styleClasses: 'actor actor-1',
-                                help: this.$t('filter.field.actor_function.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_institution.label'), {
-                                model: 'actor_place_name_1',
-                                styleClasses: 'actor actor-1',
-                                help: this.$t('filter.field.actor_institution.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_diocese.label'), {
-                                model: 'actor_place_diocese_name_1',
-                                styleClasses: 'actor actor-1',
-                                help: this.$t('filter.field.actor_diocese.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_principality.label'), {
-                                model: 'actor_place_principality_name_1',
-                                styleClasses: 'actor actor-1',
-                                help: this.$t('filter.field.actor_principality.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_order.label'), {
-                                model: 'actor_order_name_1',
-                                styleClasses: 'actor actor-1 !mbottom-default',
-                                help: this.$t('filter.field.actor_order.help'),
-                            }),
-
-                            {
-                                type: 'label',
-                                label: this.$t('filter.field.actor.label', {index: 2}),
-                                model: 'actor_2',
-                                styleClasses: 'actor actor-2',
-                                visible: this.actorFieldIsVisible
-                            },
-                            this.formGeneratorCreateMultiSelect(
-                                this.$t('filter.field.actor_name.label'),
-                                {
-                                    model: 'actor_name_full_name_2',
-                                    styleClasses: 'actor actor-2',
-                                    visible: this.actorFieldIsVisible,
-                                    help: this.$t('filter.field.actor_name.help'),
-                                },
-                                {onSearch: this.onAutocomplete('actor_name_full_name_2'), internalSearch: false}
-                            ),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_role.label'), {
-                                model: 'actor_role_2', styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
-                                help: this.$t('filter.field.actor_role.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_function.label'), {
-                                model: 'actor_capacity_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
-                                help: this.$t('filter.field.actor_function.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_institution.label'), {
-                                model: 'actor_place_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
-                                help: this.$t('filter.field.actor_institution.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_diocese.label'), {
-                                model: 'actor_place_diocese_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
-                                help: this.$t('filter.field.actor_diocese.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_principality.label'), {
-                                model: 'actor_place_principality_name_2',
-                                styleClasses: 'actor actor-2', visible: this.actorFieldIsVisible,
-                                help: this.$t('filter.field.actor_principality.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_order.label'), {
-                                model: 'actor_order_name_2',
-                                styleClasses: 'actor actor-2 !mbottom-default', visible: this.actorFieldIsVisible,
-                                help: this.$t('filter.field.actor_order.help'),
-                            }),
-
-                            {
-                                type: 'label',
-                                label: this.$t('filter.field.actor.label', {index: 3}),
-                                model: 'actor_3',
-                                styleClasses: 'actor actor-3',
-                                visible: this.actorFieldIsVisible
-                            },
-                            this.formGeneratorCreateMultiSelect(
-                                this.$t('filter.field.actor_name.label'),
-                                {
-                                    model: 'actor_name_full_name_3',
-                                    styleClasses: 'actor actor-3',
-                                    visible: this.actorFieldIsVisible,
-                                    label: this.$t('filter.field.actor_name.label'),
-                                    help: this.$t('filter.field.actor_name.help'),
-                                },
-                                {onSearch: this.onAutocomplete('actor_name_full_name_3'), internalSearch: false}
-                            ),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_role.label'), {
-                                model: 'actor_role_3', styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
-                                label: this.$t('filter.field.actor_role.label'),
-                                help: this.$t('filter.field.actor_role.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_function.label'), {
-                                model: 'actor_capacity_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
-                                label: this.$t('filter.field.actor_function.label'),
-                                help: this.$t('filter.field.actor_function.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_institution.label'), {
-                                model: 'actor_place_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
-                                label: this.$t('filter.field.actor_institution.label'),
-                                help: this.$t('filter.field.actor_institution.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_diocese.label'), {
-                                model: 'actor_place_diocese_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
-                                label: this.$t('filter.field.actor_diocese.label'),
-                                help: this.$t('filter.field.actor_diocese.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_principality.label'), {
-                                model: 'actor_place_principality_name_3',
-                                styleClasses: 'actor actor-3', visible: this.actorFieldIsVisible,
-                                label: this.$t('filter.field.actor_principality.label'),
-                                help: this.$t('filter.field.actor_principality.help'),
-                            }),
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.actor_order.label'), {
-                                model: 'actor_order_name_3',
-                                styleClasses: 'actor actor-3 !mbottom-default', visible: this.actorFieldIsVisible,
-                                label: this.$t('filter.field.actor_order.label'),
-                                help: this.$t('filter.field.actor_order.help'),
-                            }),
-
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: this.$t('filter.legend.datation'),
-                        fields: [
-                            {
-                                type: 'DMYRange',
-                                model: 'dating_scholary',
-                                label: this.$t('filter.field.date_scholarly_any.label'),
-                                help: this.$t('filter.field.date_scholarly_any.help'),
-
-                                labelClasses: 'form-label',
-                                validateDebounceTime: 1000,
-                            },
-                            {
-                                type: 'checkboxBS5',
-                                model: 'dating_scholary_preferential',
-                                label: this.$t('filter.field.date_scholarly_preferential.label'),
-                                help: this.$t('filter.field.date_scholarly_preferential.help'),
-
-                                labelClasses: 'd-none',
-                                default: true,
-                            },
-                            {
-                                type: 'DMYRange',
-                                model: 'dating_charter',
-                                label: this.$t('filter.field.date_unconverted.label'),
-                                help: this.$t('filter.field.date_unconverted.help'),
-                                labelClasses: 'form-label',
-                                validateDebounceTime: 1000,
-                            },
-                            this.formGeneratorCreateMultiSelect(this.$t('filter.field.place_date.label'), {
-                                model: 'charter_place_name',
-                                help: this.$t('filter.field.place_date.help'),
-                            }),
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: this.$t('filter.legend.analysis'),
-                        fields: [
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                model: 'summary',
-                                label: this.$t('filter.field.summary.label'),
-                                help: this.$t('filter.field.summary.help'),
-                                placeholder: 'Search in summary',
-                                labelClasses: 'form-label',
-                                validateDebounceTime: 1000,
-                            },
-                            {
-                                type: 'input',
-                                inputType: 'text',
-                                model: 'fulltext',
-                                label: this.$t('filter.field.fulltext.label'),
-                                help: this.$t('filter.field.fulltext.help'),
-                                placeholder: 'Search in charter',
-                                labelClasses: 'form-label',
-                                validateDebounceTime: 1000,
-                            },
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: this.$t('filter.legend.images'),
-                        fields: [
-                            {
-                                label: this.$t('filter.field.images.label'),
-                                help: this.$t('filter.field.images.help'),
-                                type: 'checkboxBS5',
-                                model: 'has_images',
-                                labelClasses: 'd-none',
-                            },
-                        ]
-                    },
-                ],
-            },
-            tableOptions: {
-                fields: [
-                    {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
-                    {key: 'summary', label: 'Summary'},
-                    {key: 'date_sort', label: 'Date', sortable: true, thClass: 'no-wrap'},
-                ],
-                orderBy: {
-                    column: 'date_sort',
-                    ascending: false,
-                },
-                pagination: {
-                    chunk: 5,
-                    perPage: 25,
-                    page: 1,
-                    perPageValues: [25, 50, 100],
-                },
-            },
-            mapVisible: null
-        }
-    },
-    computed: {
-        formSchema() {
-            const schema = this.schema
-            this.formGeneratorCollapseGroups(schema)
-            return schema
-        },
-        requestUrl() {
-            return this.urls['charter_search_api']
-        },
-        markers() {
-            let places = this.aggregation?.charter_place_name ?? []
-            let markers = places.filter((place) => (place.latitude ?? false)).map(function (place) {
-                return {
-                    latLng: [parseFloat(place.latitude), parseFloat(place.longitude)],
-                    name: place.name + ' (' + place.count + ')',
-                    id: place.id
-                }
-            });
-            return markers
-        },
-        layers() {
-            return [
-                {
-                    id: 'google-satellite',
-                    type: 'tileLayer',
-                    options: {
-                        // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-                        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        attribution: 'Open Streetmap',
-                        maxZoom: 18,
-                        name: 'Open Streetmap',
-                        visible: true,
-                        opacity: 1,
-                        layerType: 'base',
-                        zIndex: 10,
-                    }
-                },
-            ]
-        }
-    },
-    watch: {},
-    methods: {
-        setMapVisible() {
-            this.mapVisible = true;
-            window.dispatchEvent(new Event('resize'));
-        },
-        getCharterUrl(id, index) {
-            let context = {
-                params: this.data.filters,
-                searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
-                searchSessionHash: this.getSearchSessionHash()
-            }
-            return this.urls['charter_get_single'].replace('charter_id', id) + '#' + this.getContextHash(context)
-        },
-        getPreferentialDate(datations) {
-            return datations.find((datation) => datation.preference == 0)
-        },
-        formatDatationTime(datation) {
-            if (!datation?.time) {
-                return ''
-            }
-            return [datation.time.day, datation.time.month, datation.time.year].filter((x) => x).join('/')
-        },
-        onAutocomplete(field) {
-            const that = this
-            return function (query) {
-                let data = {
-                    field: field,
-                    value: query,
-                    filters: that.constructFilterValues(),
-                }
-                axios.get(that.urls['charter_aggregation_suggest'], {
-                    params: data,
-                    paramsSerializer: qs.stringify,
-                })
-                    .then((response) => {
-                        const fieldConfig = that?.fields?.[field]
-                        fieldConfig.values = response.data?.[field] ?? []
-                        return response
-                    })
-            }
-        },
-        actorFieldIsVisible(model, field) {
-
-            function getActorFields(index) {
-                return [
-                    'actor_name_full_name_' + index,
-                    'actor_role_' + index,
-                    'actor_capacity_' + index,
-                    'actor_place_name_' + index,
-                    'actor_place_diocese_name_' + index,
-                    'actor_place_principality_name_' + index,
-                    'actor_order_name_' + index,
-                ]
-            }
-
-            const modelKey = field.model
-            const actorIndex = modelKey.split('_').pop()
-            const actorFields = [...getActorFields(actorIndex), ...(actorIndex > 1 ? getActorFields(actorIndex - 1) : [])]
-            let res = actorFields.filter((key) => model?.[key] && model?.[key]?.length > 0)
-            return res.length > 0
-        },
+    pagination: {
+        chunk: 5,
+        perPageValues: [25, 50, 100],
     },
 }
+
+// map state
+
+const activePlaceId = shallowRef(null)
+const mapVisible = shallowRef(false)
+const placeData = shallowRef<PlaceData|null>(null)
+
+const roleFilters = ref<RadioItem[]>([
+    {
+        label: t('All'),
+        value: 0
+    },
+    {
+        label: t('Issuer'),
+        value: 2
+    },
+    {
+        label: t('Author'),
+        value: 1
+    },
+    {
+        label: t('Beneficiary'),
+        value: 3
+    },
+])
+
+const roleFilterValue = ref(0)
+
+// pagination state
+
+const defaultDataTableState: DataTableState = {
+    orderBy: 'date_sort',
+    orderAsc: false,
+    rowsPerPage: 25,
+    currentPage: 1,
+}
+
+const {
+    state: dataTableState,
+    setCurrentPage,
+    setState: setDataTableState,
+    updateState: patchDataTableState,
+    setOrderBy,
+    setOrderAsc
+} = useTablePagination(defaultDataTableState)
+
+// filter state
+const {state: filterState, setState: setFilterState} = useSimpleState([]);
+
+// form schema & model
+const defaultModel = {
+    dating_scholary_preferential: true,
+}
+
+const {
+    model,
+    schema,
+    setSchema,
+    setModel,
+    modelHasChanged,
+    flattenModel,
+    updateFieldValues,
+    getFieldConfig,
+} = useVueFormGenerator({}, defaultModel);
+
+const {
+    getActiveFilterTagStrings,
+    closeActiveFilterTag
+} = useActiveFilterTags(model, getFieldConfig, Object.keys(defaultModel))
+
+const onCloseActiveFilter = (tag: FilterTag) => {
+    closeActiveFilterTag(tag);
+    updateFilterState(flattenModel(model.value))
+}
+
+const {
+    getHashedUrl,
+    beforeRedirect,
+} = useSearchContext('/en/charters/')
+
+const formSchema = computed(() => {
+    schema.value
+    // const schema = this.schema
+    // todo: migrate form generatorm mixin!
+    // formGeneratorCollapseGroups(schema)
+    return schema.value
+})
+
+const formOptions = {
+    validateAfterLoad: false,
+    validateAfterChanged: true,
+    validationErrorClass: "has-error",
+    validationSuccessClass: "success"
+}
+
+useVueFormGeneratorCollapsibleGroups(schema, 'charter-search-groups')
+
+// search api
+
+const {
+    data,
+    isFetching,
+    error,
+    fetch,
+    count: totalRecords,
+    results: tableData,
+    aggregations
+} = useSearchApi('/en/charters/search')
+
+const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
+
+function removeSelectedId(id: number){
+    selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
+}
+
+function removeSelectedIndex(index: number){
+    selectedIds.value.splice(index, 1);
+}
+
+function toggleRowSelection(id: number){
+    if (selectedIds.value.includes(id)){
+        removeSelectedId(id)
+    } else {
+        setSelectedIds([...selectedIds.value, id].sort((a, b) => a-b));
+    }
+}
+
+function toggleAllRowsSelection(){
+    const ids: number[] = tableData.value.map((row: any) => row.id);
+    if (ids.every((v: number) => selectedIds.value.includes(v))){
+        ids.forEach((id: number) => {
+            removeSelectedId(id)
+        })
+    } else {
+        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a-b));
+    }
+}
+
+const allSelected = computed(() => {
+    const ids = tableData.value.map((row: any) => row.id);
+    return ids.every((v: number) => selectedIds.value.includes(v))
+});
+
+const tableDataWithCheckbox = computed(() => {
+    return tableData.value.map(row => ({
+        ...row,
+        selected: selectedIds.value.includes(row.id)
+    }))
+});
+
+watch(aggregations, (currentAggregations) => {
+    if (currentAggregations) {
+        updateFieldValues(currentAggregations)
+    }
+})
+
+// map api
+
+const filteredPlaceData = computed<FilteredPlaceData>((): Map<number, any> => {
+    // filter actors based on role
+    const filteredPlaces = new Map()
+
+    // check if place data is available
+    if (!placeData.value) {
+        return filteredPlaces
+    }
+
+    // copy place data
+    const places = JSON.parse(JSON.stringify(placeData.value)) as PlaceData
+
+    // filter actors based on role
+    for (const place of places) {
+        const filteredActors: PlaceActor[] = [];
+        const actorsCharterIds = new Set();
+        for (const actor of place?.actors ?? []) {
+            const filteredRoles = roleFilterValue.value !== 0
+                ? actor.roles.filter((role) => role.id === roleFilterValue.value)
+                : actor.roles
+            if(filteredRoles.length === 0) {
+                continue
+            }
+
+            // calculate unique charter ids the actor is involved in
+            const charterIds = Array.from(new Set(actor.roles.map(role => role?.charterIds).flat())).sort()
+
+            // update actor with filtered roles and charter ids
+            actor.roles = filteredRoles
+            actor.charterIds = charterIds
+
+            // update actors charter ids
+            charterIds.forEach(id => actorsCharterIds.add(id))
+
+            // add actor to filtered actors
+            filteredActors.push(actor)
+        }
+        // place has actors with the selected role? add to filtered places
+        if (filteredActors.length) {
+            const stats = {
+                actors: filteredActors.length,
+                charters: (new Set([...actorsCharterIds, ...place.charterIds])).size,
+                actorsCharters: actorsCharterIds.size,
+                placeDateCharters: place.charterIds.length,
+            }
+
+            filteredPlaces.set(place.id, {
+                ...place,
+                stats: stats
+            })
+        }
+    }
+    return filteredPlaces
+})
+
+const geojson = computed(() => {
+    const geojson: {type: string, features: any[]} = {type: 'FeatureCollection', features: []};
+    for (const place of filteredPlaceData.value.values()) {
+        const feature = createPlaceFeature(place);
+        geojson.features.push(feature);
+    }
+    return geojson
+})
+
+const activePlace = computed(() => {
+    if (activePlaceId.value) {
+        return filteredPlaceData.value.get(activePlaceId.value)
+    } else {
+        return null
+    }
+})
+
+const onFormValidated = (isValid, errors) => {
+    if (!isValid) {
+        return
+    }
+    updateFilterState(flattenModel(model.value))
+}
+
+const createPlaceFeature = (place: FilteredPlace) => {
+    return {
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: [parseFloat(place.longitude.toString()), parseFloat(place.latitude.toString())]
+        },
+        properties: {
+            id: place.id,
+            actorCount: place.stats.actors,
+            actorCharterCount: place.stats.actorsCharters,
+            charterCount: place.stats.charters,
+        }
+    }
+}
+
+const getPreferentialDate = (datations) => {
+    return datations.find((datation) => datation.preference == 0)
+}
+
+const formatDatationTime = (datation) => {
+    if (!datation?.time) {
+        return ''
+    }
+    return [datation.time.day, datation.time.month, datation.time.year].filter((x) => x).join('/')
+}
+
+const onAutocomplete = (fieldName: string) => {
+    return (query: string) => {
+        charterRepository.autocomplete(fieldName, query, filterState)
+            .then((response) => {
+                updateFieldValues(response.data, [fieldName])
+                // const fieldConfig = getFieldConfig(fieldName)
+                // fieldConfig.values = response.data?.[fieldName] ?? []
+                // return response
+            })
+    }
+}
+
+const updatePlaceData = () => {
+    charterRepository.locate(filterState.value)
+        .then((response) => {
+            placeData.value = response.data
+        })
+}
+
+const onMarkerOver = (feature: any) => {
+    activePlaceId.value = feature.properties.id
+}
+
+const onMarkerClick = (feature: any) => {
+    activePlaceId.value = feature.properties.id
+}
+
+const onMarkerOut = () => {
+    // this.activePlaceId = null
+}
+
+const createSearchQuery = (paginationState: DataTableState, filterState: any) => {
+    const query: SearchQuery = {
+        orderBy: paginationState.orderBy,
+        ascending: paginationState.orderAsc,
+        limit: paginationState.rowsPerPage,
+        page: paginationState.currentPage,
+        filters: null,
+    }
+
+    query.filters = {...filterState}
+    return query
+}
+
+const resetAllFilters = () => {
+    setModel(defaultModel)
+    setCurrentPage(1)
+    updateFilterState(flattenModel(model.value))
+}
+
+const pushHistory = (query: string) => {
+    const state = {
+        model: JSON.parse(JSON.stringify(model.value)),
+        paginationState: JSON.parse(JSON.stringify(dataTableState.value)),
+    }
+    history.pushState(state, '', document.location.href.split('?')[0] + '?' + qs.stringify(query))
+}
+
+const onUpdateRoleFilter = (roleId: number) => {
+    roleFilterValue.value = roleId
+    activePlaceId.value = null
+}
+
+const onPopHistory = (event: PopStateEvent) => {
+    if (event.state) {
+        setModel(event.state.model)
+        setDataTableState(event.state.paginationState)
+        setFilterState(flattenModel(model.value))
+
+        const query = createSearchQuery(dataTableState.value, filterState.value);
+
+        // search & aggregate
+        fetch(query, 'search_aggregate');
+
+        // update map data
+        updatePlaceData()
+    }
+}
+
+
+const updateDataTableState = (payload: Partial<DataTableState>) => {
+    // update datatable state
+    patchDataTableState(payload)
+
+    // create search query
+    const query = createSearchQuery(dataTableState.value, filterState.value);
+
+    // push query to history
+    pushHistory(query)
+
+    // paginate (DO NOT aggregate!)
+    fetch(query, 'search');
+}
+
+const updateFilterState = (payload: any) => {
+    // update filter state
+    setFilterState(payload)
+    // reset pagination
+    setCurrentPage(1)
+
+    // create search query
+    const query = createSearchQuery(dataTableState.value, filterState.value);
+
+    // push query to history
+    pushHistory(query)
+
+    // search & aggregate
+    fetch(query, 'search_aggregate');
+
+    // update map data
+    updatePlaceData()
+}
+
+// init form schema
+
+setSchema(createSchema({
+    t,
+    onAutocomplete
+}))
+
+let params = qs.parse(window.location.href.split('?', 2)[1])
+const filters = params['filters'] ?? {}
+setFilterState(filters)
+let tmpModel = {}
+Object.entries(filters).forEach(([k,v]) => {
+    if (v === 'true') {
+        tmpModel[k] = true
+    }else if (v === 'false') {
+        tmpModel[k] = false
+    } else {
+        tmpModel[k] = v;
+    }
+})
+setModel({...defaultModel, ...tmpModel})
+if (Number(params['page'])){
+    setCurrentPage(Number(params['page']))
+}
+
+if (params['orderBy']) {
+    setOrderBy(params['orderBy'])
+}
+if (params['ascending']) {
+    setOrderAsc(params['ascending'] == 'true')
+}
+
+const query = createSearchQuery(dataTableState.value, filterState.value);
+fetch(query, 'search_aggregate');
+updatePlaceData()
+
+onMounted(() => {
+    window.onpopstate = ((event: PopStateEvent) => {
+        onPopHistory(event)
+    })
+})
 </script>
+
+<style lang="scss">
+.popup {
+    position: relative;
+
+    .btn-close {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+</style>

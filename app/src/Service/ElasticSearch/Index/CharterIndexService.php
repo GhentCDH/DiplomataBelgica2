@@ -19,7 +19,21 @@ class CharterIndexService extends AbstractIndexService
             'full_text_stripped' => [
                 'type' => 'text',
             ],
-            'place' => ['type' => 'object'],
+            'place' => ['type' => 'object',
+                'properties' => [
+                    'hash' => [
+                        'type' => 'keyword',
+                    ],
+                    'name' => [
+                        'type' => 'keyword',
+                    ],
+                    'latitude' => [
+                        'type' => 'keyword',
+                    ],
+                    'longitude' => [
+                        'type' => 'keyword',
+                    ]
+                ]],
             'languages' => ['type' => 'object'],
             'actors' => [
                 'type' => 'nested',
@@ -32,6 +46,21 @@ class CharterIndexService extends AbstractIndexService
                                 'normalizer' => 'icu_normalizer',
                             ]
                         ]
+                    ],
+                    'label' => [
+                        'type' => 'keyword',
+                    ],
+                    'place.latitude' => [
+                        'type' => 'keyword',
+                    ],
+                    'place.hash' => [
+                        'type' => 'keyword',
+                    ],
+                    'place.longitude' => [
+                        'type' => 'keyword',
+                    ],
+                    'place.name' => [
+                        'type' => 'keyword',
                     ]
                 ]
             ],

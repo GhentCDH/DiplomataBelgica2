@@ -1,5 +1,5 @@
 <template>
-    <div class="row d-flex flex-direction-row flex-nowrap align-items-stretch">
+    <div class="row d-flex flex-direction-row flex-nowrap align-items-stretch" v-if="charter">
         <article class="d-flex col-sm-8 overflow-hidden">
             <div class="scrollable scrollable--vertical pe-2 pbottom-large w-100">
 
@@ -15,11 +15,10 @@
                   <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
                 </div>
 
-                <template v-if="charter.full_text">
+                <template v-if="markedText">
                     <h2>Full text of charter</h2>
                     <div class="col-10 pbottom-small">
-                        <p class="charter-full-text">
-                            {{ charter.full_text }}
+                        <p class="charter-full-text" v-html="markedText">
                         </p>
                     </div>
                     <div v-if="charter.edition" class="mbottom-default">
@@ -96,17 +95,28 @@
                 <h2>Map</h2>
 
                 <div id="map" class="map">
-                  <LeafletMap :markers="markers" :layers="layers" :center="center" :visible= true ></LeafletMap>
+                    <actor-map :geojson="geojson" @marker-over="onMarkerOver" @marker-out="onMarkerOut">
+                        <template #popup>
+                            <div class="popup">
+                                <div v-if="popupActor?.role?.name"><b>{{ popupActor?.role?.name }}</b></div>
+                                <ActorDetailsFlat :actor="popupActor"/>
+                            </div>
+                        </template>
+                    </actor-map>
                 </div>
+
             </div>
         </article>
         <aside class="d-flex col-sm-4 overflow-hidden">
             <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
 
-                <Widget v-if="isValidResultSet()" title="Search" :collapsed="false">
+                <Widget v-if="validContextAndResultSet()" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
+                        <div class="form-group">
+                            <span class="btn btn-sm btn-primary" @click="returnToSearchResult">&lt; Return to list</span>
+                        </div>
                         <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)"> 
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">
                                 <i class="fa-solid fa-angles-left"></i>
                             </span>
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex - 1)">
@@ -114,20 +124,20 @@
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ resultSet.count }}</span></div>
+                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ context.count }}</span></div>
                         <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
                           
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
                                 <i class="fa-solid fa-angle-right"></i>
                             </span>
-                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( resultSet.count )">
+                            <span class="btn btn-sm btn-primary" @click="loadCharterByIndex( context.count)">
                                 <i class="fa-solid fa-angles-right"></i>
                             </span>
                         </div>
                     </div>
                 </Widget>
 
-                <Widget title="Actors" v-model:collapsed="config.widgets.actors.isOpen">
+                <Widget title="Actors">
                     <actor-list-detailed label="Issuer <small>(author)</small>"
                                          label-plural="Issuers <small>(authors)</small>" :actors="issuers"
                                          :url-generator="urlGeneratorIssuer"></actor-list-detailed>
@@ -140,7 +150,7 @@
                                          :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
 
-                <Widget title="Date" v-model:collapsed="config.widgets.date.isOpen">
+                <Widget title="Date">
                   <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
                   <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
                   <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
@@ -159,461 +169,321 @@
     </div>
 </template>
 
-<script>
+<script setup lang="ts">
+
+import {type Context, useSearchContext} from "@/composables/useSearchContext";
+import {ref, computed, toValue, watch, toRef} from 'vue'
+
 import Widget from '../Sidebar/Widget.vue'
 import LabelValue from '../Sidebar/LabelValue.vue'
-import PropertyGroup from '../Sidebar/PropertyGroup.vue'
 import InlineLinkList from '../InlineLinkList.vue'
-
-import PersistentConfig from "../../mixins/PersistentConfig";
-import ResultSet from "../../mixins/ResultSet";
-import SearchSession from "../../mixins/SearchSession";
-import SearchContext from "../../mixins/SearchContext";
-
-import axios from 'axios'
-import qs from 'qs'
-
-import FormatValue from "../Sidebar/FormatValue.vue";
 import ImageThumbnail from '../ImageThumbnail.vue'
+import ActorListDetailed from '../Actor/ActorListDetailed.vue'
+import ActorMap from '@/components/Actor/ActorMap.vue'
+import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
+import * as qs from "qs";
+import charterRepository from "@/repositories/CharterRepository.ts";
+import {useTextMarker} from "@/composables/useTextMarker.ts";
 
-import LeafletMap from "../LeafletMap.vue"
-
-import ActorDetails from "../Actor/ActorDetails.vue"
-import ActorListDetailed from "../Actor/ActorListDetailed.vue";
-
-export default {
-    name: "CharterViewApp",
-    components: {
-        ActorListDetailed,
-      FormatValue,
-        Widget, LabelValue, PropertyGroup, InlineLinkList, ImageThumbnail, LeafletMap,
-        ActorDetails
+const props = defineProps({
+    initUrls: {
+        type: String,
+        required: true
     },
-    mixins: [
-        PersistentConfig('CharterViewConfig'),
-        ResultSet,
-        SearchSession,
-        SearchContext,
-    ],
-    props: {
-        initUrls: {
-            type: String,
-            required: true
-        },
-        initData: {
-            type: String,
-            required: true
+})
+
+const urls = JSON.parse(props.initUrls)
+const data = ref<{charter: any}>({} as {charter: any})
+
+// Initialize
+const segments = window.location.pathname.split('/');
+const id = Number(segments[segments.length - 1]);
+getCharter(id);
+
+
+const openRequests = ref(false)
+const popupActorId = ref<number | null>(null)
+
+const charter = computed(() => data.value.charter)
+
+const issuers = computed(() => charter.value.actors.filter(actor => actor.role.id === 2));
+const authors = computed(() => charter.value.actors.filter(actor => actor.role.id === 1));
+const beneficiaries = computed(() => charter.value.actors.filter(actor => [3, 4].includes(actor.role.id)));
+
+const preferentialDates = computed(() => charter.value.datations.filter(datation => datation.preference === 0));
+
+const isOriginal = computed(() => {
+    if (!charter.value.originals) {
+        return "No";
+    }
+    for(const original of charter.value.originals) {
+        if(original.charter_id === charter.value.id) {
+            return "Yes";
         }
-    },
-    data() {
-        return {
-            urls: JSON.parse(this.initUrls),
-            data: JSON.parse(this.initData),
-            defaultConfig: {
-                search: {
-                    useContext: true,
+    }
+    return "No";
+})
+
+const originals = computed(() => charter.value.originals.map(formatOriginal).filter(Boolean));
+const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript')).filter(Boolean));
+const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy')).filter(Boolean));
+const editionsFormatted = computed(() => charter.value.edition_indications.map(formatEdition).filter(Boolean));
+const secondaryLiteratureFormatted = computed(() => charter.value.secondary_literature_indications.map(formatSecondaryLiterature).filter(Boolean));
+
+const geojson = computed(() => {
+    const geojson = { type: 'FeatureCollection', features: [] as any[] };
+    for (const actor of charter.value.actors) {
+        if (actor?.place?.latitude) {
+            geojson.features.push({
+                'type': 'Feature',
+                'geometry': {
+                    type: 'Point',
+                    coordinates: [parseFloat(actor.place.longitude), parseFloat(actor.place.latitude)],
                 },
-                widgets: {
-                    actors: { collapsed: false },
-                    date: { collapsed: false }
+                'properties': {
+                    actorId: actor.id,
+                    roleId: actor.role.id,
+                    roleLabel: { 1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
                 }
-            },
-            openRequests: false,
-        }
-    },
-    computed: {
-        charter: function() {
-            return this.data.charter
-        },
-        issuers: function() {
-          return this.charter.actors.filter( actor => actor.role.id === 2 )
-        },
-        authors: function() {
-          return this.charter.actors.filter( actor => actor.role.id === 1 )
-        },
-        beneficiaries: function() {
-          return this.charter.actors.filter( actor => actor.role.id === 3 || actor.role.id === 4 )
-        },
-        preferentialDates: function() {
-          return this.charter.datations.filter( datation => datation.preference === 0 )
-        },
-        hasSearchContext() {
-           return Object.keys(this.context.params ?? {} ).length > 0
-        },
-        isOriginal() {
-            if(!this.charter.originals) {
-                return "No";
-            }
-            for(const original of this.charter.originals) {
-                if(original.charter_id === this.charter.id) {
-                    return "Yes";
-                }
-            }
-            return "No";
-        },
-        originals() {
-            return this.charter.originals.map( original => this.formatOriginal(original) ).filter( original => original !== null);
-        },
-        codexes() {
-            return this.charter.codexes.map( codex => this.formatCodex(codex, 'manuscript') ).filter( codex => codex !== null);
-        },
-        copies() {
-            return this.charter.copies.map( copy => this.formatCodex(copy, 'copy') ).filter( copy => copy !== null);
-        },        
-        editionsFormatted() {
-            return this.charter.edition_indications.map( item => this.formatEdition(item) ).filter( item => item !== null);
-        },
-        secondaryLiteratureFormatted() {
-            return this.charter.secondary_literature_indications.map( item => this.formatSecondaryLiterature(item) ).filter( item => item !== null);
-        },
-        layers() {
-            return [
-                {
-                    id: 'google-satellite',
-                    type: 'tileLayer',
-                    options: {
-                        // url: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
-                        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                        attribution: 'Google',
-                        maxZoom: 18,
-                        name: 'Google satelliet',
-                        visible: true,
-                        opacity: 1,
-                        layerType: 'base',
-                        zIndex: 10,
-                    }
-                },
-            ]
-        },
-        markers() {
-          var marker = [];
-          var duplicate =[];
-          for (const actor of this.charter.actors) {
-            if (actor.place.name != 'UNKNOWN' && !duplicate.includes(actor.role.name+ '_'+actor.place.name) && actor.place.latitude != null){
-              marker.push(
-                {
-                  id: actor.role.name+ '_'+actor.place.name,
-                  latLng: [actor.place.latitude,actor.place.longitude],
-                  name: actor.capacity.name,
-                  role: actor.role.name,
-                }
-              )
-              duplicate.push(actor.role.name+ '_'+actor.place.name)
-            }
-          }
-          return marker
-        },
-        center(){
-          var lat = [];
-          var lng = [];
-          for (const coords of this.markers) {
-            lat.push(Number(coords.latLng[0]))
-            lng.push(Number(coords.latLng[1]))
-          }
-          return([this.getMiddle('lat', lat), this.getMiddle('lng',lng)])
-        },      
-    },
-    methods: {
-        getUrl(route) {
-            return this.urls[route] ?? ''
-        },
-        urlGeneratorIssuer(url, filter, filter_defaults = {}) {
-            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 2, [filter]: value.id } } ) )
-        },
-        urlGeneratorAuthors(url, filter, filter_defaults = {}) {
-            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 1, [filter]: value.id } } ) )
-        },
-        urlGeneratorBeneficiaries(url, filter, filter_defaults = {}) {
-            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 3, [filter]: value.id } } ) )
-        },
-        urlGeneratorIdName(url, filter, filter_defaults = {}) {
-            return (value) => ( this.getUrl(url) + '?' + qs.stringify( { filters: {...filter_defaults, [filter]: value.id } } ) )
-        },
-        getCharterUrl(id) {
-            let url = this.getUrl('charter_get_single').replace('charter_id',id)
-            if (this.isValidContext()) {
-                url += '#' + this.getContextHash()
-            }
-            return url
-        },
-        getMiddle(prop, values) {
-          let min = Math.min(...values);
-          let max = Math.max(...values);
-          if (prop === 'lng' && (max - min > 180)) {
-            values = values.map(val => val < max - 180 ? val + 360 : val);
-            min = Math.min(...values);
-            max = Math.max(...InlineLinkListvalues);
-          }
-          let result = (min + max) / 2;
-          if (prop === 'lng' && result > 180) {
-            result -= 360
-          }
-          return result;
-        },
-        loadCharter(id) {
-            this.openRequests += 1
-            let url = this.getUrl('charter_get_single').replace('charter_id',id)
-            return axios.get(url).then( (response) => {
-                if (response.data) {
-                    this.data.charter = response.data;
-                }
-                this.openRequests -= 1
-                this.updateTitle(id);
             })
-        },
-        loadCharterByIndex(index) {
-            let that = this;
-            if ( !this.resultSet.count ) return;
-
-            let newIndex = Math.max(1, Math.min(index, this.resultSet.count))
-            this.getResultSetIdByIndex(newIndex).then( function(id) {
-                that.loadCharter(id).then((response) => {
-                    // update context
-                    that.context.searchIndex = newIndex
-                    // update state
-                    window.history.replaceState({}, '', that.getCharterUrl(id));
-                });
-            })
-        },
-        isValidResultSet() {
-            return this.context?.searchIndex && this.resultSet?.count
-        },
-        formatSource(edition) {
-          var res = [];
-          if(edition.names_editors) {
-            res.push(edition.names_editors);
-          }
-          if(edition.date_of_edition_year) {
-            res.push(edition.date_of_edition_year);
-          }
-          if(res.length > 0) {
-            return res.join(', ');
-          } else {
-            return null;
-          }
-        },
-        formatDate(date) {
-          var res = '';
-          if (date.year) {
-            res = date.year;
-            if (date.month) {
-              res = date.month + '/' + res;
-              if (date.day) {
-                res = date.day + '/' + res;
-              }
-            }
-          }
-          return res;
-        },
-        formatDatations(datations) {
-          var arr = [];
-          for(const datation of datations) {
-            var res = this.formatDate(datation.time);
-            if (datation.time.interpretation) {
-              res += ' (' + datation.time.interpretation;
-              if (datation.researcher) {
-                res += ' - ' + datation.researcher + ')';
-              } else {
-                res += ')';
-              }
-            }
-            arr.push(res);
-          }
-          return arr;
-        },
-        getDates(dates) {
-          var arr = [];
-          for(const date of dates) {
-            arr.push(this.formatDate(date));
-          }
-          return arr;
-        },
-        getNormalisedPlace(place) {
-          var res = '';
-          if(place.name) {
-            res = place.name;
-          }
-          var localisation = [];
-          if(place.localisation) {
-            if(place.localisation.land) {
-              localisation.push(place.localisation.land.name);
-            }
-            if(place.localisation.echelon_1) {
-              localisation.push(place.localisation.echelon_1);
-            }
-            if(place.localisation.echelon_2) {
-              localisation.push(place.localisation.echelon_2);
-            }
-          }
-          if(localisation.length > 0) {
-            res += (res.length > 0 ? ' ' : '') + '(' + localisation.join(', ') + ')';
-          }
-          return res;
-        },
-        formatOriginal(original) {
-          var res = [];
-          if(original.repository) {
-            if(original.repository.location) {
-              res.push(original.repository.location);
-            }
-            if(original.repository.name) {
-              res.push(original.repository.name);
-            }
-          }
-          if(original.repository_reference_number) {
-            res.push(original.repository_reference_number);
-          }
-          if(res.length > 0) {
-            if(original.id) {
-              return { 'text': res.join(', '), 'link': '/tradition/original/' + original.id };
-            } else {
-              return { 'text' : res.join(', ') };
-            }
-          } else {
-            return null;
-          }
-        },
-        formatCodex(codex, type) {
-          var res = [];
-          if(codex.repository) {
-            if(codex.repository.location) {
-              res.push(codex.repository.location);
-            }
-            if(codex.repository.name) {
-              res.push(codex.repository.name);
-            }
-          }
-          if(codex.repository_reference_number) {
-            res.push(codex.repository_reference_number);
-          }
-          var line = '';
-          if(res.length > 0) {
-            line = res.join(', ');
-          }
-          if(codex.redaction_date) {
-            line += (line.length > 0 ? ' ' : '') + '(' + codex.redaction_date + ')';
-          }
-          if(line.length > 0) {
-            if(codex.id) {
-              return { 'text' : line, 'link' : '/tradition/' + type +'/' + codex.id };
-            } else {
-              return { 'text' : line };
-            }
-          } else {
-            return null;
-          }
-        },
-
-        formatEdition(edition) {
-            let parts = [];
-            let links = [];
-            if(edition.edition) {
-                if(edition.edition.names_editors) {
-                    parts.push(edition.edition.names_editors);
-                }
-                if(edition.edition.full_title) {
-                    parts.push(edition.edition.full_title);
-                }
-            }
-            if(edition.bookpart) {
-                parts.push(edition.bookpart);
-            }
-            if(edition.nr) {
-                parts.push(edition.nr);
-            }
-            if(edition.pages) {
-                parts.push(edition.pages);
-            }
-            if(edition.edition && edition.edition.urls) {
-              for(const url of edition.edition.urls) {
-                if (url.url && url.url.length > 0) {
-                  links.push(url.url);
-                }
-              }
-            }
-            if(edition.urls) {
-              for (const url of edition.urls) {
-                if (url.url && url.url.length > 0) {
-                  links.push(url.url);
-                }
-              }
-            }
-            return parts.length ? { text: parts.join(', '), links: links } : null
-        },
-        formatSecondaryLiterature(edition) {
-            let parts = [];
-            let links = [];
-            if(edition.secondary_literature) {
-                if(edition.secondary_literature.names_editors) {
-                    parts.push(edition.secondary_literature.names_editors);
-                }
-                if(edition.secondary_literature.full_title) {
-                    parts.push(edition.secondary_literature.full_title);
-                }
-            }
-            if(edition.bookpart) {
-                parts.push(edition.bookpart);
-            }
-            if(edition.nr) {
-                parts.push(edition.nr);
-            }
-            if(edition.pages) {
-                parts.push(edition.pages);
-            }
-            if(edition.secondary_literature && edition.secondary_literature.urls) {
-              for(const url of edition.secondary_literature.urls) {
-                if (url.url && url.url.length > 0) {
-                  links.push(url.url);
-                }
-              }
-            }
-            if(edition.urls) {
-              for (const url of edition.urls) {
-                if (url.url && url.url.length > 0) {
-                  links.push(url.url);
-                }
-              }
-            }
-            return parts.length ? { text: parts.join(', '), links: links } : null
-        },
-        removeExtension(filename) {
-          return filename.substring(0, filename.lastIndexOf('.')) || filename;
-        },
-        filenameCheck(filename) {
-          var name = this.removeExtension(filename).replace('/',':');
-
-          return name.replace('[^\d:-]','');
-        },
-        formatImageUrl(url) {
-            var prefix = 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:';
-            var suffix= '/full/256,/0/default.jpg'
-            
-            return prefix + this.filenameCheck(this.removeExtension(url)) + suffix;
-        },
-        getImageUrl(values) {
-          return values.map( item => this.formatImageUrl(item.image_file ))
-        },
-        updateTitle(id) {
-          // Set proper page title
-          document.title = 'Diplomata Belgica - Charter ID ' + id;
-        }  
-    },
-    created() {
-        // init context
-        this.initContextFromUrl()
-
-        // init ResultSet based on SearchSession
-        if ( this.context?.searchSessionHash ) {
-            let searchSession = this.getSearchSession(this.context.searchSessionHash)
-            if ( searchSession ) {
-                this.initResultSet(searchSession.urls.paginate, searchSession.params, searchSession.count)
-            }
         }
-        
-        this.updateTitle(this.charter.id);
-    },
+    }
+    return geojson;
+});
+
+const popupActor = computed(() => popupActorId.value ? charter.value.actors.find(actor => actor.id === popupActorId.value) : null);
+
+function getUrl(route: string) {
+    return urls[route] ?? '';
 }
+
+function urlGeneratorIssuer(url, filter, filter_defaults = {}) {
+    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 2, [filter]: value.id } } ) );
+}
+function urlGeneratorAuthors(url, filter, filter_defaults = {}) {
+    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 1, [filter]: value.id } } ) );
+}
+function urlGeneratorBeneficiaries(url, filter, filter_defaults = {}) {
+    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 3, [filter]: value.id } } ) );
+}
+function urlGeneratorIdName(url: string, filter: string, defaults = {}) {
+    return (value: any) => `${getUrl(url)}?${qs.stringify({ filters: { ...defaults, [filter]: value.id } })}`;
+}
+
+function formatSource(edition: any) {
+    var res: any[] = [];
+    if(edition.names_editors) {
+        res.push(edition.names_editors);
+    }
+    if(edition.date_of_edition_year) {
+        res.push(edition.date_of_edition_year);
+    }
+    if(res.length > 0) {
+        return res.join(', ');
+    } else {
+        return '';
+    }
+}
+
+function formatDate(date: any) {
+    let res = date.year ?? ''
+    if (date.month)  {
+        res = `${date.month}/${res}`
+    }
+    if (date.day) {
+        res = `${date.day}/${res}`
+    }
+    return res
+}
+
+function formatDatations(datations: any[]) {
+    return datations.map(datation => {
+        let res = formatDate(datation.time)
+        if (datation.time.interpretation) {
+            res += ` (${datation.time.interpretation}${datation.researcher ? ' - ' + datation.researcher : ''})`
+        }
+        return res
+    })
+}
+
+function getDates(dates: any[]) {
+    return dates.map(formatDate)
+}
+
+function getNormalisedPlace(place: any) {
+    let res = place.name ?? ''
+    const localisation: any[] = []
+    if (place.localisation?.land) {
+        localisation.push(place.localisation.land.name)
+    }
+    if (place.localisation?.echelon_1) {
+        localisation.push(place.localisation.echelon_1)
+    }
+    if (place.localisation?.echelon_2) {
+        localisation.push(place.localisation.echelon_2)
+    }
+    if (localisation.length) {
+        res += (res ? ' ' : '') + `(${localisation.join(', ')})`
+    }
+    return res
+}
+
+function formatOriginal(original: any) {
+    const parts: any[] = []
+    if (original.repository?.location) {
+        parts.push(original.repository.location)
+    }
+    if (original.repository?.name) {
+        parts.push(original.repository.name)
+    }
+    if (original.repository_reference_number) {
+        parts.push(original.repository_reference_number)
+    }
+    const text = parts.join(', ')
+    return text ? (original.id ? { text, link: `/tradition/original/${original.id}` } : { text }) : null
+}
+
+function formatCodex(codex: any, type: string) {
+    const parts: any[] = []
+    if (codex.repository?.location) {
+        parts.push(codex.repository.location)
+    }
+    if (codex.repository?.name) {
+        parts.push(codex.repository.name)
+    }
+    if (codex.repository_reference_number) {
+        parts.push(codex.repository_reference_number)
+    }
+    let line = parts.join(', ')
+    if (codex.redaction_date) {
+        line += (line ? ' ' : '') + `(${codex.redaction_date})`
+    }
+    return line ? (codex.id ? { text: line, link: `/tradition/${type}/${codex.id}` } : { text: line }) : null
+}
+
+function formatEdition(edition: any) {
+    const parts: any[] = [], links: any[] = []
+    if (edition.edition?.names_editors) {
+        parts.push(edition.edition.names_editors)
+    }
+    if (edition.edition?.full_title) {
+        parts.push(edition.edition.full_title)
+    }
+    if (edition.bookpart) {
+        parts.push(edition.bookpart)
+    }
+    if (edition.nr) {
+        parts.push(edition.nr)
+    }
+    if (edition.pages) {
+        parts.push(edition.pages)
+    }
+    if (edition.edition?.urls) {
+        links.push(...edition.edition.urls.map((u: any) => u.url).filter(Boolean))
+    }
+    if (edition.urls) {
+        links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
+    }
+    return parts.length ? { text: parts.join(', '), links } : null
+}
+
+function formatSecondaryLiterature(edition: any) {
+    const parts: any[] = [], links: any[] = []
+    if (edition.secondary_literature?.names_editors) {
+        parts.push(edition.secondary_literature.names_editors)
+    }
+    if (edition.secondary_literature?.full_title) {
+        parts.push(edition.secondary_literature.full_title)
+    }
+    if (edition.bookpart) {
+        parts.push(edition.bookpart)
+    }
+    if (edition.nr) {
+        parts.push(edition.nr)
+    }
+    if (edition.pages) {
+        parts.push(edition.pages)
+    }
+    if (edition.secondary_literature?.urls) {
+        links.push(...edition.secondary_literature.urls.map((u: any) => u.url).filter(Boolean))
+    }
+    if (edition.urls) {
+        links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
+    }
+    return parts.length ? { text: parts.join(', '), links } : null
+}
+
+function removeExtension(filename: string) {
+    return filename.substring(0, filename.lastIndexOf('.')) || filename
+}
+
+function filenameCheck(filename: string) {
+    return removeExtension(filename).replace('/', ':').replace('[^\d:-]', '')
+}
+
+function formatImageUrl(url: string) {
+    const prefix = 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:'
+    const suffix = '/full/256,/0/default.jpg'
+    return prefix + filenameCheck(removeExtension(url)) + suffix
+}
+
+function getImageUrl(values: any[]) {
+    return values.map(item => formatImageUrl(item.image_file))
+}
+
+function updateTitle(id: number) {
+    document.title = 'Diplomata Belgica - Charter ID ' + id
+}
+
+function onMarkerOver(feature: any) {
+    popupActorId.value = feature.properties.actorId
+}
+
+function onMarkerOut() {
+    popupActorId.value = null
+}
+
+//Context
+const {
+    context,
+    initContextFromUrl,
+    initResultSet,
+    loadByIndex: loadCharterByIndex,
+    returnToSearchResult,
+    validContextAndResultSet,
+    setOnIdChanged,
+} = useSearchContext();
+
+function getCharter(id: number) {
+    charterRepository.get(id).then((response) => {
+        data.value.charter = response.data;
+        const currentUrl = window.location.href;
+        const newUrl = currentUrl.replace(/(\/charters\/)\d+/, `$1${id}`);
+        window.history.pushState(null, '', newUrl);
+        updateTitle(id);
+    });
+}
+
+setOnIdChanged((newId: number) => {
+    getCharter(newId)
+});
+
+initContextFromUrl();
+if (context.value.validReadContext && !context.value.ids){
+    let readContext: Context = toValue(context);
+    initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
+}
+
+const fullTextRef = computed(() => data.value.charter.full_text ?? "")
+const searchString = context.value.params.filters['fulltext'] ?? "";
+const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)(^|$|[^\w.*])[\w.*]+(^|$|[^\w.*])/g)].map(m => m[0].replace(/\*/g, '[A-Za-z]*'))
+const {
+    markedText
+} = useTextMarker(fullTextRef, words, "bg-primary-light")
+
 </script>
+
+
 
 <style scoped lang="scss">
 #charter-view-app {
