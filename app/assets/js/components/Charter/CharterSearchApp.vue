@@ -3,10 +3,14 @@
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
                 <div v-if="modelHasChanged" class="form-group mbottom-default flex-row">
-                    <button class="btn btn-primary" @click="resetAllFilters">
-                        Reset all filters
-                    </button>
-                    <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter"/>
+
+                    <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter">
+                        <template #startButton>
+                            <button class="btn btn-primary" @click="resetAllFilters">
+                                Reset all filters
+                            </button>
+                        </template>
+                    </b-filter-tags>
                 </div>
                 <VueFormGenerator
                     ref="form"

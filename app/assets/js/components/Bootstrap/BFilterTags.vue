@@ -1,8 +1,11 @@
 <template>
-    <div class="flex-row align-items-start justify-content-center">
+    <div class="d-flex align-items-center justify-content-start flex-wrap">
+        <div class="me-1 mt-1">
+            <slot name="startButton"></slot>
+        </div>
         <span v-for="props in items" class="btn btn-primary me-1 mt-1 nonclickable">
             {{`${props.label}${props.value}`}}
-            <button class="btn btn-close btn-sm" @click="clickClose(props)"></button>
+            <button class="btn btn-close btn-sm btn-close-white" @click="clickClose(props)"></button>
         </span>
     </div>
 </template>
