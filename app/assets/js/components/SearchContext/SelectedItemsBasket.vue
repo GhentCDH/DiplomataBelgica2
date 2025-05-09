@@ -45,7 +45,7 @@ const props = defineProps<{
     removeSelectedIndex: (index: number) => void;
     dataTableState: DataTableState;
     totalRecords: number;
-    filterState: [];
+    filterState: object;
     beforeRedirect: (event: MouseEvent, dataTableState: DataTableState, id: number, index: number, count: number, filters, ids: number[] | null) => void;
 }>();
 </script>
