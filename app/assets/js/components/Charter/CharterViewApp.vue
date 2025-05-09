@@ -464,9 +464,6 @@ function getCharter(id: number) {
     });
 }
 
-
-
-
 setOnIdChanged((newId: number) => {
     getCharter(newId)
 });

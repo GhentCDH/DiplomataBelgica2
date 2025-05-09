@@ -1,8 +1,8 @@
 <template>
-    <div class="flex-row align-items-start justify-content-center m-sm-2">
-        <span v-for="props in items" class="badge bg-secondary ms-2">
+    <div class="flex-row align-items-start justify-content-center">
+        <span v-for="props in items" class="btn btn-primary me-1 mt-1 nonclickable">
             {{`${props.label}${props.value}`}}
-            <button class="btn btn-close btn-sm ms-2" @click="clickClose(props)"></button>
+            <button class="btn btn-close btn-sm" @click="clickClose(props)"></button>
         </span>
     </div>
 </template>
@@ -23,5 +23,11 @@ function clickClose(tag: FilterTag) {
 </script>
 
 <style scoped lang="scss">
-
+.nonclickable {
+    pointer-events: none;
+    cursor: default;
+}
+.nonclickable > .btn-close {
+    pointer-events: auto;
+}
 </style>

@@ -2,10 +2,11 @@
     <div class="row search-app">
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
-                <div v-if="modelHasChanged" class="form-group mbottom-default">
+                <div v-if="modelHasChanged" class="form-group mbottom-default flex-row">
                     <button class="btn btn-primary" @click="resetAllFilters">
                         Reset all filters
                     </button>
+                    <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter"/>
                 </div>
                 <VueFormGenerator
                     ref="form"
@@ -26,7 +27,6 @@
                     <div>{{ filterState }}</div>
                     <div>{{ filteredPlaceData.size }}</div>
                 </div>
-                <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter"/>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
@@ -40,42 +40,16 @@
                                 ><i class="fa-solid fa-map-location-dot"></i> Browse
                             map
                         </button>
-                        <b-dropdown class="active ms-auto" :items="selectedIds">
-                            <template #display>
-                                {{selectedIds.length}} charter{{selectedIds.length != 1 ? "s" : ""}} selected
-                            </template>
-                            <template #header>
-                                <button class="btn" @click="() => {setSelectedIds([])}">unselect all</button>
-                            </template>
-                            <template #header2 v-if="selectedIds.length">
-                                <a class="btn" target="_blank"
-                                   :href="selectedIds.length ? getHashedUrl(selectedIds[0]) : null"
-                                   @mouseup="
-                                   (event) => {
-                                       if (selectedIds.length){
-                                           beforeRedirect(
-                                           event, dataTableState, selectedIds[0], 0, totalRecords,
-                                           filterState, selectedIds.length? selectedIds : null);
-                                       }
-                                   }"
-                                >
-                                    View Charters
-                                </a>
-                            </template>
-                            <template #item="{item : id, index}">
-                                <a class="btn btn-tertiary btn-sm" target="_blank"
-                                   :href="getHashedUrl(id)"
-                                   @mouseup="(event) => beforeRedirect(
-                                           event, dataTableState, id, index, totalRecords,
-                                           filterState, selectedIds.length? selectedIds : null)"
-                                >
-                                    {{id}}
-                                </a>
-                            </template>
-                            <template #postItem="{item, index}">
-                                <button class="btn-close btn-sm" @click="removeSelectedIndex(index)"></button>
-                            </template>
-                        </b-dropdown>
+                        <selected-items-basket
+                            :selected-ids="selectedIds"
+                            :get-hashed-url="getHashedUrl"
+                            :set-selected-ids="setSelectedIds"
+                            :remove-selected-index="removeSelectedIndex"
+                            :data-table-state="dataTableState"
+                            :total-records="totalRecords"
+                            :filter-state="filterState"
+                            :before-redirect="beforeRedirect"
+                        />
                     </div>
                 </nav>
             </header>
@@ -281,6 +255,7 @@ import {useSearchContext} from "@/composables/useSearchContext.ts";
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
+import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 
 const {t} = useI18n()
 
@@ -383,7 +358,7 @@ const {
 const {
     getActiveFilterTagStrings,
     closeActiveFilterTag
-} = useActiveFilterTags(model, getFieldConfig)
+} = useActiveFilterTags(model, getFieldConfig, Object.keys(defaultModel))
 
 const onCloseActiveFilter = (tag: FilterTag) => {
     closeActiveFilterTag(tag);
