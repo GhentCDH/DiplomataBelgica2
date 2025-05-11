@@ -84,7 +84,106 @@
         </div>
     </div>
 </template>
-<script>
+
+<script setup lang="ts">
+import {useI18n} from "vue-i18n";
+import {type DataTableState, useTablePagination} from "@/composables/useTablePagination.ts";
+import {useVueFormGenerator} from "@/composables/useVueFormGenerator.ts";
+import {useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
+import {useSearchContext} from "@/composables/useSearchContext.ts";
+import {useSearchApi} from "@/composables/useSearchApi.ts";
+import {watch} from "vue";
+
+const {t} = useI18n()
+
+const props = defineProps({
+    initUrls: {
+        type: String,
+        default: '{}',
+    },
+    title: {
+        type: String,
+        default: null
+    }
+});
+
+const {initUrls, title} = props;
+
+const tableOptions = {
+    fields: [
+        {key: 'id', label: 'Id', sortable: false, thClass: 'no-wrap'},
+        {key: 'type', label: 'Type', sortable: false, thClass: 'no-wrap'},
+        {key: 'summary', label: 'Summary'},
+    ],
+    orderBy: {
+        column: 'id',
+    },
+    pagination: {
+        chunk: 5,
+        perPage: 25,
+        page: 1,
+        perPageValues: [25, 50, 100],
+    }
+}
+
+const defaultDataTableState: DataTableState = {
+    orderBy: 'id',
+    orderAsc: true,
+    rowsPerPage: 25,
+    currentPage: 1,
+}
+
+const {
+    state: dataTableState,
+    setCurrentPage,
+    setState: setDataTableState,
+    updateState: patchDataTableState,
+    setOrderBy,
+    setOrderAsc
+} = useTablePagination(defaultDataTableState);
+
+const {
+    model,
+    schema,
+    setSchema,
+    setModel,
+    modelHasChanged,
+    flattenModel,
+    updateFieldValues,
+    getFieldConfig,
+} = useVueFormGenerator({}, {});
+
+const {
+    getActiveFilterTagStrings,
+    closeActiveFilterTag
+} = useActiveFilterTags(model, getFieldConfig)
+
+const {
+    getHashedUrl,
+    beforeRedirect,
+} = useSearchContext('/en/tradition/')
+
+const {
+    data : searchData,
+    isFetching,
+    error: searchError,
+    fetch,
+    count: totalSearchRecords,
+    results: searchTableData,
+    aggregations
+} = useSearchApi('/en/charters/search_api/')
+
+watch(aggregations, (currentAggregations) => {
+    if (currentAggregations) {
+        updateFieldValues(currentAggregations)
+    }
+});
+
+
+
+</script>
+
+<script lang="ts">
 import AbstractField from '../../mixins/FormGeneratorHelpers'
 
 import AbstractSearch from '../../mixins/SearchClient'
@@ -113,8 +212,6 @@ export default {
         BTable, CharterSearchSummary,
         RecordCount, BPagination, BSelect,
         FormatValue
-    },
-    props: {
     },
     data() {
         return {

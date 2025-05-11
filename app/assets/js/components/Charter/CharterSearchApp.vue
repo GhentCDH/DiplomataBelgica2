@@ -16,7 +16,7 @@
                     ref="form"
                     :model="model"
                     :options="formOptions"
-                    :schema="formSchema"
+                    :schema="schema"
                     @validated="onFormValidated"
                 />
             </div>
@@ -373,14 +373,6 @@ const {
     getHashedUrl,
     beforeRedirect,
 } = useSearchContext('/en/charters/')
-
-const formSchema = computed(() => {
-    schema.value
-    // const schema = this.schema
-    // todo: migrate form generatorm mixin!
-    // formGeneratorCollapseGroups(schema)
-    return schema.value
-})
 
 const formOptions = {
     validateAfterLoad: false,
