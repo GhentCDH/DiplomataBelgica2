@@ -3,9 +3,13 @@
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
                 <div v-if="modelHasChanged" class="form-group mbottom-default">
-                    <button class="btn btn-primary" @click="resetAllFilters">
-                        Reset all filters
-                    </button>
+                    <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter">
+                        <template #startButton>
+                            <button class="btn btn-primary" @click="resetAllFilters">
+                                Reset all filters
+                            </button>
+                        </template>
+                    </b-filter-tags>
                 </div>
                 <VueFormGenerator
                     ref="form"
@@ -26,6 +30,20 @@
                     <div>{{ filterState }}</div>
                     <div>{{dataTableState}}</div>
                 </div>
+                <nav class="mbottom-default">
+                    <div class="nav nav-pills" id="nav-tab" role="tablist">
+                        <selected-items-basket
+                            :selected-ids="selectedIds"
+                            :get-hashed-url="getHashedUrl"
+                            :set-selected-ids="setSelectedIds"
+                            :remove-selected-index="removeSelectedIndex"
+                            :data-table-state="dataTableState"
+                            :total-records="totalRecords"
+                            :filter-state="filterState"
+                            :before-redirect="beforeRedirect"
+                        />
+                    </div>
+                </nav>
             </header>
             <section class="d-flex flex-column flex-grow-1 overflow-hidden">
                 <header class="row form-group">
@@ -60,12 +78,34 @@
                                  @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                  class="table table-striped table-bordered table-hover m-0"
                         >
+                            <template #actionsPreRowHeader>
+                                <th>
+                                    <input
+                                        type="checkbox"
+                                        @change="toggleAllRowsSelection"
+                                        :checked="allSelected"
+                                    >
+                                </th>
+                            </template>
+                            <template #actionsPreRow="props">
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        v-model="props.row.selected"
+                                        @change="() => toggleRowSelection(props.row.id)"
+                                    >
+                                </td>
+                            </template>
                             <template #type="props">
                                 {{ props.row.type }}
                             </template>
                             <template #summary="props">
                                 <div>
-                                    <a target="_blank" :href="getHashedUrl(props.row.id)">
+                                    <a target="_blank" :href="getHashedUrl(props.row.id)"
+                                       @mouseup="(event) => beforeRedirect(
+                                               event, dataTableState, props.row.id, props.index, totalRecords,
+                                               filterState, selectedIds.length? selectedIds : null)"
+                                    >
                                         <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
                                         <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
                                         <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
@@ -116,17 +156,17 @@ import BPagination from "../Bootstrap/BPagination.vue";
 
 import {type DataTableState, useTablePagination} from "@/composables/useTablePagination.ts";
 import {useVueFormGenerator} from "@/composables/useVueFormGenerator.ts";
-import {useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
+import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
 import {useSearchApi} from "@/composables/useSearchApi.ts";
 import {computed, onMounted, watch} from "vue";
 import {useSimpleState} from "@/composables/useSimpleState.ts";
-import charterRepository from "@/repositories/CharterRepository.ts";
 import traditionRepository from "@/repositories/TraditionRepository.ts";
 import qs from "qs";
-import {createSchema} from "@/components/Charter/CharterSearchAppForm.ts";
 import {createTraditionsSchema} from "@/components/Tradition/TraditionSearchAppForm.ts";
 import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
+import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
+import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 
 
 const {t} = useI18n()
@@ -197,6 +237,12 @@ const {
     closeActiveFilterTag
 } = useActiveFilterTags(model, getFieldConfig)
 
+const onCloseActiveFilter = (tag: FilterTag) => {
+    closeActiveFilterTag(tag);
+    updateFilterState(flattenModel(model.value))
+}
+
+
 const {
     getHashedUrl,
     beforeRedirect,
@@ -213,9 +259,9 @@ const formOptions = {
 useVueFormGeneratorCollapsibleGroups(schema, 'tradition-search-groups')
 
 const {
-    data : searchData,
+    data,
     isFetching,
-    error: searchError,
+    error,
     fetch,
     count: totalRecords,
     results: tableData,

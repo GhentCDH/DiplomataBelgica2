@@ -122,7 +122,7 @@ export function useSearchContext(
     const beforeRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={}, ids: number[] | null = null): void => {
         event.preventDefault();
         if (event.button === 0 || event.button === 1){
-            const href = event.target?.getAttribute("href");
+            const href = event.currentTarget?.getAttribute("href");
             const url = new URL(href, window.location.origin);
             const hash = url.hash.substring(1);
             let context: Context = {
@@ -168,6 +168,7 @@ export function useSearchContext(
             contextState.value.LRU = contextState.value[contextState.value.LRU].next;
             delete contextState.value[lru];
         }
+        console.log(contextState.value)
         contextState.value = { ...contextState.value };
     }
 

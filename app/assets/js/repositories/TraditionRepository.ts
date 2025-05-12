@@ -6,7 +6,7 @@ class TraditionRepository extends BaseRepository {
     public async get(id: string): Promise<AxiosResponse> {
         const locale = this.getLocale();
         const config = this.getRequestConfig();
-        return await this.axiosInstance.get(`/${locale}/traditions/${id}`, config);
+        return await this.axiosInstance.get(`/${locale}/tradition/original/${id}`, config);
     }
 
     public async search(query: object): Promise<AxiosResponse> {
