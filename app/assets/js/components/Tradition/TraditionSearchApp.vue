@@ -2,7 +2,7 @@
     <div class="row search-app">
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
-                <div v-if="showReset" class="form-group mbottom-default">
+                <div v-if="modelHasChanged" class="form-group mbottom-default">
                     <button class="btn btn-primary" @click="resetAllFilters">
                         Reset all filters
                     </button>
@@ -10,10 +10,9 @@
                 <VueFormGenerator
                     ref="form"
                     :model="model"
-                    :options="form.options"
-                    :schema="formSchema"
+                    :options="formOptions"
+                    :schema="schema"
                     @validated="onFormValidated"
-                    @model-updated="onModelUpdated"
                 />
             </div>
         </aside>
@@ -21,26 +20,32 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
+                <div v-if="false">
+                    <div>{{ model }}</div>
+                    <div>{{getActiveFilterTagStrings()}}</div>
+                    <div>{{ filterState }}</div>
+                    <div>{{dataTableState}}</div>
+                </div>
             </header>
             <section class="d-flex flex-column flex-grow-1 overflow-hidden">
                 <header class="row form-group">
                     <div class="col-lg-4 d-flex align-items-lg-center">
                         <b-pagination
                             :total-records="totalRecords"
-                            :per-page="searchParams.limit"
-                            :page="searchParams.page"
-                            @update:page="onTablePagination"
+                            :per-page="dataTableState.rowsPerPage"
+                            :page="dataTableState.currentPage"
+                            @update:page="(page) => updateDataTableState({currentPage: parseInt(page)})"
                         ></b-pagination>
                     </div>
                     <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                        <RecordCount :per-page="searchParams.limit" :total-records="totalRecords" :page="searchParams.page"></RecordCount>
+                        <RecordCount :per-page="dataTableState.rowsPerPage" :total-records="totalRecords" :page="dataTableState.currentPage"></RecordCount>
                     </div>
                     <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
                         <b-select :id="'per-page'"
                                   :label="'Per page'"
-                                  :selected="searchParams.page"
+                                  :selected="dataTableState.rowsPerPage"
                                   :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
-                                  @update:selected="onTableLimit"
+                                  @update:selected="(value) => updateDataTableState({rowsPerPage: parseInt(value)})"
                                   class="w-auto"
                         ></b-select>
                     </div>
@@ -49,9 +54,10 @@
                 <article class="d-flex flex-grow-1 scrollable">
                         <b-table :items="tableData"
                                  :fields="tableOptions.fields"
-                                 :sort-by="searchParams.orderBy"
-                                 :sort-ascending="searchParams.ascending"
-                                 @sort="onTableSort"
+                                 :sort-by="dataTableState.orderBy"
+                                 :sort-ascending="dataTableState.orderAsc"
+                                 @update:sort-by="(value) => updateDataTableState({orderBy: value})"
+                                 @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
                                  class="table table-striped table-bordered table-hover m-0"
                         >
                             <template #type="props">
@@ -59,7 +65,7 @@
                             </template>
                             <template #summary="props">
                                 <div>
-                                    <a target="_blank" :href="getTraditionUrl(props.row.id, props.row.type)">
+                                    <a target="_blank" :href="getHashedUrl(props.row.id)">
                                         <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
                                         <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
                                         <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
@@ -77,7 +83,7 @@
             </section>
         </article>
         <div
-                v-if="openRequests"
+                v-if="isFetching"
                 class="loading-overlay"
         >
             <div class="spinner"/>
@@ -85,14 +91,43 @@
     </div>
 </template>
 
+<script lang="ts">
+type SearchQuery = {
+    orderBy: string;
+    ascending: boolean;
+    limit: number;
+    page: number;
+    filters: Filters[] | null;
+}
+
+type Filters = {
+    [key: string]: any
+}
+</script>
+
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+
+import BTable from "@/components/Bootstrap/BTable.vue";
+import BSelect from "@/components/Bootstrap/BSelect.vue";
+import RecordCount from "@/components/Bootstrap/RecordCount.vue";
+import BDropdown from "@/components/Bootstrap/BDropdown.vue";
+import BPagination from "../Bootstrap/BPagination.vue";
+
 import {type DataTableState, useTablePagination} from "@/composables/useTablePagination.ts";
 import {useVueFormGenerator} from "@/composables/useVueFormGenerator.ts";
 import {useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
 import {useSearchApi} from "@/composables/useSearchApi.ts";
-import {watch} from "vue";
+import {computed, onMounted, watch} from "vue";
+import {useSimpleState} from "@/composables/useSimpleState.ts";
+import charterRepository from "@/repositories/CharterRepository.ts";
+import traditionRepository from "@/repositories/TraditionRepository.ts";
+import qs from "qs";
+import {createSchema} from "@/components/Charter/CharterSearchAppForm.ts";
+import {createTraditionsSchema} from "@/components/Tradition/TraditionSearchAppForm.ts";
+import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
+
 
 const {t} = useI18n()
 
@@ -142,6 +177,10 @@ const {
     setOrderAsc
 } = useTablePagination(defaultDataTableState);
 
+const {state: filterState, setState: setFilterState} = useSimpleState([]);
+
+const defaultModel = {}
+
 const {
     model,
     schema,
@@ -151,7 +190,7 @@ const {
     flattenModel,
     updateFieldValues,
     getFieldConfig,
-} = useVueFormGenerator({}, {});
+} = useVueFormGenerator({}, defaultModel);
 
 const {
     getActiveFilterTagStrings,
@@ -161,17 +200,27 @@ const {
 const {
     getHashedUrl,
     beforeRedirect,
-} = useSearchContext('/en/tradition/')
+} = useSearchContext('/en/tradition/original/')
+
+
+const formOptions = {
+    validateAfterLoad: false,
+    validateAfterChanged: true,
+    validationErrorClass: "has-error",
+    validationSuccessClass: "success"
+}
+
+useVueFormGeneratorCollapsibleGroups(schema, 'tradition-search-groups')
 
 const {
     data : searchData,
     isFetching,
     error: searchError,
     fetch,
-    count: totalSearchRecords,
-    results: searchTableData,
+    count: totalRecords,
+    results: tableData,
     aggregations
-} = useSearchApi('/en/charters/search_api/')
+} = useSearchApi('/tradition/search_api/')
 
 watch(aggregations, (currentAggregations) => {
     if (currentAggregations) {
@@ -179,150 +228,175 @@ watch(aggregations, (currentAggregations) => {
     }
 });
 
+//selected rows
+const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
 
-
-</script>
-
-<script lang="ts">
-import AbstractField from '../../mixins/FormGeneratorHelpers'
-
-import AbstractSearch from '../../mixins/SearchClient'
-import CollapsibleGroups from '../../mixins/FormGeneratorCollapsibleGroups'
-import PersistentConfig from "../../mixins/PersistentConfig"
-import SharedSearch from "../../mixins/SharedSearch";
-
-import FormatValue from "../Sidebar/FormatValue.vue";
-
-import BSelect from "../Bootstrap/BSelect.vue";
-import BPagination from "../Bootstrap/BPagination.vue";
-import RecordCount from "../Bootstrap/RecordCount.vue";
-import CharterSearchSummary from "../Charter/CharterSearchSummary.vue";
-import BTable from "../Bootstrap/BTable.vue";
-import FormGeneratorFieldCreator from "@/helpers/FormGeneratorFieldCreator";
-
-export default {
-    mixins: [
-        PersistentConfig('TraditionSearchConfig'),
-        AbstractField,
-        AbstractSearch,
-        SharedSearch,
-        CollapsibleGroups
-    ],
-    components: {
-        BTable, CharterSearchSummary,
-        RecordCount, BPagination, BSelect,
-        FormatValue
-    },
-    data() {
-        return {
-            model: {
-            },
-            schema: {
-                groups: [
-                    {
-                        styleClasses: 'collapsible',
-                        legend: 'Repository',
-                        fields: [
-                            FormGeneratorFieldCreator.createMultiSelect('Place',
-                                {
-                                    model: 'repository_location'
-                                }
-                            ),
-                            FormGeneratorFieldCreator.createMultiSelect('Name',
-                                {
-                                    model: 'repository_name'
-                                }
-                            ),
-                            FormGeneratorFieldCreator.createMultiSelect('Reference',
-                                {
-                                    model: 'repository_reference_number'
-                                }
-                            )
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Tradition',
-                        fields: [
-                            FormGeneratorFieldCreator.createMultiSelect('Type',
-                                {
-                                    model: 'tradition_type'
-                                }
-                            ),
-                            FormGeneratorFieldCreator.createMultiSelect('Stein Number',
-                                {
-                                    model: 'codex_stein_number'
-                                }
-                            ),
-                            FormGeneratorFieldCreator.createMultiSelect('Title of the manuscript',
-                                {
-                                    model: 'codex_title'
-                                }
-                            ),
-                            FormGeneratorFieldCreator.createMultiSelect('Institutions covered by the manuscript',
-                                {
-                                    model: 'codex_institutions'
-                                }
-                            ),
-                            FormGeneratorFieldCreator.createMultiSelect('Writing material',
-                                {
-                                    model: 'codex_material'
-                                }
-                            )
-                        ]
-                    },
-                    {
-                        styleClasses: 'collapsible collapsed',
-                        legend: 'Images',
-                        fields: [
-                            {
-                                label: 'Images available',
-                                type: 'checkboxBS5',
-                                model: 'has_images',
-                                labelClasses: 'd-none',
-                            },
-                        ]
-                    },
-                ],
-            },
-            tableOptions: {
-                fields: [
-                    {key: 'id', label: 'Id', sortable: false, thClass: 'no-wrap'},
-                    {key: 'type', label: 'Type', sortable: false, thClass: 'no-wrap'},
-                    {key: 'summary', label: 'Summary'},
-                ],
-                orderBy: {
-                    column: 'id',
-                },
-                pagination: {
-                    chunk: 5,
-                    perPage: 25,
-                    page: 1,
-                    perPageValues: [25, 50, 100],
-                },
-            },
-        }
-    },
-    computed: {
-        formSchema() {
-            const schema = this.schema
-            this.formGeneratorCollapseGroups(schema)
-            return schema
-        },
-        requestUrl() {
-            return this.urls['tradition_search_api']
-        },
-    },
-    watch: {},
-    methods: {
-        getTraditionUrl(id, tradition_type, index) {
-            let context = {
-                params: this.data.filters,
-                searchIndex: (this.data.search.page - 1) * this.data.search.limit + index, // rely on data or params?
-                searchSessionHash: this.getSearchSessionHash()
-            }
-            return this.urls['tradition_get_single'].replace('tradition_id', id).replace('tradition_type', tradition_type) + '#' + this.getContextHash(context)
-        },
-    },
+function removeSelectedId(id: number){
+    selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
 }
+
+function removeSelectedIndex(index: number){
+    selectedIds.value.splice(index, 1);
+}
+
+function toggleRowSelection(id: number){
+    if (selectedIds.value.includes(id)){
+        removeSelectedId(id)
+    } else {
+        setSelectedIds([...selectedIds.value, id].sort((a, b) => a-b));
+    }
+}
+
+function toggleAllRowsSelection(){
+    const ids: number[] = tableData.value.map((row: any) => row.id);
+    if (ids.every((v: number) => selectedIds.value.includes(v))){
+        ids.forEach((id: number) => {
+            removeSelectedId(id)
+        })
+    } else {
+        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a-b));
+    }
+}
+
+const allSelected = computed(() => {
+    const ids = tableData.value.map((row: any) => row.id);
+    return ids.every((v: number) => selectedIds.value.includes(v))
+});
+
+const tableDataWithCheckbox = computed(() => {
+    return tableData.value.map(row => ({
+        ...row,
+        selected: selectedIds.value.includes(row.id)
+    }))
+});
+
+const onFormValidated = (isValid, errors) => {
+    if (!isValid) {
+        return
+    }
+    updateFilterState(flattenModel(model.value))
+}
+
+const onAutocomplete = (fieldName: string) => {
+    return (query: string) => {
+        traditionRepository.autocomplete(fieldName, query, filterState)
+            .then((response) => {
+                updateFieldValues(response.data, [fieldName])
+                // const fieldConfig = getFieldConfig(fieldName)
+                // fieldConfig.values = response.data?.[fieldName] ?? []
+                // return response
+            })
+    }
+}
+
+const createSearchQuery = (paginationState: DataTableState, filterState: any) => {
+    const query: SearchQuery = {
+        orderBy: paginationState.orderBy,
+        ascending: paginationState.orderAsc,
+        limit: paginationState.rowsPerPage,
+        page: paginationState.currentPage,
+        filters: null,
+    }
+
+    query.filters = {...filterState}
+    return query
+}
+
+const resetAllFilters = () => {
+    setModel(defaultModel)
+    setCurrentPage(1)
+    updateFilterState(flattenModel(model.value))
+}
+
+const pushHistory = (query: string) => {
+    const state = {
+        model: JSON.parse(JSON.stringify(model.value)),
+        paginationState: JSON.parse(JSON.stringify(dataTableState.value)),
+    }
+    history.pushState(state, '', document.location.href.split('?')[0] + '?' + qs.stringify(query))
+}
+
+const onPopHistory = (event: PopStateEvent) => {
+    if (event.state) {
+        setModel(event.state.model)
+        setDataTableState(event.state.paginationState)
+        setFilterState(flattenModel(model.value))
+
+        const query = createSearchQuery(dataTableState.value, filterState.value);
+
+        // search & aggregate
+        fetch(query, 'search_aggregate');
+    }
+}
+
+const updateDataTableState = (payload: Partial<DataTableState>) => {
+    // update datatable state
+    patchDataTableState(payload)
+
+    // create search query
+    const query = createSearchQuery(dataTableState.value, filterState.value);
+
+    // push query to history
+    pushHistory(query)
+
+    // paginate (DO NOT aggregate!)
+    fetch(query, 'search');
+}
+
+const updateFilterState = (payload: any) => {
+    // update filter state
+    setFilterState(payload)
+    // reset pagination
+    setCurrentPage(1)
+
+    // create search query
+    const query = createSearchQuery(dataTableState.value, filterState.value);
+
+    // push query to history
+    pushHistory(query)
+
+    // search & aggregate
+    fetch(query, 'search_aggregate');
+}
+
+
+setSchema(createTraditionsSchema({
+    t,
+    onAutocomplete
+}))
+
+let params = qs.parse(window.location.href.split('?', 2)[1])
+const filters = params['filters'] ?? {}
+setFilterState(filters)
+let tmpModel = {}
+Object.entries(filters).forEach(([k,v]) => {
+    if (v === 'true') {
+        tmpModel[k] = true
+    }else if (v === 'false') {
+        tmpModel[k] = false
+    } else {
+        tmpModel[k] = v;
+    }
+})
+setModel({...defaultModel, ...tmpModel})
+if (Number(params['page'])){
+    setCurrentPage(Number(params['page']))
+}
+
+if (params['orderBy']) {
+    setOrderBy(params['orderBy'])
+}
+if (params['ascending']) {
+    setOrderAsc(params['ascending'] == 'true')
+}
+
+const query = createSearchQuery(dataTableState.value, filterState.value);
+fetch(query, 'search_aggregate');
+
+onMounted(() => {
+    window.onpopstate = ((event: PopStateEvent) => {
+        onPopHistory(event)
+    })
+})
+
 </script>
