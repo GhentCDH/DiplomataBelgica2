@@ -168,7 +168,6 @@ export function useSearchContext(
             contextState.value.LRU = contextState.value[contextState.value.LRU].next;
             delete contextState.value[lru];
         }
-        console.log(contextState.value)
         contextState.value = { ...contextState.value };
     }
 

@@ -1,4 +1,4 @@
-import {ref, toValue, watch, shallowRef} from 'vue';
+import {ref, toValue, watch, shallowRef, type Ref, toRef, computed} from 'vue';
 import {useFetch} from '@vueuse/core';
 import qs from 'qs'
 
@@ -35,44 +35,17 @@ export function useSearchApi(url: string) {
         }
     })
 
-    function balancedParentheses(str: string): boolean {
-        let depth = 0;
-        for (const char of str) {
-            if (char === '(') {
-                depth++;
-            } else if (char === ')') {
-                if (depth === 0) return false;
-                depth--;
-            }
-        }
-        return depth === 0;
-    }
-
-    const validate_search = (search: string): boolean => {
-        const invalidOrAnd = /(^\s*[,+])|([,+]\s*$)|([,+]{2,})|([,+]\s*[^\s\w(#])|([^\w\s)]\s*[,+])/;
-        const invalidNot = /(#$)|(#[^\s\w(])/;
-        const invalidRange = /([%/]\D)|([%/]\d+[^(\d])/
-        return !invalidNot.test(search) && !invalidOrAnd.test(search) && !invalidRange.test(search) && balancedParentheses(search);
-    }
 
     // fetch data from the api
     const fetch = async (params: any, mode: queryMode) => {
-        if ('fulltext' in params['filters']) {
-            if (!validate_search(params['filters']['fulltext'])) {
-                return;
-            }
-        }
-        if ('summary' in params['filters']) {
-            if (!validate_search(params['filters']['summary'])) {
-                return;
-            }
-        }
         const queryParams = {...params}
         queryParams['mode'] = mode
 
         useFetchUrl.value = endpoint.value + '?' + qs.stringify(queryParams)
         await execute()
     }
+
+
 
     return {
         isFetching,
@@ -81,6 +54,6 @@ export function useSearchApi(url: string) {
         results,
         count,
         aggregations,
-        fetch
+        fetch,
     }
 }
