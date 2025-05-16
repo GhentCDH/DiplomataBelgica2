@@ -371,6 +371,7 @@ const validate = (value: string): boolean => {
 const initialValidators: Record<string, ValidatorFn> = {
     summary: (v: string) => validate(v) ? true : "invalid search",
     fulltext: (v: string) => validate(v) ? true : "invalid search",
+    id: (v: string) => /^\d*$/.test(v) ? true : "charter id must be an integer",
 }
 
 const {
