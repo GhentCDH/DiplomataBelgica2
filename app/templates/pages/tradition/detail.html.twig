@@ -6,7 +6,7 @@
 {% block body_class %}layout--compact{% endblock %}
 
 {% block main %}
-    <div id="app">
+    <div id="app" class="w-100 h-100 overflow-hidden">
         <tradition-view-app id="tradition-view-app"
                 init-urls="{{ urls }}"
                 init-data="{{ data }}"></tradition-view-app>

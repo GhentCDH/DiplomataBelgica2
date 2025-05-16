@@ -25,7 +25,7 @@
                     <h3 v-if="tradition.repository.urls.length >0">Repository</h3>
                     <ul>
                         <li v-for="url in tradition.repository.urls" :key="url.id">
-                            <a target="_blank" href="url.url">{{ url.url }}</a>
+                            <a target="_blank" :href="url.url">{{ url.url }}</a>
                         </li>
                     </ul>
                 </div>
@@ -34,7 +34,7 @@
                 <h3 v-if="tradition.urls.length > 0" >Document</h3>
                 <ul>
                     <li v-for="url in tradition.urls" :key="url.id">
-                        <a target="_blank" href="url.url">{{ url.url }}</a>
+                        <a target="_blank" :href="url.url">{{ url.url }}</a>
                     </li>
                 </ul>
 
@@ -89,10 +89,8 @@
 
 <script setup lang="ts">
 import {computed, ref, toValue} from "vue";
-import axios from "axios";
 import LabelValue from "@/components/Sidebar/LabelValue.vue";
 import ImageThumbnail from "@/components/ImageThumbnail.vue";
-import charterRepository from "@/repositories/CharterRepository.ts";
 import traditionRepository from "@/repositories/TraditionRepository.ts";
 import {type Context, useSearchContext} from "@/composables/useSearchContext.ts";
 import Widget from "@/components/Sidebar/Widget.vue";
@@ -218,7 +216,6 @@ if (context.value.validReadContext && !context.value.ids){
     let readContext: Context = toValue(context);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname.replace("/search", "/paginate").replace("/en", "")); //TODO how to fix url in composition API?
 }
-console.log(context)
 
 </script>
 
