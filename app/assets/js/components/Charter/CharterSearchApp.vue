@@ -350,14 +350,26 @@ const defaultModel = {
 
 function balancedParentheses(str: string): boolean {
     let depth = 0;
-    for (const char of str) {
+    const stack: number[] = [];
+
+    for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+
         if (char === '(') {
+            stack.push(i);
             depth++;
         } else if (char === ')') {
             if (depth === 0) return false;
+            const openIndex = stack.pop();
             depth--;
+
+            // Check for empty parentheses
+            if (openIndex !== undefined && i === openIndex + 1) {
+                return false; // Empty () found
+            }
         }
     }
+
     return depth === 0;
 }
 
