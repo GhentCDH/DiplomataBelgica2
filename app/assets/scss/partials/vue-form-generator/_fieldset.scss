@@ -27,7 +27,7 @@
   }
 
   div.form-group.has-error .field-wrap {
-    border-style: solid;     /* must set a style if you use border-width/color separately */
+    border-style: solid;
     border-width: 2px;
     border-color: $state-danger-text
   }
