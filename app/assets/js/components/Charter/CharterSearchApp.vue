@@ -16,7 +16,7 @@
                     ref="form"
                     :model="model"
                     :options="formOptions"
-                    :schema="formSchema"
+                    :schema="schema"
                     @validated="onFormValidated"
                 />
             </div>
@@ -260,6 +260,7 @@ import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
+import {useItemsBasket} from "@/composables/useItemsBasket.ts";
 
 const {t} = useI18n()
 
@@ -374,14 +375,6 @@ const {
     beforeRedirect,
 } = useSearchContext('/en/charters/')
 
-const formSchema = computed(() => {
-    schema.value
-    // const schema = this.schema
-    // todo: migrate form generatorm mixin!
-    // formGeneratorCollapseGroups(schema)
-    return schema.value
-})
-
 const formOptions = {
     validateAfterLoad: false,
     validateAfterChanged: true,
@@ -403,46 +396,17 @@ const {
     aggregations
 } = useSearchApi('/en/charters/search')
 
-const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
-
-function removeSelectedId(id: number){
-    selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
-}
-
-function removeSelectedIndex(index: number){
-    selectedIds.value.splice(index, 1);
-}
-
-function toggleRowSelection(id: number){
-    if (selectedIds.value.includes(id)){
-        removeSelectedId(id)
-    } else {
-        setSelectedIds([...selectedIds.value, id].sort((a, b) => a-b));
-    }
-}
-
-function toggleAllRowsSelection(){
-    const ids: number[] = tableData.value.map((row: any) => row.id);
-    if (ids.every((v: number) => selectedIds.value.includes(v))){
-        ids.forEach((id: number) => {
-            removeSelectedId(id)
-        })
-    } else {
-        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a-b));
-    }
-}
-
-const allSelected = computed(() => {
-    const ids = tableData.value.map((row: any) => row.id);
-    return ids.every((v: number) => selectedIds.value.includes(v))
-});
-
-const tableDataWithCheckbox = computed(() => {
-    return tableData.value.map(row => ({
-        ...row,
-        selected: selectedIds.value.includes(row.id)
-    }))
-});
+//selected rows
+const {
+    selectedIds,
+    setSelectedIds,
+    removeSelectedIndex,
+    removeSelectedId,
+    toggleRowSelection,
+    toggleAllRowsSelection,
+    allSelected,
+    tableDataWithCheckbox
+} = useItemsBasket(tableData);
 
 watch(aggregations, (currentAggregations) => {
     if (currentAggregations) {

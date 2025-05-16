@@ -6,7 +6,7 @@
 </template>
 <script>
 
-import * as openseadragon from 'openseadragon'
+import OpenSeadragon from 'openseadragon'
 
 export default {
     props: {
@@ -40,25 +40,24 @@ export default {
         //   this.addHandlers()
     },
     methods: {
-
         openseadragon() {
-            if (openseadragon != null) {
-                if (this.IIIFImageUrl == null) {
-                    if (this.viewer != null) {
-                        this.viewer.destroy()
-                    }
-                    this.viewer = null
-                } else {
-                    this.viewer = openseadragon({
-                        id: this.id,
-                        prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@2.4/build/openseadragon/images/',
-                        tileSources: this.IIIFImageUrl,
-                        maxZoomLevel: 5,
-                    })
+            if (!this.IIIFImageUrl) {
+                if (this.viewer) {
+                    this.viewer.destroy()
                 }
+                this.viewer = null
+                return
             }
+
+            this.viewer = OpenSeadragon({
+                id: this.id,
+                prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@2.4/build/openseadragon/images/',
+                tileSources: this.IIIFImageUrl,
+                maxZoomLevel: 5,
+            })
         },
     }
+
 
 }
 </script>
