@@ -1,4 +1,4 @@
-import {computed, toValue, toRef, toRaw} from "vue";
+import {computed, toValue, toRef, toRaw, watch} from "vue";
 import Articles from "articles";
 
 export interface Model {
@@ -25,12 +25,38 @@ export interface Schema {
     groups?: Groups
 }
 
-export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Model = {}) {
+export type ValidatorFn = (value: any, model: Model, field: Field) => true | string
+
+export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Model = {}, initialValidators: Record<string, ValidatorFn> = {}) {
 
     const defaultModel: Model = toValue(initialModel);
 
     const schema = toRef<Schema>(initialSchema);
     const model = toRef<Model>(JSON.parse(JSON.stringify(defaultModel)));
+    const validators = toRef(initialValidators)
+
+    watch(
+        [schema, validators],
+        () => {
+            const patch = (fields: Field[] = []) => {
+                fields.forEach(f => {
+                    if (validators.value[f.model]) {
+                        f.validator = validators.value[f.model]
+                    }
+                })
+            }
+
+            patch(schema.value.fields)
+            schema.value.groups?.forEach(g => patch(g.fields))
+        },
+        { immediate: true, deep: true }
+    )
+    const clearErrors = () => {
+        Object.values(fieldConfigs.value).forEach(f => {
+            delete f.error
+            delete f.errorMessage
+        })
+    }
 
     const setSchema = (newSchema: Schema) => {
         schema.value = newSchema;

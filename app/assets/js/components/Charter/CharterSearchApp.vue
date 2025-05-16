@@ -250,13 +250,12 @@ import CharterMap from "@/components/Charter/CharterMap.vue";
 import charterRepository from "@/repositories/CharterRepository";
 import {type DataTableState, useTablePagination} from "@/composables/useTablePagination";
 import {useSimpleState} from "@/composables/useSimpleState.ts";
-import {useVueFormGenerator} from "@/composables/useVueFormGenerator";
+import {useVueFormGenerator, type ValidatorFn} from "@/composables/useVueFormGenerator";
 import {useSearchApi} from "@/composables/useSearchApi";
 import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
 import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
-import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
@@ -349,6 +348,31 @@ const defaultModel = {
     dating_scholary_preferential: true,
 }
 
+function balancedParentheses(str: string): boolean {
+    let depth = 0;
+    for (const char of str) {
+        if (char === '(') {
+            depth++;
+        } else if (char === ')') {
+            if (depth === 0) return false;
+            depth--;
+        }
+    }
+    return depth === 0;
+}
+
+const validate = (value: string): boolean => {
+    const invalidOrAnd = /(^\s*[,+])|([,+]\s*$)|([,+]{2,})|([,+]\s*[^\s\w(#])|([^\w\s)]\s*[,+])/;
+    const invalidNot = /(#$)|(#[^\s\w(])/;
+    const invalidRange = /([%/]\D)|([%/]\d+[^(\d])/
+    return !invalidNot.test(value) && !invalidOrAnd.test(value) && !invalidRange.test(value) && balancedParentheses(value);
+}
+
+const initialValidators: Record<string, ValidatorFn> = {
+    summary: (v: string) => validate(v) ? true : "invalid search",
+    fulltext: (v: string) => validate(v) ? true : "invalid search",
+}
+
 const {
     model,
     schema,
@@ -358,7 +382,7 @@ const {
     flattenModel,
     updateFieldValues,
     getFieldConfig,
-} = useVueFormGenerator({}, defaultModel);
+} = useVueFormGenerator({}, defaultModel, initialValidators);
 
 const {
     getActiveFilterTagStrings,
