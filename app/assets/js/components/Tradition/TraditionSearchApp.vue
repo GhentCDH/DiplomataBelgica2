@@ -70,7 +70,7 @@
                 </header>
 
                 <article class="d-flex flex-grow-1 scrollable">
-                        <b-table :items="tableData"
+                        <b-table :items="tableDataWithCheckbox"
                                  :fields="tableOptions.fields"
                                  :sort-by="dataTableState.orderBy"
                                  :sort-ascending="dataTableState.orderAsc"
@@ -167,6 +167,7 @@ import {createTraditionsSchema} from "@/components/Tradition/TraditionSearchAppF
 import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
+import {useItemsBasket} from "@/composables/useItemsBasket.ts";
 
 
 const {t} = useI18n()
@@ -275,46 +276,16 @@ watch(aggregations, (currentAggregations) => {
 });
 
 //selected rows
-const {state: selectedIds, setState: setSelectedIds} = useSimpleState([]);
-
-function removeSelectedId(id: number){
-    selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
-}
-
-function removeSelectedIndex(index: number){
-    selectedIds.value.splice(index, 1);
-}
-
-function toggleRowSelection(id: number){
-    if (selectedIds.value.includes(id)){
-        removeSelectedId(id)
-    } else {
-        setSelectedIds([...selectedIds.value, id].sort((a, b) => a-b));
-    }
-}
-
-function toggleAllRowsSelection(){
-    const ids: number[] = tableData.value.map((row: any) => row.id);
-    if (ids.every((v: number) => selectedIds.value.includes(v))){
-        ids.forEach((id: number) => {
-            removeSelectedId(id)
-        })
-    } else {
-        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a-b));
-    }
-}
-
-const allSelected = computed(() => {
-    const ids = tableData.value.map((row: any) => row.id);
-    return ids.every((v: number) => selectedIds.value.includes(v))
-});
-
-const tableDataWithCheckbox = computed(() => {
-    return tableData.value.map(row => ({
-        ...row,
-        selected: selectedIds.value.includes(row.id)
-    }))
-});
+const {
+    selectedIds,
+    setSelectedIds,
+    removeSelectedIndex,
+    removeSelectedId,
+    toggleRowSelection,
+    toggleAllRowsSelection,
+    allSelected,
+    tableDataWithCheckbox
+} = useItemsBasket(tableData);
 
 const onFormValidated = (isValid, errors) => {
     if (!isValid) {
