@@ -488,6 +488,11 @@ const activePlace = computed(() => {
     }
 })
 
+const extendedPlaceInfo = computed(() => {
+    const ret = totalRecords.value <= 1000
+    return ret
+})
+
 const onFormValidated = (isValid, errors) => {
     if (!isValid) {
         return
@@ -535,7 +540,7 @@ const onAutocomplete = (fieldName: string) => {
 }
 
 const updatePlaceData = () => {
-    charterRepository.locate(filterState.value)
+    return charterRepository.locate(filterState.value, extendedPlaceInfo.value)
         .then((response) => {
             placeData.value = response.data
         })
