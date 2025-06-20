@@ -116,6 +116,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         // Init Filters
         $filters = $this->getDefaultSearchFilters();
 
+        // Add original values as _raw
+        $filters['_raw'] = $params;
+
         // Validate values
         $filterConfigs = $this->getSearchConfig();
 
