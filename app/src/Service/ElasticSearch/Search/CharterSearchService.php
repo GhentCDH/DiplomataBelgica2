@@ -138,11 +138,11 @@ class CharterSearchService extends AbstractSearchService
                 'field' => 'actors.place.hash',
                 'filters' => [],
                 'aggregations' => [
-//                    'name' => [
-//                        'type' => self::AGG_TERMS,
-//                        'field' => 'actors.place.name',
-//                        'formatter' => 'key'
-//                    ],
+                    'name' => [
+                        'type' => self::AGG_TERMS,
+                        'field' => 'actors.place.name',
+                        'formatter' => 'key'
+                    ],
                     'latitude' => [
                         'type' => self::AGG_TERMS,
                         'field' => 'actors.place.latitude',
@@ -154,6 +154,10 @@ class CharterSearchService extends AbstractSearchService
                         'formatter' => 'key'
                     ],
                     'actors' => [
+                        // add actor info only if extended_place_info query parameter is set
+                        'condition' => function($aggConfig, $arrFilterValues) use ($searchFilters) {
+                            return isset($arrFilterValues['_raw']['extended_place_info']);
+                        },
                         'type' => self::AGG_NUMERIC,
                         'field' => 'actors.id',
                         'aggregations' => [
@@ -188,11 +192,11 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::AGG_TERMS,
                 'field' => 'place.hash',
                 'aggregations' => [
-//                    'name' => [
-//                        'type' => self::AGG_TERMS,
-//                        'field' => 'place.name',
-//                        'formatter' => 'key'
-//                    ],
+                    'name' => [
+                        'type' => self::AGG_TERMS,
+                        'field' => 'place.name',
+                        'formatter' => 'key'
+                    ],
                     'latitude' => [
                         'type' => self::AGG_TERMS,
                         'field' => 'place.latitude',
@@ -445,7 +449,7 @@ class CharterSearchService extends AbstractSearchService
             "actor_order_name_{$i}",
         ];
 
-        return function($aggName, $aggConfig, $arrFilterValues) use ($index, $getActorProperties) {
+        return function($aggConfig, $arrFilterValues) use ($index, $getActorProperties) {
             // check if any of the current & previous actor filters have a value
             $indexes = array_filter([$index, $index > 1 ? ($index - 1) : null]);
             foreach($indexes as $i) {
