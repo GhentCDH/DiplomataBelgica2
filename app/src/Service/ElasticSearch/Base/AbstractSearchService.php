@@ -1162,6 +1162,13 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         $aggLimit = $aggConfig['limit'] ?? self::MAX_AGG;
         $aggIsNested = AggregationConfig::isNestedAggregation($aggConfig);
 
+        // skip aggregations with false condition
+        if ( is_callable($aggConfig['condition'] ?? null) ) {
+            if ( !$aggConfig['condition']($aggConfig, $arrFilterValues) ) { // signature changed!
+                return;
+            }
+        }
+
         switch ($aggType) {
             case self::AGG_GLOBAL_STATS:
                 $aggParentQuery->addAggregation(
@@ -1484,7 +1491,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
             // skip aggregations with false condition
             if ( is_callable($aggConfig['condition'] ?? null) ) {
-                if ( !$aggConfig['condition']($aggName, $aggConfig, $arrFilterValues) ) {
+                if ( !$aggConfig['condition']($aggConfig, $arrFilterValues) ) {
                     continue;
                 }
             }
