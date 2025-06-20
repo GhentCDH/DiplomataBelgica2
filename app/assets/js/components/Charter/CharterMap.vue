@@ -8,20 +8,23 @@
             <mgl-geo-json-source :data="geojson" source-id="geojson" :cluster="true" :cluster-max-zoom="8"
                                  :cluster-radius="40">
                 <mgl-symbol-layer v-bind="markerLayer"
-                                  _@mouseenter="onMarkerOver"
-                                  _@mouseleave="onMarkerOut"
                                   @click="onMarkerClick"
                 ></mgl-symbol-layer>
                 <mgl-symbol-layer v-bind="actorCountLayer"></mgl-symbol-layer>
-<!--                <mgl-symbol-layer v-bind="clusterCountLayer" -->
-<!--                                  @click="onClusterClick"></mgl-symbol-layer>-->
-
                 <mgl-circle-layer v-bind="clusterLayer" @click="onClusterClick"></mgl-circle-layer>
-                <mgl-symbol-layer v-bind="clusterCountLayerNew"></mgl-symbol-layer>
+                <mgl-symbol-layer v-bind="clusterCountLayerSymbol"></mgl-symbol-layer>
 
             </mgl-geo-json-source>
             <mgl-custom-control position="top-left">
-                <slot name="control"></slot>
+                <slot name="control-top-left"></slot>
+            </mgl-custom-control>
+            <mgl-custom-control position="top-right">
+                <button @click="fitBounds">
+                    <i class="fa-solid fa-expand" title="Show all places"></i>
+                </button>
+            </mgl-custom-control>
+            <mgl-custom-control position="top-right">
+                <slot name="control-top-right"></slot>
             </mgl-custom-control>
             <mgl-popup v-if="popupVisible" :coordinates="popupCoordinates" :close-button="false" :close-on-click="false" max-width="500px">
                 <slot name="popup"></slot>
@@ -122,7 +125,7 @@ const clusterLayer = {
     filter: ['has', 'point_count'],
 }
 
-const clusterCountLayerNew = {
+const clusterCountLayerSymbol = {
     'layer-id': 'clusterCountLayer',
     layout: {
         'text-field': '{point_count_abbreviated}',
@@ -136,7 +139,7 @@ const clusterCountLayerNew = {
     filter: ['has', 'point_count'],
 }
 
-const clusterCountLayer = {
+const clusterCountLayerIcon = {
     'layer-id': 'clusterCountLayer',
     layout: {
         'icon-image': 'clusterIcon',
@@ -159,13 +162,13 @@ const geojsonBounds = computed(() => {
 
 watch(geojsonBounds, (bounds) => {
     if (bounds && map.value && updateBounds.value) {
-        map.value.fitBounds(bounds, {padding: 200, linear: false, maxZoom: 15, animate: false});
+        map.value.fitBounds(bounds, {padding: 100, linear: false, maxZoom: 16, animate: false});
     }
 })
 
 const fitBounds = () => {
     if (geojsonBounds.value && map.value) {
-        map.value.fitBounds(geojsonBounds.value, {padding: 100, linear: false, maxZoom: 15, animate: false});
+        map.value.fitBounds(geojsonBounds.value, {padding: 100, linear: false, maxZoom: 16, animate: false});
     }
 }
 

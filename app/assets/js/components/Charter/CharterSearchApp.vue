@@ -135,23 +135,31 @@
                     </div>
                     <div class="tab-pane w-100 h-100" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
                         <div class="position-relative w-100 h-100">
-                            <CharterMap :geojson="geojson" class="w-100 h-100" @marker-click="onMarkerClick" ref="map" :popup-visible="!!activePlaceId">
-                                <template #control>
+                            <div v-if="!extendedPlaceInfo" class="alert alert-info" role="alert">
+                                The map only shows place-date information. Please refine your search to reduce the result set and include actor places.
+                            </div>
+                            <CharterMap :geojson="geojson" class="w-100 h-100" @marker-click="onMarkerClick" ref="map" :update-bounds="updateBounds" :popup-visible="!!activePlaceId">
+                                <template #control-top-left v-if="extendedPlaceInfo">
                                     <BRadioList :items="roleFilters" :modelValue="roleFilterValue"
                                                 @update:modelValue="onUpdateRoleFilter" class="m-2"></BRadioList>
+                                </template>
+                                <template #control-top-right>
+                                    <button @click="toggleUpdateBounds">
+                                        <i v-if="!updateBounds" class="fa-solid fa-lock" title="Update viewport on data changes"></i>
+                                        <i v-if="updateBounds" class="fa-solid fa-unlock" title="Lock viewport on data changes"></i>
+                                    </button>
                                 </template>
                                 <template #popup>
                                     <div class="popup" v-if="activePlace">
                                         <h2>{{ activePlace.name }}</h2><span class="btn-close" @click="activePlaceId=null"></span>
                                         <template v-if="activePlace.actors.length">
                                             <h3>Actors</h3>
-
                                             <ul>
                                                 <li v-for="actor of activePlace.actors">
                                                     <span>{{ actor.name }}</span>
                                                     <template v-for="charterId of actor.charterIds">
-                                                        <a class="btn btn-tertiary btn-sm me-1"
-                                                           :href="getHashedUrl(charterId, 0)"
+                                                        <a class="btn btn-tertiary btn-sm ms-1"
+                                                           :href="getHashedUrl(charterId)"
                                                            target="_blank">
                                                             {{ charterId }}
                                                         </a>
@@ -162,8 +170,8 @@
                                         <template v-if="activePlace.charterIds.length">
                                             <h3>Placedate Charters</h3>
                                             <template v-for="charterId of activePlace.charterIds">
-                                                <a class="btn btn-tertiary btn-sm me-1"
-                                                   :href="getHashedUrl(charterId, 0)"
+                                                <a class="btn btn-tertiary btn-sm ms-1"
+                                                   :href="getHashedUrl(charterId)"
                                                    target="_blank">
                                                     {{ charterId }}
                                                 </a>
@@ -301,6 +309,11 @@ const tableOptions = {
 const activePlaceId = shallowRef(null)
 const mapVisible = shallowRef(false)
 const placeData = shallowRef<PlaceData|null>(null)
+const updateBounds = ref(true)
+
+const toggleUpdateBounds = () => {
+    updateBounds.value = !updateBounds.value
+}
 
 const roleFilters = ref<RadioItem[]>([
     {
@@ -415,61 +428,84 @@ watch(aggregations, (currentAggregations) => {
 })
 
 // map api
+const filteredPlaceData = shallowRef<FilteredPlaceData>(new Map())
 
-const filteredPlaceData = computed<FilteredPlaceData>((): Map<number, any> => {
-    // filter actors based on role
+const updateFilteredPlaceData = () => {
+    // filter places
+    // - based on actor role (if selected)
+    // - based on place data (if available)
+
+    console.log('filtering places with role', roleFilterValue.value)
+
     const filteredPlaces = new Map()
 
     // check if place data is available
-    if (!placeData.value) {
+    if (!placeData.value || placeData.value.length === 0) {
         return filteredPlaces
     }
 
     // copy place data
     const places = JSON.parse(JSON.stringify(placeData.value)) as PlaceData
 
+    //
+    const isFilteredByRole = roleFilterValue.value !== 0
+
     // filter actors based on role
     for (const place of places) {
+        // skip places without coordinates
+        if (!place.latitude || !place.longitude) {
+            continue
+        }
+        // filter actors based on role
         const filteredActors: PlaceActor[] = [];
         const actorsCharterIds = new Set();
         for (const actor of place?.actors ?? []) {
-            const filteredRoles = roleFilterValue.value !== 0
+            // filter roles based on selected role
+            const filteredRoles = isFilteredByRole
                 ? actor.roles.filter((role) => role.id === roleFilterValue.value)
                 : actor.roles
-            if(filteredRoles.length === 0) {
+
+            // skip actors without filtered roles
+            if (isFilteredByRole && filteredRoles.length === 0) {
                 continue
             }
 
             // calculate unique charter ids the actor is involved in
             const charterIds = Array.from(new Set(actor.roles.map(role => role?.charterIds).flat())).sort()
 
-            // update actor with filtered roles and charter ids
-            actor.roles = filteredRoles
-            actor.charterIds = charterIds
-
             // update actors charter ids
             charterIds.forEach(id => actorsCharterIds.add(id))
 
             // add actor to filtered actors
-            filteredActors.push(actor)
+            filteredActors.push({
+                id: actor.id,
+                name: actor.name,
+                roles: filteredRoles,
+                charterIds: charterIds
+            })
         }
-        // place has actors with the selected role? add to filtered places
-        if (filteredActors.length) {
-            const stats = {
-                actors: filteredActors.length,
-                charters: (new Set([...actorsCharterIds, ...place.charterIds])).size,
-                actorsCharters: actorsCharterIds.size,
-                placeDateCharters: place.charterIds.length,
-            }
+        if (isFilteredByRole && filteredActors.length === 0) {
+            // no actors with the selected role, skip this place
+            continue
+        }
 
+        // place has actors with the selected role? add to filtered places
+        const stats = {
+            actors: filteredActors.length,
+            charters: (new Set([...actorsCharterIds, ...place.charterIds])).size,
+            actorsCharters: actorsCharterIds.size,
+            placeDateCharters: place.charterIds.length,
+        }
+        place.actors = filteredActors
+        if (stats.charters) {
             filteredPlaces.set(place.id, {
                 ...place,
                 stats: stats
             })
         }
     }
-    return filteredPlaces
-})
+    filteredPlaceData.value = filteredPlaces
+}
 
 const geojson = computed(() => {
     const geojson: {type: string, features: any[]} = {type: 'FeatureCollection', features: []};
@@ -486,6 +522,11 @@ const activePlace = computed(() => {
     } else {
         return null
     }
+})
+
+const extendedPlaceInfo = computed(() => {
+    const ret = totalRecords.value <= 1000
+    return ret
 })
 
 const onFormValidated = (isValid, errors) => {
@@ -535,22 +576,18 @@ const onAutocomplete = (fieldName: string) => {
 }
 
 const updatePlaceData = () => {
-    charterRepository.locate(filterState.value)
+    return charterRepository.locate(filterState.value, extendedPlaceInfo.value)
         .then((response) => {
             placeData.value = response.data
         })
-}
-
-const onMarkerOver = (feature: any) => {
-    activePlaceId.value = feature.properties.id
+        .then(() => {
+            // update filtered place data
+            updateFilteredPlaceData()
+        })
 }
 
 const onMarkerClick = (feature: any) => {
     activePlaceId.value = feature.properties.id
-}
-
-const onMarkerOut = () => {
-    // this.activePlaceId = null
 }
 
 const createSearchQuery = (paginationState: DataTableState, filterState: any) => {
@@ -583,6 +620,7 @@ const pushHistory = (query: string) => {
 const onUpdateRoleFilter = (roleId: number) => {
     roleFilterValue.value = roleId
     activePlaceId.value = null
+    updateFilteredPlaceData()
 }
 
 const onPopHistory = (event: PopStateEvent) => {
@@ -594,10 +632,13 @@ const onPopHistory = (event: PopStateEvent) => {
         const query = createSearchQuery(dataTableState.value, filterState.value);
 
         // search & aggregate
-        fetch(query, 'search_aggregate');
-
-        // update map data
-        updatePlaceData()
+        fetch(query, 'search_aggregate').then(() => {
+            // update place data
+            updatePlaceData().then(() => {
+                // update filtered place data
+                updateFilteredPlaceData()
+            });
+        });
     }
 }
 
@@ -629,10 +670,9 @@ const updateFilterState = (payload: any) => {
     pushHistory(query)
 
     // search & aggregate
-    fetch(query, 'search_aggregate');
-
-    // update map data
-    updatePlaceData()
+    fetch(query, 'search_aggregate').then(() => {
+            updatePlaceData();
+    });
 }
 
 // init form schema

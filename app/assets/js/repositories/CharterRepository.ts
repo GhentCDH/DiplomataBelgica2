@@ -18,10 +18,14 @@ class CharterRepository extends BaseRepository {
         });
     }
 
-    public async locate(filters: object): Promise<AxiosResponse> {
+    public async locate(filters: object, extendedPlaceInfo: boolean): Promise<AxiosResponse> {
         const locale = this.getLocale();
         const config = this.getRequestConfig();
         const payload = { filters };
+        if (extendedPlaceInfo) {
+            payload.filters.extended_place_info = true;
+        }
+        console.log(extendedPlaceInfo, payload)
         return await this.axiosInstance.get(`/${locale}/charters/locate`, {
             ...config,
             params: payload,

@@ -139,18 +139,20 @@ class CharterController extends BaseController
                 continue;
             }
             if (!isset($places[$actorPlace['id']])) {
-                $actors = [];
                 // clean actor data
-                foreach ($actorPlace['actors'] as $actor) {
-                    $actors[] = [
-                        'id' => $actor['id'],
-                        'name' => $actor['label'],
-                        'count' => $actor['count'],
-                        'roles' => array_map(fn($role) => [
-                            'id' => $role['id'],
-                            'charterIds' => $role['charters']['charter_id'] ?? [],
-                        ], $actor['roles'] ?? []),
-                    ];
+                $actors = [];
+                if (isset($actorPlace['actors']) && is_array($actorPlace['actors'])) {
+                    foreach ($actorPlace['actors'] as $actor) {
+                        $actors[] = [
+                            'id' => $actor['id'],
+                            'name' => $actor['label'],
+                            'count' => $actor['count'],
+                            'roles' => array_map(fn($role) => [
+                                'id' => $role['id'],
+                                'charterIds' => $role['charters']['charter_id'] ?? [],
+                            ], $actor['roles'] ?? []),
+                        ];
+                    }
                 }
 
                 // add place
