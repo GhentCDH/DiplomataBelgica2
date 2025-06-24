@@ -76,7 +76,7 @@
                                  :sort-ascending="dataTableState.orderAsc"
                                  @update:sort-by="(value) => updateDataTableState({orderBy: value})"
                                  @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
-                                 class="table table-striped table-bordered table-hover m-0"
+                                 class="m-0"
                         >
                             <template #actionsPreRowHeader>
                                 <th>
@@ -187,8 +187,8 @@ const {initUrls, title} = props;
 
 const tableOptions = {
     fields: [
-        {key: 'id', label: 'Id', sortable: false, thClass: 'no-wrap'},
-        {key: 'type', label: 'Type', sortable: false, thClass: 'no-wrap'},
+        {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
+        {key: 'type', label: 'Type', sortable: true, thClass: 'no-wrap'},
         {key: 'summary', label: 'Summary'},
     ],
     orderBy: {
