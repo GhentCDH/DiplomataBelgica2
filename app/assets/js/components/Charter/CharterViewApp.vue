@@ -9,10 +9,14 @@
                 <div class="mbottom-default">{{ charter.summary }}</div>
 
                 <div class="mbottom-default">
-                  <LabelValue label="Language" :value="charter.language" type="id_name" :url="urlGeneratorIdName('charter_search', 'charter_language')" grid="4|8"></LabelValue>
-                  <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name" grid="4|8"></LabelValue>
-                  <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name" grid="4|8"></LabelValue>
-                  <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name" grid="4|8"></LabelValue>
+                    <LabelValue label="Language" :value="charter.language" type="id_name"
+                                :url="urlGeneratorIdName('charter_search', 'charter_language')" grid="4|8"></LabelValue>
+                    <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"
+                                grid="4|8"></LabelValue>
+                    <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"
+                                grid="4|8"></LabelValue>
+                    <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"
+                                grid="4|8"></LabelValue>
                 </div>
 
                 <template v-if="markedText">
@@ -22,7 +26,7 @@
                         </p>
                     </div>
                     <div v-if="charter.edition" class="mbottom-default">
-                        <LabelValue label="Source" :value="formatSource(charter.edition)"  grid="4|8"></LabelValue>
+                        <LabelValue label="Source" :value="formatSource(charter.edition)" grid="4|8"></LabelValue>
                     </div>
                 </template>
 
@@ -31,7 +35,7 @@
                 <div v-if="editionsFormatted.length" class="mbottom-small">
                     <h3>Editions</h3>
 
-                    <ul class="_list-unstyled" >
+                    <ul class="_list-unstyled">
                         <li v-for="edition in editionsFormatted" :key="edition.id">
                             {{ edition.text }}
                             <InlineLinkList :linklist="edition.links"></InlineLinkList>
@@ -80,16 +84,16 @@
                         </li>
                     </ul>
                 </div>
-                <h2 v-if="charter.has_images" > Images </h2>
-                <div v-if="(charter.image_count>0)" >
-                  <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" />
+                <h2 v-if="charter.has_images"> Images </h2>
+                <div v-if="(charter.image_count>0)">
+                    <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)"/>
                 </div>
-                <div v-if="charter.imageUrls.length" >
-                  <ul>
-                    <li v-for="image in charter.imageUrls" :key="image.codex_id">
-                      <a target="_blank" v-if="image.url" :href="image.url">{{ image.url }}</a>
-                    </li>
-                  </ul>
+                <div v-if="charter.imageUrls.length">
+                    <ul>
+                        <li v-for="image in charter.imageUrls" :key="image.codex_id">
+                            <a target="_blank" v-if="image.url" :href="image.url">{{ image.url }}</a>
+                        </li>
+                    </ul>
                 </div>
 
                 <h2>Map</h2>
@@ -113,7 +117,8 @@
                 <Widget v-if="validContextAndResultSet()" title="Search" :collapsed="false">
                     <div class="row mbottom-default">
                         <div class="form-group">
-                            <span class="btn btn-sm btn-primary" @click="returnToSearchResult">&lt; Return to list</span>
+                            <span class="btn btn-sm btn-primary"
+                                  @click="returnToSearchResult">&lt; Return to list</span>
                         </div>
                         <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">
@@ -124,7 +129,9 @@
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ context.count }}</span></div>
+                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{
+                                context.count
+                            }}</span></div>
                         <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
                           
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
@@ -151,18 +158,25 @@
                 </Widget>
 
                 <Widget title="Date">
-                  <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)" :inline="false"></LabelValue>
-                  <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)" :inline="false"></LabelValue>
-                  <LabelValue v-if="charter.udt" label="Date in the charter" :value="getDates(charter.udt)"  :inline="false"></LabelValue>
-                  <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"  :inline="false"></LabelValue>
-                  <LabelValue v-if="charter.place" label="Place-date (normalised)" :value="getNormalisedPlace(charter.place)" :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"  :inline="false"></LabelValue>
+                    <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)"
+                                :inline="false"></LabelValue>
+                    <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)"
+                                :inline="false"></LabelValue>
+                    <LabelValue v-if="charter.udt" label="Date in the charter" :value="formatDates(charter.udt)"
+                                :inline="false"></LabelValue>
+                    <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"
+                                :inline="false"></LabelValue>
+                    <LabelValue v-if="charter.place" label="Place-date (normalised)"
+                                :value="formatPlaceNormalised(charter.place)"
+                                :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"
+                                :inline="false"></LabelValue>
                 </Widget>
 
             </div>
         </aside>
         <div
-                v-if="openRequests"
-                class="loading-overlay"
+            v-if="openRequests"
+            class="loading-overlay"
         >
             <div class="spinner"/>
         </div>
@@ -185,6 +199,17 @@ import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository.ts";
 import {useTextMarker} from "@/composables/useTextMarker.ts";
 
+import {
+    formatSource,
+    formatDatations,
+    formatCodex,
+    formatEdition,
+    formatOriginal,
+    formatSecondaryLiterature,
+    formatPlaceNormalised,
+    formatDates,
+} from "./Formatters.ts"
+
 const props = defineProps({
     initUrls: {
         type: String,
@@ -193,7 +218,7 @@ const props = defineProps({
 })
 
 const urls = JSON.parse(props.initUrls)
-const data = ref<{charter: any}>({} as {charter: any})
+const data = ref<{ charter: any }>({} as { charter: any })
 
 // Initialize
 const segments = window.location.pathname.split('/');
@@ -216,22 +241,22 @@ const isOriginal = computed(() => {
     if (!charter.value.originals) {
         return "No";
     }
-    for(const original of charter.value.originals) {
-        if(original.charter_id === charter.value.id) {
+    for (const original of charter.value.originals) {
+        if (original.charter_id === charter.value.id) {
             return "Yes";
         }
     }
     return "No";
 })
 
-const originals = computed(() => charter.value.originals.map(formatOriginal).filter(Boolean));
-const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript')).filter(Boolean));
-const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy')).filter(Boolean));
+const originals = computed(() => charter.value.originals.map(o => formatOriginal(o, traditionUrlGenerator)).filter(Boolean));
+const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript', traditionUrlGenerator)).filter(Boolean));
+const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy', traditionUrlGenerator)).filter(Boolean));
 const editionsFormatted = computed(() => charter.value.edition_indications.map(formatEdition).filter(Boolean));
 const secondaryLiteratureFormatted = computed(() => charter.value.secondary_literature_indications.map(formatSecondaryLiterature).filter(Boolean));
 
 const geojson = computed(() => {
-    const geojson = { type: 'FeatureCollection', features: [] as any[] };
+    const geojson = {type: 'FeatureCollection', features: [] as any[]};
     for (const actor of charter.value.actors) {
         if (actor?.place?.latitude) {
             geojson.features.push({
@@ -243,7 +268,7 @@ const geojson = computed(() => {
                 'properties': {
                     actorId: actor.id,
                     roleId: actor.role.id,
-                    roleLabel: { 1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
+                    roleLabel: {1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
                 }
             })
         }
@@ -258,160 +283,22 @@ function getUrl(route: string) {
 }
 
 function urlGeneratorIssuer(url, filter, filter_defaults = {}) {
-    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 2, [filter]: value.id } } ) );
+    return (value) => (getUrl(url) + '?' + qs.stringify({filters: {actor_role_1: 2, [filter]: value.id}}));
 }
+
 function urlGeneratorAuthors(url, filter, filter_defaults = {}) {
-    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 1, [filter]: value.id } } ) );
+    return (value) => (getUrl(url) + '?' + qs.stringify({filters: {actor_role_1: 1, [filter]: value.id}}));
 }
+
 function urlGeneratorBeneficiaries(url, filter, filter_defaults = {}) {
-    return (value) => ( getUrl(url) + '?' + qs.stringify( { filters: { actor_role_1: 3, [filter]: value.id } } ) );
+    return (value) => (getUrl(url) + '?' + qs.stringify({filters: {actor_role_1: 3, [filter]: value.id}}));
 }
+
 function urlGeneratorIdName(url: string, filter: string, defaults = {}) {
-    return (value: any) => `${getUrl(url)}?${qs.stringify({ filters: { ...defaults, [filter]: value.id } })}`;
+    return (value: any) => `${getUrl(url)}?${qs.stringify({filters: {...defaults, [filter]: value.id}})}`;
 }
 
-function formatSource(edition: any) {
-    var res: any[] = [];
-    if(edition.names_editors) {
-        res.push(edition.names_editors);
-    }
-    if(edition.date_of_edition_year) {
-        res.push(edition.date_of_edition_year);
-    }
-    if(res.length > 0) {
-        return res.join(', ');
-    } else {
-        return '';
-    }
-}
-
-function formatDate(date: any) {
-    let res = date.year ?? ''
-    if (date.month)  {
-        res = `${date.month}/${res}`
-    }
-    if (date.day) {
-        res = `${date.day}/${res}`
-    }
-    return res
-}
-
-function formatDatations(datations: any[]) {
-    return datations.map(datation => {
-        let res = formatDate(datation.time)
-        if (datation.time.interpretation) {
-            res += ` (${datation.time.interpretation}${datation.researcher ? ' - ' + datation.researcher : ''})`
-        }
-        return res
-    })
-}
-
-function getDates(dates: any[]) {
-    return dates.map(formatDate)
-}
-
-function getNormalisedPlace(place: any) {
-    let res = place.name ?? ''
-    const localisation: any[] = []
-    if (place.localisation?.land) {
-        localisation.push(place.localisation.land.name)
-    }
-    if (place.localisation?.echelon_1) {
-        localisation.push(place.localisation.echelon_1)
-    }
-    if (place.localisation?.echelon_2) {
-        localisation.push(place.localisation.echelon_2)
-    }
-    if (localisation.length) {
-        res += (res ? ' ' : '') + `(${localisation.join(', ')})`
-    }
-    return res
-}
-
-function formatOriginal(original: any) {
-    const parts: any[] = []
-    if (original.repository?.location) {
-        parts.push(original.repository.location)
-    }
-    if (original.repository?.name) {
-        parts.push(original.repository.name)
-    }
-    if (original.repository_reference_number) {
-        parts.push(original.repository_reference_number)
-    }
-    const text = parts.join(', ')
-    return text ? (original.id ? { text, link: `/tradition/original/${original.id}` } : { text }) : null
-}
-
-function formatCodex(codex: any, type: string) {
-    const parts: any[] = []
-    if (codex.repository?.location) {
-        parts.push(codex.repository.location)
-    }
-    if (codex.repository?.name) {
-        parts.push(codex.repository.name)
-    }
-    if (codex.repository_reference_number) {
-        parts.push(codex.repository_reference_number)
-    }
-    let line = parts.join(', ')
-    if (codex.redaction_date) {
-        line += (line ? ' ' : '') + `(${codex.redaction_date})`
-    }
-    return line ? (codex.id ? { text: line, link: `/tradition/${type}/${codex.id}` } : { text: line }) : null
-}
-
-function formatEdition(edition: any) {
-    const parts: any[] = [], links: any[] = []
-    if (edition.edition?.names_editors) {
-        parts.push(edition.edition.names_editors)
-    }
-    if (edition.edition?.full_title) {
-        parts.push(edition.edition.full_title)
-    }
-    if (edition.bookpart) {
-        parts.push(edition.bookpart)
-    }
-    if (edition.nr) {
-        parts.push(edition.nr)
-    }
-    if (edition.pages) {
-        parts.push(edition.pages)
-    }
-    if (edition.edition?.urls) {
-        links.push(...edition.edition.urls.map((u: any) => u.url).filter(Boolean))
-    }
-    if (edition.urls) {
-        links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
-    }
-    return parts.length ? { text: parts.join(', '), links } : null
-}
-
-function formatSecondaryLiterature(edition: any) {
-    const parts: any[] = [], links: any[] = []
-    if (edition.secondary_literature?.names_editors) {
-        parts.push(edition.secondary_literature.names_editors)
-    }
-    if (edition.secondary_literature?.full_title) {
-        parts.push(edition.secondary_literature.full_title)
-    }
-    if (edition.bookpart) {
-        parts.push(edition.bookpart)
-    }
-    if (edition.nr) {
-        parts.push(edition.nr)
-    }
-    if (edition.pages) {
-        parts.push(edition.pages)
-    }
-    if (edition.secondary_literature?.urls) {
-        links.push(...edition.secondary_literature.urls.map((u: any) => u.url).filter(Boolean))
-    }
-    if (edition.urls) {
-        links.push(...edition.urls.map((u: any) => u.url).filter(Boolean))
-    }
-    return parts.length ? { text: parts.join(', '), links } : null
-}
+const traditionUrlGenerator = (type: string, id: string | number): string => getUrl('tradition_get_single').replace('tradition_type', type).replace('tradition_id', id)
 
 function removeExtension(filename: string) {
     return filename.substring(0, filename.lastIndexOf('.')) || filename
@@ -469,7 +356,7 @@ setOnIdChanged((newId: number) => {
 });
 
 initContextFromUrl();
-if (context.value.validReadContext && !context.value.ids){
+if (context.value.validReadContext && !context.value.ids) {
     let readContext: Context = toValue(context);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }
@@ -484,13 +371,12 @@ const {
 </script>
 
 
-
 <style scoped lang="scss">
 #charter-view-app {
-  aside {
-    .widget {
-      border-bottom: 1px solid #e9ecef;
+    aside {
+        .widget {
+            border-bottom: 1px solid #e9ecef;
+        }
     }
-  }
 }
 </style>
