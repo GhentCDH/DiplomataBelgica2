@@ -1,16 +1,20 @@
 <template>
     <div class="charter-map">
         <mgl-map :map-style="style" v-model:zoom="zoom" v-model:center="center"
-                 map-key="actors">
+                 map-key="actors" @map:resize="onResize"
+        >
             <mgl-navigation-control/>
             <mgl-image id="markerIcon" :url="markerIcon"></mgl-image>
             <mgl-image id="clusterIcon" :url="clusterIcon"></mgl-image>
             <mgl-geo-json-source :data="geojson" source-id="geojson" :cluster="true" :cluster-max-zoom="8"
                                  :cluster-radius="40">
-                <mgl-symbol-layer v-bind="markerLayer"
+                <mgl-symbol-layer v-if="!showActorCount" v-bind="markerLayer"
                                   @click="onMarkerClick"
                 ></mgl-symbol-layer>
-                <mgl-symbol-layer v-bind="actorCountLayer"></mgl-symbol-layer>
+                <mgl-symbol-layer v-if="showActorCount" v-bind="markerLayerWithActorCounts"
+                                  @click="onMarkerClick"
+                ></mgl-symbol-layer>
+                <mgl-symbol-layer v-if="showActorCount" v-bind="actorCountLayer"></mgl-symbol-layer>
                 <mgl-circle-layer v-bind="clusterLayer" @click="onClusterClick"></mgl-circle-layer>
                 <mgl-symbol-layer v-bind="clusterCountLayerSymbol"></mgl-symbol-layer>
 
@@ -33,8 +37,8 @@
     </div>
 </template>
 
-<script setup>
-import {computed, nextTick, onMounted, ref, toRefs, useTemplateRef, watch} from "vue";
+<script setup lang="ts">
+import {computed, nextTick, onMounted, ref, toRefs, watch} from "vue";
 import {
     MglMap,
     MglNavigationControl,
@@ -60,10 +64,14 @@ const props = defineProps({
     updateBounds: {
         type: Boolean,
         default: false
+    },
+    showActorCount: {
+        type: Boolean,
+        default: false
     }
 })
 
-const emit = defineEmits(['markerOver', 'markerOut'])
+const emit = defineEmits(['markerOver', 'markerOut', 'markerClick'])
 
 import markerIcon from '@assets/icons/marker3.png?no-inline'
 import clusterIcon from '@assets/icons/marker4.png?no-inline'
@@ -72,14 +80,36 @@ const popupCoordinates = ref([0, 0])
 
 const map = ref({})
 
-const {geojson, popupVisible, updateBounds} = toRefs(props)
+const {geojson, popupVisible, updateBounds, showActorCount} = toRefs(props)
 const style = 'https://api.maptiler.com/maps/bright-v2/style.json?key=7YOGLk0IGA4bPJY564Yk';
 const zoom = ref(8);
 const center = ref([10.4825, 51.4124]);
 
+const resizeCount = ref(0);
+
 // marker layout
 const markerLayer = {
     'layer-id': 'marker',
+    layout: {
+        'icon-image': 'markerIcon',
+        'icon-size': 0.35,
+        'text-field': '{charterCount}',
+        'text-font': ['Arial Unicode MS Bold', 'Helvetica'],
+        'text-size': 16,
+        'text-offset': [0, -0.2],
+        'text-allow-overlap': true,
+        'text-ignore-placement': true,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+    },
+    paint: {
+        'text-color': '#eee',
+    },
+    filter: ["!", ["has", "point_count"]],
+}
+
+const markerLayerWithActorCounts = {
+    'layer-id': 'markerWithActorCounts',
     layout: {
         'icon-image': 'markerIcon',
         'icon-size': 0.35,
@@ -139,21 +169,21 @@ const clusterCountLayerSymbol = {
     filter: ['has', 'point_count'],
 }
 
-const clusterCountLayerIcon = {
-    'layer-id': 'clusterCountLayer',
-    layout: {
-        'icon-image': 'clusterIcon',
-        'icon-size': 0.35,
-        'text-field': '{point_count_abbreviated}',
-        'text-font': ['Arial Unicode MS Bold', 'Helvetica'],
-        'text-size': 16,
-        'text-offset': [0, -0.1],
-    },
-    paint: {
-        'text-color': '#eee',
-    },
-    filter: ['has', 'point_count'],
-}
+// const clusterCountLayerIcon = {
+//     'layer-id': 'clusterCountLayer',
+//     layout: {
+//         'icon-image': 'clusterIcon',
+//         'icon-size': 0.35,
+//         'text-field': '{point_count_abbreviated}',
+//         'text-font': ['Arial Unicode MS Bold', 'Helvetica'],
+//         'text-size': 16,
+//         'text-offset': [0, -0.1],
+//     },
+//     paint: {
+//         'text-color': '#eee',
+//     },
+//     filter: ['has', 'point_count'],
+// }
 
 const geojsonBounds = computed(() => {
     const bounds = calculateBounds(geojson.value)
@@ -162,21 +192,23 @@ const geojsonBounds = computed(() => {
 
 watch(geojsonBounds, (bounds) => {
     if (bounds && map.value && updateBounds.value) {
-        map.value.fitBounds(bounds, {padding: 100, linear: false, maxZoom: 16, animate: false});
+        fitBounds(bounds);
     }
 })
 
-const fitBounds = () => {
-    if (geojsonBounds.value && map.value) {
-        map.value.fitBounds(geojsonBounds.value, {padding: 100, linear: false, maxZoom: 16, animate: false});
+const fitBounds = (bounds?: LngLatBounds|null) => {
+    const newBounds = bounds || geojsonBounds.value;
+    if (newBounds && map.value) {
+        // console.log('Fitting map to geojson bounds', newBounds);
+        map.value.fitBounds(newBounds, {padding: 100, linear: false, maxZoom: 16, animate: false});
     }
 }
 
-defineExpose({fitBounds})
+defineExpose({map, fitBounds})
 
-function calculateBounds(geojson) {
+function calculateBounds(geojson): LngLatBounds {
     let bounds = null
-    if (geojson.features?.length) {
+    if (geojson?.features?.length) {
         bounds = new LngLatBounds();
 
         geojson.features.forEach(feature => {
@@ -197,6 +229,7 @@ function calculateBounds(geojson) {
 }
 
 onMounted(() => {
+    // console.log('Mounting CharterMap with geojson', geojson.value);
     map.value = useMap('actors').map
 });
 
@@ -226,4 +259,12 @@ const onMarkerClick = (e) => {
     emit('markerClick', feature)
 }
 
+const onResize = () => {
+    if (!resizeCount.value) {
+        nextTick(() => {
+            fitBounds();
+        });
+    }
+    resizeCount.value++;
+}
 </script>
