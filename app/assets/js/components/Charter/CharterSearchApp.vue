@@ -25,12 +25,6 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-                <div v-if="false">
-                    <div>{{ model }}</div>
-                    <div>{{getActiveFilterTagStrings()}}</div>
-                    <div>{{ filterState }}</div>
-                    <div>{{ filteredPlaceData.size }}</div>
-                </div>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
@@ -241,7 +235,7 @@ import {
     fetchPlaces,
     findPlaceById,
     geojson
-} from "@/components/Charter/Map.ts";
+} from "@/components/Charter/ChartersMap.js";
 
 const {t} = useI18n()
 
