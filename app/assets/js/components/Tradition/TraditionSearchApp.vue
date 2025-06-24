@@ -69,7 +69,7 @@
                     </div>
                 </header>
 
-                <article class="d-flex flex-grow-1 scrollable">
+                <article class="flex-grow-1 scrollable">
                         <b-table :items="tableDataWithCheckbox"
                                  :fields="tableOptions.fields"
                                  :sort-by="dataTableState.orderBy"

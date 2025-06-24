@@ -86,7 +86,7 @@
                                 </div>
                             </nav>
 
-                            <div class="d-flex flex-grow-1 scrollable">
+                            <div class="flex-grow-1 scrollable">
                                 <b-table :items="tableDataWithCheckbox"
                                          :fields="tableOptions.fields"
                                          :sort-by="dataTableState.orderBy"
