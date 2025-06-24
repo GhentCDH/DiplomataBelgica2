@@ -138,9 +138,9 @@
                             <div v-if="!extendedPlaceInfo" class="alert alert-info" role="alert">
                                 The map only shows place-date information. Please refine your search to reduce the result set and include actor places.
                             </div>
-                            <CharterMap :geojson="geojson" class="w-100 h-100" @marker-click="onMarkerClick" ref="map" :update-bounds="updateBounds" :popup-visible="!!activePlaceId">
+                            <CharterMap ref="map" :geojson="geojson" :show-actor-count="extendedPlaceInfo" class="w-100 h-100" @marker-click="onMarkerClick"  :update-bounds="updateBounds" :popup-visible="!!activePlaceId">
                                 <template #control-top-left v-if="extendedPlaceInfo">
-                                    <BRadioList :items="roleFilters" :modelValue="roleFilterValue"
+                                    <BRadioList :items="roleFilters" :modelValue="actorRoleFilter"
                                                 @update:modelValue="onUpdateRoleFilter" class="m-2"></BRadioList>
                                 </template>
                                 <template #control-top-right>
@@ -195,39 +195,6 @@
 </template>
 
 <script lang="ts">
-interface PlaceActorRole {
-    id: number,
-    charterIds: number[],
-}
-interface PlaceActor {
-    id: number,
-    name: string,
-    roles: PlaceActorRole[],
-    charterIds: number[],
-}
-interface Place {
-    id: number,
-    name: string,
-    latitude: number,
-    longitude: number,
-    actors: PlaceActor[],
-    charterIds: number[],
-}
-
-interface Stats {
-    actors: number,
-    charters: number,
-    actorsCharters: number,
-    placeDateCharters: number,
-}
-
-interface FilteredPlace extends Place {
-    stats: Stats
-}
-
-type PlaceData = Place[]
-type FilteredPlaceData = Map<number, FilteredPlace>
-
 type SearchQuery = {
     orderBy: string;
     ascending: boolean;
@@ -244,7 +211,7 @@ type Filters = {
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n'
 
-import {computed, onMounted, ref, shallowRef, watch} from 'vue'
+import {computed, nextTick, onMounted, ref, shallowRef, watch, useTemplateRef} from 'vue'
 
 import CharterSearchSummary from "./CharterSearchSummary.vue";
 
@@ -264,11 +231,17 @@ import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGene
 import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 import qs from "qs";
 import {useSearchContext} from "@/composables/useSearchContext.ts";
-import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 import {useItemsBasket} from "@/composables/useItemsBasket.ts";
+
+import {
+    actorRoleFilter,
+    fetchPlaces,
+    findPlaceById,
+    geojson
+} from "@/components/Charter/Map.ts";
 
 const {t} = useI18n()
 
@@ -288,7 +261,7 @@ const {initUrls, title} = props
 
 // refs
 
-const map = ref(null)
+const mapRef = useTemplateRef('map')
 
 // table options
 
@@ -308,7 +281,6 @@ const tableOptions = {
 
 const activePlaceId = shallowRef(null)
 const mapVisible = shallowRef(false)
-const placeData = shallowRef<PlaceData|null>(null)
 const updateBounds = ref(true)
 
 const toggleUpdateBounds = () => {
@@ -333,8 +305,6 @@ const roleFilters = ref<RadioItem[]>([
         value: 3
     },
 ])
-
-const roleFilterValue = ref(0)
 
 // pagination state
 
@@ -428,104 +398,18 @@ watch(aggregations, (currentAggregations) => {
 })
 
 // map api
-const filteredPlaceData = shallowRef<FilteredPlaceData>(new Map())
 
-const updateFilteredPlaceData = () => {
-    // filter places
-    // - based on actor role (if selected)
-    // - based on place data (if available)
-
-    console.log('filtering places with role', roleFilterValue.value)
-
-    const filteredPlaces = new Map()
-
-    // check if place data is available
-    if (!placeData.value || placeData.value.length === 0) {
-        return filteredPlaces
-    }
-
-    // copy place data
-    const places = JSON.parse(JSON.stringify(placeData.value)) as PlaceData
-
-    //
-    const isFilteredByRole = roleFilterValue.value !== 0
-
-    // filter actors based on role
-    for (const place of places) {
-        // skip places without coordinates
-        if (!place.latitude || !place.longitude) {
-            continue
-        }
-        // filter actors based on role
-        const filteredActors: PlaceActor[] = [];
-        const actorsCharterIds = new Set();
-        for (const actor of place?.actors ?? []) {
-            // filter roles based on selected role
-            const filteredRoles = isFilteredByRole
-                ? actor.roles.filter((role) => role.id === roleFilterValue.value)
-                : actor.roles
-
-            // skip actors without filtered roles
-            if (isFilteredByRole && filteredRoles.length === 0) {
-                continue
-            }
-
-            // calculate unique charter ids the actor is involved in
-            const charterIds = Array.from(new Set(actor.roles.map(role => role?.charterIds).flat())).sort()
-
-            // update actors charter ids
-            charterIds.forEach(id => actorsCharterIds.add(id))
-
-            // add actor to filtered actors
-            filteredActors.push({
-                id: actor.id,
-                name: actor.name,
-                roles: filteredRoles,
-                charterIds: charterIds
-            })
-        }
-        if (isFilteredByRole && filteredActors.length === 0) {
-            // no actors with the selected role, skip this place
-            continue
-        }
-
-        // place has actors with the selected role? add to filtered places
-        const stats = {
-            actors: filteredActors.length,
-            charters: (new Set([...actorsCharterIds, ...place.charterIds])).size,
-            actorsCharters: actorsCharterIds.size,
-            placeDateCharters: place.charterIds.length,
-        }
-        place.actors = filteredActors
-        if (stats.charters) {
-            filteredPlaces.set(place.id, {
-                ...place,
-                stats: stats
-            })
-        }
-    }
-    filteredPlaceData.value = filteredPlaces
-}
-
-const geojson = computed(() => {
-    const geojson: {type: string, features: any[]} = {type: 'FeatureCollection', features: []};
-    for (const place of filteredPlaceData.value.values()) {
-        const feature = createPlaceFeature(place);
-        geojson.features.push(feature);
-    }
-    return geojson
-})
 
 const activePlace = computed(() => {
     if (activePlaceId.value) {
-        return filteredPlaceData.value.get(activePlaceId.value)
+        return findPlaceById(activePlaceId.value)
     } else {
         return null
     }
 })
 
 const extendedPlaceInfo = computed(() => {
-    const ret = totalRecords.value <= 1000
+    const ret = totalRecords.value && totalRecords.value <= 1000
     return ret
 })
 
@@ -534,22 +418,6 @@ const onFormValidated = (isValid, errors) => {
         return
     }
     updateFilterState(flattenModel(model.value))
-}
-
-const createPlaceFeature = (place: FilteredPlace) => {
-    return {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [parseFloat(place.longitude.toString()), parseFloat(place.latitude.toString())]
-        },
-        properties: {
-            id: place.id,
-            actorCount: place.stats.actors,
-            actorCharterCount: place.stats.actorsCharters,
-            charterCount: place.stats.charters,
-        }
-    }
 }
 
 const getPreferentialDate = (datations) => {
@@ -565,7 +433,7 @@ const formatDatationTime = (datation) => {
 
 const onAutocomplete = (fieldName: string) => {
     return (query: string) => {
-        charterRepository.autocomplete(fieldName, query, filterState)
+        charterRepository.autocomplete(fieldName, query, filterState.value)
             .then((response) => {
                 updateFieldValues(response.data, [fieldName])
                 // const fieldConfig = getFieldConfig(fieldName)
@@ -573,17 +441,6 @@ const onAutocomplete = (fieldName: string) => {
                 // return response
             })
     }
-}
-
-const updatePlaceData = () => {
-    return charterRepository.locate(filterState.value, extendedPlaceInfo.value)
-        .then((response) => {
-            placeData.value = response.data
-        })
-        .then(() => {
-            // update filtered place data
-            updateFilteredPlaceData()
-        })
 }
 
 const onMarkerClick = (feature: any) => {
@@ -618,9 +475,8 @@ const pushHistory = (query: string) => {
 }
 
 const onUpdateRoleFilter = (roleId: number) => {
-    roleFilterValue.value = roleId
+    actorRoleFilter.value = roleId
     activePlaceId.value = null
-    updateFilteredPlaceData()
 }
 
 const onPopHistory = (event: PopStateEvent) => {
@@ -634,10 +490,7 @@ const onPopHistory = (event: PopStateEvent) => {
         // search & aggregate
         fetch(query, 'search_aggregate').then(() => {
             // update place data
-            updatePlaceData().then(() => {
-                // update filtered place data
-                updateFilteredPlaceData()
-            });
+            fetchPlaces(filterState.value, extendedPlaceInfo.value);
         });
     }
 }
@@ -671,7 +524,7 @@ const updateFilterState = (payload: any) => {
 
     // search & aggregate
     fetch(query, 'search_aggregate').then(() => {
-            updatePlaceData();
+            fetchPlaces(filterState.value, extendedPlaceInfo.value);
     });
 }
 
@@ -709,7 +562,7 @@ if (params['ascending']) {
 
 const query = createSearchQuery(dataTableState.value, filterState.value);
 fetch(query, 'search_aggregate');
-updatePlaceData()
+fetchPlaces(filterState.value, extendedPlaceInfo.value)
 
 onMounted(() => {
     window.onpopstate = ((event: PopStateEvent) => {
