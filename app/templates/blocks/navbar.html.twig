@@ -11,8 +11,7 @@
             <i class="fa fa-bars"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-
+            <ul class="navbar-nav mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a class="nav-link {{ app.request.get('_route') == 'charter_search' ? 'active' }}"
                        href="{{ path('charter_search') }}">
@@ -52,6 +51,20 @@
                     <a class="nav-link {{ app.request.get('_route') == 'contact' ? 'active' }}"
                        href="{{ path('contact') }}">
                         {{ 'Contact'|trans }}
+                    </a>
+                </li>
+            </ul>
+            <ul class="ms-auto navbar-nav mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'_locale': 'en'})) }}"
+                       class="nav-link {{ app.request.locale == 'en' ? 'active' }}">
+                        {{  'English'|trans }}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'_locale': 'fr'})) }}"
+                       class="nav-link {{ app.request.locale == 'fr' ? 'active' }}">
+                        {{ 'French'|trans }}
                     </a>
                 </li>
             </ul>
