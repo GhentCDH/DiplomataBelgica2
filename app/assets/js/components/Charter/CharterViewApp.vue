@@ -168,7 +168,7 @@
                                 :inline="false"></LabelValue>
                     <LabelValue v-if="charter.place" label="Place-date (normalised)"
                                 :value="formatPlaceNormalised(charter.place)"
-                                :url="'/map?lat=' + charter.place.latitude + '&long=' + charter.place.longitude"
+                                :url="externalMapUrlGenerator(charter.place.latitude, charter.place.longitude)"
                                 :inline="false"></LabelValue>
                 </Widget>
 
@@ -299,6 +299,11 @@ function urlGeneratorIdName(url: string, filter: string, defaults = {}) {
 }
 
 const traditionUrlGenerator = (type: string, id: string | number): string => getUrl('tradition_get_single').replace('tradition_type', type).replace('tradition_id', id)
+
+const externalMapUrlGenerator = (latitude: number, longitude: number, zoom: number = 16): string => {
+    const baseUrl = 'https://www.google.com/maps';
+    return `${baseUrl}/@${latitude},${longitude},${zoom}z`;
+}
 
 function removeExtension(filename: string) {
     return filename.substring(0, filename.lastIndexOf('.')) || filename
