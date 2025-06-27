@@ -7,7 +7,7 @@
                     <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter">
                         <template #startButton>
                             <button class="btn btn-primary" @click="resetAllFilters">
-                                Reset all filters
+                                {{ t('form.reset-filters') }}
                             </button>
                         </template>
                     </b-filter-tags>
@@ -31,12 +31,11 @@
                                 data-bs-target="#nav-results" type="button" role="tab" aria-controls="nav-results"
                                 aria-selected="true"
                                 ><i
-                            class="fa-solid fa-bars"></i> Browse results
+                            class="fa-solid fa-bars"></i> {{ t('charters.browseResults') }}
                         </button>
                         <button class="nav-link" id="nav-map-tab" data-bs-toggle="tab" data-bs-target="#nav-map"
                                 type="button" role="tab" aria-controls="nav-map" aria-selected="false"
-                                ><i class="fa-solid fa-map-location-dot"></i> Browse
-                            map
+                                ><i class="fa-solid fa-map-location-dot"></i> {{ t('charters.browseMap') }}
                         </button>
                         <selected-items-basket
                             :selected-ids="selectedIds"
@@ -47,6 +46,7 @@
                             :total-records="totalRecords"
                             :filter-state="filterState"
                             :before-redirect="beforeRedirect"
+                            message="selectedItemsBasket.selectedCharters"
                         />
                     </div>
                 </nav>
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
                                     <b-select :id="'per-page'"
-                                              :label="'Per page'"
+                                              :label="t('pagination.perPage')"
                                               :selected="dataTableState.rowsPerPage"
                                               :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
                                               @update:selected="(value) => updateDataTableState({rowsPerPage: parseInt(value)})"
@@ -130,7 +130,7 @@
                     <div class="tab-pane w-100 h-100" id="nav-map" role="tabpanel" aria-labelledby="nav-map-tab">
                         <div class="position-relative w-100 h-100">
                             <div v-if="!extendedPlaceInfo" class="alert alert-info" role="alert">
-                                The map only shows place-date information. Please refine your search to reduce the result set and include actor places.
+                                {{ t('charters.mapWarning') }}
                             </div>
                             <CharterMap ref="map" :geojson="geojson" :show-actor-count="extendedPlaceInfo" class="w-100 h-100" @marker-click="onMarkerClick"  :update-bounds="updateBounds" :popup-visible="!!activePlaceId">
                                 <template #control-top-left v-if="extendedPlaceInfo">
@@ -147,7 +147,7 @@
                                     <div class="popup" v-if="activePlace">
                                         <h2>{{ activePlace.name }}</h2><span class="btn-close" @click="activePlaceId=null"></span>
                                         <template v-if="activePlace.actors.length">
-                                            <h3>Actors</h3>
+                                            <h3>{{ t('label.actors') }}</h3>
                                             <ul>
                                                 <li v-for="actor of activePlace.actors">
                                                     <span>{{ actor.name }}</span>
@@ -162,7 +162,7 @@
                                             </ul>
                                         </template>
                                         <template v-if="activePlace.charterIds.length">
-                                            <h3>Placedate Charters</h3>
+                                            <h3>{{ t('charters.placedateCharters') }}</h3>
                                             <template v-for="charterId of activePlace.charterIds">
                                                 <a class="btn btn-tertiary btn-sm ms-1"
                                                    :href="getHashedUrl(charterId)"
@@ -261,9 +261,9 @@ const mapRef = useTemplateRef('map')
 
 const tableOptions = {
     fields: [
-        {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
-        {key: 'summary', label: 'Summary'},
-        {key: 'date_sort', label: 'Date', sortable: true, thClass: 'no-wrap'},
+        {key: 'id', label: t('label.id'), sortable: true, thClass: 'no-wrap'},
+        {key: 'summary', label: t('label.summary')},
+        {key: 'date_sort', label: t('label.date'), sortable: true, thClass: 'no-wrap'},
     ],
     pagination: {
         chunk: 5,
@@ -283,19 +283,19 @@ const toggleUpdateBounds = () => {
 
 const roleFilters = ref<RadioItem[]>([
     {
-        label: t('All'),
+        label: t('form.allAuthors'),
         value: 0
     },
     {
-        label: t('Issuer'),
+        label: t('label.issuer'),
         value: 2
     },
     {
-        label: t('Author'),
+        label: t('label.author'),
         value: 1
     },
     {
-        label: t('Beneficiary'),
+        label: t('label.beneficiary'),
         value: 3
     },
 ])

@@ -1,7 +1,7 @@
 <template>
     <div class="charter__search-summary">
         <template v-if="issuers.length">
-            <h6>Main issuer</h6>
+            <h6>{{ t('label.mainIssuer') }}</h6>
             <actor-details-flat v-for="actor in issuers"
                                 :actor="actor"
                                 :key="'actor:'+actor.id"
@@ -13,7 +13,7 @@
             </actor-details-flat>
         </template>
         <template v-if="beneficiaries.length">
-            <h6 class="mtop-small">Main beneficiary</h6>
+            <h6 class="mtop-small">{{ t('label.mainBeneficiary') }}</h6>
             <actor-details-flat v-for="actor in beneficiaries"
                                 :actor="actor"
                                 :key="'beneficiary:'+actor.id"
@@ -23,61 +23,60 @@
                 <FormatValue :value="actor.place" type="id_name"></FormatValue> -
             </actor-details-flat>
         </template>
-        <template v-if="charter.summary">
-            <h6 class="mtop-small">Summary</h6>
+        <template v-if="charter?.summary">
+            <h6 class="mtop-small">{{ t('label.summary') }}</h6>
             <div v-html="charter.summary[0]" v-if="Array.isArray(charter.summary)"></div>
             <div v-html="charter.summary" v-if="!Array.isArray(charter.summary)"></div>
         </template>
     </div>
 </template>
 
-<script>
+<script setup>
+import {computed, toRefs} from "vue";
+import {useI18n} from "vue-i18n";
+
 import FormatValue from "../Sidebar/FormatValue.vue";
 import ActorDetailsFlat from "../Actor/ActorDetailsFlat.vue";
 
-export default {
-    name: "CharterSearchResult",
-    components: {
-        ActorDetailsFlat,
-        FormatValue
+const props = defineProps({
+    charter: {
+        type: Object,
+        required: true
     },
-    props: {
-        charter: {
-            type: Object,
-            required: true
-        },
-    },
-    computed: {
-        issuers: function() {
-            if (!this.charter?.actors)
-                return [];
+})
 
-            // todo: sort by id, really?
-            return this.charter.actors
-                .filter( actor => actor.role.id === 2 )
-                .sort((a,b) => a.id - b.id)
-                .slice(0,1)
-        },
-        authors: function() {
-            if (!this.charter?.actors)
-                return [];
+const {charter} = toRefs(props)
 
-            return this.charter.actors
-                .filter( actor => actor.role.id === 1 )
-                .sort((a,b) => a.id - b.id)
-                .slice(0,1)
-        },
-        beneficiaries: function() {
-            if (!this.charter?.actors)
-                return [];
+const {t} = useI18n()
 
-            return this.charter.actors
-                .filter( actor => actor.role.id === 3 || actor.role.id === 4 )
-                .sort((a,b) => a.id - b.id)
-                .slice(0,1)
-        },
-    },
-}
+const issuers = computed(() => {
+    if (!charter.value?.actors)
+        return [];
+
+    // todo: sort by id, really?
+    return charter.value.actors
+        .filter(actor => actor.role.id === 2)
+        .sort((a, b) => a.id - b.id)
+        .slice(0, 1)
+})
+
+const authors = computed(() => {
+    if (!charter.value?.actors)
+        return [];
+    return charter.value.actors
+        .filter(actor => actor.role.id === 1)
+        .sort((a, b) => a.id - b.id)
+        .slice(0, 1)
+})
+
+const beneficiaries = computed(() => {
+    if (!charter.value?.actors)
+        return [];
+    return charter.value.actors
+        .filter(actor => actor.role.id === 3 || actor.role.id === 4)
+        .sort((a, b) => a.id - b.id)
+        .slice(0, 1)
+})
 </script>
 
 <style scoped lang="scss">
