@@ -1,4 +1,10 @@
 {
+  "charter": {
+    "editions": "",
+    "fullTextOfCharter": "",
+    "secondaryLiterature": "",
+    "summaryAndDescription": ""
+  },
   "charters": {
     "browseMap": "Carte",
     "browseResults": "Résultats",
@@ -8,7 +14,7 @@
           "label": "Acteur {index}"
         },
         "actor_diocese": {
-          "help": " Le diocèse ou l'archidiocèse médiéval dans lequel  un intervenant est situé  à la date de rédaction de la charte. Pour les archidiocèses de Reims, de Cologne et de Trèves tous les diocèses sont distingués. Pour les provinces ecclésiastiques extérieures à ces régions, seul les archidiocèses sont distingués (ex.: Rouen). Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
+          "help": "Le diocèse ou l'archidiocèse médiéval dans lequel  un intervenant est situé  à la date de rédaction de la charte. Pour les archidiocèses de Reims, de Cologne et de Trèves tous les diocèses sont distingués. Pour les provinces ecclésiastiques extérieures à ces régions, seul les archidiocèses sont distingués (ex.: Rouen). Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Diocèse",
           "placeholder": "Faites un choix"
         },
@@ -104,18 +110,55 @@
     "reset-filters": " Réinitialiser tous les filtres"
   },
   "label": {
-    "actors": "Acteurs",
-    "author": "Auteur",
-    "author_of_the_actio_juridica": "Disposant",
+    "actors": "Auteurs",
+    "authenticity": "Véracité",
+    "author": "",
+    "authorOfTheActioJuridica": "Disposant",
+    "authorsOfTheActioJuridica": "Disposants",
+    "beneficiaries": "Bénéficiares",
     "beneficiary": "Bénéficiaire",
-    "date": "Date",
+    "charterId": "DiBe ID",
+    "charters": "Chartes",
+    "date": "Datation",
+    "dateInTheCharter": "Date dans la charte",
+    "diocese": "Diocèse",
+    "editions": "Editions",
+    "editionsAndSecondaryLiterature": "Editions et travaux",
+    "fullTextOfCharter": "Texte du document",
+    "functionTitle": "Fonction/titre",
     "id": "Id",
+    "images": "Images",
+    "institutionJurisdiction": "Institution/juridiction",
     "issuer": "Auteur",
+    "language": "Langue",
+    "links": "Liens",
     "mainBeneficiary": "Bénéficiaire principal",
     "mainIssuer": "Auteur principal",
+    "map": "Carte",
+    "name": "Nom",
+    "natureOfTheCharter": "Nature diplomatique",
+    "no": "Non",
+    "original": "Original",
+    "placeDate(inTheText)": " Date de lieu (dans le texte) ",
+    "placeDate(normalised)": " Date de lieu  (normalisée) ",
     "place_date": "Date de lieu",
-    "search": "Rechercher",
-    "summary": "Résumé"
+    "principality": "Principauté",
+    "reference": "Référence",
+    "religiousOrder": "Ordre religieux",
+    "repository": "Institution de conservation",
+    "returnToSearchPage": "Retourner aux résultats \t\t\t\t\t",
+    "scholarlyDating(any)": "Datation interprétée (toutes)",
+    "scholarlyDating(preferential)": "Datation interprétée (préférentielle)",
+    "search": "",
+    "secondaryLiterature": "Travaux",
+    "source": "Source",
+    "summary": "Résumé",
+    "summaryAndDescription": "Résumé et description",
+    "textualTradition": "Tradition de l'acte",
+    "tradition": "Tradition",
+    "type": "Type",
+    "year": "",
+    "yes": "Oui"
   },
   "pagination": {
     "perPage": "Par page"
@@ -131,44 +174,44 @@
           "label": "Images disponibles"
         },
         "institutionsCoveredByTheManuscript": {
+          "help": "Institution dans laquelle un codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents) a été produit ou conservé ou pour laquelle des chartes ou des tritres de donation sont transcrits dans le codex. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Localité concernée par le manuscrit",
-          "placeholder": "Faites un choix",
-          "help": " Institution dans laquelle un codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents) a été produit ou conservé ou pour laquelle des chartes ou des tritres de donation sont transcrits dans le codex. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
+          "placeholder": "Faites un choix"
         },
         "name": {
+          "help": "Le dépôt d'archives, la bibliothèque ou la collection privée dans lesquels une charte ou un manuscrit (cartulaire, registre, inventaire) est actuellement conservé. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Institution de conservation",
-          "placeholder": "Faites un choix",
-          "help": "Le dépôt d'archives, la bibliothèque ou la collection privée dans lesquels une charte ou un manuscrit (cartulaire, registre, inventaire) est actuellement conservé. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
+          "placeholder": "Faites un choix"
         },
         "place": {
+          "help": "Le lieu où est situé le dépôt d'archives ou la bibliothèque concernée. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Lieu de conservation",
-          "placeholder": "Faites un choix",
-          "help": "Le lieu où est situé le dépôt d'archives ou la bibliothèque concernée. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
+          "placeholder": "Faites un choix"
         },
         "reference": {
+          "help": "La cote de classement d'une charte ou d'un manuscrit indiquant son emplacement dans le dépôt d'archives ou la bibliothèque qui en assure la conservation. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Cote",
-          "placeholder": "Faites un choix",
-          "help": "La cote de classement d'une charte ou d'un manuscrit indiquant son emplacement dans le dépôt d'archives ou la bibliothèque qui en assure la conservation. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
+          "placeholder": "Faites un choix"
         },
         "steinNumber": {
+          "help": "Cette liste déroulante contient le numéro de référence donné au manuscrit dans le répertoire bibliographique des cartulaires français établi par Henri STEIN, Bibliographie générale des cartulaires français ou relatifs à l'histoire de France (Manuels de Bibliographie historique, 4), Picard, Paris, 1907.",
           "label": "Stein ID",
-          "placeholder": "Faites un choix",
-          "help": "Cette liste déroulante contient le numéro de référence donné au manuscrit dans le répertoire bibliographique des cartulaires français établi par Henri STEIN, Bibliographie générale des cartulaires français ou relatifs à l'histoire de France (Manuels de Bibliographie historique, 4), Picard, Paris, 1907."
+          "placeholder": "Faites un choix"
         },
         "titleOfTheManuscript": {
+          "help": "Le titre donné au codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents) durant le Moyen Âge ou à une  période postérieure. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Titre du manuscrit",
-          "placeholder": "Faites un choix",
-          "help": "Le titre donné au codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents) durant le Moyen Âge ou à une  période postérieure. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
+          "placeholder": "Faites un choix"
         },
         "type": {
+          "help": "Cochez cette case d'option a pour résultat de ne sélectionner que les documents pour lesquels une image est disponible. Ces images peuvent être visionnées dans une fenêtre locale.",
           "label": "Type",
-          "placeholder": "Faites un choix",
-          "help": "Cochez cette case d'option a pour résultat de ne sélectionner que les documents pour lesquels une image est disponible. Ces images peuvent être visionnées dans une fenêtre locale."
+          "placeholder": "Faites un choix"
         },
         "writingMaterial": {
+          "help": "Support d'écriture du codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents). Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Nature du support",
-          "placeholder": "Faites un choix",
-          "help": "Support d'écriture du codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents). Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
+          "placeholder": "Faites un choix"
         }
       },
       "legend": {
