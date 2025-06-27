@@ -2,26 +2,32 @@
     <nav aria-label="Page navigation">
         <ul class="pagination m-0 user-select-none">
             <li v-if="showFirst" class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link box-shadow-none" href="#" @click.prevent="changePage(1)">{{ firstText }}</a>
+                <a class="page-link box-shadow-none" href="#" @click.prevent="changePage(1)">{{ labelFirst ?? t('pagination.first') }}</a>
             </li>
             <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">{{ prevText }}</a>
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">{{ labelPrevious ?? t('pagination.previous')}}</a>
             </li>
             <li class="page-item" v-for="page in visiblePages" :key="page" :class="{ active: currentPage === page }">
                 <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
             </li>
             <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">{{ nextText }}</a>
+                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">{{ labelNext ?? t('pagination.next')}}</a>
             </li>
             <li v-if="showLast && endPage < totalPages" class="page-item">
-                <a class="page-link" href="#" @click.prevent="changePage(totalPages)">{{ lastText }}</a>
+                <a class="page-link" href="#" @click.prevent="changePage(totalPages)">{{ labelLast ?? t('pagination.last')}}</a>
             </li>
         </ul>
     </nav>
 </template>
 <script>
+import {useI18n} from "vue-i18n";
+
 export default {
     name: 'BNavigation',
+    setup() {
+        const { t } = useI18n() // use as global scope
+        return { t }
+    },
     props: {
         totalRecords: {
             type: Number,
@@ -47,21 +53,21 @@ export default {
             type: Boolean,
             default: true
         },
-        firstText: {
-            type: String,
-            default: 'First'
+        labelFirst: {
+            type: [String, null],
+            default: null
         },
-        prevText: {
-            type: String,
-            default: 'Previous'
+        labelPrevious: {
+            type: [String, null],
+            default: null
         },
-        nextText: {
-            type: String,
-            default: 'Next'
+        labelNext: {
+            type: [String, null],
+            default: null
         },
-        lastText: {
-            type: String,
-            default: 'Last'
+        labelLast: {
+            type: [String, null],
+            default: null
         }
     },
     computed: {
@@ -104,6 +110,27 @@ export default {
     }
 }
 </script>
+
+<i18n>
+{
+    "en": {
+        "pagination": {
+            "first": "First",
+            "previous": "Previous",
+            "next": "Next",
+            "last": "Last"
+        }
+    },
+    "fr": {
+        "pagination": {
+            "first": "Premier",
+            "previous": "Précédent",
+            "next": "Suivant",
+            "last": "Dernièr"
+        }
+    }
+}
+</i18n>
 
 <style lang="scss">
 .page-link:focus {

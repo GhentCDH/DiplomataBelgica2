@@ -1,6 +1,9 @@
 import {computed, toValue, toRef, toRaw} from "vue";
 import Articles from "articles";
 
+import { useI18n } from "vue-i18n";
+
+
 export interface Model {
     [key: string]: any
 }
@@ -26,6 +29,8 @@ export interface Schema {
 }
 
 export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Model = {}) {
+
+    const { t } = useI18n()
 
     const defaultModel: Model = toValue(initialModel);
 
@@ -143,7 +148,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
         modelName && delete model.value[modelName]
         field.disabled = true
         field.selectOptions.loading = false
-        field.placeholder = 'Please select ' + Articles.articlize(label) + ' first'
+        field.placeholder = field?.placeholderSelectDependencyFirst ?? 'Please select ' + Articles.articlize(label) + ' first'
         // set dependency state
         field.styleClasses = [...new Set(field?.styleClasses?.split(' ') ?? []).add('field--dependency-missing')].join(' ')
     }
@@ -175,7 +180,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
         field.selectOptions.loading = false
         field.disabled = field.originalDisabled == null ? false : field.originalDisabled;
         let label = field.label.toLowerCase()
-        field.placeholder = 'Select ' + Articles.articlize(label)
+        field.placeholder = field?.placeholderSelectItem ?? 'Select ' + Articles.articlize(label)
 
         // remove dependency state
         let classes = new Set(field?.styleClasses?.split(' ') ?? [])
@@ -193,7 +198,7 @@ export function useVueFormGenerator(initialSchema: Schema = {}, initialModel: Mo
 
         field.disabled = true
         field.selectOptions.loading = false
-        field.placeholder = 'No ' + field.label.toLowerCase() + ' available'
+        field.placeholder = field?.placeholderEmpty ?? 'No ' + field.label.toLowerCase() + ' available'
     }
 
     const _sortByName = (a, b) => {
