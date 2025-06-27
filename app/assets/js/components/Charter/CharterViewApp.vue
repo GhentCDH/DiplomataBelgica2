@@ -5,35 +5,35 @@
 
                 <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
 
-                <h2>Summary and description</h2>
+                <h2>{{ t('label.summaryAndDescription') }}</h2>
                 <div class="mbottom-default">{{ charter.summary }}</div>
 
                 <div class="mbottom-default">
-                    <LabelValue label="Language" :value="charter.language" type="id_name"
+                    <LabelValue :label="t('label.language')" :value="charter.language" type="id_name"
                                 :url="urlGeneratorIdName('charter_search', 'charter_language')" grid="4|8"></LabelValue>
-                    <LabelValue label="Authenticity" :value="charter.authenticity" type="id_name"
+                    <LabelValue :label="t('label.authenticity')" :value="charter.authenticity" type="id_name"
                                 grid="4|8"></LabelValue>
-                    <LabelValue label="Textual tradition" :value="charter.text_subtype" type="id_name"
+                    <LabelValue :label="t('label.textualTradition')" :value="charter.text_subtype" type="id_name"
                                 grid="4|8"></LabelValue>
-                    <LabelValue label="Nature of the charter" :value="charter.nature" type="id_name"
+                    <LabelValue :label="t('label.natureOfTheCharter')" :value="charter.nature" type="id_name"
                                 grid="4|8"></LabelValue>
                 </div>
 
                 <template v-if="markedText">
-                    <h2>Full text of charter</h2>
+                    <h2>{{ t('label.fullTextOfCharter') }}</h2>
                     <div class="col-10 pbottom-small">
                         <p class="charter-full-text" v-html="markedText">
                         </p>
                     </div>
                     <div v-if="charter.edition" class="mbottom-default">
-                        <LabelValue label="Source" :value="formatSource(charter.edition)" grid="4|8"></LabelValue>
+                        <LabelValue :label="t('label.source')" :value="formatSource(charter.edition)" grid="4|8"></LabelValue>
                     </div>
                 </template>
 
-                <h2>Editions and secondary literature</h2>
+                <h2>{{ t('label.editionsAndSecondaryLiterature') }}</h2>
 
                 <div v-if="editionsFormatted.length" class="mbottom-small">
-                    <h3>Editions</h3>
+                    <h3>{{ t('label.editions') }}</h3>
 
                     <ul class="_list-unstyled">
                         <li v-for="edition in editionsFormatted" :key="edition.id">
@@ -44,7 +44,7 @@
                 </div>
 
                 <div v-if="secondaryLiteratureFormatted.length" class="mbottom-small">
-                    <h3>Secondary literature</h3>
+                    <h3>{{ t('label.secondaryLiterature') }}</h3>
 
                     <ul class="_list-unstyled">
                         <li v-for="edition in secondaryLiteratureFormatted" :key="edition.id">
@@ -54,10 +54,10 @@
                     </ul>
                 </div>
 
-                <h2>Tradition</h2>
+                <h2>{{ t('label.tradition') }}</h2>
 
                 <div class="mbottom-small">
-                    <LabelValue class="mbottom-default" label="Original" :value="isOriginal" grid="4|8"></LabelValue>
+                    <LabelValue class="mbottom-default" :label="t('label.original')" :value="isOriginal" grid="4|8"></LabelValue>
 
                     <div class="ptop-small" v-for="original in originals" :key="original.id">
                         <a target="_blank" v-if="original.link" :href="original.link">{{ original.text }}</a>
@@ -66,7 +66,7 @@
                 </div>
 
                 <div v-if="copies.length" class="mbottom-small">
-                    <h3>Copies</h3>
+                    <h3>{{ t('label.copies') }}</h3>
                     <ul>
                         <li v-for="copy in copies" :key="copy.id">
                             <a target="_blank" v-if="copy.link" :href="copy.link">{{ copy.text }}</a>
@@ -76,7 +76,7 @@
                 </div>
 
                 <div v-if="codexes.length" class="mbottom-small">
-                    <h3>Manuscripts</h3>
+                    <h3>{{ t('label.manuscripts') }}</h3>
                     <ul>
                         <li v-for="codex in codexes" :key="codex.id">
                             <a target="_blank" v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
@@ -96,7 +96,7 @@
                     </ul>
                 </div>
 
-                <h2>Map</h2>
+                <h2>{{ t('label.map') }}</h2>
 
                 <div id="map" class="map">
                     <actor-map :geojson="geojson" @marker-over="onMarkerOver" @marker-out="onMarkerOut">
@@ -114,11 +114,11 @@
         <aside class="d-flex col-sm-4 overflow-hidden">
             <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
 
-                <Widget v-if="validContextAndResultSet()" title="Search" :collapsed="false">
+                <Widget v-if="validContextAndResultSet()" :title="t('label.search')" :collapsed="false">
                     <div class="row mbottom-default">
                         <div class="form-group">
                             <span class="btn btn-sm btn-primary"
-                                  @click="returnToSearchResult">&lt; Return to list</span>
+                                  @click="returnToSearchResult">{{ t('label.returnToSearchPage') }}</span>
                         </div>
                         <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(1)">
@@ -129,9 +129,7 @@
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{
-                                context.count
-                            }}</span></div>
+                        <div class="col col-6 text-center"><span>{{ t('charter.resultIndexOfCount', {index: context.searchIndex, count: context.count}) }}</span></div>
                         <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
                           
                             <span class="btn btn-sm btn-primary" @click="loadCharterByIndex(context.searchIndex + 1)">
@@ -144,29 +142,29 @@
                     </div>
                 </Widget>
 
-                <Widget title="Actors">
-                    <actor-list-detailed label="Issuer <small>(author)</small>"
-                                         label-plural="Issuers <small>(authors)</small>" :actors="issuers"
+                <Widget :title="t('label.actors')">
+                    <actor-list-detailed :label="t('label.issuer')"
+                                         :label-plural="t('label.issuers')" :actors="issuers"
                                          :url-generator="urlGeneratorIssuer"></actor-list-detailed>
-                    <actor-list-detailed label="Author of the actio juridica <small>(disposer)</small>"
-                                         label-plural="Authors of the actio juridica <small>(disposers)</small>"
+                    <actor-list-detailed :label="t('label.authorOfTheActioJuridica')"
+                                         :label-plural="t('label.authorsOfTheActioJuridica')"
                                          :actors="authors" :url-generator="urlGeneratorAuthors"></actor-list-detailed>
-                    <actor-list-detailed label="Beneficiary <small>(recipient)</small>"
-                                         label-plural="Beneficiaries <small>(recipients)</small>"
+                    <actor-list-detailed :label="t('label.beneficiary')"
+                                         :label-plural="t('label.beneficiaries')"
                                          :actors="beneficiaries"
                                          :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
 
-                <Widget title="Date">
-                    <LabelValue label="Scholarly dating (preferential)" :value="formatDatations(preferentialDates)"
+                <Widget :title="t('label.date')">
+                    <LabelValue :label="t('label.scholarlyDating(preferential)')" :value="formatDatations(preferentialDates)"
                                 :inline="false"></LabelValue>
-                    <LabelValue label="Scholarly dating (any)" :value="formatDatations(charter.datations)"
+                    <LabelValue :label="t('label.scholarlyDating(any)')" :value="formatDatations(charter.datations)"
                                 :inline="false"></LabelValue>
-                    <LabelValue v-if="charter.udt" label="Date in the charter" :value="formatDates(charter.udt)"
+                    <LabelValue v-if="charter.udt" :label="t('label.dateInTheCharter')" :value="formatDates(charter.udt)"
                                 :inline="false"></LabelValue>
-                    <LabelValue label="Place-date (in the text)" :value="charter.place_found_name"
+                    <LabelValue :label="t('label.placeDate(inTheText)')" :value="charter.place_found_name"
                                 :inline="false"></LabelValue>
-                    <LabelValue v-if="charter.place" label="Place-date (normalised)"
+                    <LabelValue v-if="charter.place" :label="t('label.placeDate(normalised)')"
                                 :value="formatPlaceNormalised(charter.place)"
                                 :url="externalMapUrlGenerator(charter.place.latitude, charter.place.longitude)"
                                 :inline="false"></LabelValue>
@@ -209,6 +207,9 @@ import {
     formatPlaceNormalised,
     formatDates,
 } from "./Formatters.ts"
+import {useI18n} from "vue-i18n";
+
+const { t } = useI18n();
 
 const props = defineProps({
     initUrls: {
@@ -239,14 +240,14 @@ const preferentialDates = computed(() => charter.value.datations.filter(datation
 
 const isOriginal = computed(() => {
     if (!charter.value.originals) {
-        return "No";
+        return t("label.no");
     }
     for (const original of charter.value.originals) {
         if (original.charter_id === charter.value.id) {
-            return "Yes";
+            return t("label.yes");
         }
     }
-    return "No";
+    return t("label.no");
 })
 
 const originals = computed(() => charter.value.originals.map(o => formatOriginal(o, traditionUrlGenerator)).filter(Boolean));
