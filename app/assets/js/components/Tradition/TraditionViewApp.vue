@@ -1,13 +1,14 @@
 <template>
+
     <div class="row d-flex flex-direction-row flex-nowrap align-items-stretch" v-if="tradition">
         <article class="d-flex col-sm-8 overflow-hidden">
             <div class="scrollable scrollable--vertical pbottom-large">
 
-                <h2>Tradition </h2>
+                <h2>{{ t('label.tradition') }}</h2>
                 <!-- <h2>Tradition</h2> -->
                 <div class="mbottom-default">
-                  <LabelValue label="Reference" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
-                  <LabelValue label="Type" :value="tradition.type" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('label.reference')" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('label.type')" :value="tradition.type" grid="4|8"></LabelValue>
                 </div>
                 <h2 v-if="tradition.type == 'manuscript'" class="pbottom-default" > Information about the Manuscript </h2>
                 <div v-if="tradition.type == 'manuscript'" class="mbottom-default">
@@ -20,9 +21,9 @@
                   <LabelValue label="Writing material(s)" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
 
-                <h2> Link </h2>
+                <h2> {{ t('label.links') }} </h2>
                 <div v-if="tradition.repository.urls.length >0">
-                    <h3 v-if="tradition.repository.urls.length >0">Repository</h3>
+                    <h3 v-if="tradition.repository.urls.length >0">{{  t('label.repository') }}</h3>
                     <ul>
                         <li v-for="url in tradition.repository.urls" :key="url.id">
                             <a target="_blank" :href="url.url">{{ url.url }}</a>
@@ -38,17 +39,17 @@
                     </li>
                 </ul>
 
-                <h2 v-if="tradition.image_count > 0"> Images </h2>
+                <h2 v-if="tradition.image_count > 0"> {{ t('label.images') }} </h2>
                 <div v-if="(tradition.image_count>0)" >
                   <ImageThumbnail :thumbnail-urls="getImageUrl(tradition.images)" />
                 </div>
-                <h2> Charters </h2>
+                <h2> {{ t('label.charters') }} </h2>
                 <div v-for="charter in tradition.charters" :key="charter.id">
                   <p>
-                    <LabelValue label="DiBe ID" :value="charter.id" :url="'/charter/' + charter.id" grid="2|8"></LabelValue>
-                    <LabelValue label="Main issuer:" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
-                    <LabelValue label="Author" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
-                    <LabelValue label="Year" :value="formatDatations(charter.datations)" grid="2|8"></LabelValue>
+                    <LabelValue :label="t('label.charterId')" :value="charter.id" :url="createCharterUrl(charter.id)" grid="2|8"></LabelValue>
+                    <LabelValue :label="t('label.mainIssuer')" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
+                    <LabelValue :label="t('label.author')" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
+                    <LabelValue :label="t('label.date')" :value="formatDatations(charter.datations)" grid="2|8"></LabelValue>
                   </p>
                 </div>
 
@@ -94,6 +95,11 @@ import ImageThumbnail from "@/components/ImageThumbnail.vue";
 import traditionRepository from "@/repositories/TraditionRepository.ts";
 import {type Context, useSearchContext} from "@/composables/useSearchContext.ts";
 import Widget from "@/components/Sidebar/Widget.vue";
+import {useI18n} from "vue-i18n";
+
+import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
+
+const { t } = useI18n();
 
 const props = defineProps({
     initUrls: {
@@ -105,6 +111,8 @@ const props = defineProps({
 const urls = JSON.parse(props.initUrls)
 const data = ref<{tradition: any}>({} as {tradition: any})
 
+const { createCharterUrl } = useUrlGenerator(urls);
+
 // Initialize
 const segments = window.location.pathname.split('/');
 const id = Number(segments[segments.length - 1]);
@@ -112,10 +120,6 @@ getTradition(id);
 
 
 const tradition = computed(() => data.value.tradition)
-
-function getUrl(route) {
-    return urls[route] ?? ''
-}
 
 function formatReference(reference, referenceNum) {
     var res = '';

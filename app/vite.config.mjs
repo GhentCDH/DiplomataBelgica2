@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import symfonyPlugin from "vite-plugin-symfony";
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import path from "node:path";
 import { resolve } from 'path'
@@ -8,6 +9,8 @@ import { resolve } from 'path'
 export default defineConfig({
     plugins: [
         vue(),
+        VueI18nPlugin({
+        }),
         symfonyPlugin(),
         viteStaticCopy({
             targets: [

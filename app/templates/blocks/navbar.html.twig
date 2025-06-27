@@ -15,14 +15,14 @@
                 <li class="nav-item">
                     <a class="nav-link {{ app.request.get('_route') == 'charter_search' ? 'active' }}"
                        href="{{ path('charter_search') }}">
-                        {{ 'Charter'|trans }}
+                        {{ 'Charters'|trans }}
                     </a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link {{ app.request.get('_route') == 'tradition_search' ? 'active' }}"
                        href="{{ path('tradition_search') }}">
-                        {{ 'Tradition'|trans }}
+                        {{ 'Traditions'|trans }}
                     </a>
                 </li>
 
@@ -56,13 +56,13 @@
             </ul>
             <ul class="ms-auto navbar-nav mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'_locale': 'en'})) }}"
+                    <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params') | merge(app.request.query.all) | merge({'_locale': 'en'})) }}"
                        class="nav-link {{ app.request.locale == 'en' ? 'active' }}">
                         {{  'English'|trans }}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ path(app.request.attributes.get('_route'), app.request.query.all | merge({'_locale': 'fr'})) }}"
+                    <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params') | merge(app.request.query.all) | merge({'_locale': 'fr'})) }}"
                        class="nav-link {{ app.request.locale == 'fr' ? 'active' }}">
                         {{ 'French'|trans }}
                     </a>

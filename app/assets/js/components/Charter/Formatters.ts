@@ -100,9 +100,10 @@ export function formatEdition(edition: any) {
 }
 
 export function formatSecondaryLiterature(edition: any) {
+    console.log(edition)
     const parts: any[] = [], links: any[] = []
-    if (edition.secondary_literature?.names_editors) {
-        parts.push(edition.secondary_literature.names_editors)
+    if (edition.secondary_literature?.names_authors) {
+        parts.push(edition.secondary_literature.names_authors)
     }
     if (edition.secondary_literature?.full_title) {
         parts.push(edition.secondary_literature.full_title)

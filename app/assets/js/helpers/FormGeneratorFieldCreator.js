@@ -45,7 +45,7 @@ const createSelect = (label, extra = null, extraSelectOptions = null) => {
 
 const createMultiSelect = (label, extra = null, extraSelectOptions) => {
     const selectOptions = {multiple: true, closeOnSelect: false, ...extraSelectOptions}
-    return createSelect(label, extra, selectOptions)
+    return createSelect(label, {placeholderSelectItem: extra?.placeholder, ...extra}, selectOptions)
 }
 const createRangeSlider = (model, label, min, max, step, decimals = 0, unit = null, extra = null) => {
     let result = {

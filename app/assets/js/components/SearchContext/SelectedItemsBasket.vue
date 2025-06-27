@@ -1,10 +1,10 @@
 <template>
     <b-dropdown class="active ms-auto" :items="selectedIds">
         <template #display>
-            {{selectedIds.length}} charter{{selectedIds.length != 1 ? "s" : ""}} selected
+            {{ t(message ?? 'selectedItemsBasket.message', { count: selectedIds.length }) }}
         </template>
         <template #header2>
-            <button class="btn" @click="() => {setSelectedIds([])}">unselect all</button>
+            <button class="btn" @click="() => {setSelectedIds([])}"> {{ t('selectedItemsBasket.unselectAll') }}</button>
         </template>
         <template #header v-if="selectedIds.length">
             <a class="btn" target="_blank"
@@ -36,8 +36,12 @@
 </template>
 
 <script setup lang="ts">
+import type { DataTableState } from '../../composables/useTablePagination';
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
-import type {DataTableState} from "@/composables/useTablePagination.ts";
+import {useI18n} from "vue-i18n";
+
+const { t } = useI18n() // use as global scope
+
 const props = defineProps<{
     selectedIds: number[];
     getHashedUrl: (id: number) => string;
@@ -47,9 +51,23 @@ const props = defineProps<{
     totalRecords: number;
     filterState: object;
     beforeRedirect: (event: MouseEvent, dataTableState: DataTableState, id: number, index: number, count: number, filters, ids: number[] | null) => void;
+    message: string;
 }>();
 </script>
 
-<style scoped lang="scss">
-
-</style>
+<i18n>
+{
+    "en": {
+        "selectedItemsBasket": {
+            "message": "No item selected | {count} item selected | {count} items selected",
+            "unselectAll": "Unselect all"
+        }
+    },
+    "fr": {
+        "selectedItemsBasket": {
+            "message": "Aucun élément sélectionné | {count} élément sélectionné | {count} éléments sélectionnés",
+            "unselectAll": "Tout désélectionner"
+        }
+    }
+}
+</i18n>
