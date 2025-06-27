@@ -6,7 +6,7 @@
                     <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter">
                         <template #startButton>
                             <button class="btn btn-primary" @click="resetAllFilters">
-                                Reset all filters
+                                {{ t('form.reset-filters') }}
                             </button>
                         </template>
                     </b-filter-tags>
@@ -187,7 +187,7 @@ const {initUrls, title} = props;
 
 const tableOptions = {
     fields: [
-        {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
+        // {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
         {key: 'type', label: 'Type', sortable: true, thClass: 'no-wrap'},
         {key: 'summary', label: 'Summary'},
     ],
