@@ -166,7 +166,7 @@
                                 :inline="false"></LabelValue>
                     <LabelValue v-if="charter.place" :label="t('label.placeDate(normalised)')"
                                 :value="formatPlaceNormalised(charter.place)"
-                                :url="externalMapUrlGenerator(charter.place.latitude, charter.place.longitude)"
+                                :url="createMapUrl(charter.place.latitude, charter.place.longitude)"
                                 :inline="false"></LabelValue>
                 </Widget>
 
@@ -208,6 +208,7 @@ import {
     formatDates,
 } from "./Formatters.ts"
 import {useI18n} from "vue-i18n";
+import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 
 const { t } = useI18n();
 
@@ -220,6 +221,8 @@ const props = defineProps({
 
 const urls = JSON.parse(props.initUrls)
 const data = ref<{ charter: any }>({} as { charter: any })
+
+const { createTraditionUrl, createMapUrl, getRoute } = useUrlGenerator(urls);
 
 // Initialize
 const segments = window.location.pathname.split('/');
@@ -250,9 +253,9 @@ const isOriginal = computed(() => {
     return t("label.no");
 })
 
-const originals = computed(() => charter.value.originals.map(o => formatOriginal(o, traditionUrlGenerator)).filter(Boolean));
-const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript', traditionUrlGenerator)).filter(Boolean));
-const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy', traditionUrlGenerator)).filter(Boolean));
+const originals = computed(() => charter.value.originals.map(o => formatOriginal(o, createTraditionUrl)).filter(Boolean));
+const codexes = computed(() => charter.value.codexes.map(c => formatCodex(c, 'manuscript', createTraditionUrl)).filter(Boolean));
+const copies = computed(() => charter.value.copies.map(c => formatCodex(c, 'copy', createTraditionUrl)).filter(Boolean));
 const editionsFormatted = computed(() => charter.value.edition_indications.map(formatEdition).filter(Boolean));
 const secondaryLiteratureFormatted = computed(() => charter.value.secondary_literature_indications.map(formatSecondaryLiterature).filter(Boolean));
 
@@ -279,31 +282,20 @@ const geojson = computed(() => {
 
 const popupActor = computed(() => popupActorId.value ? charter.value.actors.find(actor => actor.id === popupActorId.value) : null);
 
-function getUrl(route: string) {
-    return urls[route] ?? '';
+function urlGeneratorIssuer(route, filter, filter_defaults = {}) {
+    return (value) => (getRoute(route) + '?' + qs.stringify({filters: {actor_role_1: 2, [filter]: value.id}}));
 }
 
-function urlGeneratorIssuer(url, filter, filter_defaults = {}) {
-    return (value) => (getUrl(url) + '?' + qs.stringify({filters: {actor_role_1: 2, [filter]: value.id}}));
+function urlGeneratorAuthors(route, filter, filter_defaults = {}) {
+    return (value) => (getRoute(route) + '?' + qs.stringify({filters: {actor_role_1: 1, [filter]: value.id}}));
 }
 
-function urlGeneratorAuthors(url, filter, filter_defaults = {}) {
-    return (value) => (getUrl(url) + '?' + qs.stringify({filters: {actor_role_1: 1, [filter]: value.id}}));
+function urlGeneratorBeneficiaries(route, filter, filter_defaults = {}) {
+    return (value) => (getRoute(route) + '?' + qs.stringify({filters: {actor_role_1: 3, [filter]: value.id}}));
 }
 
-function urlGeneratorBeneficiaries(url, filter, filter_defaults = {}) {
-    return (value) => (getUrl(url) + '?' + qs.stringify({filters: {actor_role_1: 3, [filter]: value.id}}));
-}
-
-function urlGeneratorIdName(url: string, filter: string, defaults = {}) {
-    return (value: any) => `${getUrl(url)}?${qs.stringify({filters: {...defaults, [filter]: value.id}})}`;
-}
-
-const traditionUrlGenerator = (type: string, id: string | number): string => getUrl('tradition_get_single').replace('tradition_type', type).replace('tradition_id', id)
-
-const externalMapUrlGenerator = (latitude: number, longitude: number, zoom: number = 16): string => {
-    const baseUrl = 'https://www.google.com/maps';
-    return `${baseUrl}/@${latitude},${longitude},${zoom}z`;
+function urlGeneratorIdName(route: string, filter: string, defaults = {}) {
+    return (value: any) => `${getRoute(route)}?${qs.stringify({filters: {...defaults, [filter]: value.id}})}`;
 }
 
 function removeExtension(filename: string) {

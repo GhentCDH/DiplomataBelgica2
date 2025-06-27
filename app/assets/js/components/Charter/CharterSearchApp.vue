@@ -236,6 +236,7 @@ import {
     findPlaceById,
     geojson
 } from "@/components/Charter/ChartersMap.js";
+import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 
 const {t} = useI18n()
 
@@ -252,6 +253,9 @@ const props = defineProps({
 })
 
 const {initUrls, title} = props
+const urls = JSON.parse(initUrls)
+
+const {getRoute} = useUrlGenerator(urls)
 
 // refs
 
@@ -350,7 +354,7 @@ const onCloseActiveFilter = (tag: FilterTag) => {
 const {
     getHashedUrl,
     beforeRedirect,
-} = useSearchContext('/en/charters/')
+} = useSearchContext(getRoute('charter_search')) // todo: should use charters_get_single route
 
 const formOptions = {
     validateAfterLoad: false,
@@ -371,7 +375,7 @@ const {
     count: totalRecords,
     results: tableData,
     aggregations
-} = useSearchApi('/en/charters/search')
+} = useSearchApi(getRoute('charter_search_api'))
 
 //selected rows
 const {
