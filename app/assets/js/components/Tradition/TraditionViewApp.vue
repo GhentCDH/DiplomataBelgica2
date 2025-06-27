@@ -97,6 +97,7 @@ import {type Context, useSearchContext} from "@/composables/useSearchContext.ts"
 import Widget from "@/components/Sidebar/Widget.vue";
 import {useI18n} from "vue-i18n";
 
+import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 
 const { t } = useI18n();
 
@@ -110,6 +111,8 @@ const props = defineProps({
 const urls = JSON.parse(props.initUrls)
 const data = ref<{tradition: any}>({} as {tradition: any})
 
+const { createCharterUrl } = useUrlGenerator(urls);
+
 // Initialize
 const segments = window.location.pathname.split('/');
 const id = Number(segments[segments.length - 1]);
@@ -117,10 +120,6 @@ getTradition(id);
 
 
 const tradition = computed(() => data.value.tradition)
-
-function getUrl(route) {
-    return urls[route] ?? ''
-}
 
 function formatReference(reference, referenceNum) {
     var res = '';

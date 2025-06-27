@@ -168,6 +168,7 @@ import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGene
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 import {useItemsBasket} from "@/composables/useItemsBasket.ts";
+import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 
 
 const {t} = useI18n()
@@ -184,6 +185,9 @@ const props = defineProps({
 });
 
 const {initUrls, title} = props;
+const urls = JSON.parse(props.initUrls)
+
+const {getRoute} = useUrlGenerator(urls)
 
 const tableOptions = {
     fields: [
@@ -267,7 +271,7 @@ const {
     count: totalRecords,
     results: tableData,
     aggregations
-} = useSearchApi('/tradition/search_api/')
+} = useSearchApi(getRoute('tradition_search_api'))
 
 watch(aggregations, (currentAggregations) => {
     if (currentAggregations) {
