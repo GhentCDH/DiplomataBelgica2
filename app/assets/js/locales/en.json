@@ -101,6 +101,7 @@
         "images": "Images"
       }
     },
+    "invalidSearchSyntax": "Invalid search syntax",
     "mapWarning": "The map only shows place-date information. Please refine your search to reduce the result set and include actor places.",
     "placedateCharters": "Placedate Charters"
   },
@@ -112,25 +113,25 @@
     "actors": "Actors",
     "authenticity": "Authenticity",
     "author": "Author",
-    "authorOfTheActioJuridica": "Author of the actio juridica",
+    "authorOfTheActioJuridica": "Author of the actio juridica | Authors of the actio juridica",
     "authorsOfTheActioJuridica": "Authors of the actio juridica",
     "beneficiaries": "Beneficiaries",
-    "beneficiary": "Beneficiary",
+    "beneficiary": "Beneficiary | Beneficiaries",
     "charterId": "DiBe ID",
     "charters": "Charters",
     "copies": "Copies",
     "date": "Date",
     "dateInTheCharter": "Date in the charter",
     "diocese": "Diocese",
-    "editions": "Editions",
+    "edition": "Edition | Editions",
     "editionsAndSecondaryLiterature": "Editions and secondary literature",
     "fullTextOfCharter": "Full text of charter",
     "functionTitle": "Function/title",
     "id": "Id",
     "images": "Images",
     "institutionJurisdiction": "Institution/jurisdiction",
-    "issuer": "Issuer",
-    "language": "Language",
+    "issuer": "Issuer | Issuers",
+    "language": "Language | Langues",
     "links": "Links",
     "mainBeneficiary": "Main beneficiary",
     "mainIssuer": "Main issuer",
@@ -156,7 +157,7 @@
     "summary": "Summary",
     "summaryAndDescription": "Summary and description",
     "textualTradition": "Textual tradition",
-    "tradition": "Tradition",
+    "tradition": "Tradition | Traditions",
     "type": "Type",
     "year": "Year",
     "yes": "Yes"
@@ -175,34 +176,42 @@
           "label": "Images available"
         },
         "institutionsCoveredByTheManuscript": {
+          "help": "Institution in which a codex (cartulary, register, inventory or any other compiled form) was produced or kept, or of which the charters and title deeds are copied in the codex. Enter one or select one or more options.",
           "label": "Institutions covered by the manuscript",
           "placeholder": "Select an institition"
         },
         "name": {
+          "help": "The archival repository, library or private collection in which a charter or manuscript (cartulary, register, inventory) is currently kept. Enter one or select one or more options.",
           "label": "Place of the repository",
           "placeholder": "Select a name"
         },
         "place": {
+          "help": "The place where the relevant archive or library is located. Enter one or select one or more options.",
           "label": "Place of the repository",
           "placeholder": "Select a place"
         },
         "reference": {
+          "help": "The current shelf mark of a charter or codex, which indicates the place of the document or manuscript within an archival or library collection. Enter one or select one or more options.",
           "label": "Repository reference",
           "placeholder": "Select a repository reference"
         },
         "steinNumber": {
+          "help": "This list contains the reference numbers to the bibliographical repertory of French cartularies elaborated by Henri Stein, Bibliographie générale des cartulaires français ou relatifs à l'histoire de France (Paris, 1907). Enter one or select one or more options.",
           "label": "Stein Number",
           "placeholder": "Select a Stein Number"
         },
         "titleOfTheManuscript": {
+          "help": "The title which during the Middle Ages or in later periods was given to the codex (cartulary, register, inventory or any other compiled form). Enter one or select one or more options.",
           "label": "Title of the manuscript",
           "placeholder": "Select a manuscript"
         },
         "type": {
+          "help": "Select this box if your search should only comprise records containing images of the documents. DiBe Images can be viewed in separate pop-up windows. Use Ctrl/⌘ + or Ctrl/⌘ - (or Ctrl and mousewheel) to increase or reduce the size of the image.",
           "label": "Type",
           "placeholder": "Select a type"
         },
         "writingMaterial": {
+          "help": "The writing substrate of the codex (cartulary, register, inventory or any other compiled form). Enter one or select one or more options.",
           "label": "Writing material",
           "placeholder": "Select a writing material"
         }
