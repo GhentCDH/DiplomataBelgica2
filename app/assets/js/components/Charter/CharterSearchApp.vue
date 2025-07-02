@@ -230,6 +230,8 @@ import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 import {useItemsBasket} from "@/composables/useItemsBasket.ts";
 
+import {useSearchSyntax} from "@/composables/useSearchSyntax";
+
 import {
     actorRoleFilter,
     fetchPlaces,
@@ -330,42 +332,12 @@ const defaultModel = {
     dating_scholary_preferential: true,
 }
 
-function balancedParentheses(str: string): boolean {
-    let depth = 0;
-    const stack: number[] = [];
-
-    for (let i = 0; i < str.length; i++) {
-        const char = str[i];
-
-        if (char === '(') {
-            stack.push(i);
-            depth++;
-        } else if (char === ')') {
-            if (depth === 0) return false;
-            const openIndex = stack.pop();
-            depth--;
-
-            // Check for empty parentheses
-            if (openIndex !== undefined && i === openIndex + 1) {
-                return false; // Empty () found
-            }
-        }
-    }
-
-    return depth === 0;
-}
-
-const validate = (value: string): boolean => {
-    const invalidOrAnd = /(^\s*[,+])|([,+]\s*$)|([,+]{2,})|([,+]\s*[^\s\w(#])|([^\w\s)]\s*[,+])/;
-    const invalidNot = /(#$)|(#[^\s\w(])/;
-    const invalidRange = /([%/]\D)|([%/]\d+[^(\d])/
-    return !invalidNot.test(value) && !invalidOrAnd.test(value) && !invalidRange.test(value) && balancedParentheses(value);
-}
+const { validate: validateSearchSyntax } = useSearchSyntax()
 
 const initialValidators: Record<string, ValidatorFn> = {
-    summary: (v: string) => validate(v) ? true : "invalid search",
-    fulltext: (v: string) => validate(v) ? true : "invalid search",
-    id: (v: string) => /^\d*$/.test(v) ? true : "charter id must be an integer",
+    summary: (v: string) => validateSearchSyntax(v) ? true : t("charters.invalidSearchSyntax"),
+    fulltext: (v: string) => validateSearchSyntax(v) ? true : t("charters.invalidSearchSyntax"),
+    id: (v: string) => /^\d*$/.test(v) ? true : t('charters.charterIdMustBeAnInteger'),
 }
 
 const {
