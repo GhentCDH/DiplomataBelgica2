@@ -5,6 +5,7 @@
   "charters": {
     "browseMap": "Browse map",
     "browseResults": "Browse results",
+    "charterIdMustBeAnInteger": "Charter id must be an integer",
     "form": {
       "field": {
         "actor": {
