@@ -34,7 +34,7 @@
                 <h2>{{ t('label.editionsAndSecondaryLiterature') }}</h2>
 
                 <div v-if="editionsFormatted.length" class="mbottom-small">
-                    <h3>{{ t('label.editions') }}</h3>
+                    <h3>{{ t('label.edition', 1) }}</h3>
 
                     <ul class="_list-unstyled">
                         <li v-for="edition in editionsFormatted" :key="edition.id">
@@ -145,13 +145,13 @@
 
                 <Widget :title="t('label.actors')">
                     <actor-list-detailed :label="t('label.issuer')"
-                                         :label-plural="t('label.issuers')" :actors="issuers"
+                                         :label-plural="t('label.issuer', 1)" :actors="issuers"
                                          :url-generator="urlGeneratorIssuer"></actor-list-detailed>
                     <actor-list-detailed :label="t('label.authorOfTheActioJuridica')"
-                                         :label-plural="t('label.authorsOfTheActioJuridica')"
+                                         :label-plural="t('label.authorOfTheActioJuridica', 1)"
                                          :actors="authors" :url-generator="urlGeneratorAuthors"></actor-list-detailed>
                     <actor-list-detailed :label="t('label.beneficiary')"
-                                         :label-plural="t('label.beneficiaries')"
+                                         :label-plural="t('label.beneficiary', 1)"
                                          :actors="beneficiaries"
                                          :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
