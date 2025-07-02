@@ -1,13 +1,10 @@
-import {computed, type Ref} from "vue";
-import {useSimpleState} from "./useSimpleState.ts";
-
 export function useUrlGenerator(
     initRoutes: Object
 ){
 
     const routes = initRoutes
 
-    const getRoute = (route: string) => initRoutes[route] ?? ''
+    const getRoute = (route: string) => routes[route] ?? ''
 
     const createCharterUrl = (id: number | string) => getRoute('charter_get_single').replace('charter_id', id)
     const createTraditionUrl = (type: string, id: string | number): string => getRoute('tradition_get_single').replace('tradition_type', type).replace('tradition_id', id)
