@@ -25,7 +25,6 @@ class CharterRepository extends BaseRepository {
         if (extendedPlaceInfo) {
             payload.filters.extended_place_info = true;
         }
-        console.log(extendedPlaceInfo, payload)
         return await this.axiosInstance.get(`/${locale}/charters/locate`, {
             ...config,
             params: payload,

@@ -3,7 +3,7 @@ import {useStorage} from "@vueuse/core";
 import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
-import type {DataTableState} from "@/composables/useTablePagination.ts";
+import type {DataTableState} from "./useTablePagination.ts";
 
 export type Context = {
     params: {
