@@ -219,7 +219,7 @@ import CharterMap from "@/components/Charter/CharterMap.vue";
 import charterRepository from "@/repositories/CharterRepository";
 import {type DataTableState, useTablePagination} from "@/composables/useTablePagination";
 import {useSimpleState} from "@/composables/useSimpleState.ts";
-import {useVueFormGenerator} from "@/composables/useVueFormGenerator";
+import {useVueFormGenerator, type ValidatorFn} from "@/composables/useVueFormGenerator";
 import {useSearchApi} from "@/composables/useSearchApi";
 import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
 import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
@@ -229,6 +229,8 @@ import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilter
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 import {useItemsBasket} from "@/composables/useItemsBasket.ts";
+
+import {useSearchSyntax} from "@/composables/useSearchSyntax";
 
 import {
     actorRoleFilter,
@@ -330,6 +332,14 @@ const defaultModel = {
     dating_scholary_preferential: true,
 }
 
+const { validate: validateSearchSyntax } = useSearchSyntax()
+
+const initialValidators: Record<string, ValidatorFn> = {
+    summary: (v: string) => validateSearchSyntax(v) ? true : t("charters.invalidSearchSyntax"),
+    fulltext: (v: string) => validateSearchSyntax(v) ? true : t("charters.invalidSearchSyntax"),
+    id: (v: string) => /^\d*$/.test(v) ? true : t('charters.charterIdMustBeAnInteger'),
+}
+
 const {
     model,
     schema,
@@ -339,7 +349,7 @@ const {
     flattenModel,
     updateFieldValues,
     getFieldConfig,
-} = useVueFormGenerator({}, defaultModel);
+} = useVueFormGenerator({}, defaultModel, initialValidators);
 
 const {
     getActiveFilterTagStrings,

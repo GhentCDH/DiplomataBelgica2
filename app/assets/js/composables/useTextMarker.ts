@@ -21,7 +21,7 @@ export function useTextMarker(textRef: Ref<string>, initWords: string[] = [], co
     const markedText = computed (()=> {
         if (words.value.length === 0) return text.value
         words.value.sort((a, b) => b.length - a.length)
-        const regex = new RegExp(`\\b(${words.value.join('|')})\\b`, 'g')
+        const regex = new RegExp(`\\b(${words.value.join('|')})\\b`, 'gi')
         return text.value.replace(regex, `<mark class="${colorClass}">$1</mark>`)
     });
 
