@@ -6,7 +6,8 @@
                 <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
 
                 <h2>{{ t('label.summaryAndDescription') }}</h2>
-                <div class="mbottom-default">{{ charter.summary }}</div>
+
+                <div v-if="markedCharterSummary" class="mbottom-default" v-html="markedCharterSummary"></div>
 
                 <div class="mbottom-default">
                     <LabelValue :label="t('label.language')" :value="charter.language" type="id_name"
@@ -19,10 +20,10 @@
                                 grid="4|8"></LabelValue>
                 </div>
 
-                <template v-if="markedText">
+                <template v-if="markedCharterFulltext">
                     <h2>{{ t('label.fullTextOfCharter') }}</h2>
                     <div class="col-10 pbottom-small">
-                        <p class="charter-full-text" v-html="markedText">
+                        <p class="charter-full-text" v-html="markedCharterFulltext">
                         </p>
                     </div>
                     <div v-if="charter.edition" class="mbottom-default">
@@ -194,8 +195,9 @@ import ActorListDetailed from '../Actor/ActorListDetailed.vue'
 import ActorMap from '@/components/Actor/ActorMap.vue'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
-import charterRepository from "@/repositories/CharterRepository.ts";
-import {useTextMarker} from "@/composables/useTextMarker.ts";
+import charterRepository from "@/repositories/CharterRepository";
+import {useTextMarker} from "@/composables/useTextMarker";
+import {useSearchSyntax} from "@/composables/useSearchSyntax";
 
 import {
     formatSource,
@@ -359,13 +361,29 @@ if (context.value.validReadContext && !context.value.ids) {
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
 }
 
-const fullTextRef = computed(() => data.value.charter.full_text ?? "")
-const searchString = context.value.params.filters['fulltext'] ?? "";
-const words = [...searchString.replace(/#\([^)]*\)/g, '').matchAll(/(?<!#)(^|$|[^\w.*])[\w.*]+(^|$|[^\w.*])/g)].map(m => m[0].replace(/\*/g, '[A-Za-z]*'))
-const {
-    markedText
-} = useTextMarker(fullTextRef, words, "bg-primary-light")
+const { getKeywords } = useSearchSyntax();
 
+const fulltextSearchString = context.value.params.filters['fulltext'] ?? "";
+const fulltextSearchKeywords = getKeywords(fulltextSearchString).map(m => m.replace(/\*/g, '[A-Za-z]*'))
+
+const summarySearchString = context.value.params.filters['summary'] ?? "";
+const summarySearchKeywords = getKeywords(summarySearchString).map(m => m.replace(/\*/g, '[A-Za-z]*'))
+
+const charterFulltext = computed(() => {
+    return data.value.charter.full_text ? data.value.charter.full_text : "";
+});
+
+const charterSummary = computed(() => {
+    return data.value.charter.summary ? data.value.charter.summary : "";
+});
+
+const {
+    markedText: markedCharterFulltext
+} = useTextMarker(charterFulltext, fulltextSearchKeywords, "bg-primary-light")
+
+const {
+    markedText: markedCharterSummary
+} = useTextMarker(charterSummary, summarySearchKeywords, "bg-primary-light")
 </script>
 
 
