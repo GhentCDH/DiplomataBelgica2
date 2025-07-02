@@ -25,7 +25,7 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/{_locale}/aboutt", name="about", methods={"GET"})
+     * @Route("/{_locale}/about", name="about", methods={"GET"})
      */
     public function about(Request $request): Response
     {
