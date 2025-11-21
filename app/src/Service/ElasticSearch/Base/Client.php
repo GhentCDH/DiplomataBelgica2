@@ -13,6 +13,15 @@ class Client extends Elastica\Client
     public function __construct($config , ?string $indexPrefix = null)
     {
         $this->indexPrefix = $indexPrefix;
+
+        if (isset($config['username']) && empty($config['username'])) {
+            unset($config['username']);
+        }
+
+        if (isset($config['password']) && empty($config['password'])) {
+            unset($config['password']);
+        }
+
         parent::__construct($config);
     }
 

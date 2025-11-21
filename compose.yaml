@@ -31,7 +31,7 @@ services:
       cluster.routing.allocation.disk.threshold_enabled: "false"
       ES_JAVA_OPTS: -Xms2g -Xmx2g
       TAKE_FILE_OWNERSHIP: 1
-      ELASTIC_PASSWORD: "elastic"
+      ELASTIC_PASSWORD: ${ELASTICSEARCH_PASSWORD}
     ports:
       - "9200:9200"
       - "9300:9300"
