@@ -27,7 +27,7 @@ services:
       transport.host: localhost
       cluster.name: docker-cluster
       bootstrap.memory_lock: "true"
-      xpack.security.enabled: "false"
+      xpack.security.enabled: "true"
       cluster.routing.allocation.disk.threshold_enabled: "false"
       ES_JAVA_OPTS: -Xms2g -Xmx2g
       TAKE_FILE_OWNERSHIP: 1
