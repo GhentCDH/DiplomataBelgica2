@@ -1,9 +1,10 @@
 parameters:
+  env(ELASTICSEARCH_TRANSPORT): 'http'
   elasticsearch.config:
       host: '%env(string:ELASTICSEARCH_HOST)%'
       port: '%env(int:ELASTICSEARCH_PORT)%'
       username: '%env(default::ELASTICSEARCH_USERNAME)%'
       password: '%env(default::ELASTICSEARCH_PASSWORD)%'
-      transport: '%env(default:http:string:ELASTICSEARCH_TRANSPORT)%'
+      transport: '%env(string:ELASTICSEARCH_TRANSPORT)%'
   elasticsearch.index_prefix: '%env(string:ELASTICSEARCH_INDEX_PREFIX)%'
   elasticsearch.debug: '%env(bool:ELASTICSEARCH_DEBUG)%'
