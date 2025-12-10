@@ -14,3 +14,7 @@ node_modules
 .env.*
 app/src/Controller/TestController.php
 initdb/020-data.sql
+.DS_Store
+.vscode/
+.claude/
+.pnpm-store

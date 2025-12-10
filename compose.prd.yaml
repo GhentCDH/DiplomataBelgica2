@@ -1,0 +1,15 @@
+name: dibe-prd
+
+services:
+  symfony:
+    platform: linux/amd64
+    build:
+      target: prod
+    ports:
+      - "8081:80"
+    volumes: []  # Remove dev volumes, use built-in files
+    command: []  # Remove dev command, use default Apache
+
+  node:
+    profiles:
+      - disabled  # Disable node service in production

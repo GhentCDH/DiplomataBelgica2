@@ -50,6 +50,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: dev
+    platform: linux/amd64
     env_file:
       - .env
     ports:
