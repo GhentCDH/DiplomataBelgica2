@@ -1,59 +1,41 @@
 import {useSimpleState} from "./useSimpleState.ts";
-import {computed, type Ref} from "vue";
 
-export function useItemsBasket(
-    tableData: Ref<any, any>
-){
+/**
+ * Manage the set of selected row ids ("items basket") for a search page.
+ *
+ * This is a pure id-set: it has no knowledge of the result rows or their id
+ * property. The result table decides which ids to add or remove (it knows which
+ * rows are on the page and which are selected) and calls `addSelectedIds` /
+ * `removeSelectedIds`. That keeps the basket decoupled from result data and
+ * trivial to reuse and test.
+ *
+ * @param initialIds ids selected from the start (default none)
+ */
+export function useItemsBasket(initialIds: number[] = []) {
 
-    const {state: selectedIds, setState: setSelectedIds} = useSimpleState<number[]>([]);
+    const {state: selectedIds, setState: setSelectedIds} = useSimpleState<number[]>(initialIds);
 
-    function removeSelectedId(id: number){
-        selectedIds.value.splice(selectedIds.value.indexOf(id), 1);
+    /** Add the given ids to the selection (union, kept sorted). */
+    function addSelectedIds(ids: number[]) {
+        setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a - b));
     }
 
-    function removeSelectedIndex(index: number){
+    /** Remove the given ids from the selection. */
+    function removeSelectedIds(ids: number[]) {
+        const toRemove = new Set(ids);
+        setSelectedIds(selectedIds.value.filter((id) => !toRemove.has(id)));
+    }
+
+    /** Remove the selected id at the given position (used by the basket dropdown). */
+    function removeSelectedIndex(index: number) {
         selectedIds.value.splice(index, 1);
     }
-
-    function toggleRowSelection(id: number){
-        if (selectedIds.value.includes(id)){
-            removeSelectedId(id)
-        } else {
-            setSelectedIds([...selectedIds.value, id].sort((a, b) => a-b));
-        }
-    }
-
-    function toggleAllRowsSelection(){
-        const ids: number[] = tableData.value.map((row: any) => row.id);
-        if (ids.every((v: number) => selectedIds.value.includes(v))){
-            ids.forEach((id: number) => {
-                removeSelectedId(id)
-            })
-        } else {
-            setSelectedIds([...new Set([...selectedIds.value, ...ids])].sort((a, b) => a-b));
-        }
-    }
-
-    const allSelected = computed(() => {
-        const ids = tableData.value.map((row: any) => row.id);
-        return ids.every((v: number) => selectedIds.value.includes(v))
-    });
-
-    const tableDataWithCheckbox = computed(() => {
-        return tableData.value.map(row => ({
-            ...row,
-            selected: selectedIds.value.includes(row.id)
-        }))
-    });
 
     return {
         selectedIds,
         setSelectedIds,
-        removeSelectedId,
+        addSelectedIds,
+        removeSelectedIds,
         removeSelectedIndex,
-        toggleAllRowsSelection,
-        toggleRowSelection,
-        allSelected,
-        tableDataWithCheckbox
     }
 }

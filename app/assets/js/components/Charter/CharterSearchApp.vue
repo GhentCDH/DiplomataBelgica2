@@ -81,32 +81,18 @@
                             </nav>
 
                             <div class="flex-grow-1 scrollable">
-                                <b-table :items="tableDataWithCheckbox"
-                                         :fields="tableOptions.fields"
-                                         :sort-by="dataTableState.orderBy"
-                                         :sort-ascending="dataTableState.orderAsc"
-                                         @update:sort-by="(value) => updateDataTableState({orderBy: value})"
-                                         @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
-                                         class="m-0"
+                                <search-result-table
+                                    :items="tableData"
+                                    :fields="tableOptions.fields"
+                                    :sort-by="dataTableState.orderBy"
+                                    :sort-ascending="dataTableState.orderAsc"
+                                    :selected-ids="selectedIds"
+                                    @update:sort-by="(value) => updateDataTableState({orderBy: value})"
+                                    @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
+                                    @add-selected="addSelectedIds"
+                                    @remove-selected="removeSelectedIds"
+                                    class="m-0"
                                 >
-                                    <template #actionsPreRowHeader>
-                                        <th>
-                                            <input
-                                                type="checkbox"
-                                                @change="toggleAllRowsSelection"
-                                                :checked="allSelected"
-                                            >
-                                        </th>
-                                    </template>
-                                    <template #actionsPreRow="props">
-                                        <td>
-                                            <input
-                                                type="checkbox"
-                                                v-model="props.row.selected"
-                                                @change="() => toggleRowSelection(props.row.id)"
-                                            >
-                                        </td>
-                                    </template>
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getHashedUrl(props.row.id)"
@@ -123,7 +109,7 @@
                                     <template #date_sort="props">
                                         {{ formatDatationTime(getPreferentialDate(props.row.datations)) }}
                                     </template>
-                                </b-table>
+                                </search-result-table>
                             </div>
                         </div>
                     </div>
@@ -188,49 +174,28 @@
     </div>
 </template>
 
-<script lang="ts">
-type SearchQuery = {
-    orderBy: string;
-    ascending: boolean;
-    limit: number;
-    page: number;
-    filters: Filters[] | null;
-}
-
-type Filters = {
-    [key: string]: any
-}
-</script>
-
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n'
 
-import {computed, nextTick, onMounted, ref, shallowRef, watch, useTemplateRef} from 'vue'
+import {computed, ref, shallowRef, useTemplateRef} from 'vue'
 
 import CharterSearchSummary from "./CharterSearchSummary.vue";
 
 import BPagination from "../Bootstrap/BPagination.vue";
 import BSelect from "../Bootstrap/BSelect.vue";
 import RecordCount from "../Bootstrap/RecordCount.vue";
-import BTable from "../Bootstrap/BTable.vue";
 import BRadioList, {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
 import CharterMap from "@/components/Charter/CharterMap.vue";
-
-import charterRepository from "@/repositories/CharterRepository";
-import {type DataTableState, useTablePagination} from "@/composables/useTablePagination";
-import {useSimpleState} from "@/composables/useSimpleState.ts";
-import {useVueFormGenerator, type ValidatorFn} from "@/composables/useVueFormGenerator";
-import {useSearchApi} from "@/composables/useSearchApi";
-import {useVueFormGeneratorCollapsibleGroups} from "@/composables/useVueFormGeneratorCollapsibleGroups.ts";
-import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
-import qs from "qs";
-import {useSearchContext} from "@/composables/useSearchContext.ts";
-import {type FilterTag, useActiveFilterTags} from "@/composables/useActiveFilterTags.ts";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
-import {useItemsBasket} from "@/composables/useItemsBasket.ts";
+import SearchResultTable from "@/components/Search/SearchResultTable.vue";
 
+import charterRepository from "@/repositories/CharterRepository";
+import {type ValidatorFn} from "@/composables/useVueFormGenerator";
+import {useSearchApp} from "@/composables/useSearchApp.ts";
 import {useSearchSyntax} from "@/composables/useSearchSyntax";
+import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
+import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'
 
 import {
     actorRoleFilter,
@@ -238,7 +203,6 @@ import {
     findPlaceById,
     geojson
 } from "@/components/Charter/ChartersMap.js";
-import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 
 const {t} = useI18n()
 
@@ -254,17 +218,14 @@ const props = defineProps({
     }
 })
 
-const {initUrls, title} = props
-const urls = JSON.parse(initUrls)
+const {title} = props
+const urls = JSON.parse(props.initUrls)
 
 const {getRoute} = useUrlGenerator(urls)
-
-// refs
 
 const mapRef = useTemplateRef('map')
 
 // table options
-
 const tableOptions = {
     fields: [
         {key: 'id', label: t('label.id'), sortable: true, thClass: 'no-wrap'},
@@ -278,9 +239,7 @@ const tableOptions = {
 }
 
 // map state
-
 const activePlaceId = shallowRef(null)
-const mapVisible = shallowRef(false)
 const updateBounds = ref(true)
 
 const toggleUpdateBounds = () => {
@@ -288,51 +247,14 @@ const toggleUpdateBounds = () => {
 }
 
 const roleFilters = ref<RadioItem[]>([
-    {
-        label: t('form.allAuthors'),
-        value: 0
-    },
-    {
-        label: t('label.issuer'),
-        value: 2
-    },
-    {
-        label: t('label.author'),
-        value: 1
-    },
-    {
-        label: t('label.beneficiary'),
-        value: 3
-    },
+    {label: t('form.allAuthors'), value: 0},
+    {label: t('label.issuer'), value: 2},
+    {label: t('label.author'), value: 1},
+    {label: t('label.beneficiary'), value: 3},
 ])
 
-// pagination state
-
-const defaultDataTableState: DataTableState = {
-    orderBy: 'date_sort',
-    orderAsc: false,
-    rowsPerPage: 25,
-    currentPage: 1,
-}
-
-const {
-    state: dataTableState,
-    setCurrentPage,
-    setState: setDataTableState,
-    updateState: patchDataTableState,
-    setOrderBy,
-    setOrderAsc
-} = useTablePagination(defaultDataTableState)
-
-// filter state
-const {state: filterState, setState: setFilterState} = useSimpleState([]);
-
-// form schema & model
-const defaultModel = {
-    dating_scholary_preferential: true,
-}
-
-const { validate: validateSearchSyntax } = useSearchSyntax()
+// search syntax validators
+const {validate: validateSearchSyntax} = useSearchSyntax()
 
 const initialValidators: Record<string, ValidatorFn> = {
     summary: (v: string) => validateSearchSyntax(v) ? true : t("charters.invalidSearchSyntax"),
@@ -340,73 +262,72 @@ const initialValidators: Record<string, ValidatorFn> = {
     id: (v: string) => /^\d*$/.test(v) ? true : t('charters.charterIdMustBeAnInteger'),
 }
 
+// search app orchestrator
 const {
+    // template-facing state & handlers
     model,
     schema,
-    setSchema,
-    setModel,
+    formOptions,
     modelHasChanged,
-    flattenModel,
-    updateFieldValues,
-    getFieldConfig,
-} = useVueFormGenerator({}, defaultModel, initialValidators);
-
-const {
     getActiveFilterTagStrings,
-    closeActiveFilterTag
-} = useActiveFilterTags(model, getFieldConfig, Object.keys(defaultModel))
-
-const onCloseActiveFilter = (tag: FilterTag) => {
-    closeActiveFilterTag(tag);
-    updateFilterState(flattenModel(model.value))
-}
-
-const {
-    getHashedUrl,
-    beforeRedirect,
-} = useSearchContext(getRoute('charter_search')) // todo: should use charters_get_single route
-
-const formOptions = {
-    validateAfterLoad: false,
-    validateAfterChanged: true,
-    validationErrorClass: "has-error",
-    validationSuccessClass: "success"
-}
-
-useVueFormGeneratorCollapsibleGroups(schema, 'charter-search-groups')
-
-// search api
-
-const {
-    data,
+    onCloseActiveFilter,
+    resetAllFilters,
+    onFormValidated,
+    dataTableState,
+    totalRecords,
+    tableData,
+    updateDataTableState,
     isFetching,
-    error,
-    fetch,
-    count: totalRecords,
-    results: tableData,
-    aggregations
-} = useSearchApi(getRoute('charter_search_api'))
-
-//selected rows
-const {
+    filterState,
+    // selection / basket
     selectedIds,
     setSelectedIds,
     removeSelectedIndex,
-    removeSelectedId,
-    toggleRowSelection,
-    toggleAllRowsSelection,
-    allSelected,
-    tableDataWithCheckbox
-} = useItemsBasket(tableData);
-
-watch(aggregations, (currentAggregations) => {
-    if (currentAggregations) {
-        updateFieldValues(currentAggregations)
-    }
+    addSelectedIds,
+    removeSelectedIds,
+    // search context
+    getHashedUrl,
+    beforeRedirect,
+    // extension API
+    on,
+} = useSearchApp({
+    searchApiUrl: getRoute('charter_search_api'),
+    detailBaseUrl: getRoute('charter_search'), // todo: should use charters_get_single route
+    defaultModel: {
+        dating_scholary_preferential: true,
+    },
+    defaultDataTableState: {
+        orderBy: 'date_sort',
+        orderAsc: false,
+        rowsPerPage: 25,
+        currentPage: 1,
+    },
+    validators: initialValidators,
+    collapsibleGroupsStorageId: 'charter-search-groups',
+    buildSchema: ({updateFieldValues, filterState}) => {
+        const onAutocomplete = (fieldName: string) => {
+            return (query: string) => {
+                charterRepository.autocomplete(fieldName, query, filterState.value)
+                    .then((response) => {
+                        updateFieldValues(response.data, [fieldName])
+                    })
+            }
+        }
+        return createSchema({t, onAutocomplete})
+    },
 })
 
-// map api
+// --- map: a pure extension on top of the search app ---
 
+const extendedPlaceInfo = computed(() => totalRecords.value && totalRecords.value <= 1000)
+
+// refetch places whenever the search (incl. filters) changes, but NOT on a
+// pagination/sort-only change (those use the 'search' mode, not 'search_aggregate')
+on('search', ({mode}) => {
+    if (mode === 'search_aggregate') {
+        fetchPlaces(filterState.value, extendedPlaceInfo.value)
+    }
+})
 
 const activePlace = computed(() => {
     if (activePlaceId.value) {
@@ -415,18 +336,6 @@ const activePlace = computed(() => {
         return null
     }
 })
-
-const extendedPlaceInfo = computed(() => {
-    const ret = totalRecords.value && totalRecords.value <= 1000
-    return ret
-})
-
-const onFormValidated = (isValid, errors) => {
-    if (!isValid) {
-        return
-    }
-    updateFilterState(flattenModel(model.value))
-}
 
 const getPreferentialDate = (datations) => {
     return datations.find((datation) => datation.preference == 0)
@@ -439,144 +348,14 @@ const formatDatationTime = (datation) => {
     return [datation.time.day, datation.time.month, datation.time.year].filter((x) => x).join('/')
 }
 
-const onAutocomplete = (fieldName: string) => {
-    return (query: string) => {
-        charterRepository.autocomplete(fieldName, query, filterState.value)
-            .then((response) => {
-                updateFieldValues(response.data, [fieldName])
-                // const fieldConfig = getFieldConfig(fieldName)
-                // fieldConfig.values = response.data?.[fieldName] ?? []
-                // return response
-            })
-    }
-}
-
 const onMarkerClick = (feature: any) => {
     activePlaceId.value = feature.properties.id
-}
-
-const createSearchQuery = (paginationState: DataTableState, filterState: any) => {
-    const query: SearchQuery = {
-        orderBy: paginationState.orderBy,
-        ascending: paginationState.orderAsc,
-        limit: paginationState.rowsPerPage,
-        page: paginationState.currentPage,
-        filters: null,
-    }
-
-    query.filters = {...filterState}
-    return query
-}
-
-const resetAllFilters = () => {
-    setModel(defaultModel)
-    setCurrentPage(1)
-    updateFilterState(flattenModel(model.value))
-}
-
-const pushHistory = (query: string) => {
-    const state = {
-        model: JSON.parse(JSON.stringify(model.value)),
-        paginationState: JSON.parse(JSON.stringify(dataTableState.value)),
-    }
-    history.pushState(state, '', document.location.href.split('?')[0] + '?' + qs.stringify(query))
 }
 
 const onUpdateRoleFilter = (roleId: number) => {
     actorRoleFilter.value = roleId
     activePlaceId.value = null
 }
-
-const onPopHistory = (event: PopStateEvent) => {
-    if (event.state) {
-        setModel(event.state.model)
-        setDataTableState(event.state.paginationState)
-        setFilterState(flattenModel(model.value))
-
-        const query = createSearchQuery(dataTableState.value, filterState.value);
-
-        // search & aggregate
-        fetch(query, 'search_aggregate').then(() => {
-            // update place data
-            fetchPlaces(filterState.value, extendedPlaceInfo.value);
-        });
-    }
-}
-
-
-const updateDataTableState = (payload: Partial<DataTableState>) => {
-    // update datatable state
-    patchDataTableState(payload)
-
-    // create search query
-    const query = createSearchQuery(dataTableState.value, filterState.value);
-
-    // push query to history
-    pushHistory(query)
-
-    // paginate (DO NOT aggregate!)
-    fetch(query, 'search');
-}
-
-const updateFilterState = (payload: any) => {
-    // update filter state
-    setFilterState(payload)
-    // reset pagination
-    setCurrentPage(1)
-
-    // create search query
-    const query = createSearchQuery(dataTableState.value, filterState.value);
-
-    // push query to history
-    pushHistory(query)
-
-    // search & aggregate
-    fetch(query, 'search_aggregate').then(() => {
-            fetchPlaces(filterState.value, extendedPlaceInfo.value);
-    });
-}
-
-// init form schema
-
-setSchema(createSchema({
-    t,
-    onAutocomplete
-}))
-
-let params = qs.parse(window.location.href.split('?', 2)[1])
-const filters = params['filters'] ?? {}
-setFilterState(filters)
-let tmpModel = {}
-Object.entries(filters).forEach(([k,v]) => {
-    if (v === 'true') {
-        tmpModel[k] = true
-    }else if (v === 'false') {
-        tmpModel[k] = false
-    } else {
-        tmpModel[k] = v;
-    }
-})
-setModel({...defaultModel, ...tmpModel})
-if (Number(params['page'])){
-    setCurrentPage(Number(params['page']))
-}
-
-if (params['orderBy']) {
-    setOrderBy(params['orderBy'])
-}
-if (params['ascending']) {
-    setOrderAsc(params['ascending'] == 'true')
-}
-
-const query = createSearchQuery(dataTableState.value, filterState.value);
-fetch(query, 'search_aggregate');
-fetchPlaces(filterState.value, extendedPlaceInfo.value)
-
-onMounted(() => {
-    window.onpopstate = ((event: PopStateEvent) => {
-        onPopHistory(event)
-    })
-})
 </script>
 
 <style lang="scss">

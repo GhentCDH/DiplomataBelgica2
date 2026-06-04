@@ -17,7 +17,7 @@ export function useSearchApi(url: string) {
         immediate: false
     }
 
-    const {isFetching, error, data, execute} = useFetch(useFetchUrl, fetchOptions).get().json()
+    const {isFetching, error, data, execute, abort, canAbort} = useFetch(useFetchUrl, fetchOptions).get().json()
 
     // result state
     const count = ref<number>(0)
@@ -38,11 +38,19 @@ export function useSearchApi(url: string) {
 
     // fetch data from the api
     const fetch = async (params: any, mode: queryMode) => {
+        // cancel any in-flight request so a slower, older response can never
+        // overwrite the results of a newer one
+        if (canAbort.value) {
+            abort()
+        }
+
         const queryParams = {...params}
         queryParams['mode'] = mode
 
         useFetchUrl.value = endpoint.value + '?' + qs.stringify(queryParams)
         await execute()
+
+        return data.value
     }
 
 
