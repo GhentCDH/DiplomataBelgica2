@@ -1,7 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import {ref} from 'vue';
 import {useActiveFilterTags} from "@/composables/useActiveFilterTags";
-import type {Field, Model} from "@/composables/useVueFormGenerator";
+import type {Field, Model} from "../../../assets/js/composables/useVueFormGenerator";
 
 describe('Test useActiveFilterTags composable', () => {
 

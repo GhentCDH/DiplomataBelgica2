@@ -1,4 +1,4 @@
-import type {Field, Model} from "@/composables/useVueFormGenerator";
+import type {Field, Model} from "./useVueFormGenerator";
 import {type Ref} from "vue";
 
 enum FilterType {
