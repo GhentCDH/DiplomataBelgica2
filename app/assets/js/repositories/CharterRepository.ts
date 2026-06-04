@@ -21,10 +21,10 @@ class CharterRepository extends BaseRepository {
     public async locate(filters: object, extendedPlaceInfo: boolean): Promise<AxiosResponse> {
         const locale = this.getLocale();
         const config = this.getRequestConfig();
-        const payload = { filters };
-        if (extendedPlaceInfo) {
-            payload.filters.extended_place_info = true;
-        }
+        // copy the filters so we never mutate the caller's (reactive) filter state
+        const payload = {
+            filters: extendedPlaceInfo ? { ...filters, extended_place_info: true } : filters,
+        };
         return await this.axiosInstance.get(`/${locale}/charters/locate`, {
             ...config,
             params: payload,
