@@ -3,7 +3,7 @@
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
                 <div v-if="modelHasChanged" class="form-group mbottom-default">
-                    <b-filter-tags :items="getActiveFilterTagStrings()" @onClickClose="onCloseActiveFilter">
+                    <b-filter-tags :items="getActiveFilterTags()" @onClickClose="onCloseActiveFilter">
                         <template #startButton>
                             <button class="btn btn-primary" @click="resetAllFilters">
                                 {{ t('form.reset-filters') }}
@@ -41,20 +41,20 @@
                     <div class="col-lg-4 d-flex align-items-lg-center">
                         <b-pagination
                             :total-records="totalRecords"
-                            :per-page="dataTableState.rowsPerPage"
-                            :page="dataTableState.currentPage"
-                            @update:page="(page) => updateDataTableState({currentPage: parseInt(page)})"
+                            :per-page="tableState.rowsPerPage"
+                            :page="tableState.currentPage"
+                            @update:page="(page) => updateTableState({currentPage: parseInt(page)})"
                         ></b-pagination>
                     </div>
                     <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                        <RecordCount :per-page="dataTableState.rowsPerPage" :total-records="totalRecords" :page="dataTableState.currentPage"></RecordCount>
+                        <RecordCount :per-page="tableState.rowsPerPage" :total-records="totalRecords" :page="tableState.currentPage"></RecordCount>
                     </div>
                     <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
                         <b-select :id="'per-page'"
                                   :label="'Per page'"
-                                  :selected="dataTableState.rowsPerPage"
+                                  :selected="tableState.rowsPerPage"
                                   :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
-                                  @update:selected="(value) => updateDataTableState({rowsPerPage: parseInt(value)})"
+                                  @update:selected="(value) => updateTableState({rowsPerPage: parseInt(value)})"
                                   class="w-auto"
                         ></b-select>
                     </div>
@@ -62,13 +62,13 @@
 
                 <article class="flex-grow-1 scrollable">
                     <search-result-table
-                        :items="tableData"
+                        :items="results"
                         :fields="tableOptions.fields"
-                        :sort-by="dataTableState.orderBy"
-                        :sort-ascending="dataTableState.orderAsc"
+                        :sort-by="tableState.orderBy"
+                        :sort-ascending="tableState.orderAsc"
                         :selected-ids="selectedIds"
-                        @update:sort-by="(value) => updateDataTableState({orderBy: value})"
-                        @update:sort-ascending="(value) => updateDataTableState({orderAsc: value})"
+                        @update:sort-by="(value) => updateTableState({orderBy: value})"
+                        @update:sort-ascending="(value) => updateTableState({orderAsc: value})"
                         @add-selected="addSelectedIds"
                         @remove-selected="removeSelectedIds"
                         class="m-0"
@@ -159,14 +159,14 @@ const {
     schema,
     formOptions,
     modelHasChanged,
-    getActiveFilterTagStrings,
+    getActiveFilterTags,
     onCloseActiveFilter,
     resetAllFilters,
     onFormValidated,
-    dataTableState,
+    tableState,
     totalRecords,
-    tableData,
-    updateDataTableState,
+    results,
+    updateTableState,
     isFetching,
     // selection / basket
     selectedIds,
@@ -182,7 +182,7 @@ const {
     searchApiUrl: getRoute('tradition_search_api'),
     detailUrl: (id) => createTraditionUrl('original', id),
     defaultModel: {},
-    defaultDataTableState: {
+    defaultTableState: {
         orderBy: 'id',
         orderAsc: true,
         rowsPerPage: 25,

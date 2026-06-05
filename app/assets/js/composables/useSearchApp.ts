@@ -1,6 +1,6 @@
 import {onMounted, onUnmounted, watch, type Ref} from "vue";
 
-import {type DataTableState, useTablePagination} from "./useTablePagination.ts";
+import {type TableState, useTableState} from "./useTableState.ts";
 import {useSimpleState} from "./useSimpleState.ts";
 import {type Model, type Schema, type ValidatorFn, useVueFormGenerator} from "./useVueFormGenerator.ts";
 import {type FilterTag, useActiveFilterTags} from "./useActiveFilterTags.ts";
@@ -41,7 +41,7 @@ export type SearchAppConfig = {
     /** Form model defaults. */
     defaultModel?: Model;
     /** Initial pagination/sort state. */
-    defaultDataTableState: DataTableState;
+    defaultTableState: TableState;
     /** Field-level validators forwarded to useVueFormGenerator. */
     validators?: Record<string, ValidatorFn>;
     /** localStorage key enabling collapsible form groups. Omit to disable. */
@@ -114,13 +114,13 @@ export function useSearchApp(config: SearchAppConfig) {
     // --- leaf composables --------------------------------------------------
 
     const {
-        state: dataTableState,
+        state: tableState,
         setCurrentPage,
-        setState: setDataTableState,
-        updateState: patchDataTableState,
+        setState: setTableState,
+        updateState: patchTableState,
         setOrderBy,
         setOrderAsc,
-    } = useTablePagination(config.defaultDataTableState);
+    } = useTableState(config.defaultTableState);
 
     const {state: filterState, setState: setFilterState} = useSimpleState<any>([]);
 
@@ -136,7 +136,7 @@ export function useSearchApp(config: SearchAppConfig) {
     } = useVueFormGenerator({}, defaultModel, config.validators ?? {});
 
     const {
-        getActiveFilterTagStrings,
+        getActiveFilterTags,
         closeActiveFilterTag,
     } = useActiveFilterTags(model, getFieldConfig, config.filterTagIgnore ?? Object.keys(defaultModel));
 
@@ -164,7 +164,7 @@ export function useSearchApp(config: SearchAppConfig) {
         error,
         fetch: searchFetch,
         count: totalRecords,
-        results: tableData,
+        results,
         aggregations,
     } = useSearchApi(config.searchApiUrl);
 
@@ -179,7 +179,7 @@ export function useSearchApp(config: SearchAppConfig) {
     // give the search context the live state it needs to build/save a context
     // on link click, so components don't have to thread it through props
     setSaveContextSource({
-        getDataTableState: () => dataTableState.value,
+        getTableState: () => tableState.value,
         getFilters: () => filterState.value,
         getCount: () => totalRecords.value,
         getSelectedIds: () => selectedIds.value,
@@ -201,12 +201,12 @@ export function useSearchApp(config: SearchAppConfig) {
      * history, run the fetch and notify `search` subscribers with the result.
      */
     const runSearch = async (mode: queryMode, pushToHistory: boolean = false): Promise<any> => {
-        const baseQuery: SearchQuery = createSearchQuery(dataTableState.value, filterState.value);
+        const baseQuery: SearchQuery = createSearchQuery(tableState.value, filterState.value);
         // merge app-declared extra query params at the top level (never under
         // `filters`, so they don't get parsed back into the model/filterState)
         const query = {...baseQuery, ...resolveExtraQuery()};
         if (pushToHistory) {
-            pushHistory(query, {model: model.value, paginationState: dataTableState.value});
+            pushHistory(query, {model: model.value, tableState: tableState.value});
         }
         const result = await searchFetch(query, mode);
         await emit('search', {mode, query, data: result});
@@ -228,9 +228,9 @@ export function useSearchApp(config: SearchAppConfig) {
      * Apply a pagination/sort change: push history and run a search WITHOUT
      * aggregations (filter options stay as they are).
      */
-    const updateDataTableState = (payload: Partial<DataTableState>) => {
-        patchDataTableState(payload)
-        emit('dataTableChange', {state: dataTableState.value})
+    const updateTableState = (payload: Partial<TableState>) => {
+        patchTableState(payload)
+        emit('dataTableChange', {state: tableState.value})
         return runSearch(queryMode.search, true)
     }
 
@@ -256,7 +256,7 @@ export function useSearchApp(config: SearchAppConfig) {
     const onPopHistory = (event: PopStateEvent) => {
         if (event.state) {
             setModel(event.state.model)
-            setDataTableState(event.state.paginationState)
+            setTableState(event.state.tableState)
             setFilterState(flattenModel(model.value))
             emit('popState', {state: event.state})
             // search & aggregate (no history push: we are responding to history)
@@ -325,14 +325,14 @@ export function useSearchApp(config: SearchAppConfig) {
         schema,
         formOptions,
         modelHasChanged,
-        getActiveFilterTagStrings,
+        getActiveFilterTags,
         onCloseActiveFilter,
         resetAllFilters,
         onFormValidated,
-        dataTableState,
+        tableState,
         totalRecords,
-        tableData,
-        updateDataTableState,
+        results,
+        updateTableState,
         isFetching,
         error,
         data,
@@ -357,7 +357,7 @@ export function useSearchApp(config: SearchAppConfig) {
         setSchema,
         setFilterState,
         updateFilterState,
-        setDataTableState,
+        setTableState,
         setCurrentPage,
         setOrderBy,
         setOrderAsc,

@@ -1,5 +1,5 @@
 import qs from "qs";
-import type {DataTableState} from "./useTablePagination.ts";
+import type {TableState} from "./useTableState.ts";
 import type {Model} from "./useVueFormGenerator.ts";
 
 export type Filters = {
@@ -19,7 +19,7 @@ export type SearchQuery = {
  */
 export type HistoryState = {
     model: Model;
-    paginationState: DataTableState;
+    tableState: TableState;
 }
 
 /**
@@ -49,12 +49,12 @@ export function useSearchHistory() {
     /**
      * Build the API search query object from pagination + filter state.
      */
-    const createSearchQuery = (paginationState: DataTableState, filterState: any): SearchQuery => {
+    const createSearchQuery = (tableState: TableState, filterState: any): SearchQuery => {
         return {
-            orderBy: paginationState.orderBy,
-            ascending: paginationState.orderAsc,
-            limit: paginationState.rowsPerPage,
-            page: paginationState.currentPage,
+            orderBy: tableState.orderBy,
+            ascending: tableState.orderAsc,
+            limit: tableState.rowsPerPage,
+            page: tableState.currentPage,
             filters: {...filterState},
         }
     }
@@ -67,7 +67,7 @@ export function useSearchHistory() {
     const pushHistory = (query: SearchQuery, state: HistoryState) => {
         const historyState = {
             model: JSON.parse(JSON.stringify(state.model)),
-            paginationState: JSON.parse(JSON.stringify(state.paginationState)),
+            tableState: JSON.parse(JSON.stringify(state.tableState)),
         }
         history.pushState(
             historyState,

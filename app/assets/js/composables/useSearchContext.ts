@@ -3,7 +3,7 @@ import {useStorage} from "@vueuse/core";
 import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
-import type {DataTableState} from "./useTablePagination.ts";
+import type {TableState} from "./useTableState.ts";
 
 export type Context = {
     params: {
@@ -97,7 +97,7 @@ export function useSearchContext(
      * having to thread pagination/filter/selection state through props.
      */
     type SaveContextSource = {
-        getDataTableState: () => DataTableState;
+        getTableState: () => TableState;
         getFilters: () => object;
         getCount: () => number;
         getSelectedIds: () => number[];
@@ -130,16 +130,16 @@ export function useSearchContext(
             const url = new URL(href!, window.location.origin);
             const hash = url.hash.substring(1);
 
-            const dataTableState = saveContextSource.getDataTableState();
+            const tableState = saveContextSource.getTableState();
             let context: Context = {
                 params: {
                     filters: saveContextSource.getFilters(),
-                    limit: dataTableState.rowsPerPage,
-                    page: dataTableState.currentPage,
-                    orderBy: dataTableState.orderBy,
-                    ascending: dataTableState.orderAsc ?? false,
+                    limit: tableState.rowsPerPage,
+                    page: tableState.currentPage,
+                    orderBy: tableState.orderBy,
+                    ascending: tableState.orderAsc ?? false,
                 },
-                searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index + 1,
+                searchIndex: (tableState.currentPage - 1) * tableState.rowsPerPage + index + 1,
                 prevUrl: window.location.href,
                 count: saveContextSource.getCount(),
                 ids: ids ? [...ids] : null,

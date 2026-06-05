@@ -111,7 +111,7 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
     /**
      * Returns a list of FilterTags based on the model
      */
-    const getActiveFilterTagStrings = (): FilterTag[] => {
+    const getActiveFilterTags = (): FilterTag[] => {
         let res: FilterTag[] = [];
         Object.entries(model.value).forEach(([k,v],_) => {
             if (!ignore.includes(k)){
@@ -160,7 +160,7 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
     }
 
     return {
-        getActiveFilterTagStrings,
+        getActiveFilterTags,
         closeActiveFilterTag
     }
 }
