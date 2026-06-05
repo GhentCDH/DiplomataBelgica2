@@ -92,7 +92,7 @@
                                 >
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
-                                           :href="getContextualDetailUrl(props.row.id)"
+                                           :href="getContextualDetailUrl(props.row.id, props.index)"
                                            @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
                                         >
                                             {{ props.row.id }}
@@ -134,7 +134,7 @@
                                                     <span>{{ actor.name }}</span>
                                                     <template v-for="charterId of actor.charterIds">
                                                         <a class="btn btn-tertiary btn-sm ms-1"
-                                                           :href="getContextualDetailUrl(charterId)"
+                                                           :href="createCharterUrl(charterId)"
                                                            target="_blank">
                                                             {{ charterId }}
                                                         </a>
@@ -146,7 +146,7 @@
                                             <h3>{{ t('charters.placedateCharters') }}</h3>
                                             <template v-for="charterId of activePlace.charterIds">
                                                 <a class="btn btn-tertiary btn-sm ms-1"
-                                                   :href="getContextualDetailUrl(charterId)"
+                                                   :href="createCharterUrl(charterId)"
                                                    target="_blank">
                                                     {{ charterId }}
                                                 </a>

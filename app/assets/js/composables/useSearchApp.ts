@@ -60,6 +60,12 @@ export type SearchAppConfig = {
      * read them from app state or the URL when they need to be bookmarkable.
      */
     extraQuery?: Record<string, any> | (() => Record<string, any>);
+    /**
+     * Namespace for the content-addressed search-context hash. The localStorage
+     * 'context' store is shared across apps on the same origin, so this keeps
+     * each app's contexts distinct. Defaults to `searchApiUrl`.
+     */
+    contextNamespace?: string;
     /** Parse the URL, run the initial search and wire popstate. Default true. */
     autoInit?: boolean;
 }
@@ -142,16 +148,17 @@ export function useSearchApp(config: SearchAppConfig) {
     } = useActiveFilterTags(filterModel, getFieldConfig, config.filterTagIgnore ?? Object.keys(defaultFilterModel));
 
     const {
-        getContextHash,
+        getContextFragment,
         setSaveContextSource,
         saveResultContext,
         saveSelectionContext,
     } = useSearchContext();
 
-    // detail-page URL carrying the search-context hash. URL shape is supplied by
-    // the app (config.detailUrl); the hash comes from the search context.
-    const getContextualDetailUrl = (id: number | string) =>
-        `${config.detailUrl(id)}#${getContextHash()}`;
+    // detail-page URL carrying the search-context fragment (`#${hash}:${index}`).
+    // URL shape is supplied by the app (config.detailUrl); the fragment (content
+    // hash of the browse-set + the item's position) comes from the search context.
+    const getContextualDetailUrl = (id: number | string, rowIndex?: number) =>
+        `${config.detailUrl(id)}#${getContextFragment(id as number, rowIndex)}`;
 
     const filterOptions = config.filterOptions ?? defaultFilterOptions;
 
@@ -184,6 +191,7 @@ export function useSearchApp(config: SearchAppConfig) {
         getFilters: () => filterState.value,
         getCount: () => totalRecords.value,
         getSelectedIds: () => selectedIds.value,
+        namespace: config.contextNamespace ?? config.searchApiUrl,
     });
 
     // refresh filter dropdown options whenever new aggregations come in

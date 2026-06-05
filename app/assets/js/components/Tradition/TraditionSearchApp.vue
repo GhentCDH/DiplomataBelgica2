@@ -78,7 +78,7 @@
                         </template>
                         <template #summary="props">
                             <div>
-                                <a target="_blank" :href="getContextualDetailUrl(props.row.id)"
+                                <a target="_blank" :href="getContextualDetailUrl(props.row.id, props.index)"
                                    @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
                                 >
                                     <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
