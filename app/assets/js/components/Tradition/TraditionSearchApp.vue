@@ -31,10 +31,7 @@
                             :get-hashed-url="getHashedUrl"
                             :set-selected-ids="setSelectedIds"
                             :remove-selected-index="removeSelectedIndex"
-                            :data-table-state="dataTableState"
-                            :total-records="totalRecords"
-                            :filter-state="filterState"
-                            :before-redirect="beforeRedirect"
+                            :save-selection-context="saveSelectionContext"
                         />
                     </div>
                 </nav>
@@ -82,9 +79,7 @@
                         <template #summary="props">
                             <div>
                                 <a target="_blank" :href="getHashedUrl(props.row.id)"
-                                   @mouseup="(event) => beforeRedirect(
-                                           event, dataTableState, props.row.id, props.index, totalRecords,
-                                           filterState, selectedIds.length? selectedIds : null)"
+                                   @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
                                 >
                                     <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
                                     <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
@@ -173,7 +168,6 @@ const {
     tableData,
     updateDataTableState,
     isFetching,
-    filterState,
     // selection / basket
     selectedIds,
     setSelectedIds,
@@ -182,7 +176,8 @@ const {
     removeSelectedIds,
     // search context
     getHashedUrl,
-    beforeRedirect,
+    saveResultContext,
+    saveSelectionContext,
 } = useSearchApp({
     searchApiUrl: getRoute('tradition_search_api'),
     detailBaseUrl: '/en/tradition/original/',

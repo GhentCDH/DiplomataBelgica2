@@ -42,10 +42,7 @@
                             :get-hashed-url="getHashedUrl"
                             :set-selected-ids="setSelectedIds"
                             :remove-selected-index="removeSelectedIndex"
-                            :data-table-state="dataTableState"
-                            :total-records="totalRecords"
-                            :filter-state="filterState"
-                            :before-redirect="beforeRedirect"
+                            :save-selection-context="saveSelectionContext"
                             message="selectedItemsBasket.selectedCharters"
                         />
                     </div>
@@ -96,9 +93,7 @@
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getHashedUrl(props.row.id)"
-                                           @mouseup="(event) => beforeRedirect(
-                                               event, dataTableState, props.row.id, props.index, totalRecords,
-                                               filterState, selectedIds.length? selectedIds : null)"
+                                           @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
                                         >
                                             {{ props.row.id }}
                                         </a>
@@ -287,7 +282,8 @@ const {
     removeSelectedIds,
     // search context
     getHashedUrl,
-    beforeRedirect,
+    saveResultContext,
+    saveSelectionContext,
     // extension API
     on,
 } = useSearchApp({

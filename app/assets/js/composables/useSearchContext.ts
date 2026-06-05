@@ -110,24 +110,47 @@ export function useSearchContext(
     }
 
     /**
-     * Handle redirecting to the detailed view of an item and saving the context. Only use this on urls gotten by getHashedUrl
-     * @param event
-     * @param dataTableState
-     * @param id
-     * @param index
-     * @param count
-     * @param filters
-     * @param ids If the user has selected some items, these ids will be the only ones in the search context
+     * Source of the current search state, injected by the orchestrator so the
+     * save handlers below can build a context without the calling components
+     * having to thread pagination/filter/selection state through props.
      */
-    const beforeRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={}, ids: number[] | null = null): void => {
+    type SaveContextSource = {
+        getDataTableState: () => DataTableState;
+        getFilters: () => object;
+        getCount: () => number;
+        getSelectedIds: () => number[];
+    }
+    let saveContextSource: SaveContextSource | null = null;
+
+    /**
+     * Provide the live search state used when saving a context on link click.
+     * Search pages call this (via useSearchApp); detail pages that only read a
+     * context never need it.
+     */
+    const setSaveContextSource = (source: SaveContextSource) => {
+        saveContextSource = source;
+    }
+
+    /**
+     * Shared link-click handler: gate on left/middle click, read the #hash from
+     * the clicked link and persist a context built from the current search
+     * state. Only use this on urls produced by getHashedUrl.
+     */
+    const _save = (event: MouseEvent, id: number, index: number, ids: number[] | null): void => {
+        if (!saveContextSource) {
+            console.error('useSearchContext: save context source not set');
+            return;
+        }
         event.preventDefault();
-        if (event.button === 0 || event.button === 1){
-            const href = event.currentTarget?.getAttribute("href");
-            const url = new URL(href, window.location.origin);
+        if (event.button === 0 || event.button === 1) {
+            const href = (event.currentTarget as Element)?.getAttribute("href");
+            const url = new URL(href!, window.location.origin);
             const hash = url.hash.substring(1);
+
+            const dataTableState = saveContextSource.getDataTableState();
             let context: Context = {
                 params: {
-                    filters: filters,
+                    filters: saveContextSource.getFilters(),
                     limit: dataTableState.rowsPerPage,
                     page: dataTableState.currentPage,
                     orderBy: dataTableState.orderBy,
@@ -135,12 +158,12 @@ export function useSearchContext(
                 },
                 searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index + 1,
                 prevUrl: window.location.href,
-                count: count,
-                ids: ids? [...ids] : null,
+                count: saveContextSource.getCount(),
+                ids: ids ? [...ids] : null,
                 validReadContext: false,
             }
             if (context.ids) {
-                if (!context.ids.includes(id)){
+                if (!context.ids.includes(id)) {
                     context.ids.push(id);
                     context.ids.sort();
                 }
@@ -150,6 +173,25 @@ export function useSearchContext(
 
             saveContextHash(context, hash);
         }
+    }
+
+    /**
+     * Save the context for visiting an item from the result table. Browsing
+     * scopes to the current selection when one exists, otherwise to the full
+     * result set (using the row index for the position).
+     */
+    const saveResultContext = (event: MouseEvent, id: number, index: number): void => {
+        const selectedIds = saveContextSource?.getSelectedIds() ?? [];
+        _save(event, id, index, selectedIds.length ? selectedIds : null);
+    }
+
+    /**
+     * Save the context for visiting one of the selected items. Browsing always
+     * scopes to the current selection (position is derived from the id).
+     */
+    const saveSelectionContext = (event: MouseEvent, id: number): void => {
+        const selectedIds = saveContextSource?.getSelectedIds() ?? [];
+        _save(event, id, 0, selectedIds);
     }
 
     const getContextHash = () => {
@@ -300,7 +342,9 @@ export function useSearchContext(
     return {
         setDefaultBaseUrl,
         getHashedUrl,
-        beforeRedirect,
+        setSaveContextSource,
+        saveResultContext,
+        saveSelectionContext,
         initContextFromUrl,
         context,
         contextState,

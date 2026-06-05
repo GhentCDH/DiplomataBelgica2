@@ -142,7 +142,9 @@ export function useSearchApp(config: SearchAppConfig) {
 
     const {
         getHashedUrl,
-        beforeRedirect,
+        setSaveContextSource,
+        saveResultContext,
+        saveSelectionContext,
     } = useSearchContext(config.detailBaseUrl);
 
     const formOptions = config.formOptions ?? defaultFormOptions;
@@ -168,6 +170,15 @@ export function useSearchApp(config: SearchAppConfig) {
         removeSelectedIds,
         removeSelectedIndex,
     } = useItemsBasket();
+
+    // give the search context the live state it needs to build/save a context
+    // on link click, so components don't have to thread it through props
+    setSaveContextSource({
+        getDataTableState: () => dataTableState.value,
+        getFilters: () => filterState.value,
+        getCount: () => totalRecords.value,
+        getSelectedIds: () => selectedIds.value,
+    });
 
     // refresh filter dropdown options whenever new aggregations come in
     watch(aggregations, (currentAggregations) => {
@@ -330,7 +341,8 @@ export function useSearchApp(config: SearchAppConfig) {
         removeSelectedIndex,
         // search context
         getHashedUrl,
-        beforeRedirect,
+        saveResultContext,
+        saveSelectionContext,
 
         // --- extension API ---
         on,

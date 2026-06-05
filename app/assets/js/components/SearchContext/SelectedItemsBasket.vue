@@ -9,13 +9,7 @@
         <template #header v-if="selectedIds.length">
             <a class="btn" target="_blank"
                :href="selectedIds.length ? getHashedUrl(selectedIds[0]) : undefined"
-               @mouseup="(event) => {
-                   if (selectedIds.length){
-                       beforeRedirect(
-                       event, dataTableState, selectedIds[0], 0, totalRecords,
-                       filterState, selectedIds.length? selectedIds : null);
-                    }
-               }"
+               @mouseup="(event) => { if (selectedIds.length) saveSelectionContext(event, selectedIds[0]); }"
             >
                 View Charters
             </a>
@@ -23,8 +17,7 @@
         <template #item="{item : id, index}">
             <a class="btn btn-tertiary btn-sm" target="_blank"
                :href="getHashedUrl(id)"
-               @mouseup="(event) => beforeRedirect(event, dataTableState, id, index, totalRecords, filterState,
-               selectedIds.length? selectedIds : null)"
+               @mouseup="(event) => saveSelectionContext(event, id)"
             >
                 {{id}}
             </a>
@@ -36,7 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import type { DataTableState } from '../../composables/useTablePagination';
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
 import {useI18n} from "vue-i18n";
 
@@ -47,10 +39,7 @@ const props = defineProps<{
     getHashedUrl: (id: number) => string;
     setSelectedIds: (ids: number[]) => void;
     removeSelectedIndex: (index: number) => void;
-    dataTableState: DataTableState;
-    totalRecords: number;
-    filterState: object;
-    beforeRedirect: (event: MouseEvent, dataTableState: DataTableState, id: number, index: number, count: number, filters, ids: number[] | null) => void;
+    saveSelectionContext: (event: MouseEvent, id: number) => void;
     message: string;
 }>();
 </script>
