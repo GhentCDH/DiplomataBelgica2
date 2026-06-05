@@ -11,11 +11,11 @@ import {useVueFormGeneratorCollapsibleGroups} from "./useVueFormGeneratorCollaps
 import {type SearchQuery, useSearchHistory} from "./useSearchHistory.ts";
 
 /**
- * Context passed to `buildSchema` so the consuming page can build its filter
- * schema (e.g. autocomplete handlers) out of orchestrator-owned helpers without
- * a chicken-and-egg problem.
+ * Context passed to `buildFilterSchema` so the consuming page can build its
+ * filter schema (e.g. autocomplete handlers) out of orchestrator-owned helpers
+ * without a chicken-and-egg problem.
  */
-export type BuildSchemaContext = {
+export type BuildFilterSchemaContext = {
     updateFieldValues: (data: any, fieldNames?: Array<string> | null, keepModelData?: boolean) => void;
     getFieldConfig: (fieldName: string) => any;
     filterState: Ref<any>;
@@ -38,8 +38,8 @@ export type SearchAppConfig = {
     searchApiUrl: string;
     /** Build the plain detail-page URL for a row id (routing is the app's concern). */
     detailUrl: (id: number | string) => string;
-    /** Form model defaults. */
-    defaultModel?: Model;
+    /** Filter form model defaults. */
+    defaultFilterModel?: Model;
     /** Initial pagination/sort state. */
     defaultTableState: TableState;
     /** Field-level validators forwarded to useVueFormGenerator. */
@@ -47,11 +47,11 @@ export type SearchAppConfig = {
     /** localStorage key enabling collapsible form groups. Omit to disable. */
     collapsibleGroupsStorageId?: string;
     /** Build the filter schema once the form helpers are available. */
-    buildSchema?: (ctx: BuildSchemaContext) => Schema;
-    /** Field names not rendered as active filter tags. Defaults to defaultModel keys. */
+    buildFilterSchema?: (ctx: BuildFilterSchemaContext) => Schema;
+    /** Field names not rendered as active filter tags. Defaults to defaultFilterModel keys. */
     filterTagIgnore?: string[];
-    /** Override the default VueFormGenerator options. */
-    formOptions?: Record<string, any>;
+    /** Override the default VueFormGenerator options for the filter form. */
+    filterOptions?: Record<string, any>;
     /**
      * Extra query params that aren't form fields. Merged at the top level of
      * every search query and into the pushed URL. They never enter the form
@@ -64,7 +64,7 @@ export type SearchAppConfig = {
     autoInit?: boolean;
 }
 
-const defaultFormOptions = {
+const defaultFilterOptions = {
     validateAfterLoad: false,
     validateAfterChanged: true,
     validationErrorClass: "has-error",
@@ -84,7 +84,7 @@ const defaultFormOptions = {
  */
 export function useSearchApp(config: SearchAppConfig) {
 
-    const defaultModel: Model = config.defaultModel ?? {}
+    const defaultFilterModel: Model = config.defaultFilterModel ?? {}
     const autoInit = config.autoInit ?? true
 
     const resolveExtraQuery = (): Record<string, any> => {
@@ -125,20 +125,20 @@ export function useSearchApp(config: SearchAppConfig) {
     const {state: filterState, setState: setFilterState} = useSimpleState<any>([]);
 
     const {
-        model,
-        schema,
-        setSchema,
-        setModel,
-        modelHasChanged,
+        model: filterModel,
+        schema: filterSchema,
+        setSchema: setFilterSchema,
+        setModel: setFilterModel,
+        modelHasChanged: hasActiveFilters,
         flattenModel,
         updateFieldValues,
         getFieldConfig,
-    } = useVueFormGenerator({}, defaultModel, config.validators ?? {});
+    } = useVueFormGenerator({}, defaultFilterModel, config.validators ?? {});
 
     const {
         getActiveFilterTags,
         closeActiveFilterTag,
-    } = useActiveFilterTags(model, getFieldConfig, config.filterTagIgnore ?? Object.keys(defaultModel));
+    } = useActiveFilterTags(filterModel, getFieldConfig, config.filterTagIgnore ?? Object.keys(defaultFilterModel));
 
     const {
         getContextHash,
@@ -152,10 +152,10 @@ export function useSearchApp(config: SearchAppConfig) {
     const getContextualDetailUrl = (id: number | string) =>
         `${config.detailUrl(id)}#${getContextHash()}`;
 
-    const formOptions = config.formOptions ?? defaultFormOptions;
+    const filterOptions = config.filterOptions ?? defaultFilterOptions;
 
     if (config.collapsibleGroupsStorageId) {
-        useVueFormGeneratorCollapsibleGroups(schema, config.collapsibleGroupsStorageId);
+        useVueFormGeneratorCollapsibleGroups(filterSchema, config.collapsibleGroupsStorageId);
     }
 
     const {
@@ -206,7 +206,7 @@ export function useSearchApp(config: SearchAppConfig) {
         // `filters`, so they don't get parsed back into the model/filterState)
         const query = {...baseQuery, ...resolveExtraQuery()};
         if (pushToHistory) {
-            pushHistory(query, {model: model.value, tableState: tableState.value});
+            pushHistory(query, {model: filterModel.value, tableState: tableState.value});
         }
         const result = await searchFetch(query, mode);
         await emit('search', {mode, query, data: result});
@@ -234,30 +234,30 @@ export function useSearchApp(config: SearchAppConfig) {
         return runSearch(queryMode.search, true)
     }
 
-    const resetAllFilters = () => {
-        setModel(defaultModel)
+    const resetFilters = () => {
+        setFilterModel(defaultFilterModel)
         setCurrentPage(1)
         emit('reset', {})
-        return updateFilterState(flattenModel(model.value))
+        return updateFilterState(flattenModel(filterModel.value))
     }
 
     const onCloseActiveFilter = (tag: FilterTag) => {
         closeActiveFilterTag(tag);
-        return updateFilterState(flattenModel(model.value))
+        return updateFilterState(flattenModel(filterModel.value))
     }
 
-    const onFormValidated = (isValid: boolean, _errors?: any) => {
+    const onFiltersValidated = (isValid: boolean, _errors?: any) => {
         if (!isValid) {
             return
         }
-        return updateFilterState(flattenModel(model.value))
+        return updateFilterState(flattenModel(filterModel.value))
     }
 
     const onPopHistory = (event: PopStateEvent) => {
         if (event.state) {
-            setModel(event.state.model)
+            setFilterModel(event.state.model)
             setTableState(event.state.tableState)
-            setFilterState(flattenModel(model.value))
+            setFilterState(flattenModel(filterModel.value))
             emit('popState', {state: event.state})
             // search & aggregate (no history push: we are responding to history)
             return runSearch(queryMode.search_aggregate, false)
@@ -273,8 +273,8 @@ export function useSearchApp(config: SearchAppConfig) {
      * still receive the initial event.
      */
     const init = () => {
-        if (config.buildSchema) {
-            setSchema(config.buildSchema({updateFieldValues, getFieldConfig, filterState}))
+        if (config.buildFilterSchema) {
+            setFilterSchema(config.buildFilterSchema({updateFieldValues, getFieldConfig, filterState}))
         }
 
         const {filters, page, orderBy, ascending} = parseInitialUrl()
@@ -290,7 +290,7 @@ export function useSearchApp(config: SearchAppConfig) {
                 tmpModel[k] = v
             }
         })
-        setModel({...defaultModel, ...tmpModel})
+        setFilterModel({...defaultFilterModel, ...tmpModel})
 
         if (Number(page)) {
             setCurrentPage(Number(page))
@@ -321,14 +321,14 @@ export function useSearchApp(config: SearchAppConfig) {
 
     return {
         // --- template-facing state & handlers ---
-        model,
-        schema,
-        formOptions,
-        modelHasChanged,
+        filterModel,
+        filterSchema,
+        filterOptions,
+        hasActiveFilters,
         getActiveFilterTags,
         onCloseActiveFilter,
-        resetAllFilters,
-        onFormValidated,
+        resetFilters,
+        onFiltersValidated,
         tableState,
         totalRecords,
         results,
@@ -353,8 +353,8 @@ export function useSearchApp(config: SearchAppConfig) {
         on,
 
         // --- imperative escape hatches ---
-        setModel,
-        setSchema,
+        setFilterModel,
+        setFilterSchema,
         setFilterState,
         updateFilterState,
         setTableState,

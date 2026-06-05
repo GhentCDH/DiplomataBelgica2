@@ -2,11 +2,11 @@
     <div class="row search-app">
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
-                <div v-if="modelHasChanged" class="form-group mbottom-default flex-row">
+                <div v-if="hasActiveFilters" class="form-group mbottom-default flex-row">
 
                     <b-filter-tags :items="getActiveFilterTags()" @onClickClose="onCloseActiveFilter">
                         <template #startButton>
-                            <button class="btn btn-primary" @click="resetAllFilters">
+                            <button class="btn btn-primary" @click="resetFilters">
                                 {{ t('form.reset-filters') }}
                             </button>
                         </template>
@@ -14,10 +14,10 @@
                 </div>
                 <VueFormGenerator
                     ref="form"
-                    :model="model"
-                    :options="formOptions"
-                    :schema="schema"
-                    @validated="onFormValidated"
+                    :model="filterModel"
+                    :options="filterOptions"
+                    :schema="filterSchema"
+                    @validated="onFiltersValidated"
                 />
             </div>
         </aside>
@@ -260,14 +260,14 @@ const initialValidators: Record<string, ValidatorFn> = {
 // search app orchestrator
 const {
     // template-facing state & handlers
-    model,
-    schema,
-    formOptions,
-    modelHasChanged,
+    filterModel,
+    filterSchema,
+    filterOptions,
+    hasActiveFilters,
     getActiveFilterTags,
     onCloseActiveFilter,
-    resetAllFilters,
-    onFormValidated,
+    resetFilters,
+    onFiltersValidated,
     tableState,
     totalRecords,
     results,
@@ -289,7 +289,7 @@ const {
 } = useSearchApp({
     searchApiUrl: getRoute('charter_search_api'),
     detailUrl: (id) => createCharterUrl(id),
-    defaultModel: {
+    defaultFilterModel: {
         dating_scholary_preferential: true,
     },
     defaultTableState: {
@@ -300,7 +300,7 @@ const {
     },
     validators: initialValidators,
     collapsibleGroupsStorageId: 'charter-search-groups',
-    buildSchema: ({updateFieldValues, filterState}) => {
+    buildFilterSchema: ({updateFieldValues, filterState}) => {
         const onAutocomplete = (fieldName: string) => {
             return (query: string) => {
                 charterRepository.autocomplete(fieldName, query, filterState.value)

@@ -2,10 +2,10 @@
     <div class="row search-app">
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
-                <div v-if="modelHasChanged" class="form-group mbottom-default">
+                <div v-if="hasActiveFilters" class="form-group mbottom-default">
                     <b-filter-tags :items="getActiveFilterTags()" @onClickClose="onCloseActiveFilter">
                         <template #startButton>
-                            <button class="btn btn-primary" @click="resetAllFilters">
+                            <button class="btn btn-primary" @click="resetFilters">
                                 {{ t('form.reset-filters') }}
                             </button>
                         </template>
@@ -13,10 +13,10 @@
                 </div>
                 <VueFormGenerator
                     ref="form"
-                    :model="model"
-                    :options="formOptions"
-                    :schema="schema"
-                    @validated="onFormValidated"
+                    :model="filterModel"
+                    :options="filterOptions"
+                    :schema="filterSchema"
+                    @validated="onFiltersValidated"
                 />
             </div>
         </aside>
@@ -155,14 +155,14 @@ const tableOptions = {
 
 const {
     // template-facing state & handlers
-    model,
-    schema,
-    formOptions,
-    modelHasChanged,
+    filterModel,
+    filterSchema,
+    filterOptions,
+    hasActiveFilters,
     getActiveFilterTags,
     onCloseActiveFilter,
-    resetAllFilters,
-    onFormValidated,
+    resetFilters,
+    onFiltersValidated,
     tableState,
     totalRecords,
     results,
@@ -181,7 +181,7 @@ const {
 } = useSearchApp({
     searchApiUrl: getRoute('tradition_search_api'),
     detailUrl: (id) => createTraditionUrl('original', id),
-    defaultModel: {},
+    defaultFilterModel: {},
     defaultTableState: {
         orderBy: 'id',
         orderAsc: true,
@@ -189,7 +189,7 @@ const {
         currentPage: 1,
     },
     collapsibleGroupsStorageId: 'tradition-search-groups',
-    buildSchema: ({updateFieldValues, filterState}) => {
+    buildFilterSchema: ({updateFieldValues, filterState}) => {
         const onAutocomplete = (fieldName: string) => {
             return (query: string) => {
                 traditionRepository.autocomplete(fieldName, query, filterState)
