@@ -30,6 +30,7 @@ export type HistoryState = {
 export type InitialUrlState = {
     filters: Filters;
     page: any;
+    limit: any;
     orderBy: any;
     ascending: any;
 }
@@ -77,13 +78,14 @@ export function useSearchHistory() {
     }
 
     /**
-     * Parse the filters/page/orderBy/ascending from the current URL.
+     * Parse the filters/page/limit/orderBy/ascending from the current URL.
      */
     const parseInitialUrl = (): InitialUrlState => {
         const params = qs.parse(window.location.href.split('?', 2)[1])
         return {
             filters: (params['filters'] ?? {}) as Filters,
             page: params['page'],
+            limit: params['limit'],
             orderBy: params['orderBy'],
             ascending: params['ascending'],
         }

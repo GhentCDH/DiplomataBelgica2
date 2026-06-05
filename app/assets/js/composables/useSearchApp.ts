@@ -116,6 +116,7 @@ export function useSearchApp(config: SearchAppConfig) {
     const {
         state: tableState,
         setCurrentPage,
+        setRowsPerPage,
         setState: setTableState,
         updateState: patchTableState,
         setOrderBy,
@@ -277,7 +278,7 @@ export function useSearchApp(config: SearchAppConfig) {
             setFilterSchema(config.buildFilterSchema({updateFieldValues, getFieldConfig, filterState}))
         }
 
-        const {filters, page, orderBy, ascending} = parseInitialUrl()
+        const {filters, page, limit, orderBy, ascending} = parseInitialUrl()
         setFilterState(filters)
 
         const tmpModel: Model = {}
@@ -294,6 +295,9 @@ export function useSearchApp(config: SearchAppConfig) {
 
         if (Number(page)) {
             setCurrentPage(Number(page))
+        }
+        if (Number(limit)) {
+            setRowsPerPage(Number(limit))
         }
         if (orderBy) {
             setOrderBy(orderBy as string)
