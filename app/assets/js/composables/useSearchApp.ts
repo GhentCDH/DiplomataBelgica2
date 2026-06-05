@@ -27,11 +27,11 @@ export type BuildSchemaContext = {
  *
  * - `search`        fired after every fetch resolves: `{ mode, query, data }`
  * - `filterChange`  fired when filters are applied:    `{ filters }`
- * - `dataTableChange` fired on pagination/sort change: `{ state }`
+ * - `tableChange` fired on pagination/sort change: `{ state }`
  * - `popState`      fired on browser back/forward:      `{ state }`
  * - `reset`         fired when all filters are reset:   `{}`
  */
-export type SearchAppEvent = 'search' | 'filterChange' | 'dataTableChange' | 'popState' | 'reset';
+export type SearchAppEvent = 'search' | 'filterChange' | 'tableChange' | 'popState' | 'reset';
 
 export type SearchAppConfig = {
     /** Search API endpoint, e.g. getRoute('tradition_search_api'). */
@@ -230,7 +230,7 @@ export function useSearchApp(config: SearchAppConfig) {
      */
     const updateTableState = (payload: Partial<TableState>) => {
         patchTableState(payload)
-        emit('dataTableChange', {state: tableState.value})
+        emit('tableChange', {state: tableState.value})
         return runSearch(queryMode.search, true)
     }
 
