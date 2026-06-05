@@ -39,7 +39,7 @@
                         </button>
                         <selected-items-basket
                             :selected-ids="selectedIds"
-                            :get-hashed-url="getHashedUrl"
+                            :get-contextual-detail-url="getContextualDetailUrl"
                             :set-selected-ids="setSelectedIds"
                             :remove-selected-index="removeSelectedIndex"
                             :save-selection-context="saveSelectionContext"
@@ -92,7 +92,7 @@
                                 >
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
-                                           :href="getHashedUrl(props.row.id)"
+                                           :href="getContextualDetailUrl(props.row.id)"
                                            @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
                                         >
                                             {{ props.row.id }}
@@ -134,7 +134,7 @@
                                                     <span>{{ actor.name }}</span>
                                                     <template v-for="charterId of actor.charterIds">
                                                         <a class="btn btn-tertiary btn-sm ms-1"
-                                                           :href="getHashedUrl(charterId)"
+                                                           :href="getContextualDetailUrl(charterId)"
                                                            target="_blank">
                                                             {{ charterId }}
                                                         </a>
@@ -146,7 +146,7 @@
                                             <h3>{{ t('charters.placedateCharters') }}</h3>
                                             <template v-for="charterId of activePlace.charterIds">
                                                 <a class="btn btn-tertiary btn-sm ms-1"
-                                                   :href="getHashedUrl(charterId)"
+                                                   :href="getContextualDetailUrl(charterId)"
                                                    target="_blank">
                                                     {{ charterId }}
                                                 </a>
@@ -216,7 +216,7 @@ const props = defineProps({
 const {title} = props
 const urls = JSON.parse(props.initUrls)
 
-const {getRoute} = useUrlGenerator(urls)
+const {getRoute, createCharterUrl} = useUrlGenerator(urls)
 
 const mapRef = useTemplateRef('map')
 
@@ -281,14 +281,14 @@ const {
     addSelectedIds,
     removeSelectedIds,
     // search context
-    getHashedUrl,
+    getContextualDetailUrl,
     saveResultContext,
     saveSelectionContext,
     // extension API
     on,
 } = useSearchApp({
     searchApiUrl: getRoute('charter_search_api'),
-    detailBaseUrl: getRoute('charter_search'), // todo: should use charters_get_single route
+    detailUrl: (id) => createCharterUrl(id),
     defaultModel: {
         dating_scholary_preferential: true,
     },

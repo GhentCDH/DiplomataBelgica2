@@ -8,7 +8,7 @@
         </template>
         <template #header v-if="selectedIds.length">
             <a class="btn" target="_blank"
-               :href="selectedIds.length ? getHashedUrl(selectedIds[0]) : undefined"
+               :href="selectedIds.length ? getContextualDetailUrl(selectedIds[0]) : undefined"
                @mouseup="(event) => { if (selectedIds.length) saveSelectionContext(event, selectedIds[0]); }"
             >
                 View Charters
@@ -16,7 +16,7 @@
         </template>
         <template #item="{item : id, index}">
             <a class="btn btn-tertiary btn-sm" target="_blank"
-               :href="getHashedUrl(id)"
+               :href="getContextualDetailUrl(id)"
                @mouseup="(event) => saveSelectionContext(event, id)"
             >
                 {{id}}
@@ -36,7 +36,7 @@ const { t } = useI18n() // use as global scope
 
 const props = defineProps<{
     selectedIds: number[];
-    getHashedUrl: (id: number) => string;
+    getContextualDetailUrl: (id: number) => string;
     setSelectedIds: (ids: number[]) => void;
     removeSelectedIndex: (index: number) => void;
     saveSelectionContext: (event: MouseEvent, id: number) => void;

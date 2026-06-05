@@ -36,8 +36,8 @@ export type SearchAppEvent = 'search' | 'filterChange' | 'dataTableChange' | 'po
 export type SearchAppConfig = {
     /** Search API endpoint, e.g. getRoute('tradition_search_api'). */
     searchApiUrl: string;
-    /** Base URL for detail-view links (passed to useSearchContext). */
-    detailBaseUrl: string;
+    /** Build the plain detail-page URL for a row id (routing is the app's concern). */
+    detailUrl: (id: number | string) => string;
     /** Form model defaults. */
     defaultModel?: Model;
     /** Initial pagination/sort state. */
@@ -141,11 +141,16 @@ export function useSearchApp(config: SearchAppConfig) {
     } = useActiveFilterTags(model, getFieldConfig, config.filterTagIgnore ?? Object.keys(defaultModel));
 
     const {
-        getHashedUrl,
+        getContextHash,
         setSaveContextSource,
         saveResultContext,
         saveSelectionContext,
-    } = useSearchContext(config.detailBaseUrl);
+    } = useSearchContext();
+
+    // detail-page URL carrying the search-context hash. URL shape is supplied by
+    // the app (config.detailUrl); the hash comes from the search context.
+    const getContextualDetailUrl = (id: number | string) =>
+        `${config.detailUrl(id)}#${getContextHash()}`;
 
     const formOptions = config.formOptions ?? defaultFormOptions;
 
@@ -340,7 +345,7 @@ export function useSearchApp(config: SearchAppConfig) {
         removeSelectedIds,
         removeSelectedIndex,
         // search context
-        getHashedUrl,
+        getContextualDetailUrl,
         saveResultContext,
         saveSelectionContext,
 

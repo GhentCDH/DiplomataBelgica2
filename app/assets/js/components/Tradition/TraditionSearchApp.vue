@@ -28,9 +28,9 @@
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <selected-items-basket
                             :selected-ids="selectedIds"
-                            :get-hashed-url="getHashedUrl"
                             :set-selected-ids="setSelectedIds"
                             :remove-selected-index="removeSelectedIndex"
+                            :get-contextual-detail-url="getContextualDetailUrl"
                             :save-selection-context="saveSelectionContext"
                         />
                     </div>
@@ -78,7 +78,7 @@
                         </template>
                         <template #summary="props">
                             <div>
-                                <a target="_blank" :href="getHashedUrl(props.row.id)"
+                                <a target="_blank" :href="getContextualDetailUrl(props.row.id)"
                                    @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
                                 >
                                     <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
@@ -137,7 +137,7 @@ const props = defineProps({
 const {title} = props;
 const urls = JSON.parse(props.initUrls)
 
-const {getRoute} = useUrlGenerator(urls)
+const {getRoute, createTraditionUrl} = useUrlGenerator(urls)
 
 const tableOptions = {
     fields: [
@@ -175,12 +175,12 @@ const {
     addSelectedIds,
     removeSelectedIds,
     // search context
-    getHashedUrl,
+    getContextualDetailUrl,
     saveResultContext,
     saveSelectionContext,
 } = useSearchApp({
     searchApiUrl: getRoute('tradition_search_api'),
-    detailBaseUrl: '/en/tradition/original/',
+    detailUrl: (id) => createTraditionUrl('original', id),
     defaultModel: {},
     defaultDataTableState: {
         orderBy: 'id',

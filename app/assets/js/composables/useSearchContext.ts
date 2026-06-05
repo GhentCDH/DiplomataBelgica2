@@ -32,13 +32,14 @@ export type ResultSet = {
 
 /**
  * Composable used to save, retrieve and manage search contexts.
- * @param initialDefaultBaseUrl
+ *
+ * It only deals with the search context and its hash; building detail-page URLs
+ * is the application's responsibility (see useSearchApp.getContextualDetailUrl).
  * @param initialContext
  * @param initialMaxLocalStorage
  * @param initialResultSet
  */
 export function useSearchContext(
-    initialDefaultBaseUrl: string = "",
     initialContext: Context = {
         params: {
             filters: {},
@@ -67,7 +68,6 @@ export function useSearchContext(
      * State of the retrieved search context.
      */
     const context: Ref<Context> = toRef<Context>(initialContext);
-    const defaultBaseUrl = toRef<string>(initialDefaultBaseUrl);
     const maxLocalStorageContexts = toRef<number>(initialMaxLocalStorage);
 
     /**
@@ -84,29 +84,11 @@ export function useSearchContext(
         }, localStorage, {deep: true});
 
     /**
-     * set the default base url for the detailed view of the items
-     * @param url
-     */
-    const setDefaultBaseUrl = (url: string) => {
-        defaultBaseUrl.value = url;
-    }
-
-    /**
      * Set the maximum number of contexts to be saved in localStorage
      * @param max
      */
     const setMaxLocalStorageContexts = (max: number) => {
         maxLocalStorageContexts.value = max;
-    }
-
-    /**
-     * Get a url to the detailed view of an item with a hash to the search context.
-     * @param id
-     * @param baseUrl defaults to the set defaultBaseUrl
-     */
-    const getHashedUrl = (id: number, baseUrl:string = defaultBaseUrl.value) => {
-        let hash = getContextHash();
-        return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
     }
 
     /**
@@ -134,7 +116,8 @@ export function useSearchContext(
     /**
      * Shared link-click handler: gate on left/middle click, read the #hash from
      * the clicked link and persist a context built from the current search
-     * state. Only use this on urls produced by getHashedUrl.
+     * state. Only use this on urls that carry a context hash (see
+     * useSearchApp.getContextualDetailUrl).
      */
     const _save = (event: MouseEvent, id: number, index: number, ids: number[] | null): void => {
         if (!saveContextSource) {
@@ -340,8 +323,6 @@ export function useSearchContext(
     }
 
     return {
-        setDefaultBaseUrl,
-        getHashedUrl,
         setSaveContextSource,
         saveResultContext,
         saveSelectionContext,
