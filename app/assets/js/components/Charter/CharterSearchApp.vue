@@ -93,7 +93,7 @@
                                     <template #id="props">
                                         <a class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getContextualDetailUrl(props.row.id, props.index)"
-                                           @mouseup="(event) => saveResultContext(event, props.row.id, props.index)"
+                                           @mouseup="() => saveResultContext(props.row.id, props.index)"
                                         >
                                             {{ props.row.id }}
                                         </a>

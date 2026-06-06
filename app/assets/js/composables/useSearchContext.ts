@@ -213,35 +213,33 @@ export function useSearchContext(
     }
 
     /**
-     * Persist the browse-set context on link click. Gates on left/middle click.
-     * Recomputes the same content hash the href used, so the stored key always
-     * matches the URL the browser navigates to.
+     * Persist the browse-set context for a clicked id. Pure data operation —
+     * unaware of what triggered it. Recomputes the same content hash the href
+     * uses, so the stored key always matches the URL the browser navigates to.
+     * Idempotent: every row of a search shares one hash, so re-saving is a no-op.
      */
-    const _save = (event: MouseEvent, id: number, rowIndex?: number): void => {
+    const _save = (id: number, rowIndex?: number): void => {
         if (!saveContextSource) {
             console.error('useSearchContext: save context source not set');
             return;
         }
-        event.preventDefault();
-        if (event.button === 0 || event.button === 1) {
-            const {descriptor, context} = buildBrowseSet(id, rowIndex);
-            saveContextHash(context, getContextHash(descriptor));
-        }
+        const {descriptor, context} = buildBrowseSet(id, rowIndex);
+        saveContextHash(context, getContextHash(descriptor));
     }
 
     /**
      * Save the context for visiting an item from the result table (scopes to the
      * selection when one exists, otherwise the full result set).
      */
-    const saveResultContext = (event: MouseEvent, id: number, index: number): void => {
-        _save(event, id, index);
+    const saveResultContext = (id: number, index: number): void => {
+        _save(id, index);
     }
 
     /**
      * Save the context for visiting one of the selected items (always the selection).
      */
-    const saveSelectionContext = (event: MouseEvent, id: number): void => {
-        _save(event, id);
+    const saveSelectionContext = (id: number): void => {
+        _save(id);
     }
 
     const saveContextHash = (context: Context, hash: string) => {

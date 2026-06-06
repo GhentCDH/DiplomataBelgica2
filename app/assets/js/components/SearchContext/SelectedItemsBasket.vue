@@ -9,7 +9,7 @@
         <template #header v-if="selectedIds.length">
             <a class="btn" target="_blank"
                :href="selectedIds.length ? getContextualDetailUrl(selectedIds[0]) : undefined"
-               @mouseup="(event) => { if (selectedIds.length) saveSelectionContext(event, selectedIds[0]); }"
+               @mouseup="() => { if (selectedIds.length) saveSelectionContext(selectedIds[0]); }"
             >
                 View Charters
             </a>
@@ -17,7 +17,7 @@
         <template #item="{item : id, index}">
             <a class="btn btn-tertiary btn-sm" target="_blank"
                :href="getContextualDetailUrl(id)"
-               @mouseup="(event) => saveSelectionContext(event, id)"
+               @mouseup="() => saveSelectionContext(id)"
             >
                 {{id}}
             </a>
@@ -39,7 +39,7 @@ const props = defineProps<{
     getContextualDetailUrl: (id: number) => string;
     setSelectedIds: (ids: number[]) => void;
     removeSelectedIndex: (index: number) => void;
-    saveSelectionContext: (event: MouseEvent, id: number) => void;
+    saveSelectionContext: (id: number) => void;
     message: string;
 }>();
 </script>
