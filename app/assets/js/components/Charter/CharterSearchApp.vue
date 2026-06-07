@@ -297,7 +297,7 @@ const {
 
 // --- map: a pure extension on top of the search app ---
 
-const extendedPlaceInfo = computed(() => totalRecords.value && totalRecords.value <= 1000)
+const extendedPlaceInfo = computed(() => totalRecords.value > 0 && totalRecords.value <= 1000)
 
 // refetch places whenever the search (incl. filters) changes, but NOT on a
 // pagination/sort-only change (those use the 'search' mode, not 'search_aggregate')
