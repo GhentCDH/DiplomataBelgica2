@@ -91,12 +91,12 @@
                                     class="m-0"
                                 >
                                     <template #id="props">
-                                        <a class="btn btn-tertiary btn-sm" target="_blank"
+                                        <b-link class="btn btn-tertiary btn-sm" target="_blank"
                                            :href="getContextualDetailUrl(props.row.id, props.index)"
-                                           @mouseup="() => saveResultContext(props.row.id, props.index)"
+                                           @navigate="saveResultContext(props.row.id, props.index)"
                                         >
                                             {{ props.row.id }}
-                                        </a>
+                                        </b-link>
                                     </template>
                                     <template #summary="props">
                                         <charter-search-summary :charter="props.row"></charter-search-summary>
@@ -180,6 +180,7 @@ import BPagination from "../Bootstrap/BPagination.vue";
 import BSelect from "../Bootstrap/BSelect.vue";
 import RecordCount from "../Bootstrap/RecordCount.vue";
 import BRadioList, {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
+import BLink from "@/components/Bootstrap/BLink.vue";
 import CharterMap from "@/components/Charter/CharterMap.vue";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";

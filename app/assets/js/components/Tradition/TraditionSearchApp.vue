@@ -78,13 +78,13 @@
                         </template>
                         <template #summary="props">
                             <div>
-                                <a target="_blank" :href="getContextualDetailUrl(props.row.id, props.index)"
-                                   @mouseup="() => saveResultContext(props.row.id, props.index)"
+                                <b-link target="_blank" :href="getContextualDetailUrl(props.row.id, props.index)"
+                                   @navigate="saveResultContext(props.row.id, props.index)"
                                 >
                                     <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
                                     <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
                                     <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
-                                </a>
+                                </b-link>
                             </div>
                             <div>
                                 {{ props.row.title }}
@@ -115,6 +115,7 @@ import BPagination from "../Bootstrap/BPagination.vue";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 import SearchResultTable from "@/components/Search/SearchResultTable.vue";
+import BLink from "@/components/Bootstrap/BLink.vue";
 
 import {useSearchApp} from "@/composables/useSearchApp.ts";
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
