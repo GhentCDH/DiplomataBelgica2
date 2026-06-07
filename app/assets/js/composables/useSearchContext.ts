@@ -3,7 +3,7 @@ import {useStorage} from "@vueuse/core";
 import axios from "axios";
 import qs from "qs";
 import merge from "lodash.merge";
-import type {DataTableState} from "./useTablePagination.ts";
+import type {TableState} from "./useTableState.ts";
 
 export type Context = {
     params: {
@@ -32,13 +32,14 @@ export type ResultSet = {
 
 /**
  * Composable used to save, retrieve and manage search contexts.
- * @param initialDefaultBaseUrl
+ *
+ * It only deals with the search context and its hash; building detail-page URLs
+ * is the application's responsibility (see useSearchApp.getContextualDetailUrl).
  * @param initialContext
  * @param initialMaxLocalStorage
  * @param initialResultSet
  */
 export function useSearchContext(
-    initialDefaultBaseUrl: string = "",
     initialContext: Context = {
         params: {
             filters: {},
@@ -67,7 +68,6 @@ export function useSearchContext(
      * State of the retrieved search context.
      */
     const context: Ref<Context> = toRef<Context>(initialContext);
-    const defaultBaseUrl = toRef<string>(initialDefaultBaseUrl);
     const maxLocalStorageContexts = toRef<number>(initialMaxLocalStorage);
 
     /**
@@ -84,14 +84,6 @@ export function useSearchContext(
         }, localStorage, {deep: true});
 
     /**
-     * set the default base url for the detailed view of the items
-     * @param url
-     */
-    const setDefaultBaseUrl = (url: string) => {
-        defaultBaseUrl.value = url;
-    }
-
-    /**
      * Set the maximum number of contexts to be saved in localStorage
      * @param max
      */
@@ -100,63 +92,164 @@ export function useSearchContext(
     }
 
     /**
-     * Get a url to the detailed view of an item with a hash to the search context.
-     * @param id
-     * @param baseUrl defaults to the set defaultBaseUrl
+     * Source of the current search state, injected by the orchestrator so the
+     * save handlers and URL builder can derive a context + content hash without
+     * the calling components having to thread state through props.
      */
-    const getHashedUrl = (id: number, baseUrl:string = defaultBaseUrl.value) => {
-        let hash = getContextHash();
-        return `${baseUrl.replace(/\/+$/, "")}/${id}#${hash}`;
+    type SaveContextSource = {
+        getTableState: () => TableState;
+        getFilters: () => object;
+        getCount: () => number;
+        getSelectedIds: () => number[];
+        namespace: string; // disambiguates apps sharing the localStorage 'context' store
+    }
+    let saveContextSource: SaveContextSource | null = null;
+
+    /**
+     * Provide the live search state used when saving / identifying a context.
+     * Search pages call this (via useSearchApp); detail pages that only read a
+     * context never need it.
+     */
+    const setSaveContextSource = (source: SaveContextSource) => {
+        saveContextSource = source;
     }
 
     /**
-     * Handle redirecting to the detailed view of an item and saving the context. Only use this on urls gotten by getHashedUrl
-     * @param event
-     * @param dataTableState
-     * @param id
-     * @param index
-     * @param count
-     * @param filters
-     * @param ids If the user has selected some items, these ids will be the only ones in the search context
+     * Small, deterministic, Unicode-safe string hash (cyrb53). Turns a
+     * browse-set descriptor into a stable, short context key.
      */
-    const beforeRedirect = (event, dataTableState: DataTableState, id: number, index: number, count: number, filters={}, ids: number[] | null = null): void => {
-        event.preventDefault();
-        if (event.button === 0 || event.button === 1){
-            const href = event.currentTarget?.getAttribute("href");
-            const url = new URL(href, window.location.origin);
-            const hash = url.hash.substring(1);
-            let context: Context = {
-                params: {
-                    filters: filters,
-                    limit: dataTableState.rowsPerPage,
-                    page: dataTableState.currentPage,
-                    orderBy: dataTableState.orderBy,
-                    ascending: dataTableState.orderAsc ?? false,
-                },
-                searchIndex: (dataTableState.currentPage - 1) * dataTableState.rowsPerPage + index + 1,
-                prevUrl: window.location.href,
-                count: count,
-                ids: ids? [...ids] : null,
-                validReadContext: false,
-            }
-            if (context.ids) {
-                if (!context.ids.includes(id)){
-                    context.ids.push(id);
-                    context.ids.sort();
-                }
-                context.searchIndex = context.ids.indexOf(id) + 1;
-                context.count = context.ids.length;
-            }
-
-            saveContextHash(context, hash);
+    const cyrb53 = (str: string, seed = 0): number => {
+        let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed;
+        for (let i = 0; i < str.length; i++) {
+            const ch = str.charCodeAt(i);
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
         }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        return 4294967296 * (2097151 & h2) + (h1 >>> 0);
     }
 
-    const getContextHash = () => {
-        return window.btoa(Date.now().toString())
+    /**
+     * Content hash of a browse-set descriptor: same browse-set -> same key,
+     * different -> different. This is what makes the hash stable per search
+     * (filters + sort) and regenerate when those change, while page/per-page
+     * changes (not part of the descriptor) keep it.
+     */
+    const getContextHash = (descriptor: any): string => {
+        return cyrb53(JSON.stringify(descriptor)).toString(36);
+    }
+
+    /**
+     * For a clicked id, determine the set to browse, the context stored under
+     * the content hash, the descriptor that hash is derived from, and the
+     * 1-based position of the id within the set.
+     *
+     * Preserves the rule that a result-row click scopes to the current selection
+     * when one exists (adding the clicked id if missing); otherwise it browses
+     * the full result set, using the row index for the absolute position.
+     */
+    const buildBrowseSet = (id: number, rowIndex?: number) => {
+        const src = saveContextSource!;
+        const tableState = src.getTableState();
+        const selected = src.getSelectedIds();
+
+        let ids: number[] | null;
+        let index: number;
+        let count: number;
+        let descriptor: any;
+
+        if (selected.length) {
+            ids = [...selected];
+            if (!ids.includes(id)) {
+                ids.push(id);
+                ids.sort((a, b) => a - b);
+            }
+            index = ids.indexOf(id) + 1;
+            count = ids.length;
+            descriptor = {ns: src.namespace, ids};
+        } else {
+            ids = null;
+            index = (tableState.currentPage - 1) * tableState.rowsPerPage + (rowIndex ?? 0) + 1;
+            count = src.getCount();
+            // note: page/limit are intentionally NOT part of the identity, so
+            // paging keeps the hash; sort is included, so sorting changes it
+            descriptor = {
+                ns: src.namespace,
+                filters: src.getFilters(),
+                orderBy: tableState.orderBy,
+                ascending: tableState.orderAsc ?? false,
+            };
+        }
+
+        const context: Context = {
+            params: {
+                filters: src.getFilters(),
+                limit: tableState.rowsPerPage,
+                page: tableState.currentPage,
+                orderBy: tableState.orderBy,
+                ascending: tableState.orderAsc ?? false,
+            },
+            searchIndex: null, // position travels in the URL fragment, not the stored context
+            prevUrl: window.location.href,
+            count,
+            ids,
+            validReadContext: false,
+        };
+
+        return {descriptor, index, context};
+    }
+
+    /**
+     * Build the `${hash}:${index}` URL fragment (without the leading #) for a
+     * detail link.
+     * @param id clicked item id
+     * @param rowIndex 0-based row index on the current page (result-set browsing only)
+     */
+    const getContextFragment = (id: number, rowIndex?: number): string => {
+        if (!saveContextSource) return '';
+        const {descriptor, index} = buildBrowseSet(id, rowIndex);
+        return `${getContextHash(descriptor)}:${index}`;
+    }
+
+    /**
+     * Persist the browse-set context for a clicked id. Pure data operation —
+     * unaware of what triggered it. Recomputes the same content hash the href
+     * uses, so the stored key always matches the URL the browser navigates to.
+     * Idempotent: every row of a search shares one hash, so re-saving is a no-op.
+     */
+    const _save = (id: number, rowIndex?: number): void => {
+        if (!saveContextSource) {
+            console.error('useSearchContext: save context source not set');
+            return;
+        }
+        const {descriptor, context} = buildBrowseSet(id, rowIndex);
+        saveContextHash(context, getContextHash(descriptor));
+    }
+
+    /**
+     * Save the context for visiting an item from the result table (scopes to the
+     * selection when one exists, otherwise the full result set).
+     */
+    const saveResultContext = (id: number, index: number): void => {
+        _save(id, index);
+    }
+
+    /**
+     * Save the context for visiting one of the selected items (always the selection).
+     */
+    const saveSelectionContext = (id: number): void => {
+        _save(id);
     }
 
     const saveContextHash = (context: Context, hash: string) => {
+        // re-saving an existing content hash: just refresh its data, never re-link
+        // the LRU (that would corrupt the linked list / create a cycle)
+        if (contextState.value[hash]) {
+            contextState.value[hash].data = context;
+            contextState.value = {...contextState.value};
+            return;
+        }
         contextState.value[contextState.value.MRU].next = hash;
         contextState.value[hash] = {
             "data": context,
@@ -171,24 +264,28 @@ export function useSearchContext(
         contextState.value = { ...contextState.value };
     }
 
-    const updateContextState = (context: Context, hash: string) => {
-        contextState.value[hash].data = context;
-        contextState.value = { ...contextState.value };
-    }
-
     /**
-     * Retrieve a saved context based on the hash in the url.
+     * Retrieve a saved context based on the `${hash}:${index}` in the url. The
+     * position (index) comes from the URL and wins over the stored context.
      */
     const initContextFromUrl = () => {
         let readContext: Context = initialContext;
+        let urlIndex: number | null = null;
         try {
-            let hash = window.location.hash.substring(1);
+            const raw = window.location.hash.substring(1);
+            const [hash, indexStr] = raw.split(':');
             readContext = contextState.value[hash]["data"];
             readContext.validReadContext = true;
+            if (indexStr !== undefined && Number(indexStr)) {
+                urlIndex = Number(indexStr);
+            }
         } catch (e) {
             console.log(e)
         }
         context.value = {...initialContext, ...context.value, ...readContext};
+        if (urlIndex !== null) {
+            context.value.searchIndex = urlIndex; // URL position wins
+        }
     }
 
 
@@ -264,8 +361,13 @@ export function useSearchContext(
 
     const _updateContext = (id: number, index: number) => {
         context.value.searchIndex = index;
-        const hash = window.location.hash.substring(1);
-        updateContextState(context.value, hash);
+        // keep the position in the URL fragment (per-tab, reload-safe); the
+        // shared content-keyed context must not carry a per-tab position
+        const hash = (window.location.hash.substring(1).split(':')[0]) || '';
+        history.replaceState(
+            history.state, '',
+            `${window.location.pathname}${window.location.search}#${hash}:${index}`
+        );
         if (onIdChanged.value){
             onIdChanged.value(id.toString());
         }
@@ -298,14 +400,14 @@ export function useSearchContext(
     }
 
     return {
-        setDefaultBaseUrl,
-        getHashedUrl,
-        beforeRedirect,
+        setSaveContextSource,
+        getContextFragment,
+        saveResultContext,
+        saveSelectionContext,
         initContextFromUrl,
         context,
         contextState,
         saveContextHash,
-        getContextHash,
         setMaxLocalStorageContexts,
         initResultSet,
         updateResultSetIndex,

@@ -7,27 +7,20 @@
             <button class="btn" @click="() => {setSelectedIds([])}"> {{ t('selectedItemsBasket.unselectAll') }}</button>
         </template>
         <template #header v-if="selectedIds.length">
-            <a class="btn" target="_blank"
-               :href="selectedIds.length ? getHashedUrl(selectedIds[0]) : undefined"
-               @mouseup="(event) => {
-                   if (selectedIds.length){
-                       beforeRedirect(
-                       event, dataTableState, selectedIds[0], 0, totalRecords,
-                       filterState, selectedIds.length? selectedIds : null);
-                    }
-               }"
+            <b-link class="btn" target="_blank"
+               :href="selectedIds.length ? getContextualDetailUrl(selectedIds[0]) : undefined"
+               @navigate="() => { if (selectedIds.length) saveSelectionContext(selectedIds[0]); }"
             >
                 View Charters
-            </a>
+            </b-link>
         </template>
         <template #item="{item : id, index}">
-            <a class="btn btn-tertiary btn-sm" target="_blank"
-               :href="getHashedUrl(id)"
-               @mouseup="(event) => beforeRedirect(event, dataTableState, id, index, totalRecords, filterState,
-               selectedIds.length? selectedIds : null)"
+            <b-link class="btn btn-tertiary btn-sm" target="_blank"
+               :href="getContextualDetailUrl(id)"
+               @navigate="saveSelectionContext(id)"
             >
                 {{id}}
-            </a>
+            </b-link>
         </template>
         <template #postItem="{item, index}">
             <button class="btn-close btn-sm" @click="removeSelectedIndex(index)"></button>
@@ -36,21 +29,18 @@
 </template>
 
 <script setup lang="ts">
-import type { DataTableState } from '../../composables/useTablePagination';
 import BDropdown from "@/components/Bootstrap/BDropdown.vue";
+import BLink from "@/components/Bootstrap/BLink.vue";
 import {useI18n} from "vue-i18n";
 
 const { t } = useI18n() // use as global scope
 
 const props = defineProps<{
     selectedIds: number[];
-    getHashedUrl: (id: number) => string;
+    getContextualDetailUrl: (id: number) => string;
     setSelectedIds: (ids: number[]) => void;
     removeSelectedIndex: (index: number) => void;
-    dataTableState: DataTableState;
-    totalRecords: number;
-    filterState: object;
-    beforeRedirect: (event: MouseEvent, dataTableState: DataTableState, id: number, index: number, count: number, filters, ids: number[] | null) => void;
+    saveSelectionContext: (id: number) => void;
     message: string;
 }>();
 </script>

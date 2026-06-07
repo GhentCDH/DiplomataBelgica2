@@ -1,17 +1,17 @@
 import {type Ref, ref, toValue, watch} from "vue";
 
-export type DataTableState = {
+export type TableState = {
   currentPage: number;
   rowsPerPage: number;
   orderBy: string;
   orderAsc: boolean;
 }
 
-export type onChangeCallback = (state: DataTableState) => void;
+export type onChangeCallback = (state: TableState) => void;
 
-export function useTablePagination(initialState: DataTableState) {
+export function useTableState(initialState: TableState) {
 
-  const state: Ref<DataTableState> = ref<DataTableState>(toValue(initialState));
+  const state: Ref<TableState> = ref<TableState>(toValue(initialState));
 
   const setCurrentPage = (page: number) => {
     state.value.currentPage = page;
@@ -29,11 +29,11 @@ export function useTablePagination(initialState: DataTableState) {
     state.value.orderAsc = orderAsc;
   }
 
-  const setState = (newState: DataTableState) => {
+  const setState = (newState: TableState) => {
     state.value = newState;
   }
 
-  const updateState = (payload: Partial<DataTableState>) => {
+  const updateState = (payload: Partial<TableState>) => {
     state.value = {
       ...state.value,
       ...payload,

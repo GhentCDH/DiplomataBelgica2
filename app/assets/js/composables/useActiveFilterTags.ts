@@ -1,5 +1,5 @@
-import type {Field, Model} from "@/composables/useVueFormGenerator";
-import {type Ref} from "vue";
+import type {Field, Model} from "./useVueFormGenerator";
+import {computed, type Ref} from "vue";
 
 enum FilterType {
     INVALID,
@@ -42,8 +42,14 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
      * @param k key of the Field
      */
     function getFilterType(k: string): FilterType {
-        const type = getFieldConfig(k).type;
-        return stringTypeToEnum.has(type) ? stringTypeToEnum.get(type)! : FilterType.INVALID;
+        // a filter key may not correspond to a schema field (e.g. an extra
+        // filter passed through the URL) — treat those as INVALID so they are
+        // simply skipped instead of crashing the render
+        const field = getFieldConfig(k);
+        if (!field) {
+            return FilterType.INVALID;
+        }
+        return stringTypeToEnum.has(field.type) ? stringTypeToEnum.get(field.type)! : FilterType.INVALID;
     }
 
     /**
@@ -103,11 +109,12 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
     });
 
     /**
-     * Returns a list of FilterTags based on the model
+     * The active FilterTags derived from the current model (memoised; recomputes
+     * when the model or schema changes).
      */
-    const getActiveFilterTagStrings = (): FilterTag[] => {
+    const activeFilterTags = computed((): FilterTag[] => {
         let res: FilterTag[] = [];
-        Object.entries(model.value).forEach(([k,v],_) => {
+        Object.entries(model.value).forEach(([k,v]) => {
             if (!ignore.includes(k)){
                 const handle = typesFunctionsMap.get(getFilterType(k));
                 if (handle){
@@ -116,7 +123,7 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
             }
         });
         return res
-    }
+    })
 
     /**
      * Maps a FilterType to a function that given the current model value and a FilterTag will return an updated model value
@@ -154,7 +161,7 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
     }
 
     return {
-        getActiveFilterTagStrings,
+        activeFilterTags,
         closeActiveFilterTag
     }
 }
