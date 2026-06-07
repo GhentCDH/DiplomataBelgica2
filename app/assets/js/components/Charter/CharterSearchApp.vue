@@ -53,29 +53,13 @@
                     <div class="tab-pane show active w-100 h-100" id="nav-results" role="tabpanel"
                          aria-labelledby="nav-results-tab">
                         <div class="d-flex flex-column w-100 h-100">
-                            <nav class="row form-group">
-                                <div class="col-lg-4 d-flex align-items-lg-center">
-                                    <b-pagination
-                                        :total-records="totalRecords"
-                                        :per-page="tableState.rowsPerPage"
-                                        :page="tableState.currentPage"
-                                        @update:page="(page) => updateTableState({currentPage: parseInt(page)})"
-                                    ></b-pagination>
-                                </div>
-                                <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                                    <RecordCount :per-page="tableState.rowsPerPage" :total-records="totalRecords"
-                                                 :page="tableState.currentPage"></RecordCount>
-                                </div>
-                                <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
-                                    <b-select :id="'per-page'"
-                                              :label="t('pagination.perPage')"
-                                              :selected="tableState.rowsPerPage"
-                                              :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
-                                              @update:selected="(value) => updateTableState({rowsPerPage: parseInt(value)})"
-                                              class="w-auto"
-                                    ></b-select>
-                                </div>
-                            </nav>
+                            <search-toolbar
+                                :table-state="tableState"
+                                :total-records="totalRecords"
+                                :per-page-values="tableOptions.pagination.perPageValues"
+                                :per-page-label="t('pagination.perPage')"
+                                @change="updateTableState"
+                            ></search-toolbar>
 
                             <div class="flex-grow-1 scrollable">
                                 <search-result-table
@@ -176,10 +160,8 @@ import {computed, ref, shallowRef, useTemplateRef} from 'vue'
 
 import CharterSearchSummary from "./CharterSearchSummary.vue";
 
-import BPagination from "../Bootstrap/BPagination.vue";
-import BSelect from "../Bootstrap/BSelect.vue";
-import RecordCount from "../Bootstrap/RecordCount.vue";
 import BRadioList, {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
+import SearchToolbar from "@/components/Search/SearchToolbar.vue";
 import BLink from "@/components/Bootstrap/BLink.vue";
 import CharterMap from "@/components/Charter/CharterMap.vue";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";

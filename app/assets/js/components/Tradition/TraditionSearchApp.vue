@@ -37,28 +37,12 @@
                 </nav>
             </header>
             <section class="d-flex flex-column flex-grow-1 overflow-hidden">
-                <header class="row form-group">
-                    <div class="col-lg-4 d-flex align-items-lg-center">
-                        <b-pagination
-                            :total-records="totalRecords"
-                            :per-page="tableState.rowsPerPage"
-                            :page="tableState.currentPage"
-                            @update:page="(page) => updateTableState({currentPage: parseInt(page)})"
-                        ></b-pagination>
-                    </div>
-                    <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-center">
-                        <RecordCount :per-page="tableState.rowsPerPage" :total-records="totalRecords" :page="tableState.currentPage"></RecordCount>
-                    </div>
-                    <div class="col-lg-4 d-flex align-items-lg-center justify-content-lg-end">
-                        <b-select :id="'per-page'"
-                                  :label="'Per page'"
-                                  :selected="tableState.rowsPerPage"
-                                  :options="tableOptions.pagination.perPageValues.map(value => ({value, text: value}))"
-                                  @update:selected="(value) => updateTableState({rowsPerPage: parseInt(value)})"
-                                  class="w-auto"
-                        ></b-select>
-                    </div>
-                </header>
+                <search-toolbar
+                    :table-state="tableState"
+                    :total-records="totalRecords"
+                    :per-page-values="tableOptions.pagination.perPageValues"
+                    @change="updateTableState"
+                ></search-toolbar>
 
                 <article class="flex-grow-1 scrollable">
                     <search-result-table
@@ -109,12 +93,10 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 
-import BSelect from "@/components/Bootstrap/BSelect.vue";
-import RecordCount from "@/components/Bootstrap/RecordCount.vue";
-import BPagination from "../Bootstrap/BPagination.vue";
 import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
 import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
 import SearchResultTable from "@/components/Search/SearchResultTable.vue";
+import SearchToolbar from "@/components/Search/SearchToolbar.vue";
 import BLink from "@/components/Bootstrap/BLink.vue";
 
 import {useSearchApp} from "@/composables/useSearchApp.ts";
