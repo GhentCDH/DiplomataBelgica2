@@ -193,7 +193,7 @@ const {
     buildFilterSchema: ({updateFieldValues, filterState}) => {
         const onAutocomplete = (fieldName: string) => {
             return (query: string) => {
-                traditionRepository.autocomplete(fieldName, query, filterState)
+                traditionRepository.autocomplete(fieldName, query, filterState.value)
                     .then((response) => {
                         updateFieldValues(response.data, [fieldName])
                     })
