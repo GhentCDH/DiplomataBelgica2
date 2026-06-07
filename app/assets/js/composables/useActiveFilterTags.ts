@@ -1,5 +1,5 @@
 import type {Field, Model} from "./useVueFormGenerator";
-import {type Ref} from "vue";
+import {computed, type Ref} from "vue";
 
 enum FilterType {
     INVALID,
@@ -109,11 +109,12 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
     });
 
     /**
-     * Returns a list of FilterTags based on the model
+     * The active FilterTags derived from the current model (memoised; recomputes
+     * when the model or schema changes).
      */
-    const getActiveFilterTags = (): FilterTag[] => {
+    const activeFilterTags = computed((): FilterTag[] => {
         let res: FilterTag[] = [];
-        Object.entries(model.value).forEach(([k,v],_) => {
+        Object.entries(model.value).forEach(([k,v]) => {
             if (!ignore.includes(k)){
                 const handle = typesFunctionsMap.get(getFilterType(k));
                 if (handle){
@@ -122,7 +123,7 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
             }
         });
         return res
-    }
+    })
 
     /**
      * Maps a FilterType to a function that given the current model value and a FilterTag will return an updated model value
@@ -160,7 +161,7 @@ export function useActiveFilterTags(modelRef: Ref<Model>, getFieldConfig: (key: 
     }
 
     return {
-        getActiveFilterTags,
+        activeFilterTags,
         closeActiveFilterTag
     }
 }

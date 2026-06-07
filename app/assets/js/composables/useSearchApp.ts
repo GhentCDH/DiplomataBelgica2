@@ -129,7 +129,7 @@ export function useSearchApp(config: SearchAppConfig) {
         setOrderAsc,
     } = useTableState(config.defaultTableState);
 
-    const {state: filterState, setState: setFilterState} = useSimpleState<any>([]);
+    const {state: filterState, setState: setFilterState} = useSimpleState<Record<string, any>>({});
 
     const {
         model: filterModel,
@@ -143,7 +143,7 @@ export function useSearchApp(config: SearchAppConfig) {
     } = useVueFormGenerator({}, defaultFilterModel, config.validators ?? {});
 
     const {
-        getActiveFilterTags,
+        activeFilterTags,
         closeActiveFilterTag,
     } = useActiveFilterTags(filterModel, getFieldConfig, config.filterTagIgnore ?? Object.keys(defaultFilterModel));
 
@@ -337,7 +337,7 @@ export function useSearchApp(config: SearchAppConfig) {
         filterSchema,
         filterOptions,
         hasActiveFilters,
-        getActiveFilterTags,
+        activeFilterTags,
         onCloseActiveFilter,
         resetFilters,
         onFiltersValidated,

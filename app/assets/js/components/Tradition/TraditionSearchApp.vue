@@ -3,7 +3,7 @@
         <aside class="col-sm-3 search-app__filters h-100 position-relative">
             <div class="bg-tertiary padding-default mh-100 border-top-dibe scrollable scrollable--vertical">
                 <div v-if="hasActiveFilters" class="form-group mbottom-default">
-                    <b-filter-tags :items="getActiveFilterTags()" @onClickClose="onCloseActiveFilter">
+                    <b-filter-tags :items="activeFilterTags" @onClickClose="onCloseActiveFilter">
                         <template #startButton>
                             <button class="btn btn-primary" @click="resetFilters">
                                 {{ t('form.reset-filters') }}
@@ -147,9 +147,6 @@ const tableOptions = {
         {key: 'summary', label: 'Summary'},
     ],
     pagination: {
-        chunk: 5,
-        perPage: 25,
-        page: 1,
         perPageValues: [25, 50, 100],
     }
 }
@@ -160,7 +157,7 @@ const {
     filterSchema,
     filterOptions,
     hasActiveFilters,
-    getActiveFilterTags,
+    activeFilterTags,
     onCloseActiveFilter,
     resetFilters,
     onFiltersValidated,
