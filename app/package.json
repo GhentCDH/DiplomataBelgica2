@@ -1,32 +1,32 @@
 {
   "devDependencies": {
-    "@indoorequal/vue-maplibre-gl": "^8.4.0",
+    "@indoorequal/vue-maplibre-gl": "^8.4.2",
     "@popperjs/core": "^2.11.8",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vue/tsconfig": "^0.7.0",
-    "@vueuse/core": "^12.8.1",
+    "@vueuse/core": "^12.8.2",
     "@yeger/vue-masonry-wall": "^5.0.17",
     "articles": "^0.2.2",
-    "axios": "^1.7.9",
-    "bootstrap": "^5.3.3",
+    "axios": "^1.17.0",
+    "bootstrap": "^5.3.8",
     "deep-equal": "^2.2.3",
     "leaflet": "^1.9.4",
     "lodash.merge": "^4.6.2",
-    "maplibre-gl": "^5.6.0",
+    "maplibre-gl": "^5.24.0",
     "mark.js": "^8.11.1",
     "openseadragon": "^3.1.0",
-    "qs": "^6.14.0",
-    "sass": "^1.84.0",
+    "qs": "^6.15.2",
+    "sass": "^1.100.0",
     "vite": "^6.1.0",
     "vite-plugin-static-copy": "^2.2.0",
     "vite-plugin-symfony": "^7.1.0",
     "vitest": "^3.1.1",
-    "vue": "^3.5.13",
+    "vue": "^3.5.35",
     "vue-cookies": "^1.8.6",
-    "vue-i18n": "^11.1.7",
-    "vue-multiselect": "^3.2.0",
-    "vue3-form-generator-legacy": "^1.6.2",
+    "vue-i18n": "^11.4.5",
+    "vue-multiselect": "^3.5.0",
+    "vue3-form-generator-legacy": "^1.7.3",
     "wnumb": "^1.2.0"
   },
   "scripts": {
@@ -40,7 +40,7 @@
     "@intlify/unplugin-vue-i18n": "^6.0.8",
     "chevrotain": "^11.0.3",
     "jsdom": "^26.0.0",
-    "lodash": "^4.17.21",
-    "typescript": "^5.8.2"
+    "lodash": "^4.18.1",
+    "typescript": "^5.9.3"
   }
 }
