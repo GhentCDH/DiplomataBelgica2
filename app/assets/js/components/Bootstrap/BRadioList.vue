@@ -1,15 +1,15 @@
 <template>
   <div>
-    <div v-for="item in items" :key="item.value" class="form-check">
+    <div v-for="item in items" :key="item.value" :class="ptClass('group')">
       <input
-        class="form-check-input"
+        :class="ptClass('input')"
         type="radio"
         :id="createRadioId(item.value)"
         :value="item.value"
         v-model="selectedValue"
         @change="onValueChange"
       />
-      <label class="form-check-label" :for="createRadioId(item.value)">
+      <label :class="ptClass('label')" :for="createRadioId(item.value)">
         {{ item.label }}
       </label>
     </div>
@@ -25,11 +25,21 @@ export type RadioItem = {
 
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import {usePassThrough, type ComponentPt} from "./usePassThrough.ts";
 
 const props = defineProps<{
   items: RadioItem[];
   modelValue: string | number;
+  pt?: ComponentPt;
 }>();
+
+const defaultPt: ComponentPt = {
+  group: 'form-check',
+  input: 'form-check-input',
+  label: 'form-check-label',
+};
+
+const ptClass = usePassThrough('radioList', defaultPt, () => props.pt);
 
 const idPrefix = 'radio-';
 

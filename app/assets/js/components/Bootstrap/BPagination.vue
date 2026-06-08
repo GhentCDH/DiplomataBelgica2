@@ -1,34 +1,48 @@
 <template>
     <nav aria-label="Page navigation">
-        <ul class="pagination m-0 user-select-none">
-            <li v-if="showFirst" class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link box-shadow-none" href="#" @click.prevent="changePage(1)">{{ labelFirst ?? t('pagination.first') }}</a>
+        <ul :class="ptClass('list')">
+            <li v-if="showFirst" :class="[ptClass('item'), { [ptClass('disabled')]: currentPage === 1 }]">
+                <a :class="[ptClass('link'), 'box-shadow-none']" href="#" @click.prevent="changePage(1)">{{ labelFirst ?? t('pagination.first') }}</a>
             </li>
-            <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">{{ labelPrevious ?? t('pagination.previous')}}</a>
+            <li :class="[ptClass('item'), { [ptClass('disabled')]: currentPage === 1 }]">
+                <a :class="ptClass('link')" href="#" @click.prevent="changePage(currentPage - 1)">{{ labelPrevious ?? t('pagination.previous')}}</a>
             </li>
-            <li class="page-item" v-for="page in visiblePages" :key="page" :class="{ active: currentPage === page }">
-                <a class="page-link" href="#" @click.prevent="changePage(page)">{{ page }}</a>
+            <li v-for="page in visiblePages" :key="page" :class="[ptClass('item'), { [ptClass('active')]: currentPage === page }]">
+                <a :class="ptClass('link')" href="#" @click.prevent="changePage(page)">{{ page }}</a>
             </li>
-            <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">{{ labelNext ?? t('pagination.next')}}</a>
+            <li :class="[ptClass('item'), { [ptClass('disabled')]: currentPage === totalPages }]">
+                <a :class="ptClass('link')" href="#" @click.prevent="changePage(currentPage + 1)">{{ labelNext ?? t('pagination.next')}}</a>
             </li>
-            <li v-if="showLast && endPage < totalPages" class="page-item">
-                <a class="page-link" href="#" @click.prevent="changePage(totalPages)">{{ labelLast ?? t('pagination.last')}}</a>
+            <li v-if="showLast && endPage < totalPages" :class="ptClass('item')">
+                <a :class="ptClass('link')" href="#" @click.prevent="changePage(totalPages)">{{ labelLast ?? t('pagination.last')}}</a>
             </li>
         </ul>
     </nav>
 </template>
 <script>
 import {useI18n} from "vue-i18n";
+import {usePassThrough} from "./usePassThrough.ts";
+
+const defaultPt = {
+    list: 'pagination m-0 user-select-none',
+    item: 'page-item',
+    link: 'page-link',
+    active: 'active',
+    disabled: 'disabled',
+};
 
 export default {
     name: 'BNavigation',
-    setup() {
+    setup(props) {
         const { t } = useI18n() // use as global scope
-        return { t }
+        const ptClass = usePassThrough('pagination', defaultPt, () => props.pt)
+        return { t, ptClass }
     },
     props: {
+        pt: {
+            type: Object,
+            default: undefined
+        },
         totalRecords: {
             type: Number,
             required: true
