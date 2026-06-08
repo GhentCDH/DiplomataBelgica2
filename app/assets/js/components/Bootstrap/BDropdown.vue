@@ -1,15 +1,14 @@
 <template>
-    <div :class="ptClass('wrapper')">
+    <div ref="root" :class="ptClass('wrapper')">
         <button
             :class="ptClass('toggle')"
             type="button"
-            data-bs-toggle="dropdown"
-            data-bs-auto-close="outside"
-            aria-expanded="false"
+            :aria-expanded="isOpen"
+            @click="toggle"
         >
             <slot name="display"></slot>
         </button>
-        <ul :class="ptClass('menu')" style="max-height: 300px">
+        <ul :class="ptClass('menu')" :style="{ maxHeight: '300px', display: isOpen ? 'block' : 'none' }">
             <li :class="ptClass('header')">
                 <slot name="header"></slot>
             </li>
@@ -28,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import {onBeforeUnmount, onMounted, ref} from "vue";
 import {usePassThrough, type ComponentPt} from "./usePassThrough.ts";
 
 const props = withDefaults(defineProps<{
@@ -48,6 +48,41 @@ const defaultPt: ComponentPt = {
 const ptClass = usePassThrough('dropdown', defaultPt, () => props.pt);
 
 const emit = defineEmits(['itemClicked']);
+
+// --- open/close (self-contained; no Bootstrap JS / Popper) ---
+// Visibility is driven by an inline `display` toggle, so it doesn't rely on
+// Bootstrap's `.show` (BS5) / `.open` (BS3) CSS either. Closing mirrors
+// Bootstrap's old `data-bs-auto-close="outside"`: clicks inside the dropdown
+// (item links, remove buttons, …) keep it open; only an outside click or Escape
+// closes it.
+const root = ref<HTMLElement | null>(null);
+const isOpen = ref(false);
+
+function toggle() {
+    isOpen.value = !isOpen.value;
+}
+
+function onDocumentClick(event: MouseEvent) {
+    if (isOpen.value && root.value && !root.value.contains(event.target as Node)) {
+        isOpen.value = false;
+    }
+}
+
+function onKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+        isOpen.value = false;
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', onDocumentClick);
+    document.addEventListener('keydown', onKeydown);
+});
+
+onBeforeUnmount(() => {
+    document.removeEventListener('click', onDocumentClick);
+    document.removeEventListener('keydown', onKeydown);
+});
 
 function itemClicked(index: number) {
     emit('itemClicked', {
