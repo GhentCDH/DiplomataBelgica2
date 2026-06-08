@@ -66,7 +66,7 @@ export function usePassThrough(
 export const bootstrap3Pt: BootstrapPt = {
     pagination: {list: "pagination", item: "", link: "", active: "active", disabled: "disabled"},
     select: {select: "form-control"},
-    dropdown: {wrapper: "dropdown", toggle: "btn btn-default dropdown-toggle", menu: "dropdown-menu", header: "dropdown-header", item: ""},
+    dropdown: {wrapper: "dropdown", toggle: "btn btn-default dropdown-toggle", menu: "dropdown-menu"},
     filterTags: {container: "tag-list", tag: "label label-default", close: "close"},
     radioList: {group: "radio", input: "", label: ""},
     table: {table: "table"},

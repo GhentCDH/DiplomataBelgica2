@@ -8,20 +8,8 @@
         >
             <slot name="display"></slot>
         </button>
-        <ul :class="ptClass('menu')" :style="{ maxHeight: '300px', display: isOpen ? 'block' : 'none' }">
-            <li :class="ptClass('header')">
-                <slot name="header"></slot>
-            </li>
-            <li :class="ptClass('header')">
-                <slot name="header2"></slot>
-            </li>
-            <li v-for="(item, index) in items" :key="index" :class="ptClass('item')">
-                <slot name="preItem" :item="item" :index="index"></slot>
-                <slot name="item" :item="item" :index="index">
-                    <span @click="itemClicked(index)">{{ item }}</span>
-                </slot>
-                <slot name="postItem" :item="item" :index="index"></slot>
-            </li>
+        <ul :class="ptClass('menu')" :style="{ maxHeight, display: isOpen ? 'block' : 'none' }">
+            <slot :close="close" :isOpen="isOpen"></slot>
         </ul>
     </div>
 </template>
@@ -31,35 +19,35 @@ import {onBeforeUnmount, onMounted, ref} from "vue";
 import {usePassThrough, type ComponentPt} from "./usePassThrough.ts";
 
 const props = withDefaults(defineProps<{
-    items: [item: number, index: number][];
     pt?: ComponentPt;
+    /** Inline max-height for the (scrollable) menu. */
+    maxHeight?: string;
 }>(), {
-    items: () => []
+    maxHeight: '300px',
 });
 
 const defaultPt: ComponentPt = {
     wrapper: 'dropdown',
     toggle: 'btn btn-primary dropdown-toggle',
     menu: 'dropdown-menu overflow-auto',
-    header: 'dropdown-header',
-    item: 'dropdown-item d-flex justify-content-evenly align-items-center',
 };
 
 const ptClass = usePassThrough('dropdown', defaultPt, () => props.pt);
-
-const emit = defineEmits(['itemClicked']);
 
 // --- open/close (self-contained; no Bootstrap JS / Popper) ---
 // Visibility is driven by an inline `display` toggle, so it doesn't rely on
 // Bootstrap's `.show` (BS5) / `.open` (BS3) CSS either. Closing mirrors
 // Bootstrap's old `data-bs-auto-close="outside"`: clicks inside the dropdown
-// (item links, remove buttons, …) keep it open; only an outside click or Escape
-// closes it.
+// keep it open; only an outside click or Escape closes it.
 const root = ref<HTMLElement | null>(null);
 const isOpen = ref(false);
 
 function toggle() {
     isOpen.value = !isOpen.value;
+}
+
+function close() {
+    isOpen.value = false;
 }
 
 function onDocumentClick(event: MouseEvent) {
@@ -83,11 +71,4 @@ onBeforeUnmount(() => {
     document.removeEventListener('click', onDocumentClick);
     document.removeEventListener('keydown', onKeydown);
 });
-
-function itemClicked(index: number) {
-    emit('itemClicked', {
-        index: index,
-        item: props.items[index]
-    });
-}
 </script>
