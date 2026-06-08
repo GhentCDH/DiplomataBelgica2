@@ -1,5 +1,5 @@
 <template>
-    <table class="table">
+    <table :class="ptClass('table')">
         <thead>
         <tr>
             <slot name="actionsPreRowHeader">
@@ -31,9 +31,23 @@
 </template>
 
 <script>
+import {usePassThrough} from "./usePassThrough.ts";
+
+const defaultPt = {
+    table: 'table',
+};
+
 export default {
     name: 'BTable',
+    setup(props) {
+        const ptClass = usePassThrough('table', defaultPt, () => props.pt)
+        return { ptClass }
+    },
     props: {
+        pt: {
+            type: Object,
+            default: undefined
+        },
         items: {
             type: Array,
             required: true,
