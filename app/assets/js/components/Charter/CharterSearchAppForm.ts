@@ -1,5 +1,4 @@
-import FormGeneratorFieldCreator from "@/helpers/FormGeneratorFieldCreator";
-import {type Schema, type Field} from "../../composables/useVueFormGenerator";
+import {FormGeneratorFieldCreator, type Schema, type Field} from "@ghentcdh/vue-search-kit";
 
 type Translator = (key: string, params?: any) => string
 type AutocompleteCallback = (fieldName: string) => ((fieldName: string, query: string) => void)

@@ -47,6 +47,8 @@ export default defineConfig({
             '@assets': path.resolve(__dirname, './assets'),
             'vue': 'vue/dist/vue.esm-bundler',
         },
+        // Ensure a single Vue / vue-i18n instance across the app and the linked package
+        dedupe: ['vue', 'vue-i18n'],
         extensions: ['.js', '.ts', '.tsx', '.jsx', '.vue'],
     },
     css: {

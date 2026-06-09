@@ -8,9 +8,7 @@ import { useI18n } from "vue-i18n";
 // vue3-form-generator-legacy custom fields
 import VueFormGenerator from 'vue3-form-generator-legacy'
 import VueMultiselect from "vue-multiselect";
-import FieldMultiselectClear from "@/components/FormGenerator/FieldMultiselectClear.vue";
-import FieldCheckbox from "@/components/FormGenerator/FieldCheckbox.vue";
-import FieldDMYRange from '@/components/FormGenerator/FieldDMYRange.vue';
+import {FieldMultiselectClear, FieldCheckbox, FieldDMYRange} from "@ghentcdh/vue-search-kit";
 
 // create app
 const app = createApp({

@@ -1,5 +1,4 @@
-import FormGeneratorFieldCreator from "@/helpers/FormGeneratorFieldCreator";
-import {type Schema} from "../../composables/useVueFormGenerator";
+import {FormGeneratorFieldCreator, type Schema} from "@ghentcdh/vue-search-kit";
 import type {SchemaOptions} from "../Charter/CharterSearchAppForm.ts";
 
 export const createTraditionsSchema = (schemaOptions: SchemaOptions): Schema => {

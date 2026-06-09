@@ -93,7 +93,7 @@ import {computed, ref, toValue} from "vue";
 import LabelValue from "@/components/Sidebar/LabelValue.vue";
 import ImageThumbnail from "@/components/ImageThumbnail.vue";
 import traditionRepository from "@/repositories/TraditionRepository.ts";
-import {type Context, useSearchContext} from "@/composables/useSearchContext.ts";
+import {type Context, useSearchContext} from "@ghentcdh/vue-search-kit";
 import Widget from "@/components/Sidebar/Widget.vue";
 import {useI18n} from "vue-i18n";
 

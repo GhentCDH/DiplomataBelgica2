@@ -160,17 +160,20 @@ import {computed, ref, shallowRef, useTemplateRef} from 'vue'
 
 import CharterSearchSummary from "./CharterSearchSummary.vue";
 
-import BRadioList, {type RadioItem} from "@/components/Bootstrap/BRadioList.vue";
-import SearchToolbar from "@/components/Search/SearchToolbar.vue";
-import BLink from "@/components/Bootstrap/BLink.vue";
 import CharterMap from "@/components/Charter/CharterMap.vue";
-import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
-import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
-import SearchResultTable from "@/components/Search/SearchResultTable.vue";
+import {
+    BRadioList,
+    type RadioItem,
+    SearchToolbar,
+    BLink,
+    BFilterTags,
+    SelectedItemsBasket,
+    SearchResultTable,
+    type ValidatorFn,
+    useSearchApp,
+} from "@ghentcdh/vue-search-kit";
 
 import charterRepository from "@/repositories/CharterRepository";
-import {type ValidatorFn} from "@/composables/useVueFormGenerator";
-import {useSearchApp} from "@/composables/useSearchApp.ts";
 import {useSearchSyntax} from "@/composables/useSearchSyntax";
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 import {createSchema} from '@/components/Charter/CharterSearchAppForm.ts'

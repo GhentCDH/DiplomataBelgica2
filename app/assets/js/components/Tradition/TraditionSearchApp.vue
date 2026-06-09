@@ -93,13 +93,14 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 
-import BFilterTags from "@/components/Bootstrap/BFilterTags.vue";
-import SelectedItemsBasket from "@/components/SearchContext/SelectedItemsBasket.vue";
-import SearchResultTable from "@/components/Search/SearchResultTable.vue";
-import SearchToolbar from "@/components/Search/SearchToolbar.vue";
-import BLink from "@/components/Bootstrap/BLink.vue";
-
-import {useSearchApp} from "@/composables/useSearchApp.ts";
+import {
+    BFilterTags,
+    SelectedItemsBasket,
+    SearchResultTable,
+    SearchToolbar,
+    BLink,
+    useSearchApp,
+} from "@ghentcdh/vue-search-kit";
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
 import traditionRepository from "@/repositories/TraditionRepository.ts";
 import {createTraditionsSchema} from "@/components/Tradition/TraditionSearchAppForm.ts";

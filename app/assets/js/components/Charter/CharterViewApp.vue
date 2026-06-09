@@ -184,7 +184,7 @@
 
 <script setup lang="ts">
 
-import {type Context, useSearchContext} from "@/composables/useSearchContext";
+import {type Context, useSearchContext} from "@ghentcdh/vue-search-kit";
 import {ref, computed, toValue, watch, toRef} from 'vue'
 
 import Widget from '../Sidebar/Widget.vue'
