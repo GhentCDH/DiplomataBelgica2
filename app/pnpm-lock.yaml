@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@ghentcdh/vue-search-kit':
+        specifier: github:GhentCDH/vue-search-kit
+        version: https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))
       '@intlify/unplugin-vue-i18n':
         specifier: ^6.0.8
         version: 6.0.8(@vue/compiler-dom@3.5.35)(eslint@9.29.0)(rollup@4.32.1)(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))
@@ -388,6 +391,13 @@ packages:
   '@eslint/plugin-kit@0.3.5':
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@ghentcdh/vue-search-kit@https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465':
+    resolution: {tarball: https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465}
+    version: 0.1.0
+    peerDependencies:
+      vue: ^3.5.0
+      vue-i18n: ^11.0.0
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -2353,6 +2363,22 @@ snapshots:
     dependencies:
       '@eslint/core': 0.15.2
       levn: 0.4.1
+
+  '@ghentcdh/vue-search-kit@https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))':
+    dependencies:
+      '@vueuse/core': 12.8.2(typescript@5.9.3)
+      articles: 0.2.2
+      axios: 1.17.0
+      lodash.merge: 4.6.2
+      qs: 6.15.2
+      vue: 3.5.35(typescript@5.9.3)
+      vue-i18n: 11.4.5(vue@3.5.35(typescript@5.9.3))
+      vue3-form-generator-legacy: 1.7.3
+      wnumb: 1.2.0
+    transitivePeerDependencies:
+      - debug
+      - supports-color
+      - typescript
 
   '@humanfs/core@0.19.2':
     dependencies:

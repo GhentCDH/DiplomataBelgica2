@@ -7,9 +7,9 @@
                                 :key="'actor:'+actor.id"
                                 class="actor--issuer"
             >
-                <FormatValue :value="actor.name.name"></FormatValue> -
-                <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                <FormatValue :value="actor.place" type="id_name"></FormatValue>
+                <FormatValue :value="actor.name.name" unknown="unknown"></FormatValue> -
+                <FormatValue :value="actor.capacity" type="id_name" unknown="unknown"></FormatValue> -
+                <FormatValue :value="actor.place" type="id_name" unknown="unknown"></FormatValue>
             </actor-details-flat>
         </template>
         <template v-if="beneficiaries.length">
@@ -18,9 +18,9 @@
                                 :actor="actor"
                                 :key="'beneficiary:'+actor.id"
                                 class="actor--beneficiary">
-                <FormatValue :value="actor.name.name"></FormatValue>
-                <FormatValue :value="actor.capacity" type="id_name"></FormatValue> -
-                <FormatValue :value="actor.place" type="id_name"></FormatValue> -
+                <FormatValue :value="actor.name.name" unknown="unknown"></FormatValue> -
+                <FormatValue :value="actor.capacity" type="id_name" unknown="unknown"></FormatValue> -
+                <FormatValue :value="actor.place" type="id_name" unknown="unknown"></FormatValue>
             </actor-details-flat>
         </template>
         <template v-if="charter?.summary">
