@@ -6,7 +6,7 @@
                 {{ formatValue(value) }}
             </template>
         </template>
-        <template v-if="value == null && unknown !== false">
+        <template v-if="value == null && unknown != null">
             {{ unknown }}
         </template>
     </span>
@@ -20,8 +20,8 @@ export default {
       type: [String, Number, Object],
     },
     unknown: {
-      type: [Boolean, String],
-      default: 'unknown'
+      type: String,
+      default: null
     },
     url: {
       type: String,
