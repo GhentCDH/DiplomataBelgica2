@@ -1,4 +1,4 @@
-$overlay-color: rgba(255, 255, 255, .5);
+$overlay-color: rgba($white, .5);
 
 .loading-overlay {
   background-color: $overlay-color;

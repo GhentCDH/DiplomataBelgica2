@@ -18,6 +18,18 @@ $hover-color: #d6dadacc;
 
 $primary-light: #BEDBDB;
 
+// Neutral ramp (extends $gray-light #ddd / $gray #ccc)
+$gray-lighter: #efefef;   // very light borders/fills
+$gray-medium:  #a6a6a6;   // muted text
+$gray-darker:  #444;      // dark tooltip surface
+
+// Map controls (Leaflet-style buttons)
+$map-control-bg:       #3498DB;
+$map-control-hover-bg: #2980B9;
+
+// Multiselect focus border (UGent blue)
+$focus-border-color: #1E64C8;
+
 // Spacing
 
 $spacer: calc(20 / 16) * 1rem;

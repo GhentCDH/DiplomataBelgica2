@@ -92,7 +92,7 @@
     }
 
     .multiselect__placeholder {
-      color: white;
+      color: $white;
     }
   }
 
@@ -339,7 +339,7 @@
 
     .option__count {
       display: inline-block;
-      border: 1px solid #d1d1d1;
+      border: 1px solid $gray;
       padding: 3px 8px;
       margin-left: 1em;
       border-radius: 5px;
@@ -350,9 +350,9 @@
     }
 
     &.multiselect__option--highlight .option__count {
-      background-color: white;
-      color: black;
-      border: 1px solid #1E64C8;
+      background-color: $white;
+      color: $black;
+      border: 1px solid $focus-border-color;
     }
   }
 
@@ -392,7 +392,7 @@
 
   .multiselect__option--disabled {
     background: $border-color;
-    color: #a6a6a6;
+    color: $gray-medium;
     cursor: text;
     pointer-events: none;
   }

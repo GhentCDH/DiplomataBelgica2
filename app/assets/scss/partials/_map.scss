@@ -5,8 +5,8 @@
 }
 
 .dropbtn {
-  background-color: #3498DB;
-  color: white;
+  background-color: $map-control-bg;
+  color: $white;
   padding: 5px;
   font-size: 10px;
   border: none;
@@ -14,7 +14,7 @@
 }
 
 .dropbtn:hover, .dropbtn:focus {
-  background-color: #2980B9;
+  background-color: $map-control-hover-bg;
 }
 
 .dropup {
@@ -24,7 +24,7 @@
 
 .dropup-content {
   position: absolute;
-  background-color: #f1f1f1;
+  background-color: $gray-lighter;
   min-width: 75px;
   overflow: auto;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -32,12 +32,12 @@
 }
 
 .dropup-content a {
-  color: black;
+  color: $black;
   padding: 10px 15px;
   text-decoration: none;
   display: block;
 }
 
-.dropup a:hover {background-color: #ddd;}
+.dropup a:hover {background-color: $gray-light;}
 
 .show {display: block;}

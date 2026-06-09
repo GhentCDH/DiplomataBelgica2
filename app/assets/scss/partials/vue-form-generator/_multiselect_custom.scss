@@ -9,7 +9,7 @@
 
     .multiselect__element {
       width: 100%;
-      border-bottom: 1px solid #efefef;
+      border-bottom: 1px solid $gray-lighter;
 
       .multiselect__option > div {
         display: flex;
@@ -25,7 +25,7 @@
 
       .multiselect__option--any,
       .multiselect__option--none {
-        color: #ccc;
+        color: $gray;
       }
     }
   }
