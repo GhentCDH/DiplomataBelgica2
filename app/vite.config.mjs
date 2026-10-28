@@ -46,6 +46,8 @@ export default defineConfig({
             '@': path.resolve(__dirname, './assets/js'),
             '@assets': path.resolve(__dirname, './assets'),
             'vue': 'vue/dist/vue.esm-bundler',
+            // vue-search-kit is installed from git without a prebuilt dist: compile it from source
+            '@ghentcdh/vue-search-kit': path.resolve(__dirname, 'node_modules/@ghentcdh/vue-search-kit/src/index.ts'),
         },
         // Ensure a single Vue / vue-i18n instance across the app and the linked package
         dedupe: ['vue', 'vue-i18n'],
