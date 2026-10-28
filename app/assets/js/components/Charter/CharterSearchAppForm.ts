@@ -100,6 +100,7 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                         model: 'actor_place_diocese_name_1',
                         styleClasses: 'actor actor-1',
                         help: t('charters.form.field.actor_diocese.help'),
+                        placeholder: t('charters.form.field.actor_diocese.placeholder'),
 
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_principality.label'), {
@@ -129,37 +130,44 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                             styleClasses: 'actor actor-2',
                             visible: actorFieldIsVisible,
                             help: t('charters.form.field.actor_name.help'),
+                            placeholder: t('charters.form.field.actor_name.placeholder'),
                         },
                         {onSearch: onAutocomplete('actor_name_full_name_2'), internalSearch: false}
                     ),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_role.label'), {
                         model: 'actor_role_2', styleClasses: 'actor actor-2', visible: actorFieldIsVisible,
                         help: t('charters.form.field.actor_role.help'),
+                        placeholder: t('charters.form.field.actor_role.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_function.label'), {
                         model: 'actor_capacity_2',
                         styleClasses: 'actor actor-2', visible: actorFieldIsVisible,
                         help: t('charters.form.field.actor_function.help'),
+                        placeholder: t('charters.form.field.actor_function.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_institution.label'), {
                         model: 'actor_place_name_2',
                         styleClasses: 'actor actor-2', visible: actorFieldIsVisible,
                         help: t('charters.form.field.actor_institution.help'),
+                        placeholder: t('charters.form.field.actor_institution.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_diocese.label'), {
                         model: 'actor_place_diocese_name_2',
                         styleClasses: 'actor actor-2', visible: actorFieldIsVisible,
                         help: t('charters.form.field.actor_diocese.help'),
+                        placeholder: t('charters.form.field.actor_diocese.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_principality.label'), {
                         model: 'actor_place_principality_name_2',
                         styleClasses: 'actor actor-2', visible: actorFieldIsVisible,
                         help: t('charters.form.field.actor_principality.help'),
+                        placeholder: t('charters.form.field.actor_principality.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_order.label'), {
                         model: 'actor_order_name_2',
                         styleClasses: 'actor actor-2 !mbottom-default', visible: actorFieldIsVisible,
                         help: t('charters.form.field.actor_order.help'),
+                        placeholder: t('charters.form.field.actor_order.placeholder'),
                     }),
 
                     {
@@ -177,6 +185,7 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                             visible: actorFieldIsVisible,
                             label: t('charters.form.field.actor_name.label'),
                             help: t('charters.form.field.actor_name.help'),
+                            placeholder: t('charters.form.field.actor_name.placeholder'),
                         },
                         {onSearch: onAutocomplete('actor_name_full_name_3'), internalSearch: false}
                     ),
@@ -184,36 +193,42 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                         model: 'actor_role_3', styleClasses: 'actor actor-3', visible: actorFieldIsVisible,
                         label: t('charters.form.field.actor_role.label'),
                         help: t('charters.form.field.actor_role.help'),
+                        placeholder: t('charters.form.field.actor_role.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_function.label'), {
                         model: 'actor_capacity_3',
                         styleClasses: 'actor actor-3', visible: actorFieldIsVisible,
                         label: t('charters.form.field.actor_function.label'),
                         help: t('charters.form.field.actor_function.help'),
+                        placeholder: t('charters.form.field.actor_function.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_institution.label'), {
                         model: 'actor_place_name_3',
                         styleClasses: 'actor actor-3', visible: actorFieldIsVisible,
                         label: t('charters.form.field.actor_institution.label'),
                         help: t('charters.form.field.actor_institution.help'),
+                        placeholder: t('charters.form.field.actor_institution.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_diocese.label'), {
                         model: 'actor_place_diocese_name_3',
                         styleClasses: 'actor actor-3', visible: actorFieldIsVisible,
                         label: t('charters.form.field.actor_diocese.label'),
                         help: t('charters.form.field.actor_diocese.help'),
+                        placeholder: t('charters.form.field.actor_diocese.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_principality.label'), {
                         model: 'actor_place_principality_name_3',
                         styleClasses: 'actor actor-3', visible: actorFieldIsVisible,
                         label: t('charters.form.field.actor_principality.label'),
                         help: t('charters.form.field.actor_principality.help'),
+                        placeholder: t('charters.form.field.actor_principality.placeholder'),
                     }),
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.actor_order.label'), {
                         model: 'actor_order_name_3',
                         styleClasses: 'actor actor-3 !mbottom-default', visible: actorFieldIsVisible,
                         label: t('charters.form.field.actor_order.label'),
                         help: t('charters.form.field.actor_order.help'),
+                        placeholder: t('charters.form.field.actor_order.placeholder'),
                     }),
 
                 ]
@@ -250,6 +265,7 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.place_date.label'), {
                         model: 'charter_place_name',
                         help: t('charters.form.field.place_date.help'),
+                        placeholder: t('charters.form.field.place_date.placeholder'),
                     }),
                 ]
             },
