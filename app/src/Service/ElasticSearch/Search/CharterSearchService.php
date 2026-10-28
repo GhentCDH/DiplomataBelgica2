@@ -49,10 +49,17 @@ class CharterSearchService extends AbstractSearchService
                 ]
             ],
 
-            'dating_charter' => [
-                'type' => self::FILTER_DMY_RANGE,
+            // a charter can mention several dates: match from/till against the same date
+            'dating_charter_nested' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nestedPath' => 'udt',
                 'aggregationFilter' => false, // filter can be applied before aggregations
-                'field' => 'udt'
+                'filters' => [
+                    'dating_charter' => [
+                        'type' => self::FILTER_DMY_RANGE,
+                        'field' => 'udt',
+                    ],
+                ],
             ],
 
             'fulltext' => [
