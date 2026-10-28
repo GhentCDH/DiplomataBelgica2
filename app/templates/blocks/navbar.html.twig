@@ -57,12 +57,14 @@
             <ul class="ms-auto navbar-nav mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params') | merge(app.request.query.all) | merge({'_locale': 'en'})) }}"
+                       data-locale-switch="en"
                        class="nav-link {{ app.request.locale == 'en' ? 'active' }}">
                         {{  'English'|trans }}
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params') | merge(app.request.query.all) | merge({'_locale': 'fr'})) }}"
+                       data-locale-switch="fr"
                        class="nav-link {{ app.request.locale == 'fr' ? 'active' }}">
                         {{ 'French'|trans }}
                     </a>
