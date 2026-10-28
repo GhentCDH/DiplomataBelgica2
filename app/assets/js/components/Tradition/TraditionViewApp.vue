@@ -197,6 +197,9 @@ function getTradition(key: string) {
         url.pathname = replaceTraditionInPath(url.pathname, key);
         window.history.pushState(null, '', url.toString());
         updateTitle(id);
+    }).catch((error) => {
+        // e.g. a stale key from an old search context: keep the current record
+        console.error(`Tradition ${key} could not be loaded`, error);
     });
 }
 
