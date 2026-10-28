@@ -17,4 +17,11 @@ class CopyRepository extends AbstractRepository
         'charter.actors',
     ];
     protected $model = Copy::class;
+
+    // copies inside a manuscript are listed on the manuscript page; only loose copies
+    // ("copie séparée") are tradition records of their own
+    public function defaultQuery(): Builder
+    {
+        return parent::defaultQuery()->where('loose', 1);
+    }
 }

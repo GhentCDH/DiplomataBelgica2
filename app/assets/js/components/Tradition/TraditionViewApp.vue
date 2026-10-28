@@ -47,6 +47,7 @@
                 <div v-for="charter in tradition.charters" :key="charter.id">
                   <p>
                     <LabelValue :label="t('label.charterId')" :value="charter.id" :url="createCharterUrl(charter.id)" grid="2|8"></LabelValue>
+                    <LabelValue v-if="charter.codex_pof" :label="t('label.folio')" :value="charter.codex_pof" grid="2|8"></LabelValue>
                     <LabelValue :label="t('label.mainIssuer')" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
                     <LabelValue :label="t('label.author')" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
                     <LabelValue :label="t('label.date')" :value="formatDatations(charter.datations)" grid="2|8"></LabelValue>

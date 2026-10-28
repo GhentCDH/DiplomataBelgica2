@@ -160,7 +160,8 @@
     "tradition": "Tradition | Traditions",
     "type": "Type",
     "year": "Year",
-    "yes": "Yes"
+    "yes": "Yes",
+    "folio": "Folio/page"
   },
   "pagination": {
     "perPage": "Per page"
