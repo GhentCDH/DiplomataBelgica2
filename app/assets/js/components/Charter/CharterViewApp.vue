@@ -3,7 +3,7 @@
         <article class="d-flex col-sm-8 overflow-hidden">
             <div class="scrollable scrollable--vertical pe-2 pbottom-large w-100">
 
-                <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
+                <h1 class="pbottom-default">{{ t('label.charterId') }} {{ charter.id }}</h1>
 
                 <h2>{{ t('label.summaryAndDescription') }}</h2>
 
@@ -85,7 +85,7 @@
                         </li>
                     </ul>
                 </div>
-                <h2 v-if="charter.has_images"> Images </h2>
+                <h2 v-if="charter.has_images">{{ t('label.images') }}</h2>
                 <div v-if="(charter.image_count>0)">
                     <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)"/>
                 </div>
@@ -319,7 +319,7 @@ function getImageUrl(values: any[]) {
 }
 
 function updateTitle(id: number) {
-    document.title = 'Diplomata Belgica - Charter ID ' + id
+    document.title = t('charter.documentTitle', {id})
 }
 
 function onMarkerOver(feature: any) {

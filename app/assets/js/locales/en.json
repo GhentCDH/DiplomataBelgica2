@@ -1,6 +1,7 @@
 {
   "charter": {
-    "resultIndexOfCount": "Result {index} of {count}"
+    "resultIndexOfCount": "Result {index} of {count}",
+    "documentTitle": "Diplomata Belgica - Charter {id}"
   },
   "charters": {
     "browseMap": "Browse map",
@@ -160,7 +161,11 @@
     "tradition": "Tradition | Traditions",
     "type": "Type",
     "year": "Year",
-    "yes": "Yes"
+    "yes": "Yes",
+    "unknown": "unknown",
+    "document": "Document",
+    "imageZoom": "Image zoom",
+    "close": "Close"
   },
   "pagination": {
     "perPage": "Per page"
@@ -222,5 +227,29 @@
         "tradition": "Tradition"
       }
     }
+  },
+  "map": {
+    "lockViewport": "Lock viewport on data changes",
+    "unlockViewport": "Update viewport on data changes",
+    "showAllPlaces": "Show all places"
+  },
+  "tradition": {
+    "type": {
+      "original": "Original",
+      "copy": "Copy",
+      "manuscript": "Manuscript"
+    },
+    "manuscriptInfo": {
+      "title": "Information about the manuscript",
+      "steinId": "Stein ID",
+      "authors": "Author(s) of the manuscript",
+      "manuscriptTitle": "Title of the manuscript",
+      "redactionDate": "Date of redaction",
+      "institutions": "Institution(s) covered by the manuscript",
+      "size": "Size of the manuscript",
+      "materials": "Writing material(s)"
+    },
+    "resultIndexOfCount": "Result {index} of {count}",
+    "documentTitle": "Diplomata Belgica - Tradition {id}"
   }
 }

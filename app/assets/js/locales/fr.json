@@ -3,7 +3,8 @@
     "editions": "",
     "fullTextOfCharter": "",
     "secondaryLiterature": "",
-    "summaryAndDescription": ""
+    "summaryAndDescription": "",
+    "documentTitle": "Diplomata Belgica - Charte {id}"
   },
   "charters": {
     "browseMap": "Carte",
@@ -151,7 +152,7 @@
     "returnToSearchPage": "Retourner aux résultats \t\t\t\t\t",
     "scholarlyDating(any)": "Datation interprétée (toutes)",
     "scholarlyDating(preferential)": "Datation interprétée (préférentielle)",
-    "search": "",
+    "search": "Recherche",
     "secondaryLiterature": "Travaux",
     "source": "Source",
     "summary": "Résumé",
@@ -160,7 +161,11 @@
     "tradition": "Tradition | Traditions",
     "type": "Type",
     "year": "",
-    "yes": "Oui"
+    "yes": "Oui",
+    "unknown": "inconnu",
+    "document": "Document",
+    "imageZoom": "Zoom sur l'image",
+    "close": "Fermer"
   },
   "pagination": {
     "perPage": "Par page"
@@ -222,5 +227,29 @@
         "tradition": "Tradition"
       }
     }
+  },
+  "map": {
+    "lockViewport": "Verrouiller la vue lors des changements",
+    "unlockViewport": "Adapter la vue aux changements de données",
+    "showAllPlaces": "Afficher tous les lieux"
+  },
+  "tradition": {
+    "type": {
+      "original": "Original",
+      "copy": "Copie",
+      "manuscript": "Manuscrit"
+    },
+    "manuscriptInfo": {
+      "title": "Informations sur le manuscrit",
+      "steinId": "Stein ID",
+      "authors": "Auteur(s) du manuscrit",
+      "manuscriptTitle": "Titre du manuscrit",
+      "redactionDate": "Date de rédaction",
+      "institutions": "Institution(s) concernée(s) par le manuscrit",
+      "size": "Taille du manuscrit",
+      "materials": "Support(s) d'écriture"
+    },
+    "resultIndexOfCount": "Résultat {index} sur {count}",
+    "documentTitle": "Diplomata Belgica - Tradition {id}"
   }
 }

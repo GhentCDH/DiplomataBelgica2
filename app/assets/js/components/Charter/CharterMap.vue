@@ -24,7 +24,7 @@
             </mgl-custom-control>
             <mgl-custom-control position="top-right">
                 <button @click="fitBounds">
-                    <i class="fa-solid fa-expand" title="Show all places"></i>
+                    <i class="fa-solid fa-expand" :title="$t('map.showAllPlaces')"></i>
                 </button>
             </mgl-custom-control>
             <mgl-custom-control position="top-right">

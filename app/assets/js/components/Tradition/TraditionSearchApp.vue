@@ -58,7 +58,7 @@
                         class="m-0"
                     >
                         <template #type="props">
-                            {{ props.row.type }}
+                            {{ t('tradition.type.' + props.row.type) }}
                         </template>
                         <template #summary="props">
                             <div>
@@ -126,8 +126,8 @@ const {getRoute, createTraditionUrl} = useUrlGenerator(urls)
 const tableOptions = {
     fields: [
         // {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
-        {key: 'type', label: 'Type', sortable: true, thClass: 'no-wrap'},
-        {key: 'summary', label: 'Summary'},
+        {key: 'type', label: t('label.type'), sortable: true, thClass: 'no-wrap'},
+        {key: 'summary', label: t('label.summary')},
     ],
     pagination: {
         perPageValues: [25, 50, 100],
