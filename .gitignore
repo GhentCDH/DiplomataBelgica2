@@ -18,3 +18,4 @@ initdb/020-data.sql
 .vscode/
 .claude/
 .pnpm-store
+todo/
