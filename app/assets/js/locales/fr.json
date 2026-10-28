@@ -85,7 +85,7 @@
         "place_date": {
           "help": "L'eschatocole de nombreux documents ne mentionne pas uniquement leurs dates, mais aussi le lieu où se sont produits l'acte juridique (lat.negotium)  ou la mise par écrit ou l'expédition de la charte. En plus du nom de lieu, la formule de datation peut apporter une information plus détaillée sur l'institution, cette information peut également être recherchée  dans la liste déroulante (ex.: quand la formule de datation mentionne Gandavi in monasterio sancti Bavonis, la liste déroulante autorise la sélection de “Gand (S.Bavon)”). \t\t\t\t\t\t\t\t\t\tLorsque le document mentionne uniquement dans la formule de datation le nom de l'institution (ex.: in monte blandinio), la localisation exacte de l'institution a été ajoutée (ex: Gand (S.Pierre)). \t\t\t\t\t\t\t\t\t\tCe menu déroulant partage avec celui du champ de recherche “Institution/Juridiction” une liste commune de toponymes, aussi certaines requêtes peuvent ne pas retourner de résultat. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Date de lieu",
-          "placeholder": "Faites un choix"
+          "placeholder": "Sélectionner une date de lieu"
         },
         "summary": {
           "help": "L'analyse ou régeste consiste en une brève description, aussi concise et précise que possible, du contenu juridique et historique de l'acte. Diplomata Belgica  étant à l'origine une base de données développée en français, toutes les analyses sont rédigées uniquement dans cette langue. Les analyses suivent autant que possible celles données par les éditions de textes. Les requêtes peuvent être formulées en employant la syntaxe de recherche spécifique à Diplomata Belgica.",

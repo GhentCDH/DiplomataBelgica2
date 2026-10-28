@@ -60,6 +60,7 @@ describe('vue-i18n locale files', () => {
         expect(frFlat['form.allAuthors']).toBe('Tous les acteurs');
         expect(enFlat['form.allAuthors']).toBe('All actors');
         expect(frFlat['charters.form.field.fulltext.placeholder']).toBe('Recherche dans le texte complet');
+        expect(frFlat['charters.form.field.place_date.placeholder']).toBe('Sélectionner une date de lieu');
     });
 });
 

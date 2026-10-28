@@ -34,7 +34,7 @@
                 <h2>{{ t('label.editionsAndSecondaryLiterature') }}</h2>
 
                 <div v-if="editionsFormatted.length" class="mbottom-small">
-                    <h3>{{ t('label.edition', 1) }}</h3>
+                    <h3>{{ t('label.edition', editionsFormatted.length) }}</h3>
 
                     <ul class="_list-unstyled">
                         <li v-for="edition in editionsFormatted" :key="edition.id">
