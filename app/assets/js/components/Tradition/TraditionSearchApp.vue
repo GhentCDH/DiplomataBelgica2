@@ -65,9 +65,7 @@
                                 <b-link target="_blank" :href="getContextualDetailUrl(props.row.id, props.index)"
                                    @navigate="saveResultContext(props.row.id, props.index)"
                                 >
-                                    <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
-                                    <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
-                                    <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
+                                    {{ formatRepositoryReference(props.row.repository, props.row.repository_reference_number) }}
                                 </b-link>
                             </div>
                             <div>
@@ -92,6 +90,7 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+import {formatRepositoryReference} from "@/components/Charter/Formatters.ts";
 
 import {
     BFilterTags,
