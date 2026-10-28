@@ -41,17 +41,31 @@ class BaseController extends AbstractController
     }
 
 
+    /**
+     * Fields needed to build the result key returned by the paginate endpoint.
+     */
+    protected function paginateFields(): array {
+        return ['id'];
+    }
+
+    /**
+     * Key that identifies a result in the paginate endpoint (must match the key the search results use).
+     */
+    protected function paginateKey(array $item): int|string {
+        return $item['id'];
+    }
+
     protected function _paginate(Request $request): Response {
         // search
         $data = $this->searchService->searchRAW(
             $request->query->all(),
-            ['id']
+            $this->paginateFields()
         );
 
-        // return array of id's
+        // return array of result keys
         $result = [];
         foreach($data['data'] as $item) {
-            $result[] = $item['id'];
+            $result[] = $this->paginateKey($item);
         }
 
         return new JsonResponse($result);

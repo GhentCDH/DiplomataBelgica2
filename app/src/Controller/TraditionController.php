@@ -58,6 +58,15 @@ class TraditionController extends BaseController
         return $this->_paginate($request);
     }
 
+    // tradition ids overlap between originals, copies and manuscripts: use "type:id" keys
+    protected function paginateFields(): array {
+        return ['id', 'type'];
+    }
+
+    protected function paginateKey(array $item): int|string {
+        return TraditionSearchService::resultKey($item);
+    }
+
     /**
      * @Route("/{_locale}/tradition/{tradition_type}/{id}", name="tradition_get_single", methods={"GET"})
      */

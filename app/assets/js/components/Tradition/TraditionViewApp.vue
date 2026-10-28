@@ -98,6 +98,7 @@ import Widget from "@/components/Sidebar/Widget.vue";
 import {useI18n} from "vue-i18n";
 
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
+import {parseTraditionKey, replaceTraditionInPath, traditionKeyFromPath} from "@/composables/useTraditionKey";
 
 const { t } = useI18n();
 
@@ -113,10 +114,8 @@ const data = ref<{tradition: any}>({} as {tradition: any})
 
 const { createCharterUrl } = useUrlGenerator(urls);
 
-// Initialize
-const segments = window.location.pathname.split('/');
-const id = Number(segments[segments.length - 1]);
-getTradition(id);
+// Initialize: the record is identified by type and id ("type:id" key)
+getTradition(traditionKeyFromPath(window.location.pathname));
 
 
 const tradition = computed(() => data.value.tradition)
@@ -186,16 +185,17 @@ function filenameCheck(filename: string) {
     return name.replace('[^\d:-]','');
 }
 
-function updateTitle(id: number) {
+function updateTitle(id: string) {
     document.title = 'Diplomata Belgica - Tradition ID ' + id
 }
 
-function getTradition(id: number) {
-    traditionRepository.get(id).then((response) => {
+function getTradition(key: string) {
+    const {type, id} = parseTraditionKey(key);
+    traditionRepository.get(type, id).then((response) => {
         data.value.tradition = response.data;
-        const currentUrl = window.location.href;
-        const newUrl = currentUrl.replace(/(\/tradition\/original\/)\d+/, `$1${id}`);
-        window.history.pushState(null, '', newUrl);
+        const url = new URL(window.location.href);
+        url.pathname = replaceTraditionInPath(url.pathname, key);
+        window.history.pushState(null, '', url.toString());
         updateTitle(id);
     });
 }
@@ -211,14 +211,14 @@ const {
     setOnIdChanged,
 } = useSearchContext();
 
-setOnIdChanged((newId: number) => {
-    getTradition(newId)
+setOnIdChanged((newKey: string) => {
+    getTradition(newKey)
 });
 
 initContextFromUrl();
 if (context.value.validReadContext && !context.value.ids){
     let readContext: Context = toValue(context);
-    initResultSet(readContext, (new URL(readContext.prevUrl)).pathname.replace("/search", "/paginate").replace("/en", "")); //TODO how to fix url in composition API?
+    initResultSet(readContext, urls.tradition_paginate);
 }
 
 </script>
