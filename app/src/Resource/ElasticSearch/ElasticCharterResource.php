@@ -77,30 +77,18 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
             }
         }          
         
-        foreach ($ret['originals'] as $value) {
-            if (count($value['images']) > 0 ) {
-                $ret['images'] = $value['images'];
-            }
-            if (count($value['imageUrls']) > 0 ) {
-                $ret['imageUrls'] = $value['imageUrls'];
-            }
-        }
-        foreach ($ret['codexes'] as $value) {
-            if (count($value['images']) > 0 ) {
-                $ret['images'] = $value['images'];
-            }
-            if (count($value['imageUrls']) > 0 ) {
-                $ret['imageUrls'] = $value['imageUrls'];
+        // collect the images and image links of all originals, manuscripts and copies
+        // (each item also keeps its own imageUrls, shown next to it on the charter page)
+        $images = collect();
+        $imageUrls = collect();
+        foreach ([$ret['originals'], $ret['codexes'], $ret['copies']] as $items) {
+            foreach ($items as $value) {
+                $images = $images->merge($value['images']);
+                $imageUrls = $imageUrls->merge($value['imageUrls']);
             }
         }
-        foreach ($ret['copies'] as $value) {
-            if (count($value['images']) > 0 ) {
-                $ret['images'] = $value['images'];
-            }
-            if (count($value['imageUrls']) > 0 ) {
-                $ret['imageUrls'] = $value['imageUrls'];
-            }
-        }
+        $ret['images'] = $images->values()->all();
+        $ret['imageUrls'] = $imageUrls->values()->all();
 
         $ret['has_images'] = self::boolean( (
             (count($ret['images']) > 0)
