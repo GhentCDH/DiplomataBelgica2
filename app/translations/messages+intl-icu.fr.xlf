@@ -5,13 +5,21 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
-      <trans-unit id="ScaMeZ7" resname="Charter">
+      <trans-unit id="ScaMeZ7" resname="Charters">
         <source>Charters</source>
         <target>Chartes</target>
       </trans-unit>
-      <trans-unit id="bMWnjQE" resname="Tradition">
+      <trans-unit id="bMWnjQE" resname="Traditions">
         <source>Traditions</source>
-        <target>Traditions</target>
+        <target>Tradition</target>
+      </trans-unit>
+      <trans-unit id="Ch4rt3r" resname="Charter">
+        <source>Charter</source>
+        <target>Charte</target>
+      </trans-unit>
+      <trans-unit id="Tr4d1t0" resname="Tradition">
+        <source>Tradition</source>
+        <target>Tradition</target>
       </trans-unit>
       <trans-unit id="cyNFlB4" resname="Search traditions">
         <source>Search traditions</source>
@@ -35,11 +43,11 @@
       </trans-unit>
       <trans-unit id="uhGL9.y" resname="English">
         <source>English</source>
-        <target>English</target>
+        <target>Anglais</target>
       </trans-unit>
       <trans-unit id="dFgZn_l" resname="French">
         <source>French</source>
-        <target>French</target>
+        <target>Français</target>
       </trans-unit>
     </body>
   </file>

@@ -145,13 +145,13 @@
 
                 <Widget :title="t('label.actors')">
                     <actor-list-detailed :label="t('label.issuer')"
-                                         :label-plural="t('label.issuer', 1)" :actors="issuers"
+                                         :label-plural="t('label.issuer', 2)" :actors="issuers"
                                          :url-generator="urlGeneratorIssuer"></actor-list-detailed>
                     <actor-list-detailed :label="t('label.authorOfTheActioJuridica')"
-                                         :label-plural="t('label.authorOfTheActioJuridica', 1)"
+                                         :label-plural="t('label.authorOfTheActioJuridica', 2)"
                                          :actors="authors" :url-generator="urlGeneratorAuthors"></actor-list-detailed>
                     <actor-list-detailed :label="t('label.beneficiary')"
-                                         :label-plural="t('label.beneficiary', 1)"
+                                         :label-plural="t('label.beneficiary', 2)"
                                          :actors="beneficiaries"
                                          :url-generator="urlGeneratorBeneficiaries"></actor-list-detailed>
                 </Widget>
