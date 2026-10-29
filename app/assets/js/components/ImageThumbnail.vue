@@ -8,20 +8,31 @@
             </template>
         </masonry-wall>
         <div v-if="zoomImage != null" id="zoomWindow" class="modal fade" :class="{'show': zoomImage}" tabindex="-1" style="display: block" aria-hidden="true">
-            <div class="modal-dialog modal-xl">
+            <div class="modal-dialog modal-xl image-zoom__dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Image Zoom</h5>
-                        <button type="button" class="btn-close" @click="closeZoomedImage" aria-label="Close">
+                        <div v-if="text" class="form-check form-switch ms-auto me-3 mb-0">
+                            <input id="image-zoom-show-text" class="form-check-input" type="checkbox" role="switch" v-model="showText">
+                            <label class="form-check-label" for="image-zoom-show-text">{{ $t('label.showText') }}</label>
+                        </div>
+                        <button type="button" class="btn-close" :class="{'ms-0': text}" @click="closeZoomedImage" aria-label="Close">
                             <!-- <span aria-hidden="true">&times;</span> -->
                         </button>
                     </div>
                     <div class="modal-body">
-                        <open-seadragon
-                            id="openseadragon-zoom-viewer"
-                            :IIIFImageUrl="zoomImage"
-                            :height="imageHeight"
-                        />
+                        <div class="row g-3">
+                            <div :class="showTextPane ? 'col-lg-7' : 'col-12'">
+                                <open-seadragon
+                                    id="openseadragon-zoom-viewer"
+                                    :IIIFImageUrl="zoomImage"
+                                    :height="viewerHeight"
+                                />
+                            </div>
+                            <div v-if="showTextPane" class="col-lg-5">
+                                <div class="image-zoom__text charter-full-text overflow-auto" :style="{height: viewerHeight}" v-html="text"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -41,10 +52,9 @@ export default {
     },
     data() {
         return {
-            NotClicked : true ,
             zoomImage : null,
-            items: [],
-            imageHeight : 266,
+            showText: true,
+            viewerHeight: '70vh',
         }
     },
 
@@ -57,21 +67,43 @@ export default {
             type: String,
             default: null
         },
+        // html shown next to the zoomed image (e.g. the full text of a charter)
+        text: {
+            type: String,
+            default: null
+        },
+    },
+
+    computed: {
+        showTextPane() {
+            return !!this.text && this.showText
+        }
+    },
+
+    beforeUnmount() {
+        document.removeEventListener('keydown', this.onKeydown)
     },
 
     methods: {
-        showZoomedImage (item) {	
+        showZoomedImage (item) {
             this.zoomImage = item.replace('/full/256,/0/default.jpg', '/info.json')
-            const element = document.getElementById('zoomWindow');
-            var img = document.getElementById(item)
-            // element.style.display='block';
-            this.imageHeight = img.clientHeight;
+            document.addEventListener('keydown', this.onKeydown)
         },
         closeZoomedImage () {
-            const element = document.getElementById('zoomWindow');
-            // element.style.display='none';
             this.zoomImage = null;
+            document.removeEventListener('keydown', this.onKeydown)
+        },
+        onKeydown (event) {
+            if (event.key === 'Escape') {
+                this.closeZoomedImage()
+            }
         }
     }
 }
 </script>
+
+<style scoped lang="scss">
+.image-zoom__dialog {
+    max-width: min(95vw, 1600px);
+}
+</style>
