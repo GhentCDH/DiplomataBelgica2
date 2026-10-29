@@ -103,6 +103,7 @@
     },
     "invalidSearchSyntax": "Invalid search syntax",
     "mapWarning": "The map only shows place-date information. Please refine your search to reduce the result set and include actor places.",
+    "mapSeveralRoles": "Several roles",
     "placedateCharters": "Placedate Charters"
   },
   "form": {
