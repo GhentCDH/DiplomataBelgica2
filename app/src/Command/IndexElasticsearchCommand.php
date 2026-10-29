@@ -81,25 +81,27 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     /*** @var $repository RepositoryInterface */
-                    foreach( $repositories as $repository_name ) {
-                        $repository = $this->container->get($repository_name);
-                        $repository->indexQuery()->chunk($chunkSize,
-                            function($traditions) use ($services, &$count, $progressBar, $maxItems) {
-                                if ( $maxItems && $count >= $maxItems ) {
-                                    return false;
-                                }
+                    $this->indexOrCleanUp($services, $indexNames, function () use ($repositories, $chunkSize, $services, &$count, $progressBar, $maxItems) {
+                        foreach( $repositories as $repository_name ) {
+                            $repository = $this->container->get($repository_name);
+                            $repository->indexQuery()->chunk($chunkSize,
+                                function($traditions) use ($services, &$count, $progressBar, $maxItems) {
+                                    if ( $maxItems && $count >= $maxItems ) {
+                                        return false;
+                                    }
 
-                                // index traditions, once per locale
-                                foreach ($services as $locale => $localeService) {
-                                    $this->setModelLocale($locale);
-                                    $localeService->addMultiple(ElasticTraditionResource::collection($traditions));
-                                }
-                                $count += $traditions->count();
+                                    // index traditions, once per locale
+                                    foreach ($services as $locale => $localeService) {
+                                        $this->setModelLocale($locale);
+                                        $localeService->addMultiple(ElasticTraditionResource::collection($traditions));
+                                    }
+                                    $count += $traditions->count();
 
-                                // update progress bar
-                                $progressBar->advance($traditions->count());
-                            });
-                    }
+                                    // update progress bar
+                                    $progressBar->advance($traditions->count());
+                                });
+                        }
+                    });
 
                     $this->switchToNewIndices($services, $indexNames);
                     $progressBar->finish();
@@ -121,23 +123,25 @@ class IndexElasticsearchCommand extends Command
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->indexQuery()->chunk(100,
-                        function($charters) use ($services, &$count, $progressBar, $maxItems): bool {
-                            if ( $maxItems && $count >= $maxItems ) {
-                                return false;
-                            }
+                    $this->indexOrCleanUp($services, $indexNames, fn() =>
+                        $repository->indexQuery()->chunk(100,
+                            function($charters) use ($services, &$count, $progressBar, $maxItems): bool {
+                                if ( $maxItems && $count >= $maxItems ) {
+                                    return false;
+                                }
 
-                            // index charters, once per locale
-                            foreach ($services as $locale => $localeService) {
-                                $this->setModelLocale($locale);
-                                $localeService->addMultiple(ElasticCharterResource::collection($charters));
-                            }
-                            $count += $charters->count();
+                                // index charters, once per locale
+                                foreach ($services as $locale => $localeService) {
+                                    $this->setModelLocale($locale);
+                                    $localeService->addMultiple(ElasticCharterResource::collection($charters));
+                                }
+                                $count += $charters->count();
 
-                            // update progress bar
-                            $progressBar->advance($charters->count());
-                            return true;
-                        });
+                                // update progress bar
+                                $progressBar->advance($charters->count());
+                                return true;
+                            })
+                    );
 
                     $this->switchToNewIndices($services, $indexNames);
 
@@ -177,6 +181,21 @@ class IndexElasticsearchCommand extends Command
     private function createNewIndices(array $services): array
     {
         return array_map(fn(AbstractIndexService $service) => $service->createNewIndex(), $services);
+    }
+
+    /**
+     * Run the indexing; when it fails, remove the new (unused) indices and rethrow
+     */
+    private function indexOrCleanUp(array $services, array $indexNames, callable $index): void
+    {
+        try {
+            $index();
+        } catch (\Throwable $e) {
+            foreach ($services as $locale => $service) {
+                $service->removeIndex($indexNames[$locale]);
+            }
+            throw $e;
+        }
     }
 
     /**
