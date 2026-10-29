@@ -16,9 +16,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     private SearchConfig $searchConfig;
     private AggregationConfig $aggregationConfig;
 
-    public function __construct(Client $client, string $indexPrefix, bool $debug = false)
+    public function __construct(Client $client, string $indexPrefix, bool $debug = false, array $indexLocales = [self::DEFAULT_LOCALE])
     {
-        parent::__construct($client, $indexPrefix, $debug);
+        parent::__construct($client, $indexPrefix, $debug, $indexLocales);
 
         // init search config
         $this->searchConfig = new SearchConfig();

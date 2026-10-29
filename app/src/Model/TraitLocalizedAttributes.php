@@ -79,9 +79,16 @@ trait TraitLocalizedAttributes {
     {
         $locale = $locale ?? static::$locale;
         $locale = in_array($locale, static::$locales, true ) ? $locale : static::$defaultLocale;
-        $attr .= "_" . $locale;
 
-        return $this->getAttributeValue($attr);
+        // fall back to english, then french when there is no translation
+        foreach (array_unique([$locale, 'en', 'fr']) as $tryLocale) {
+            $value = $this->getAttributeValue($attr . "_" . $tryLocale);
+            if ($value !== null && $value !== '') {
+                return $value;
+            }
+        }
+
+        return $this->getAttributeValue($attr . "_" . $locale);
     }
 
 }
