@@ -83,4 +83,13 @@ class Codex extends AbstractTraditionModel
         return $this->BelongsToMany(Charter::class, 'charter__codex');
     }
 
+    /**
+     * Copies of charters in this manuscript, with their folio/page reference.
+     * @return HasMany|Collection|Copy[]
+     */
+    public function copies(): HasMany
+    {
+        return $this->hasMany(Copy::class);
+    }
+
 }

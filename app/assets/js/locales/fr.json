@@ -165,6 +165,7 @@
     "type": "Type",
     "year": "",
     "yes": "Oui",
+    "folio": "Folio/page",
     "unknown": "inconnu",
     "document": "Document",
     "imageZoom": "Zoom sur l'image",
