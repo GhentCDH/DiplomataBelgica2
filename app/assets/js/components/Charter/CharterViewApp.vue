@@ -87,7 +87,7 @@
                 </div>
                 <h2 v-if="charter.has_images">{{ t('label.images') }}</h2>
                 <div v-if="(charter.image_count>0)">
-                    <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)"/>
+                    <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" :text="markedCharterFulltext"/>
                 </div>
                 <div v-if="charter.imageUrls.length">
                     <ul>
