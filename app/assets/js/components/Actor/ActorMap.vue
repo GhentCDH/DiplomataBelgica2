@@ -4,6 +4,7 @@
         <mgl-navigation-control/>
         <mgl-image id="markerIcon" :url="markerIcon"></mgl-image>
         <mgl-image id="clusterIcon" :url="clusterIcon"></mgl-image>
+        <mgl-image v-for="(icon, key) in roleIcons" :key="key" :id="ROLE_ICON[key]" :url="icon"></mgl-image>
         <mgl-geo-json-source :data="geojson" source-id="geojson" :cluster="true" :cluster-max-zoom="8"
                              :cluster-radius="50">
             <mgl-symbol-layer layer-id="markers"
@@ -38,6 +39,7 @@ import {
     useMap
 } from '@indoorequal/vue-maplibre-gl'
 import {LngLatBounds} from 'maplibre-gl'
+import {ROLE_ICON, roleIconImage} from '@/components/Charter/roleColours'
 
 const props = defineProps({
     style: String,
@@ -50,6 +52,12 @@ const emit = defineEmits(['markerOver', 'markerOut'])
 
 import markerIcon from '@assets/icons/marker3.png?no-inline'
 import clusterIcon from '@assets/icons/marker3.png?no-inline'
+import issuerIcon from '@assets/icons/marker-issuer.png?no-inline'
+import disposantIcon from '@assets/icons/marker-disposant.png?no-inline'
+import beneficiaryIcon from '@assets/icons/marker-beneficiary.png?no-inline'
+
+// pin colour per role (feature property roleKey), see roleColours.ts
+const roleIcons = {issuer: issuerIcon, disposant: disposantIcon, beneficiary: beneficiaryIcon}
 
 // Examples
 // circle color based on actor role
@@ -78,7 +86,7 @@ const center = ref([10.4825, 51.4124]);
 const markerLayer = {
     id: 'marker',
     layout: {
-        'icon-image': 'markerIcon',
+        'icon-image': roleIconImage('markerIcon'),
         'icon-size': 0.3,
         'text-field': '{roleLabel}',
         'text-font': ['Arial Unicode MS Bold', 'Helvetica'],
