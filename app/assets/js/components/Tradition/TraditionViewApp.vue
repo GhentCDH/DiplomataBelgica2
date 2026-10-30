@@ -21,15 +21,16 @@
                   <LabelValue :label="t('tradition.manuscriptInfo.materials')" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
 
-                <h2> {{ t('label.links') }} </h2>
+                <h2 v-if="tradition.repository.urls.length > 0 || tradition.urls.length > 0"> {{ t('label.links') }} </h2>
                 <div v-if="tradition.repository.urls.length >0" class="mbottom-small">
                     <h3>{{  t('label.repository') }}</h3>
                     <InlineLinkList :linklist="tradition.repository.urls.map((url) => url.url)"></InlineLinkList>
                 </div>
 
-
-                <h3 v-if="tradition.urls.length > 0">{{ t('label.document') }}</h3>
-                <InlineLinkList v-if="tradition.urls.length > 0" :linklist="tradition.urls.map((url) => url.url)"></InlineLinkList>
+                <div v-if="tradition.urls.length > 0" class="mbottom-small">
+                    <h3>{{ t('label.document') }}</h3>
+                    <InlineLinkList :linklist="tradition.urls.map((url) => url.url)"></InlineLinkList>
+                </div>
 
                 <h2 v-if="tradition.image_count > 0"> {{ t('label.images') }} </h2>
                 <div v-if="(tradition.image_count>0)" >
