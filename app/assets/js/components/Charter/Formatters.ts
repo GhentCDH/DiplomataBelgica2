@@ -43,6 +43,12 @@ export function formatRepositoryReference(repository: any, referenceNumber?: str
     return [repository?.location, repository?.name, referenceNumber].filter(Boolean).join(', ')
 }
 
+/** External image links (e.g. digitised manuscripts) of an original, copy or manuscript. */
+function imageLinks(item: any): string[] {
+    // the nested Eloquent relation is serialized in snake case
+    return (item.image_urls ?? item.imageUrls ?? []).map((u: any) => u.url).filter(Boolean)
+}
+
 export type TraditionUrlGenerator = (type: string, id: string) => string;
 
 export function formatOriginal(original: any, createTraditionUrl: TraditionUrlGenerator) {
@@ -57,7 +63,8 @@ export function formatOriginal(original: any, createTraditionUrl: TraditionUrlGe
         parts.push(original.repository_reference_number)
     }
     const text = parts.join(', ')
-    return text ? (original.id ? { text, link: createTraditionUrl('original', original.id) } : { text }) : null
+    const links = imageLinks(original)
+    return text ? (original.id ? { text, link: createTraditionUrl('original', original.id), links } : { text, links }) : null
 }
 
 export function formatCodex(codex: any, type: string, createTraditionUrl: TraditionUrlGenerator) {
@@ -75,7 +82,8 @@ export function formatCodex(codex: any, type: string, createTraditionUrl: Tradit
     if (codex.redaction_date) {
         line += (line ? ' ' : '') + `(${codex.redaction_date})`
     }
-    return line ? (codex.id ? { text: line, link: createTraditionUrl(type, codex.id) } : { text: line }) : null
+    const links = imageLinks(codex)
+    return line ? (codex.id ? { text: line, link: createTraditionUrl(type, codex.id), links } : { text: line, links }) : null
 }
 
 export function formatEdition(edition: any) {

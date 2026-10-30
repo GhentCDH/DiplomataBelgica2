@@ -62,7 +62,8 @@
 
                     <div class="ptop-small" v-for="original in originals" :key="original.id">
                         <a target="_blank" v-if="original.link" :href="original.link">{{ original.text }}</a>
-                        <p v-else>{{ original.text }}</p>
+                        <span v-else>{{ original.text }}</span>
+                        <InlineLinkList :linklist="original.links"></InlineLinkList>
                     </div>
                 </div>
 
@@ -71,7 +72,8 @@
                     <ul>
                         <li v-for="copy in copies" :key="copy.id">
                             <a target="_blank" v-if="copy.link" :href="copy.link">{{ copy.text }}</a>
-                            <p v-else>{{ copy.text }}</p>
+                            <span v-else>{{ copy.text }}</span>
+                            <InlineLinkList :linklist="copy.links"></InlineLinkList>
                         </li>
                     </ul>
                 </div>
@@ -81,20 +83,15 @@
                     <ul>
                         <li v-for="codex in codexes" :key="codex.id">
                             <a target="_blank" v-if="codex.link" :href="codex.link">{{ codex.text }}</a>
-                            <p v-else>{{ codex.text }}</p>
+                            <span v-else>{{ codex.text }}</span>
+                            <InlineLinkList :linklist="codex.links"></InlineLinkList>
                         </li>
                     </ul>
                 </div>
-                <h2 v-if="charter.has_images">{{ t('label.images') }}</h2>
+                <!-- external image links are shown next to their original/copy/manuscript above -->
+                <h2 v-if="charter.image_count > 0">{{ t('label.images') }}</h2>
                 <div v-if="(charter.image_count>0)">
                     <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" :text="markedCharterFulltext"/>
-                </div>
-                <div v-if="charter.imageUrls.length">
-                    <ul>
-                        <li v-for="image in charter.imageUrls" :key="image.codex_id">
-                            <a target="_blank" v-if="image.url" :href="image.url">{{ image.url }}</a>
-                        </li>
-                    </ul>
                 </div>
 
                 <h2>{{ t('label.map') }}</h2>
