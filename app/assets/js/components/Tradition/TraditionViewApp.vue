@@ -22,37 +22,21 @@
                 </div>
 
                 <h2> {{ t('label.links') }} </h2>
-                <div v-if="tradition.repository.urls.length >0">
-                    <h3 v-if="tradition.repository.urls.length >0">{{  t('label.repository') }}</h3>
-                    <ul>
-                        <li v-for="url in tradition.repository.urls" :key="url.id">
-                            <a target="_blank" :href="url.url">{{ url.url }}</a>
-                        </li>
-                    </ul>
+                <div v-if="tradition.repository.urls.length >0" class="mbottom-small">
+                    <h3>{{  t('label.repository') }}</h3>
+                    <InlineLinkList :linklist="tradition.repository.urls.map((url) => url.url)"></InlineLinkList>
                 </div>
 
 
                 <h3 v-if="tradition.urls.length > 0">{{ t('label.document') }}</h3>
-                <ul>
-                    <li v-for="url in tradition.urls" :key="url.id">
-                        <a target="_blank" :href="url.url">{{ url.url }}</a>
-                    </li>
-                </ul>
+                <InlineLinkList v-if="tradition.urls.length > 0" :linklist="tradition.urls.map((url) => url.url)"></InlineLinkList>
 
                 <h2 v-if="tradition.image_count > 0"> {{ t('label.images') }} </h2>
                 <div v-if="(tradition.image_count>0)" >
                   <ImageThumbnail :thumbnail-urls="getImageUrl(tradition.images)" />
                 </div>
                 <h2> {{ t('label.charters') }} </h2>
-                <div v-for="charter in tradition.charters" :key="charter.id">
-                  <p>
-                    <LabelValue :label="t('label.charterId')" :value="charter.id" :url="createCharterUrl(charter.id)" grid="2|8"></LabelValue>
-                    <LabelValue v-if="charter.codex_pof" :label="t('label.folio')" :value="charter.codex_pof" grid="2|8"></LabelValue>
-                    <LabelValue :label="t('label.mainIssuer')" :value="charter.actors[0].capacity.name" grid="2|8"></LabelValue>
-                    <LabelValue :label="t('label.author')" :value="charter.actors[0].name.full_name" grid="2|8"></LabelValue>
-                    <LabelValue :label="t('label.date')" :value="formatDatations(charter.datations)" grid="2|8"></LabelValue>
-                  </p>
-                </div>
+                <TraditionCharterList :charters="tradition.charters" :create-charter-url="createCharterUrl"/>
 
               </div>
         </article>
@@ -93,6 +77,8 @@
 import {computed, ref, toValue} from "vue";
 import LabelValue from "@/components/Sidebar/LabelValue.vue";
 import ImageThumbnail from "@/components/ImageThumbnail.vue";
+import InlineLinkList from "@/components/InlineLinkList.vue";
+import TraditionCharterList from "@/components/Tradition/TraditionCharterList.vue";
 import traditionRepository from "@/repositories/TraditionRepository.ts";
 import {type Context, useSearchContext} from "@ghentcdh/vue-search-kit";
 import Widget from "@/components/Sidebar/Widget.vue";
@@ -122,37 +108,6 @@ getTradition(id);
 
 
 const tradition = computed(() => data.value.tradition)
-
-function formatDate(date): string {
-    var res = '';
-    if (date.year) {
-        res = date.year;
-        if (date.month) {
-            res = date.month + '/' + res;
-            if (date.day) {
-                res = date.day + '/' + res;
-            }
-        }
-    }
-    return res;
-}
-
-function formatDatations(datations): string[] {
-    var arr: string[] = [];
-    for(const datation of datations) {
-        var res = formatDate(datation.time);
-        if (datation.time.interpretation) {
-            res += ' (' + datation.time.interpretation;
-            if (datation.researcher) {
-                res += ' - ' + datation.researcher + ')';
-            } else {
-                res += ')';
-            }
-        }
-        arr.push(res);
-    }
-    return arr;
-}
 
 function getImageUrl(values) {
     return values.map( item => formatImageUrl(item.image_file ))
