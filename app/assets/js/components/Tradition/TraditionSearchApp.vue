@@ -41,6 +41,7 @@
                     :table-state="tableState"
                     :total-records="totalRecords"
                     :per-page-values="tableOptions.pagination.perPageValues"
+                    :per-page-label="t('pagination.perPage')"
                     @change="updateTableState"
                 ></search-toolbar>
 
@@ -58,16 +59,14 @@
                         class="m-0"
                     >
                         <template #type="props">
-                            {{ props.row.type }}
+                            {{ t('tradition.type.' + props.row.type) }}
                         </template>
                         <template #summary="props">
                             <div>
                                 <b-link target="_blank" :href="getContextualDetailUrl(props.row.id, props.index)"
                                    @navigate="saveResultContext(props.row.id, props.index)"
                                 >
-                                    <span v-if="props.row.repository.location">{{ props.row.repository.location }}</span>
-                                    <span v-if="props.row.repository.name">, {{ props.row.repository.name }}</span>
-                                    <span v-if="props.row.repository_reference_number"> {{ props.row.repository_reference_number }}</span>
+                                    {{ formatRepositoryReference(props.row.repository, props.row.repository_reference_number) }}
                                 </b-link>
                             </div>
                             <div>
@@ -92,6 +91,7 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+import {formatRepositoryReference} from "@/components/Charter/Formatters.ts";
 
 import {
     BFilterTags,
@@ -126,8 +126,8 @@ const {getRoute, createTraditionUrl} = useUrlGenerator(urls)
 const tableOptions = {
     fields: [
         // {key: 'id', label: 'Id', sortable: true, thClass: 'no-wrap'},
-        {key: 'type', label: 'Type', sortable: true, thClass: 'no-wrap'},
-        {key: 'summary', label: 'Summary'},
+        {key: 'type', label: t('label.type'), sortable: true, thClass: 'no-wrap'},
+        {key: 'summary', label: t('label.summary')},
     ],
     pagination: {
         perPageValues: [25, 50, 100],

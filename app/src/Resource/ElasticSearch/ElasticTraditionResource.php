@@ -2,6 +2,7 @@
 
 namespace App\Resource\ElasticSearch;
 
+use App\Helper\CopyFolioSort;
 use App\Model\Charter;
 use App\Model\Codex;
 use App\Model\Copy;
@@ -58,7 +59,18 @@ class ElasticTraditionResource extends ElasticBaseResource
         }
 
         if ($ret['type'] == 'manuscript') {
-            $ret['charters'] = ElasticTraditionCharterResource::collection($this->charters);
+            // one entry per copy, in manuscript order, with its folio/page reference
+            $copies = $resource->copies
+                ->filter(fn ($copy) => $copy->charter !== null)
+                ->sortBy(fn ($copy) => CopyFolioSort::key($copy->codex_sequence_number, $copy->codex_pof))
+                ->values();
+            $ret['charters'] = $copies->map(fn ($copy) => array_merge(
+                (new ElasticTraditionCharterResource($copy->charter))->toArray(),
+                [
+                    'codex_pof' => $copy->codex_pof,
+                    'codex_sequence_number' => $copy->codex_sequence_number,
+                ]
+            ))->all();
         }
 
         $ret['has_images'] = self::boolean( (
