@@ -3,7 +3,7 @@
         <article class="d-flex col-sm-8 overflow-hidden">
             <div class="scrollable scrollable--vertical pe-2 pbottom-large w-100">
 
-                <h1 class="pbottom-default">DiBe ID {{ charter.id }}</h1>
+                <h1 class="pbottom-default">{{ t('label.charterId') }} {{ charter.id }}</h1>
 
                 <h2>{{ t('label.summaryAndDescription') }}</h2>
 
@@ -89,9 +89,9 @@
                     </ul>
                 </div>
                 <!-- external image links are shown next to their original/copy/manuscript above -->
-                <h2 v-if="charter.image_count > 0"> Images </h2>
+                <h2 v-if="charter.image_count > 0">{{ t('label.images') }}</h2>
                 <div v-if="(charter.image_count>0)">
-                    <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)"/>
+                    <ImageThumbnail :thumbnail-urls="getImageUrl(charter.images)" :text="markedCharterFulltext"/>
                 </div>
 
                 <h2>{{ t('label.map') }}</h2>
@@ -190,6 +190,7 @@ import InlineLinkList from '../InlineLinkList.vue'
 import ImageThumbnail from '../ImageThumbnail.vue'
 import ActorListDetailed from '../Actor/ActorListDetailed.vue'
 import ActorMap from '@/components/Actor/ActorMap.vue'
+import {normaliseRole, roleKey} from '@/components/Charter/roleColours'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository";
@@ -271,7 +272,8 @@ const geojson = computed(() => {
                 'properties': {
                     actorId: actor.id,
                     roleId: actor.role.id,
-                    roleLabel: {1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
+                    roleKey: roleKey(actor.role.id),
+                    roleLabel: {1: 'A', 2: 'I', 3: 'B'}?.[normaliseRole(actor.role.id)],
                 }
             })
         }
@@ -316,7 +318,7 @@ function getImageUrl(values: any[]) {
 }
 
 function updateTitle(id: number) {
-    document.title = 'Diplomata Belgica - Charter ID ' + id
+    document.title = t('charter.documentTitle', {id})
 }
 
 function onMarkerOver(feature: any) {

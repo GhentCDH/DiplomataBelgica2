@@ -7,6 +7,19 @@
                                 :key="'actor:'+actor.id"
                                 class="actor--issuer"
             >
+                <FormatValue :value="actor.name.name" :unknown="t('label.unknown')"></FormatValue> -
+                <FormatValue :value="actor.capacity" type="id_name" :unknown="t('label.unknown')"></FormatValue> -
+                <FormatValue :value="actor.place" type="id_name" :unknown="t('label.unknown')"></FormatValue>
+            </actor-details-flat>
+        </template>
+        <!-- notitiae and lost charters often have no issuer: show the disposant instead -->
+        <template v-else-if="authors.length">
+            <h6>{{ t('label.authorOfTheActioJuridica', 1) }}</h6>
+            <actor-details-flat v-for="actor in authors"
+                                :actor="actor"
+                                :key="'author:'+actor.id"
+                                class="actor--author"
+            >
                 <FormatValue :value="actor.name.name" unknown="unknown"></FormatValue> -
                 <FormatValue :value="actor.capacity" type="id_name" unknown="unknown"></FormatValue> -
                 <FormatValue :value="actor.place" type="id_name" unknown="unknown"></FormatValue>
@@ -18,9 +31,9 @@
                                 :actor="actor"
                                 :key="'beneficiary:'+actor.id"
                                 class="actor--beneficiary">
-                <FormatValue :value="actor.name.name" unknown="unknown"></FormatValue> -
-                <FormatValue :value="actor.capacity" type="id_name" unknown="unknown"></FormatValue> -
-                <FormatValue :value="actor.place" type="id_name" unknown="unknown"></FormatValue>
+                <FormatValue :value="actor.name.name" :unknown="t('label.unknown')"></FormatValue> -
+                <FormatValue :value="actor.capacity" type="id_name" :unknown="t('label.unknown')"></FormatValue> -
+                <FormatValue :value="actor.place" type="id_name" :unknown="t('label.unknown')"></FormatValue>
             </actor-details-flat>
         </template>
         <template v-if="charter?.summary">

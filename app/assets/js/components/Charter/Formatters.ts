@@ -38,6 +38,11 @@ export function formatDatations(datations: any[]) {
     })
 }
 
+/** "Location, Repository, reference number", skipping missing parts. */
+export function formatRepositoryReference(repository: any, referenceNumber?: string | null): string {
+    return [repository?.location, repository?.name, referenceNumber].filter(Boolean).join(', ')
+}
+
 /** External image links (e.g. digitised manuscripts) of an original, copy or manuscript. */
 function imageLinks(item: any): string[] {
     // the nested Eloquent relation is serialized in snake case

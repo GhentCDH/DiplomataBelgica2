@@ -26,22 +26,39 @@ until curl -s "elasticsearch:9200" > /dev/null; do
     sleep 5
 done
 
-# check elasticesearch indices
-curl -f -s -I "elasticsearch:9200/${ELASTICSEARCH_INDEX_PREFIX}_charter" > /dev/null
-if [ $? -eq 0 ]; then
-    echo "Charter index already exists"
-else
-    echo "Creating charter index (100 records max) ..."
-    php bin/console app:elasticsearch:index charter 100
-fi
+# check elasticsearch indices
+# returns the HTTP status of a HEAD request on the given index (security is on, so send credentials)
+index_status() {
+    curl -s -o /dev/null -w '%{http_code}' -I \
+        -u "${ELASTICSEARCH_USERNAME}:${ELASTICSEARCH_PASSWORD}" \
+        "${ELASTICSEARCH_HOST:-elasticsearch}:${ELASTICSEARCH_PORT:-9200}/$1"
+}
 
-curl -f -s -I "elasticsearch:9200/${ELASTICSEARCH_INDEX_PREFIX}_tradition" > /dev/null
-if [ $? -eq 0 ]; then
-    echo "Tradition index already exists"
-else
-    echo "Creating tradition index (100 records max) ..."
-    php bin/console app:elasticsearch:index tradition 100
-fi
+# only (re)create an index when Elasticsearch says it does not exist (404);
+# any other status (401, 5xx, ...) is logged and the index is left alone
+# each locale has its own index ({prefix}_{index}_{locale}); a missing locale rebuilds all locales
+ensure_index() {
+    missing=0
+    for locale in en fr; do
+        index="${ELASTICSEARCH_INDEX_PREFIX}_$1_${locale}"
+        status=$(index_status "$index")
+        case "$status" in
+            200) echo "Index $index already exists" ;;
+            404) missing=1 ;;
+            *)
+                echo "Could not check index $index (HTTP $status), not creating it"
+                return
+                ;;
+        esac
+    done
+    if [ "$missing" -eq 1 ]; then
+        echo "Creating $1 indexes (100 records max) ..."
+        php bin/console app:elasticsearch:index "$1" 100
+    fi
+}
+
+ensure_index charter
+ensure_index tradition
 
 # start the symfony server
 echo "Starting server..."

@@ -2,6 +2,7 @@
 
 namespace App\Resource\ElasticSearch;
 
+use App\Helper\DateSort;
 use App\Model\Charter;
 use App\Resource\ResourceInterface;
 use Illuminate\Http\Request;
@@ -72,7 +73,7 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
         if (count($ret['datations']) > 0 ) {
             foreach ($ret['datations'] as $date) {
                 if ($date['preference'] == 0) {
-                    $ret['date_sort'][] = ($date['time']['month'] ?? 0) * 12 + ($date['time']['day'] ?? 0) + ($date['time']['year'] ?? 0)*366;
+                    $ret['date_sort'][] = DateSort::value($date['time']['year'] ?? null, $date['time']['month'] ?? null, $date['time']['day'] ?? null);
                 }
             }
         }          

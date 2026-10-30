@@ -80,7 +80,7 @@ export const createTraditionsSchema = (schemaOptions: SchemaOptions): Schema => 
                 legend: t("traditions.form.legend.images"),
                 fields: [
                     {
-                        label: 'Images available',
+                        label: t('traditions.form.field.images.label'),
                         help: t("traditions.form.field.hasImages.help"),
                         type: 'checkboxBS5',
                         model: 'has_images',

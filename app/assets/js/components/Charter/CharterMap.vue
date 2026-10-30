@@ -6,6 +6,7 @@
             <mgl-navigation-control/>
             <mgl-image id="markerIcon" :url="markerIcon"></mgl-image>
             <mgl-image id="clusterIcon" :url="clusterIcon"></mgl-image>
+            <mgl-image v-for="legendItem in roleLegend" :key="legendItem.key" :id="ROLE_ICON[legendItem.key]" :url="legendItem.icon"></mgl-image>
             <mgl-geo-json-source :data="geojson" source-id="geojson" :cluster="true" :cluster-max-zoom="8"
                                  :cluster-radius="40">
                 <mgl-symbol-layer v-if="!showActorCount" v-bind="markerLayer"
@@ -22,9 +23,17 @@
             <mgl-custom-control position="top-left">
                 <slot name="control-top-left"></slot>
             </mgl-custom-control>
+            <mgl-custom-control v-if="showActorCount" position="bottom-left">
+                <ul class="charter-map__legend">
+                    <li v-for="legendItem in roleLegend" :key="legendItem.key">
+                        <img :src="legendItem.icon" alt="">
+                        {{ legendItem.label }}
+                    </li>
+                </ul>
+            </mgl-custom-control>
             <mgl-custom-control position="top-right">
                 <button @click="fitBounds">
-                    <i class="fa-solid fa-expand" title="Show all places"></i>
+                    <i class="fa-solid fa-expand" :title="$t('map.showAllPlaces')"></i>
                 </button>
             </mgl-custom-control>
             <mgl-custom-control position="top-right">
@@ -51,6 +60,8 @@ import {
     useMap
 } from '@indoorequal/vue-maplibre-gl'
 import {LngLatBounds} from 'maplibre-gl'
+import {useI18n} from "vue-i18n";
+import {ROLE_ICON, roleIconImage, type RoleKey} from "./roleColours";
 
 const props = defineProps({
     style: String,
@@ -75,6 +86,23 @@ const emit = defineEmits(['markerOver', 'markerOut', 'markerClick'])
 
 import markerIcon from '@assets/icons/marker3.png?no-inline'
 import clusterIcon from '@assets/icons/marker4.png?no-inline'
+import issuerIcon from '@assets/icons/marker-issuer.png?no-inline'
+import disposantIcon from '@assets/icons/marker-disposant.png?no-inline'
+import beneficiaryIcon from '@assets/icons/marker-beneficiary.png?no-inline'
+import mixedIcon from '@assets/icons/marker-mixed.png?no-inline'
+
+const {t} = useI18n()
+
+// pin colour per role, see roleColours.ts
+const roleLegend = computed<{key: RoleKey, icon: string, label: string}[]>(() => [
+    {key: 'issuer', icon: issuerIcon, label: t('label.issuer', 1)},
+    {key: 'disposant', icon: disposantIcon, label: t('label.authorOfTheActioJuridica', 1)},
+    {key: 'beneficiary', icon: beneficiaryIcon, label: t('label.beneficiary', 1)},
+    {key: 'mixed', icon: mixedIcon, label: t('charters.mapSeveralRoles')},
+])
+
+// role coloured pin, the default pin for places without actors
+const markerIconImage = roleIconImage('markerIcon')
 
 const popupCoordinates = ref([0, 0])
 
@@ -91,7 +119,7 @@ const resizeCount = ref(0);
 const markerLayer = {
     'layer-id': 'marker',
     layout: {
-        'icon-image': 'markerIcon',
+        'icon-image': markerIconImage,
         'icon-size': 0.35,
         'text-field': '{charterCount}',
         'text-font': ['Arial Unicode MS Bold', 'Helvetica'],
@@ -111,7 +139,7 @@ const markerLayer = {
 const markerLayerWithActorCounts = {
     'layer-id': 'markerWithActorCounts',
     layout: {
-        'icon-image': 'markerIcon',
+        'icon-image': markerIconImage,
         'icon-size': 0.35,
         'text-field': '{charterCount}',
         'text-font': ['Arial Unicode MS Bold', 'Helvetica'],
@@ -268,3 +296,20 @@ const onResize = () => {
     resizeCount.value++;
 }
 </script>
+
+<style scoped lang="scss">
+.charter-map__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    font-size: 0.8rem;
+
+    img {
+        height: 16px;
+        margin-right: 0.25rem;
+        vertical-align: text-bottom;
+    }
+}
+</style>
