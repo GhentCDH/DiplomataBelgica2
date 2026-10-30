@@ -50,18 +50,20 @@ app/
 
 - **Routes** are annotation-based (`@Route`) with a `{_locale}` prefix: `/{_locale}/charters`,
   `/{_locale}/charters/{id}`, `/{_locale}/charters/search|paginate|locate|aggregation_suggest`,
-  `/{_locale}/tradition/search`, `/{_locale}/tradition/{tradition_type}/{id}`. Some tradition API routes have
-  no locale prefix (`/tradition/search_api`, `/tradition/paginate`). Detail routes return JSON when the request
-  accepts `application/json`.
+  `/{_locale}/tradition/search|search_api|paginate`, `/{_locale}/tradition/{tradition_type}/{id}` (locales: `en`,
+  `fr`; a legacy `/tradition/paginate` without locale searches the English index). Detail routes return JSON when
+  the request accepts `application/json`.
 - **Twig -> Vue**: page templates mount a Vue app via `vite_entry_script_tags('<entry>')` and pass backend URLs
   through an `init-urls` attribute (`BaseController::getSharedAppUrls()` -> `composables/useUrlGenerator.ts`).
 - **Search state** is handled by vue-search-kit composables (`useSearchApp`, `useSearchContext`,
   `useSearchHistory`): filters live in the query string (pushState); detail pages carry the search context in
   the URL hash (`#hash:index`) for prev/next navigation.
 - **Indexing**: `Repository::indexQuery()` -> `Resource/ElasticSearch/*Resource` -> `Index/*IndexService`
-  (`getMappingProperties()`). The indexer builds a new index and swaps it in. Index names:
-  `${ELASTICSEARCH_INDEX_PREFIX}_charter` and `_tradition`. **Any change to resources or mappings requires a
-  reindex.**
+  (`getMappingProperties()`). There is **one index per locale** (`elasticsearch.index_locales`): the indexer
+  serializes every chunk once per locale, builds new indexes and swaps the aliases
+  `${ELASTICSEARCH_INDEX_PREFIX}_charter_{en,fr}` and `_tradition_{en,fr}` when all locales are done. The
+  search/index services are locale aware (`kernel.locale_aware`): requests use the index of the URL locale.
+  **Any change to resources or mappings requires a reindex.**
 
 ## Internationalisation (EN / FR)
 
@@ -73,8 +75,8 @@ There are three independent mechanisms. Check all of them when fixing a translat
    An empty string `""` is a valid message and does **not** fall back to English. vue-search-kit components
    carry their own `<i18n>` blocks and some hardcoded strings.
 3. **Data**: lookup tables have `name_nl/name_fr/name_en` columns resolved by `Model/TraitLocalizedAttributes`.
-   Elasticsearch documents are currently indexed in English only, so data values (roles, capacities, places,
-   map pin labels) show in English on French pages.
+   Empty values fall back to English, then French. Values are resolved when a document is serialized for the
+   index of its locale, so data changes only show after a reindex.
 
 Static pages (about, colophon, contact, copyright, search syntax) are separate templates per locale.
 

@@ -70,10 +70,7 @@ class CharterController extends BaseController
     {
         $locale = $request->getLocale();
         return $this->render(
-            $this->templateFolder . "/search_syntax.$locale.html.twig",
-            [
-                'page_title' => 'Search syntax',
-            ]
+            $this->templateFolder . "/search_syntax.$locale.html.twig"
         );
     }
 

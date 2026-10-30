@@ -1,6 +1,7 @@
 {
   "charter": {
-    "resultIndexOfCount": "Résultat {index} sur {count}"
+    "resultIndexOfCount": "Résultat {index} sur {count}",
+    "documentTitle": "Diplomata Belgica - Charte {id}"
   },
   "charters": {
     "browseMap": "Carte",
@@ -99,10 +100,12 @@
         "datation": "Date de la charte",
         "identification": "Identification",
         "images": "Images"
-      }
+      },
+      "searchSyntaxLink": "À propos de la syntaxe de recherche"
     },
     "invalidSearchSyntax": "Syntaxe de recherche invalide",
     "mapWarning": "La carte n'affiche que les dates de lieu. Affinez votre recherche pour réduire le nombre de résultats et afficher aussi les lieux des acteurs.",
+    "mapSeveralRoles": "Plusieurs rôles",
     "placedateCharters": "Chartes datées de ce lieu"
   },
   "form": {
@@ -151,6 +154,7 @@
     "scholarlyDating(preferential)": "Datation interprétée (préférentielle)",
     "search": "Recherche",
     "secondaryLiterature": "Travaux",
+    "showText": "Afficher le texte",
     "source": "Source",
     "summary": "Résumé",
     "summaryAndDescription": "Résumé et description",
@@ -160,7 +164,12 @@
     "year": "Année",
     "yes": "Oui",
     "copies": "Copies",
-    "manuscripts": "Manuscrits"
+    "manuscripts": "Manuscrits",
+    "folio": "Folio/page",
+    "unknown": "inconnu",
+    "document": "Document",
+    "imageZoom": "Zoom sur l'image",
+    "close": "Fermer"
   },
   "pagination": {
     "perPage": "Par page"
@@ -223,5 +232,29 @@
         "tradition": "Tradition"
       }
     }
+  },
+  "map": {
+    "lockViewport": "Verrouiller la vue lors des changements",
+    "unlockViewport": "Adapter la vue aux changements de données",
+    "showAllPlaces": "Afficher tous les lieux"
+  },
+  "tradition": {
+    "type": {
+      "original": "Original",
+      "copy": "Copie",
+      "manuscript": "Manuscrit"
+    },
+    "manuscriptInfo": {
+      "title": "Informations sur le manuscrit",
+      "steinId": "Stein ID",
+      "authors": "Auteur(s) du manuscrit",
+      "manuscriptTitle": "Titre du manuscrit",
+      "redactionDate": "Date de rédaction",
+      "institutions": "Institution(s) concernée(s) par le manuscrit",
+      "size": "Taille du manuscrit",
+      "materials": "Support(s) d'écriture"
+    },
+    "resultIndexOfCount": "Résultat {index} sur {count}",
+    "documentTitle": "Diplomata Belgica - Tradition {id}"
   }
 }

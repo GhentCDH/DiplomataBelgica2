@@ -38,6 +38,11 @@ export function formatDatations(datations: any[]) {
     })
 }
 
+/** "Location, Repository, reference number", skipping missing parts. */
+export function formatRepositoryReference(repository: any, referenceNumber?: string | null): string {
+    return [repository?.location, repository?.name, referenceNumber].filter(Boolean).join(', ')
+}
+
 export type TraditionUrlGenerator = (type: string, id: string) => string;
 
 export function formatOriginal(original: any, createTraditionUrl: TraditionUrlGenerator) {

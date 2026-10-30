@@ -11,9 +11,9 @@ class CodexRepository extends AbstractRepository
 {
     // auto load relations
     protected $relations = [
-        'charters',
-        'charters.datations',
-        'charters.actors',
+        'copies.charter',
+        'copies.charter.datations',
+        'copies.charter.actors',
     ];
     protected $model = Codex::class;
 }
