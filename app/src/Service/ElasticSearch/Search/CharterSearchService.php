@@ -377,6 +377,8 @@ class CharterSearchService extends AbstractSearchService
                     'field' => 'role',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                    // diplomatic order: issuer, author of the actio juridica (disposant), beneficiary
+                    'sortOrder' => [2, 1, 3, 4],
                 ],
                 "actor_order_name_{$index}" => [
                     'type' => self::AGG_OBJECT_ID_NAME,
