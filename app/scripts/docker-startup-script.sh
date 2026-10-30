@@ -36,17 +36,25 @@ index_status() {
 
 # only (re)create an index when Elasticsearch says it does not exist (404);
 # any other status (401, 5xx, ...) is logged and the index is left alone
+# each locale has its own index ({prefix}_{index}_{locale}); a missing locale rebuilds all locales
 ensure_index() {
-    index="${ELASTICSEARCH_INDEX_PREFIX}_$1"
-    status=$(index_status "$index")
-    case "$status" in
-        200) echo "Index $index already exists" ;;
-        404)
-            echo "Creating $1 index (100 records max) ..."
-            php bin/console app:elasticsearch:index "$1" 100
-            ;;
-        *) echo "Could not check index $index (HTTP $status), not creating it" ;;
-    esac
+    missing=0
+    for locale in en fr; do
+        index="${ELASTICSEARCH_INDEX_PREFIX}_$1_${locale}"
+        status=$(index_status "$index")
+        case "$status" in
+            200) echo "Index $index already exists" ;;
+            404) missing=1 ;;
+            *)
+                echo "Could not check index $index (HTTP $status), not creating it"
+                return
+                ;;
+        esac
+    done
+    if [ "$missing" -eq 1 ]; then
+        echo "Creating $1 indexes (100 records max) ..."
+        php bin/console app:elasticsearch:index "$1" 100
+    fi
 }
 
 ensure_index charter

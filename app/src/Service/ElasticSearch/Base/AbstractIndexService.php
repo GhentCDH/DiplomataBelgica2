@@ -58,12 +58,17 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
 
     public function switchToNewIndex(string $newIndexName): void
     {
-        $oldIndices = $this->client->getStatus()->getIndicesWithAlias($this->getIndexName());
-        foreach ($oldIndices as $oldIndex) {
-            $this->removeIndex($oldIndex->getName());
-        }
+        $alias = $this->getIndexName();
+        $oldIndices = $this->client->getStatus()->getIndicesWithAlias($alias);
 
-        $this->client->getIndex($newIndexName)->addAlias($this->getIndexName());
+        // move the alias in one request, so searches never hit a missing index
+        $this->client->getIndex($newIndexName)->addAlias($alias, true);
+
+        foreach ($oldIndices as $oldIndex) {
+            if ($oldIndex->getName() !== $newIndexName) {
+                $this->removeIndex($oldIndex->getName());
+            }
+        }
     }
 
     public function addMultiple(ResourceCollection $resources): void
