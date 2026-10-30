@@ -294,7 +294,7 @@ const {
                     })
             }
         }
-        return createSchema({t, onAutocomplete})
+        return createSchema({t, onAutocomplete, searchSyntaxUrl: getRoute('charter_search_syntax')})
     },
 })
 

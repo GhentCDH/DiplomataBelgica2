@@ -7,7 +7,7 @@
                 <h2>{{ t('label.tradition') }}</h2>
                 <!-- <h2>Tradition</h2> -->
                 <div class="mbottom-default">
-                  <LabelValue :label="t('label.reference')" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('label.reference')" :value="formatRepositoryReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
                   <LabelValue :label="t('label.type')" :value="t('tradition.type.' + tradition.type)" grid="4|8"></LabelValue>
                 </div>
                 <h2 v-if="tradition.type == 'manuscript'" class="pbottom-default" >{{ t('tradition.manuscriptInfo.title') }}</h2>
@@ -98,6 +98,7 @@ import Widget from "@/components/Sidebar/Widget.vue";
 import {useI18n} from "vue-i18n";
 
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
+import {formatRepositoryReference} from "@/components/Charter/Formatters.ts";
 
 const { t } = useI18n();
 
@@ -120,20 +121,6 @@ getTradition(id);
 
 
 const tradition = computed(() => data.value.tradition)
-
-function formatReference(reference, referenceNum) {
-    var res = '';
-    if (reference.location) {
-        res = reference.location;
-    }
-    if (reference.name) {
-        res = res + ', ' + reference.name;
-    }
-    if (referenceNum) {
-        res = res + ', ' + referenceNum;
-    }
-    return res;
-}
 
 function formatDate(date): string {
     var res = '';

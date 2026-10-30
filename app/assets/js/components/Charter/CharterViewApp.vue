@@ -193,6 +193,7 @@ import InlineLinkList from '../InlineLinkList.vue'
 import ImageThumbnail from '../ImageThumbnail.vue'
 import ActorListDetailed from '../Actor/ActorListDetailed.vue'
 import ActorMap from '@/components/Actor/ActorMap.vue'
+import {normaliseRole, roleKey} from '@/components/Charter/roleColours'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository";
@@ -274,7 +275,8 @@ const geojson = computed(() => {
                 'properties': {
                     actorId: actor.id,
                     roleId: actor.role.id,
-                    roleLabel: {1: 'A', 2: 'I', 3: 'B'}?.[actor.role.id],
+                    roleKey: roleKey(actor.role.id),
+                    roleLabel: {1: 'A', 2: 'I', 3: 'B'}?.[normaliseRole(actor.role.id)],
                 }
             })
         }

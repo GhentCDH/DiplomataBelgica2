@@ -102,10 +102,12 @@
         "datation": "Date de la charte",
         "identification": "Identification",
         "images": "Images"
-      }
+      },
+      "searchSyntaxLink": "À propos de la syntaxe de recherche"
     },
     "invalidSearchSyntax": "Syntaxe de recherche invalide",
     "mapWarning": "",
+    "mapSeveralRoles": "Plusieurs rôles",
     "placedateCharters": ""
   },
   "form": {

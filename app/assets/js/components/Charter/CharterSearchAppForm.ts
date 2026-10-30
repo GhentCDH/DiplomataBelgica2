@@ -5,12 +5,22 @@ type AutocompleteCallback = (fieldName: string) => ((fieldName: string, query: s
 
 export interface SchemaOptions {
     t: Translator,
-    onAutocomplete: AutocompleteCallback
+    onAutocomplete: AutocompleteCallback,
+    /** url of the search syntax help page, linked below the summary and full-text fields */
+    searchSyntaxUrl?: string,
 }
 
 export const createSchema = (schemaOptions: SchemaOptions): Schema => {
 
-    const {t, onAutocomplete} = schemaOptions
+    const {t, onAutocomplete, searchSyntaxUrl} = schemaOptions
+
+    const escapeHtml = (text: string) => text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+    const searchSyntaxHint = searchSyntaxUrl
+        ? {
+            hint: `<a href="${escapeHtml(searchSyntaxUrl)}" target="_blank">${escapeHtml(t('charters.form.searchSyntaxLink'))}</a>`,
+            hintHtml: true,
+        }
+        : {}
     const actorFieldIsVisible = (model: any, field: Field) => {
 
         function getActorFields(index: number) {
@@ -266,6 +276,7 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                         placeholder: t('charters.form.field.summary.placeholder'),
                         labelClasses: 'form-label',
                         validateDebounceTime: 1000,
+                        ...searchSyntaxHint,
                     },
                     {
                         type: 'input',
@@ -276,6 +287,7 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                         placeholder: t('charters.form.field.fulltext.placeholder'),
                         labelClasses: 'form-label',
                         validateDebounceTime: 1000,
+                        ...searchSyntaxHint,
                     },
                 ]
             },
