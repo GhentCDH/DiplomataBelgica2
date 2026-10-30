@@ -40,4 +40,13 @@ describe('TraditionCharterList', () => {
         const el = await render([{id: 1, datations: [], actors: []}]);
         expect(el.querySelector('a[href="/en/charters/1"]')).not.toBeNull();
     });
+
+    it('shows the folio/page column only when a charter has one (manuscripts)', async () => {
+        const withFolio = await render([{id: 5, codex_pof: 'f. 12r', datations: [], actors: []}, {id: 6, datations: [], actors: []}]);
+        expect(withFolio.querySelector('th')?.parentElement?.textContent).toContain('Folio/page');
+        expect(withFolio.querySelector('tbody tr')?.textContent).toContain('f. 12r');
+
+        const withoutFolio = await render([{id: 1, datations: [], actors: []}]);
+        expect(withoutFolio.textContent).not.toContain('Folio/page');
+    });
 });
