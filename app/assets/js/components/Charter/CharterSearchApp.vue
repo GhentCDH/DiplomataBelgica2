@@ -104,8 +104,8 @@
                                 </template>
                                 <template #control-top-right>
                                     <button @click="toggleUpdateBounds">
-                                        <i v-if="!updateBounds" class="fa-solid fa-lock" title="Update viewport on data changes"></i>
-                                        <i v-if="updateBounds" class="fa-solid fa-unlock" title="Lock viewport on data changes"></i>
+                                        <i v-if="!updateBounds" class="fa-solid fa-lock" :title="t('map.unlockViewport')"></i>
+                                        <i v-if="updateBounds" class="fa-solid fa-unlock" :title="t('map.lockViewport')"></i>
                                     </button>
                                 </template>
                                 <template #popup>
@@ -294,7 +294,7 @@ const {
                     })
             }
         }
-        return createSchema({t, onAutocomplete})
+        return createSchema({t, onAutocomplete, searchSyntaxUrl: getRoute('charter_search_syntax')})
     },
 })
 

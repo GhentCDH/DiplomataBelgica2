@@ -18,9 +18,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     private SearchConfig $searchConfig;
     private AggregationConfig $aggregationConfig;
 
-    public function __construct(Client $client, string $indexPrefix, bool $debug = false)
+    public function __construct(Client $client, string $indexPrefix, bool $debug = false, array $indexLocales = [self::DEFAULT_LOCALE])
     {
-        parent::__construct($client, $indexPrefix, $debug);
+        parent::__construct($client, $indexPrefix, $debug, $indexLocales);
 
         // init search config
         $this->searchConfig = new SearchConfig();
@@ -1668,7 +1668,10 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
         if (!$agg_result) {
             return;
         }
-        usort($agg_result, function ($a, $b) use ($aggConfig) {
+        // optional fixed order of ids (e.g. roles in diplomatic order); ids not listed follow
+        $sortOrder = array_flip(array_map('strval', $aggConfig['sortOrder'] ?? []));
+
+        usort($agg_result, function ($a, $b) use ($aggConfig, $sortOrder) {
 
             // Place 'any', 'none' filters above
             if(($a['name'] === 'none' || $a['name'] === 'any') && ($b['name'] !== 'any' && $b['name'] !== 'none')) {
@@ -1684,6 +1687,14 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             }
             if ($a['name'] === 'true' && $b['name'] === 'false') {
                 return -1;
+            }
+
+            if ($sortOrder) {
+                $posA = $sortOrder[(string) $a['id']] ?? PHP_INT_MAX;
+                $posB = $sortOrder[(string) $b['id']] ?? PHP_INT_MAX;
+                if ($posA !== $posB) {
+                    return $posA <=> $posB;
+                }
             }
 
             return strnatcasecmp($a['name'], $b['name']);

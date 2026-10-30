@@ -45,14 +45,15 @@ class TraditionController extends BaseController
     }
 
     /**
-     * @Route("/tradition/search_api", name="tradition_search_api", methods={"GET"})
+     * @Route("/{_locale}/tradition/search_api", name="tradition_search_api", methods={"GET"})
      */
     public function searchAPI(Request $request): Response {
         return $this->_searchAPI($request);
     }
 
     /**
-     * @Route("/tradition/paginate", name="tradition_paginate", methods={"GET"})
+     * @Route("/{_locale}/tradition/paginate", name="tradition_paginate", methods={"GET"})
+     * @Route("/tradition/paginate", name="tradition_paginate_legacy", methods={"GET"}, defaults={"_locale": "en"})
      */
     public function paginate(Request $request): Response {
         return $this->_paginate($request);
