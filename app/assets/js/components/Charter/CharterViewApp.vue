@@ -209,8 +209,9 @@ import {
 } from "./Formatters.ts"
 import {useI18n} from "vue-i18n";
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
+import {localizeUrl} from "@/composables/useLocaleSwitch";
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const props = defineProps({
     initUrls: {
@@ -355,6 +356,10 @@ setOnIdChanged((newId: number) => {
 });
 
 initContextFromUrl();
+// the search may have been made in the other language (language switch keeps the context)
+if (context.value.prevUrl) {
+    context.value.prevUrl = localizeUrl(context.value.prevUrl, locale.value)
+}
 if (context.value.validReadContext && !context.value.ids) {
     let readContext: Context = toValue(context);
     initResultSet(readContext, (new URL(readContext.prevUrl)).pathname + "/paginate"); //TODO how to fix url in composition API?
