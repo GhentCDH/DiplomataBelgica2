@@ -41,6 +41,7 @@
                     :table-state="tableState"
                     :total-records="totalRecords"
                     :per-page-values="tableOptions.pagination.perPageValues"
+                    :per-page-label="t('pagination.perPage')"
                     @change="updateTableState"
                 ></search-toolbar>
 

@@ -149,6 +149,7 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                     FormGeneratorFieldCreator.createMultiSelect(t('charters.form.field.place_date.label'), {
                         model: 'charter_place_name',
                         help: t('charters.form.field.place_date.help'),
+                        placeholder: t('charters.form.field.place_date.placeholder'),
                     }),
                 ]
             },
