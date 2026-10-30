@@ -51,7 +51,11 @@ describe('vue-i18n locale files', () => {
                 used.add(match[1]);
             }
         }
-        expect([...used].filter((key) => !(key in enFlat)).sort()).toEqual([]);
+        // a key ending in '.' is the prefix of a dynamic key such as t('tradition.type.' + type)
+        const defined = (key: string) => key.endsWith('.')
+            ? Object.keys(enFlat).some((k) => k.startsWith(key))
+            : key in enFlat;
+        expect([...used].filter((key) => !defined(key)).sort()).toEqual([]);
     });
 
     it('uses the requested French labels', () => {
