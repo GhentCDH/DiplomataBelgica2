@@ -65,6 +65,7 @@ class CharterIndexService extends AbstractIndexService
                 ]
             ],
             'datations' => ['type' => 'nested'],
+            'udt' => ['type' => 'nested'],
             'date_sort' => ['type' => 'long'],
         ];
     }

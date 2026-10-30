@@ -2,16 +2,21 @@
 
 namespace App\Command;
 
-use App\Model\Charter;
+use App\Model\AbstractModel;
+use App\Model\AbstractPivot;
 use App\Repository\CharterRepository;
 use App\Repository\RepositoryInterface;
 use App\Resource\ElasticSearch\ElasticCharterResource;
 use App\Resource\ElasticSearch\ElasticTraditionResource;
+use App\Service\ElasticSearch\Base\AbstractIndexService;
 use App\Service\ElasticSearch\Index\CharterIndexService;
+use App\Service\ElasticSearch\Index\TraditionIndexService;
+use InvalidArgumentException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,7 +41,8 @@ class IndexElasticsearchCommand extends Command
             ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
-            ->setHelp('This command allows you to reindex elasticsearch.');
+            ->addOption('locale', 'l', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Locale(s) to index (default: all index locales)')
+            ->setHelp('This command allows you to reindex elasticsearch. Each locale has its own index ({prefix}_{index}_{locale}).');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -55,9 +61,10 @@ class IndexElasticsearchCommand extends Command
                      * - add 'type' property for each resource type
                      */
 
-                    /** @var $service CharterIndexService */
+                    /** @var $service TraditionIndexService */
                     $service = $this->container->get('tradition_index_service');
-                    $indexName = $service->createNewIndex();
+                    $services = $this->localeServices($service, $input->getOption('locale'));
+                    $indexNames = $this->createNewIndices($services);
 
                     $total = 0;
                     $repositories = ['original_repository', 'copy_repository', 'codex_repository' ];
@@ -74,26 +81,29 @@ class IndexElasticsearchCommand extends Command
                     $progressBar->start();
 
                     /*** @var $repository RepositoryInterface */
-                    Charter::setLocale('en');
-                    foreach( $repositories as $repository_name ) {
-                        $repository = $this->container->get($repository_name);
-                        $repository->indexQuery()->chunk($chunkSize,
-                            function($traditions) use ($service, &$count, $progressBar, $maxItems, $chunkSize) {
-                                if ( $maxItems && $count >= $maxItems ) {
-                                    return false;
-                                }
+                    $this->indexOrCleanUp($services, $indexNames, function () use ($repositories, $chunkSize, $services, &$count, $progressBar, $maxItems) {
+                        foreach( $repositories as $repository_name ) {
+                            $repository = $this->container->get($repository_name);
+                            $repository->indexQuery()->chunk($chunkSize,
+                                function($traditions) use ($services, &$count, $progressBar, $maxItems) {
+                                    if ( $maxItems && $count >= $maxItems ) {
+                                        return false;
+                                    }
 
-                                // index traditions
-                                $traditionResources = ElasticTraditionResource::collection($traditions);
-                                $count += $traditionResources->count();
-                                $service->addMultiple($traditionResources);
+                                    // index traditions, once per locale
+                                    foreach ($services as $locale => $localeService) {
+                                        $this->setModelLocale($locale);
+                                        $localeService->addMultiple(ElasticTraditionResource::collection($traditions));
+                                    }
+                                    $count += $traditions->count();
 
-                                // update progress bar
-                                $progressBar->advance($chunkSize);
-                            });
-                    }
+                                    // update progress bar
+                                    $progressBar->advance($traditions->count());
+                                });
+                        }
+                    });
 
-                    $service->switchToNewIndex($indexName);
+                    $this->switchToNewIndices($services, $indexNames);
                     $progressBar->finish();
 
                     break;
@@ -104,7 +114,8 @@ class IndexElasticsearchCommand extends Command
 
                     /** @var $service CharterIndexService */
                     $service = $this->container->get('charter_index_service');
-                    $indexName = $service->createNewIndex();
+                    $services = $this->localeServices($service, $input->getOption('locale'));
+                    $indexNames = $this->createNewIndices($services);
 
                     $total = $repository->indexQuery()->count();
 
@@ -112,23 +123,27 @@ class IndexElasticsearchCommand extends Command
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $repository->indexQuery()->chunk(100,
-                        function($charters) use ($service, &$count, $progressBar, $maxItems, $chunkSize): bool {
-                            if ( $maxItems && $count >= $maxItems ) {
-                                return false;
-                            }
+                    $this->indexOrCleanUp($services, $indexNames, fn() =>
+                        $repository->indexQuery()->chunk(100,
+                            function($charters) use ($services, &$count, $progressBar, $maxItems): bool {
+                                if ( $maxItems && $count >= $maxItems ) {
+                                    return false;
+                                }
 
-                            // index charters
-                            $charterResources = ElasticCharterResource::collection($charters);
-                            $count += $charterResources->count();
-                            $service->addMultiple($charterResources);
+                                // index charters, once per locale
+                                foreach ($services as $locale => $localeService) {
+                                    $this->setModelLocale($locale);
+                                    $localeService->addMultiple(ElasticCharterResource::collection($charters));
+                                }
+                                $count += $charters->count();
 
-                            // update progress bar
-                            $progressBar->advance($chunkSize);
-                            return true;
-                        });
+                                // update progress bar
+                                $progressBar->advance($charters->count());
+                                return true;
+                            })
+                    );
 
-                    $service->switchToNewIndex($indexName);
+                    $this->switchToNewIndices($services, $indexNames);
 
                     $progressBar->finish();
 
@@ -136,8 +151,69 @@ class IndexElasticsearchCommand extends Command
             }
         }
 
+        $this->setModelLocale(AbstractIndexService::DEFAULT_LOCALE);
+
         $io->success("Succesfully indexed {$count} records");
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * One index service per locale
+     * @return AbstractIndexService[] locale => service
+     */
+    private function localeServices(AbstractIndexService $service, array $locales): array
+    {
+        $indexLocales = $service->getIndexLocales();
+        $locales = $locales ?: $indexLocales;
+        $unknown = array_diff($locales, $indexLocales);
+        if ($unknown) {
+            throw new InvalidArgumentException('Unknown locale(s): '.implode(', ', $unknown).'. Index locales: '.implode(', ', $indexLocales));
+        }
+
+        $services = [];
+        foreach ($locales as $locale) {
+            $services[$locale] = $service->forLocale($locale);
+        }
+        return $services;
+    }
+
+    private function createNewIndices(array $services): array
+    {
+        return array_map(fn(AbstractIndexService $service) => $service->createNewIndex(), $services);
+    }
+
+    /**
+     * Run the indexing; when it fails, remove the new (unused) indices and rethrow
+     */
+    private function indexOrCleanUp(array $services, array $indexNames, callable $index): void
+    {
+        try {
+            $index();
+        } catch (\Throwable $e) {
+            foreach ($services as $locale => $service) {
+                $service->removeIndex($indexNames[$locale]);
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Only switch the aliases when every locale is indexed, so the locales stay in sync
+     */
+    private function switchToNewIndices(array $services, array $indexNames): void
+    {
+        foreach ($services as $locale => $service) {
+            $service->switchToNewIndex($indexNames[$locale]);
+        }
+    }
+
+    /**
+     * Localized model attributes (name, ...) are resolved when a resource is serialized
+     */
+    private function setModelLocale(string $locale): void
+    {
+        AbstractModel::setLocale($locale);
+        AbstractPivot::setLocale($locale);
     }
 }
