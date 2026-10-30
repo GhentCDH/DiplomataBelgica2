@@ -1,15 +1,12 @@
 {
   "charter": {
-    "editions": "",
-    "fullTextOfCharter": "",
-    "secondaryLiterature": "",
-    "summaryAndDescription": "",
+    "resultIndexOfCount": "Résultat {index} sur {count}",
     "documentTitle": "Diplomata Belgica - Charte {id}"
   },
   "charters": {
     "browseMap": "Carte",
     "browseResults": "Résultats",
-    "charterIdMustBeAnInteger": "",
+    "charterIdMustBeAnInteger": "L'identifiant DiBe doit être un nombre entier",
     "form": {
       "field": {
         "actor": {
@@ -21,12 +18,12 @@
           "placeholder": "Faites un choix"
         },
         "actor_function": {
-          "help": "La liste des toponymes se réfère au lieu où est située une institution (ex.: Gent (S.Pierre), ou à la seigneurie, la principauté ou le diocèse sur lesquels l'(les) intervenant détenait la juridiction à l'époque de la rédaction de la charte (ex.: Flandre-Hainaut). Ce menu déroulant partage avec celui du champ de recherche “Date de lieu” une liste commune de toponymes, aussi certaines requêtes peuvent ne pas retourner de résultat. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
-          "label": "Function/titre",
+          "help": "La fonction ou la qualité de la personne, ou le type d'institution, mentionné dans la charte comme auteur, disposant ou bénéficiaire. Lorsqu'une personne portait plusieurs titres se rapportant à différentes fonctions, elle est reprise avec son titre le plus important. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
+          "label": "Fonction/titre",
           "placeholder": "Faites un choix"
         },
         "actor_institution": {
-          "help": "Institution dans laquelle un codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents) a été produit ou conservé ou pour laquelle des chartes ou des tritres de donation sont transcrits dans le codex. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
+          "help": "La liste des toponymes se réfère au lieu où est située une institution (ex.: Gent (S.Pierre), ou à la seigneurie, la principauté ou le diocèse sur lesquels l'(les) intervenant détenait la juridiction à l'époque de la rédaction de la charte (ex.: Flandre-Hainaut). Ce menu déroulant partage avec celui du champ de recherche “Date de lieu” une liste commune de toponymes, aussi certaines requêtes peuvent ne pas retourner de résultat. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Institution/juridiction",
           "placeholder": "Faites un choix"
         },
@@ -41,8 +38,9 @@
           "placeholder": "Faites un choix"
         },
         "actor_place": {
-          "label": "Place",
-          "placeholder": "Faites un choix"
+          "label": "Lieu",
+          "placeholder": "Faites un choix",
+          "help": "La liste des toponymes se réfère au lieu où est située une institution (ex.: Gent (S.Pierre), ou à la seigneurie, la principauté ou le diocèse sur lesquels l'(les) intervenant détenait la juridiction à l'époque de la rédaction de la charte (ex.: Flandre-Hainaut). Ce menu déroulant partage avec celui du champ de recherche “Date de lieu” une liste commune de toponymes, aussi certaines requêtes peuvent ne pas retourner de résultat. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante."
         },
         "actor_principality": {
           "help": "La principauté (royaume, comté, duché, seigneurie) dans laquelle  un intervenant est situé à la date de rédaction de la charte. Les frontières des principautés  étant mouvantes, il est possible qu'un intervenant (personne ou institution) soit situé dans plus d'une principauté au cours du temps. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
@@ -74,21 +72,21 @@
         "fulltext": {
           "help": "Pour de nombreuses chartes présentes dans Diplomata Belgica le texte complet du document est disponible. Ces textes sont basés autant que possible sur celui donné par les éditions critiques. Les requêtes peuvent être formulées en employant la syntaxe de recherche spécifique à Diplomata Belgica et respecter la langue du document. La langue des chartes latines a été normalisée : tous les v minuscules sont devenus u, tous les j sont devenus i.",
           "label": "Recherche dans le texte du document",
-          "placeholder": "L'analyse ou régeste consiste en une brève description, aussi concise et précise que possible, du contenu juridique et historique de l'acte. Diplomata Belgica  étant à l'origine une base de données développée en français, toutes les analyses sont rédigées uniquement dans cette langue. Les analyses suivent autant que possible celles données par les éditions de textes. Les requêtes peuvent être formulées en employant la syntaxe de recherche spécifique à Diplomata Belgica."
+          "placeholder": "Recherche dans le texte complet"
         },
         "images": {
           "help": "Cochez cette case d'option a pour résultat de ne sélectionner que les documents pour lesquels une image est disponible. Ces images peuvent être visionnées dans une fenêtre locale. Utilisez les combinaisons de touche Ctrl + or Ctrl- (ou Ctrl et la molette centrale de la souris)  pour réduire ou augmenter la taille de l'image.",
           "label": "Images disponibles"
         },
         "language": {
-          "help": "Langue dans laquelle est écrite la charte (original). Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante. ",
+          "help": "Langue dans laquelle est écrite la charte (original). Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Langue",
           "placeholder": "Sélectionnez une langue"
         },
         "place_date": {
           "help": "L'eschatocole de nombreux documents ne mentionne pas uniquement leurs dates, mais aussi le lieu où se sont produits l'acte juridique (lat.negotium)  ou la mise par écrit ou l'expédition de la charte. En plus du nom de lieu, la formule de datation peut apporter une information plus détaillée sur l'institution, cette information peut également être recherchée  dans la liste déroulante (ex.: quand la formule de datation mentionne Gandavi in monasterio sancti Bavonis, la liste déroulante autorise la sélection de “Gand (S.Bavon)”). \t\t\t\t\t\t\t\t\t\tLorsque le document mentionne uniquement dans la formule de datation le nom de l'institution (ex.: in monte blandinio), la localisation exacte de l'institution a été ajoutée (ex: Gand (S.Pierre)). \t\t\t\t\t\t\t\t\t\tCe menu déroulant partage avec celui du champ de recherche “Institution/Juridiction” une liste commune de toponymes, aussi certaines requêtes peuvent ne pas retourner de résultat. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
           "label": "Date de lieu",
-          "placeholder": "Faites un choix"
+          "placeholder": "Sélectionner une date de lieu"
         },
         "summary": {
           "help": "L'analyse ou régeste consiste en une brève description, aussi concise et précise que possible, du contenu juridique et historique de l'acte. Diplomata Belgica  étant à l'origine une base de données développée en français, toutes les analyses sont rédigées uniquement dans cette langue. Les analyses suivent autant que possible celles données par les éditions de textes. Les requêtes peuvent être formulées en employant la syntaxe de recherche spécifique à Diplomata Belgica.",
@@ -106,28 +104,28 @@
       "searchSyntaxLink": "À propos de la syntaxe de recherche"
     },
     "invalidSearchSyntax": "Syntaxe de recherche invalide",
-    "mapWarning": "",
+    "mapWarning": "La carte n'affiche que les dates de lieu. Affinez votre recherche pour réduire le nombre de résultats et afficher aussi les lieux des acteurs.",
     "mapSeveralRoles": "Plusieurs rôles",
-    "placedateCharters": ""
+    "placedateCharters": "Chartes datées de ce lieu"
   },
   "form": {
-    "allAuthors": "Tous les auteurs",
-    "reset-filters": " Réinitialiser tous les filtres"
+    "allAuthors": "Tous les acteurs",
+    "reset-filters": "Réinitialiser tous les filtres"
   },
   "label": {
-    "actors": "Auteurs",
+    "actors": "Acteurs",
     "authenticity": "Véracité",
-    "author": "",
+    "author": "Auteur",
     "authorOfTheActioJuridica": "Disposant | Disposants",
     "authorsOfTheActioJuridica": "Disposants",
-    "beneficiaries": "Bénéficiares",
+    "beneficiaries": "Bénéficiaires",
     "beneficiary": "Bénéficiaire | Bénéficiaires",
     "charterId": "DiBe ID",
     "charters": "Chartes",
     "date": "Datation",
     "dateInTheCharter": "Date dans la charte",
     "diocese": "Diocèse",
-    "edition": "Editions | Editions",
+    "edition": "Édition | Éditions",
     "editionsAndSecondaryLiterature": "Editions et travaux",
     "fullTextOfCharter": "Texte du document",
     "functionTitle": "Fonction/titre",
@@ -144,14 +142,14 @@
     "natureOfTheCharter": "Nature diplomatique",
     "no": "Non",
     "original": "Original",
-    "placeDate(inTheText)": " Date de lieu (dans le texte) ",
-    "placeDate(normalised)": " Date de lieu  (normalisée) ",
+    "placeDate(inTheText)": "Date de lieu (dans le texte)",
+    "placeDate(normalised)": "Date de lieu (normalisée)",
     "place_date": "Date de lieu",
     "principality": "Principauté",
     "reference": "Référence",
     "religiousOrder": "Ordre religieux",
     "repository": "Institution de conservation",
-    "returnToSearchPage": "Retourner aux résultats \t\t\t\t\t",
+    "returnToSearchPage": "Retourner aux résultats",
     "scholarlyDating(any)": "Datation interprétée (toutes)",
     "scholarlyDating(preferential)": "Datation interprétée (préférentielle)",
     "search": "Recherche",
@@ -163,8 +161,10 @@
     "textualTradition": "Tradition de l'acte",
     "tradition": "Tradition | Traditions",
     "type": "Type",
-    "year": "",
+    "year": "Année",
     "yes": "Oui",
+    "copies": "Copies",
+    "manuscripts": "Manuscrits",
     "folio": "Folio/page",
     "unknown": "inconnu",
     "document": "Document",
@@ -182,7 +182,8 @@
     "form": {
       "field": {
         "images": {
-          "label": "Images disponibles"
+          "label": "Images disponibles",
+          "help": "Cochez cette case d'option a pour résultat de ne sélectionner que les documents pour lesquels une image est disponible. Ces images peuvent être visionnées dans une fenêtre locale. Utilisez les combinaisons de touche Ctrl + or Ctrl- (ou Ctrl et la molette centrale de la souris) pour réduire ou augmenter la taille de l'image."
         },
         "institutionsCoveredByTheManuscript": {
           "help": "Institution dans laquelle un codex  (cartulaire, registre, inventaire ou toute autre forme de compilation de documents) a été produit ou conservé ou pour laquelle des chartes ou des tritres de donation sont transcrits dans le codex. Entrez directement un critère de recherche ou sélectionnez le (les) dans la liste déroulante.",
@@ -215,7 +216,7 @@
           "placeholder": "Faites un choix"
         },
         "type": {
-          "help": "Cochez cette case d'option a pour résultat de ne sélectionner que les documents pour lesquels une image est disponible. Ces images peuvent être visionnées dans une fenêtre locale.",
+          "help": "Le type de tradition : original, copie ou manuscrit (codex). Sélectionnez une ou plusieurs options.",
           "label": "Type",
           "placeholder": "Faites un choix"
         },

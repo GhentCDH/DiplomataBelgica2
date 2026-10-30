@@ -20,9 +20,9 @@
                                 :key="'author:'+actor.id"
                                 class="actor--author"
             >
-                <FormatValue :value="actor.name.name" unknown="unknown"></FormatValue> -
-                <FormatValue :value="actor.capacity" type="id_name" unknown="unknown"></FormatValue> -
-                <FormatValue :value="actor.place" type="id_name" unknown="unknown"></FormatValue>
+                <FormatValue :value="actor.name.name" :unknown="t('label.unknown')"></FormatValue> -
+                <FormatValue :value="actor.capacity" type="id_name" :unknown="t('label.unknown')"></FormatValue> -
+                <FormatValue :value="actor.place" type="id_name" :unknown="t('label.unknown')"></FormatValue>
             </actor-details-flat>
         </template>
         <template v-if="beneficiaries.length">

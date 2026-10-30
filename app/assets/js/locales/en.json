@@ -109,7 +109,7 @@
     "placedateCharters": "Placedate Charters"
   },
   "form": {
-    "allAuthors": "All authors",
+    "allAuthors": "All actors",
     "reset-filters": "Reset all filters"
   },
   "label": {
@@ -134,7 +134,7 @@
     "images": "Images",
     "institutionJurisdiction": "Institution/jurisdiction",
     "issuer": "Issuer | Issuers",
-    "language": "Language | Langues",
+    "language": "Language | Languages",
     "links": "Links",
     "mainBeneficiary": "Main beneficiary",
     "mainIssuer": "Main issuer",
@@ -182,16 +182,17 @@
     "form": {
       "field": {
         "images": {
-          "label": "Images available"
+          "label": "Images available",
+          "help": "Select this box if your search should only comprise records containing images of the documents. DiBe Images can be viewed in separate pop-up windows. Use Ctrl/⌘ + or Ctrl/⌘ - (or Ctrl and mousewheel) to increase or reduce the size of the image and Ctrl/⌘ 0 to reset it."
         },
         "institutionsCoveredByTheManuscript": {
           "help": "Institution in which a codex (cartulary, register, inventory or any other compiled form) was produced or kept, or of which the charters and title deeds are copied in the codex. Enter one or select one or more options.",
           "label": "Institutions covered by the manuscript",
-          "placeholder": "Select an institition"
+          "placeholder": "Select an institution"
         },
         "name": {
           "help": "The archival repository, library or private collection in which a charter or manuscript (cartulary, register, inventory) is currently kept. Enter one or select one or more options.",
-          "label": "Place of the repository",
+          "label": "Repository",
           "placeholder": "Select a name"
         },
         "place": {
@@ -215,7 +216,7 @@
           "placeholder": "Select a manuscript"
         },
         "type": {
-          "help": "Select this box if your search should only comprise records containing images of the documents. DiBe Images can be viewed in separate pop-up windows. Use Ctrl/⌘ + or Ctrl/⌘ - (or Ctrl and mousewheel) to increase or reduce the size of the image.",
+          "help": "The type of tradition: original, copy or manuscript (codex). Select one or more options.",
           "label": "Type",
           "placeholder": "Select a type"
         },

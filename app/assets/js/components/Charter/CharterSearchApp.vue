@@ -112,7 +112,7 @@
                                     <div class="popup" v-if="activePlace">
                                         <h2>{{ activePlace.name }}</h2><span class="btn-close" @click="activePlaceId=null"></span>
                                         <template v-if="activePlace.actors.length">
-                                            <h3>{{ t('label.actors') }}</h3>
+                                            <h3>{{ activeRoleLabel }}</h3>
                                             <ul>
                                                 <li v-for="actor of activePlace.actors">
                                                     <span>{{ actor.name }}</span>
@@ -229,7 +229,7 @@ const toggleUpdateBounds = () => {
 const roleFilters = ref<RadioItem[]>([
     {label: t('form.allAuthors'), value: 0},
     {label: t('label.issuer'), value: 2},
-    {label: t('label.author'), value: 1},
+    {label: t('label.authorOfTheActioJuridica'), value: 1},
     {label: t('label.beneficiary'), value: 3},
 ])
 
@@ -308,6 +308,12 @@ on('search', ({mode}) => {
     if (mode === 'search_aggregate') {
         fetchPlaces(filterState.value, extendedPlaceInfo.value)
     }
+})
+
+// popup heading: the label of the active role filter, or "Actors" for all roles
+const activeRoleLabel = computed(() => {
+    const role = roleFilters.value.find((item) => item.value === actorRoleFilter.value)
+    return role && role.value !== 0 ? role.label : t('label.actors')
 })
 
 const activePlace = computed(() => {
