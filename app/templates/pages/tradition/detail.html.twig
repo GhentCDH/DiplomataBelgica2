@@ -3,11 +3,12 @@
 
 {% set page_title %}{{ 'Tradition'|trans }}{% endset %}
 
-{% block body_class %}layout--compact{% endblock %}
+{% block body_class %}layout--fullscreen layout--compact{% endblock %}
 
 {% block main %}
     <div id="app" class="w-100 h-100 overflow-hidden">
         <tradition-view-app id="tradition-view-app"
+                class="h-100"
                 init-urls="{{ urls }}"
                 init-data="{{ data }}"></tradition-view-app>
     </div>

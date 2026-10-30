@@ -113,8 +113,22 @@ class TraditionSearchService extends AbstractSearchService
             'limit' => 25,
             'page' => 1,
             'ascending' => 1,
-            'orderBy' => ['id'],
+            'orderBy' => ['id', 'type.keyword'],
         ];
+    }
+
+    /**
+     * Unique key of a tradition record: "type:id" (ids overlap between originals, copies and manuscripts).
+     */
+    public static function resultKey(array $result): string
+    {
+        return $result['type'].':'.$result['id'];
+    }
+
+    protected function sanitizeSearchResult(array $result): array
+    {
+        $result['key'] = self::resultKey($result);
+        return $result;
     }
 
    protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
@@ -127,7 +141,8 @@ class TraditionSearchService extends AbstractSearchService
 
                     break;
                 case 'id':
-                    $params['orderBy'] = [ $params['orderBy'] ];
+                    // ids overlap between types: add type as tie-breaker for a stable order
+                    $params['orderBy'] = [ 'id', 'type.keyword' ];
                     break;
                 default:
                     unset($params['orderBy']);
