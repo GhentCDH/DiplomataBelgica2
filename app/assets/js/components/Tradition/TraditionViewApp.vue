@@ -97,9 +97,9 @@ import traditionRepository from "@/repositories/TraditionRepository.ts";
 import {type Context, useSearchContext} from "@ghentcdh/vue-search-kit";
 import Widget from "@/components/Sidebar/Widget.vue";
 import {useI18n} from "vue-i18n";
+import {localizeUrl} from "@/composables/useLocaleSwitch";
 
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
-import {localizeUrl} from "@/composables/useLocaleSwitch";
 import {formatRepositoryReference} from "@/components/Charter/Formatters.ts";
 
 const { t, locale } = useI18n();
