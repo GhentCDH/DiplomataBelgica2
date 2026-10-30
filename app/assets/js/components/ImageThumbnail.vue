@@ -11,8 +11,8 @@
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Image Zoom</h5>
-                        <button type="button" class="btn-close" @click="closeZoomedImage" aria-label="Close">
+                        <h5 class="modal-title">{{ $t('label.imageZoom') }}</h5>
+                        <button type="button" class="btn-close" @click="closeZoomedImage" :aria-label="$t('label.close')">
                             <!-- <span aria-hidden="true">&times;</span> -->
                         </button>
                     </div>
