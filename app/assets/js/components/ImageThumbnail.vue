@@ -11,12 +11,12 @@
             <div class="modal-dialog modal-xl image-zoom__dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Image Zoom</h5>
+                        <h5 class="modal-title">{{ $t('label.imageZoom') }}</h5>
                         <div v-if="text" class="form-check form-switch ms-auto me-3 mb-0">
                             <input id="image-zoom-show-text" class="form-check-input" type="checkbox" role="switch" v-model="showText">
                             <label class="form-check-label" for="image-zoom-show-text">{{ $t('label.showText') }}</label>
                         </div>
-                        <button type="button" class="btn-close" :class="{'ms-0': text}" @click="closeZoomedImage" aria-label="Close">
+                        <button type="button" class="btn-close" :class="{'ms-0': text}" @click="closeZoomedImage" :aria-label="$t('label.close')">
                             <!-- <span aria-hidden="true">&times;</span> -->
                         </button>
                     </div>
