@@ -18,9 +18,10 @@ export default {
             type: String,
             required: true
         },
-        imageHeight: {
-            type: Number,
-            default: 266
+        // css height of the viewer
+        height: {
+            type: String,
+            default: '70vh'
         },
     },
     data() {
@@ -30,14 +31,17 @@ export default {
     },
     computed: {
         calculateHeight() {
-            var Height = (700 * (this.imageHeight / 256));
-            return {'height': Height + 'px'}
+            return {'height': this.height}
         }
     },
 
     mounted() {
         this.openseadragon()
         //   this.addHandlers()
+    },
+    beforeUnmount() {
+        this.viewer?.destroy()
+        this.viewer = null
     },
     methods: {
         openseadragon() {

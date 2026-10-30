@@ -1,6 +1,7 @@
 import {computed, ref, shallowRef, watch} from "vue";
 
 import charterRepository from "@/repositories/CharterRepository";
+import {normaliseRole, placeRoleKey, type RoleKey} from "./roleColours";
 
 interface PlaceActorRole {
     id: number,
@@ -29,7 +30,8 @@ interface Stats {
 }
 
 interface FilteredPlace extends Place {
-    stats: Stats
+    stats: Stats,
+    roleKey: RoleKey | null,
 }
 
 type PlaceData = Place[]
@@ -48,24 +50,26 @@ watch(actorRoleFilter, (newValue, oldValue) => {
 })
 
 const updateFilteredPlaceData = () => {
+    filteredPlaceData.value = filterPlaces(placeData.value ?? [], actorRoleFilter.value)
+}
+
+export const filterPlaces = (placeData: PlaceData, roleFilter: number): FilteredPlaceData => {
     // filter places
     // - based on actor role (if selected)
     // - based on place data (if available)
 
-    // console.log('filtering places with role', actorRoleFilter.value)
-
-    const filteredPlaces = new Map()
+    const filteredPlaces: FilteredPlaceData = new Map()
 
     // check if place data is available
-    if (!placeData.value || placeData.value.length === 0) {
+    if (placeData.length === 0) {
         return filteredPlaces
     }
 
     // copy place data
-    const places = JSON.parse(JSON.stringify(placeData.value)) as PlaceData
+    const places = JSON.parse(JSON.stringify(placeData)) as PlaceData
 
     //
-    const isFilteredByRole = actorRoleFilter.value !== 0
+    const isFilteredByRole = roleFilter !== 0
 
     // filter actors based on role
     for (const place of places) {
@@ -77,9 +81,9 @@ const updateFilteredPlaceData = () => {
         const filteredActors: PlaceActor[] = [];
         const actorsCharterIds = new Set();
         for (const actor of place?.actors ?? []) {
-            // filter roles based on selected role
+            // filter roles based on selected role (role 4 counts as beneficiary)
             const filteredRoles = isFilteredByRole
-                ? actor.roles.filter((role) => role.id === actorRoleFilter.value)
+                ? actor.roles.filter((role) => normaliseRole(role.id) === normaliseRole(roleFilter))
                 : actor.roles
 
             // skip actors without filtered roles
@@ -87,8 +91,8 @@ const updateFilteredPlaceData = () => {
                 continue
             }
 
-            // calculate unique charter ids the actor is involved in
-            const charterIds = Array.from(new Set(actor.roles.map(role => role?.charterIds).flat())).sort()
+            // calculate unique charter ids the actor is involved in (with the selected role)
+            const charterIds = Array.from(new Set(filteredRoles.map(role => role?.charterIds).flat())).sort()
 
             // update actors charter ids
             charterIds.forEach(id => actorsCharterIds.add(id))
@@ -117,14 +121,15 @@ const updateFilteredPlaceData = () => {
         if (stats.charters) {
             filteredPlaces.set(place.id, {
                 ...place,
-                stats: stats
+                stats: stats,
+                roleKey: placeRoleKey(filteredActors.flatMap(actor => actor.roles.map(role => role.id)), roleFilter),
             })
         }
     }
-    filteredPlaceData.value = filteredPlaces
+    return filteredPlaces
 }
 
-const createPlaceFeature = (place: FilteredPlace) => {
+export const createPlaceFeature = (place: FilteredPlace) => {
     return {
         type: 'Feature',
         geometry: {
@@ -136,6 +141,7 @@ const createPlaceFeature = (place: FilteredPlace) => {
             actorCount: place.stats.actors,
             actorCharterCount: place.stats.actorsCharters,
             charterCount: place.stats.charters,
+            roleKey: place.roleKey,
         }
     }
 }
