@@ -41,6 +41,22 @@
         <source>French</source>
         <target>French</target>
       </trans-unit>
+      <trans-unit id="Srch5yn" resname="Search syntax">
+        <source>Search syntax</source>
+        <target>Syntaxe de recherche</target>
+      </trans-unit>
+      <trans-unit id="N0tF0un" resname="Page not found">
+        <source>Page not found</source>
+        <target>Page introuvable</target>
+      </trans-unit>
+      <trans-unit id="N0tF0uM" resname="The requested page could not be found. Check the URL for typos or">
+        <source>The requested page could not be found. Check the URL for typos or</source>
+        <target>La page demandée est introuvable. Vérifiez l'URL ou</target>
+      </trans-unit>
+      <trans-unit id="H0meLnk" resname="return to the homepage">
+        <source>return to the homepage</source>
+        <target>retournez à la page d'accueil</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

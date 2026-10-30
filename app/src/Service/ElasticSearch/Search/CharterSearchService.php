@@ -49,10 +49,17 @@ class CharterSearchService extends AbstractSearchService
                 ]
             ],
 
-            'dating_charter' => [
-                'type' => self::FILTER_DMY_RANGE,
+            // a charter can mention several dates: match from/till against the same date
+            'dating_charter_nested' => [
+                'type' => self::FILTER_NESTED_MULTIPLE,
+                'nestedPath' => 'udt',
                 'aggregationFilter' => false, // filter can be applied before aggregations
-                'field' => 'udt'
+                'filters' => [
+                    'dating_charter' => [
+                        'type' => self::FILTER_DMY_RANGE,
+                        'field' => 'udt',
+                    ],
+                ],
             ],
 
             'fulltext' => [
@@ -370,6 +377,8 @@ class CharterSearchService extends AbstractSearchService
                     'field' => 'role',
                     'nestedPath' => 'actors',
                     'filters' => $searchFilters[ "actors_{$index}" ]['filters'],
+                    // diplomatic order: issuer, author of the actio juridica (disposant), beneficiary
+                    'sortOrder' => [2, 1, 3, 4],
                 ],
                 "actor_order_name_{$index}" => [
                     'type' => self::AGG_OBJECT_ID_NAME,

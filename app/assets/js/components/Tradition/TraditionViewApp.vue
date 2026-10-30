@@ -7,18 +7,18 @@
                 <h2>{{ t('label.tradition') }}</h2>
                 <!-- <h2>Tradition</h2> -->
                 <div class="mbottom-default">
-                  <LabelValue :label="t('label.reference')" :value="formatReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
-                  <LabelValue :label="t('label.type')" :value="tradition.type" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('label.reference')" :value="formatRepositoryReference(tradition.repository, tradition.repository_reference_number)" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('label.type')" :value="t('tradition.type.' + tradition.type)" grid="4|8"></LabelValue>
                 </div>
-                <h2 v-if="tradition.type == 'manuscript'" class="pbottom-default" > Information about the Manuscript </h2>
+                <h2 v-if="tradition.type == 'manuscript'" class="pbottom-default" >{{ t('tradition.manuscriptInfo.title') }}</h2>
                 <div v-if="tradition.type == 'manuscript'" class="mbottom-default">
-                  <LabelValue label="Stein ID" :value="tradition.stein_number" grid="4|8"></LabelValue>
-                  <LabelValue v-if=tradition.authors label="Author(s) of the manuscript" :value="tradition.authors" grid="4|8"></LabelValue>
-                  <LabelValue label="Title of the manuscript" :value="tradition.title" grid="4|8"></LabelValue>
-                  <LabelValue label="Date of redaction" :value="tradition.redaction_date" grid="4|8"></LabelValue>
-                  <LabelValue label="Institution(s) covered by the manuscript" :value="tradition.institutions" type="id_name" grid="4|8"></LabelValue>
-                  <LabelValue label="Size of the manuscript" :value="tradition.pages" grid="4|8"></LabelValue>
-                  <LabelValue label="Writing material(s)" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
+                  <LabelValue :label="t('tradition.manuscriptInfo.steinId')" :value="tradition.stein_number" grid="4|8"></LabelValue>
+                  <LabelValue v-if=tradition.authors :label="t('tradition.manuscriptInfo.authors')" :value="tradition.authors" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('tradition.manuscriptInfo.manuscriptTitle')" :value="tradition.title" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('tradition.manuscriptInfo.redactionDate')" :value="tradition.redaction_date" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('tradition.manuscriptInfo.institutions')" :value="tradition.institutions" type="id_name" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('tradition.manuscriptInfo.size')" :value="tradition.pages" grid="4|8"></LabelValue>
+                  <LabelValue :label="t('tradition.manuscriptInfo.materials')" :value="tradition.materials" grid="4|8" type="id_name"></LabelValue>
                 </div>
 
                 <h2> {{ t('label.links') }} </h2>
@@ -28,7 +28,7 @@
                 </div>
 
 
-                <h3 v-if="tradition.urls.length > 0" >Document</h3>
+                <h3 v-if="tradition.urls.length > 0">{{ t('label.document') }}</h3>
                 <InlineLinkList v-if="tradition.urls.length > 0" :linklist="tradition.urls.map((url) => url.url)"></InlineLinkList>
 
                 <h2 v-if="tradition.image_count > 0"> {{ t('label.images') }} </h2>
@@ -42,10 +42,10 @@
         </article>
         <aside class="d-flex col-sm-4 overflow-hidden">
             <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
-                <Widget v-if="validContextAndResultSet()" title="Search" :collapsed="false">
+                <Widget v-if="validContextAndResultSet()" :title="t('label.search')" :collapsed="false">
                     <div class="row mbottom-default">
                         <div class="form-group">
-                            <span class="btn btn-sm btn-primary" @click="returnToSearchResult">&lt; Return to list</span>
+                            <span class="btn btn-sm btn-primary" @click="returnToSearchResult">{{ t('label.returnToSearchPage') }}</span>
                         </div>
                         <div class="col col-3" :class="{ disabled: context.searchIndex === 1}">
                             <span class="btn btn-sm btn-primary" @click="loadByIndex(1)">
@@ -56,7 +56,7 @@
                             </span>
                         </div>
 
-                        <div class="col col-6 text-center"><span>Result {{ context.searchIndex }} of {{ context.count }}</span></div>
+                        <div class="col col-6 text-center"><span>{{ t('tradition.resultIndexOfCount', {index: context.searchIndex, count: context.count}) }}</span></div>
                         <div class="col col-3 text-right" :class="{ disabled: context.searchIndex === context.count}">
 
                             <span class="btn btn-sm btn-primary" @click="loadByIndex(context.searchIndex + 1)">
@@ -85,6 +85,7 @@ import Widget from "@/components/Sidebar/Widget.vue";
 import {useI18n} from "vue-i18n";
 
 import {useUrlGenerator} from "@/composables/useUrlGenerator.ts";
+import {formatRepositoryReference} from "@/components/Charter/Formatters.ts";
 
 const { t } = useI18n();
 
@@ -108,20 +109,6 @@ getTradition(id);
 
 const tradition = computed(() => data.value.tradition)
 
-function formatReference(reference, referenceNum) {
-    var res = '';
-    if (reference.location) {
-        res = reference.location;
-    }
-    if (reference.name) {
-        res = res + ', ' + reference.name;
-    }
-    if (referenceNum) {
-        res = res + ', ' + referenceNum;
-    }
-    return res;
-}
-
 function getImageUrl(values) {
     return values.map( item => formatImageUrl(item.image_file ))
 }
@@ -143,7 +130,7 @@ function filenameCheck(filename: string) {
 }
 
 function updateTitle(id: number) {
-    document.title = 'Diplomata Belgica - Tradition ID ' + id
+    document.title = t('tradition.documentTitle', {id})
 }
 
 function getTradition(id: number) {
