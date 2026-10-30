@@ -24,7 +24,7 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         }
 
         // configure analysis
-        $index->create($this->getIndexProperties());
+        $index->create($this->getIndexPropertiesWithDefaults());
 
         // configure mapping
         $mapProperties = $this->getMappingProperties();
@@ -35,13 +35,27 @@ abstract class AbstractIndexService extends AbstractService implements IndexServ
         }
     }
 
+    /**
+     * Elasticsearch refuses from + size beyond max_result_window (default 10000), which made
+     * every result page after 10000 records (e.g. the "Last" button) fail. Allow paging
+     * through the whole collection.
+     */
+    const MAX_RESULT_WINDOW = 100000;
+
+    protected function getIndexPropertiesWithDefaults(): array
+    {
+        $properties = $this->getIndexProperties();
+        $properties['settings']['max_result_window'] = static::MAX_RESULT_WINDOW;
+        return $properties;
+    }
+
     public function createNewIndex(): string
     {
         $newIndexName = $this->getIndexName().'_'.Uuid::uuid4()->toString();
 
         // create index
         $index = $this->client->getIndex($newIndexName);
-        $index->create($this->getIndexProperties());
+        $index->create($this->getIndexPropertiesWithDefaults());
 
         // configure mapping
         $mapProperties = $this->getMappingProperties();
