@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class CharterController extends BaseController
 {
@@ -19,9 +19,7 @@ class CharterController extends BaseController
         $this->searchService = $searchService;
     }
 
-    /**
-     * @Route("/{_locale}/charters", name="charter_search", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters', name: 'charter_search', methods: ['GET'])]
     public function charters(Request $request): Response
     {
         $urls = $this->getSharedAppUrls();
@@ -37,9 +35,7 @@ class CharterController extends BaseController
         );
     }
 
-    /**
-     * @Route("/{_locale}/charters/{id}", name="charter_get_single", priority=-10, methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters/{id}', name: 'charter_get_single', priority: -10, methods: ['GET'])]
     public function charter(string $id, Request $request): Response
     {
         if (in_array('application/json', $request->getAcceptableContentTypes())) {
@@ -63,9 +59,7 @@ class CharterController extends BaseController
         }
     }
 
-    /**
-     * @Route("/{_locale}/charters/search_syntax", name="charter_search_syntax", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters/search_syntax', name: 'charter_search_syntax', methods: ['GET'])]
     public function searchSyntax(Request $request): Response
     {
         $locale = $request->getLocale();
@@ -74,9 +68,7 @@ class CharterController extends BaseController
         );
     }
 
-    /**
-     * @Route("/{_locale}/charters/aggregation_suggest", name="charter_aggregation_suggest", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters/aggregation_suggest', name: 'charter_aggregation_suggest', methods: ['GET'])]
     public function aggregation_suggest(Request $request): Response
     {
         $filters = $request->query->all('filters', []);
@@ -88,7 +80,7 @@ class CharterController extends BaseController
         }
 
         // construct prefix filter
-        $filters["${field}:prefix"] = $value;
+        $filters["{$field}:prefix"] = $value;
 
         // get data
         $data = $this->searchService->aggregate(
@@ -99,9 +91,7 @@ class CharterController extends BaseController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/{_locale}/charters/search", name="charter_search_api", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters/search', name: 'charter_search_api', methods: ['GET'])]
     public function search(Request $request): Response
     {
         $mode = SearchMode::fromValue($request->query->get('mode', null)) ?: SearchMode::SEARCH_AGGREGATE;
@@ -109,17 +99,13 @@ class CharterController extends BaseController
         return $this->_searchAPI($request, $mode, excludeAggregationKeys: ['actorPlaces', 'charterPlaces']);
     }
 
-    /**
-     * @Route("/{_locale}/charters/locate", name="charter_locate", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters/locate', name: 'charter_locate', methods: ['GET'])]
     public function locate(Request $request): Response
     {
         return $this->_searchAPI($request, SearchMode::AGGREGATE, useAggregationKeys: ['actorPlaces', 'charterPlaces'], callback: [$this, 'cleanLocationData']);
     }
 
-    /**
-     * @Route("/{_locale}/charters/paginate", name="charter_paginate", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/charters/paginate', name: 'charter_paginate', methods: ['GET'])]
     public function paginate(Request $request): Response
     {
         return $this->_paginate($request);

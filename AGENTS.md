@@ -8,7 +8,7 @@ Live site: https://www.diplomata-belgica.be/ — GitHub: `GhentCDH/DiplomataBelg
 
 | Layer      | Technology                                                                                         |
 |------------|----------------------------------------------------------------------------------------------------|
-| Backend    | PHP 8.2, Symfony 5.4, **Eloquent ORM** (`wouterj/eloquent-bundle`, *not* Doctrine)                 |
+| Backend    | PHP 8.3, Symfony 6.4, **Eloquent ORM** 9 (`wouterj/eloquent-bundle`, *not* Doctrine)               |
 | Database   | MariaDB 10.11 (schema + data loaded from `initdb/` on first start)                                 |
 | Search     | Elasticsearch 7 (via `ruflin/elastica`), xpack security on                                         |
 | Frontend   | Vue 3.5 + TypeScript/JS, Vite 6 (`vite-plugin-symfony` / `pentatrion/vite-bundle`), Bootstrap 5    |
@@ -48,7 +48,7 @@ app/
 
 ## How things fit together
 
-- **Routes** are annotation-based (`@Route`) with a `{_locale}` prefix: `/{_locale}/charters`,
+- **Routes** are attribute-based (`#[Route]`) with a `{_locale}` prefix: `/{_locale}/charters`,
   `/{_locale}/charters/{id}`, `/{_locale}/charters/search|paginate|locate|aggregation_suggest`,
   `/{_locale}/tradition/search|search_api|paginate`, `/{_locale}/tradition/{tradition_type}/{id}` (locales: `en`,
   `fr`; a legacy `/tradition/paginate` without locale searches the English index). Detail routes return JSON when
@@ -101,8 +101,11 @@ docker compose up --build            # app on http://localhost:${APP_EXTERNAL_PO
 
 - Commits: Conventional Commits, lowercase type, no scope (`feat:`, `fix:`, `refactor:`, `chore:`, `docs:`,
   `test:`). Branches: `feat/...`, `fix/...`, `chore/...`, `refactor/...`. Work lands via PRs to `main`.
-- No linters/formatters are configured; match the style of surrounding code (PHP: PSR-12-ish, annotations for
-  routes; Vue: `<script setup>` with `lang="ts"` in newer components).
+- No linters/formatters are configured; match the style of surrounding code (PHP: PSR-12-ish, attributes for
+  routes and commands; Vue: `<script setup>` with `lang="ts"` in newer components).
+- `app/rector.php` holds the Rector config used for framework upgrades (`vendor/bin/rector process --dry-run`).
+  For upgrades, compare before/after with `app/scripts/upgrade-snapshot.sh <outdir>` (run on the host; indexes
+  a sample into a separate `dibe_snap` prefix and records routes and endpoint responses).
 - Domain vocabulary: *charter* (charte), *tradition* = original | copy | manuscript (codex), *actor* with a
   *role* per charter (1 = disposant / author of the actio juridica, 2 = issuer / auteur, 3 = beneficiary),
   *capacity* (function/title), *datation* (preference 0 = scholarly dating, preferential), *place-date*.
@@ -111,5 +114,8 @@ docker compose up --build            # app on http://localhost:${APP_EXTERNAL_PO
 
 - README refers to `example.env`, which does not exist; the committed root `.env` holds dev defaults.
   Secrets go in `.env.local` / environment (gitignored).
-- `config/packages/{prod,qas,test}/webpack_encore.yaml` are leftovers from the Encore era.
+- The webdevops PHP images enable the ionCube loader by default; it makes PHP 8.3 segfault after the Symfony
+  cache warmup, so the `Dockerfile` removes `00-ioncube.ini`.
+- `composer recipes:update` needs the repository's `.git`, which the symfony container cannot see (only `app/` is
+  mounted): run it in a one-off `docker compose run` container that mounts the whole repository.
 - `initdb/` scripts only run when the MariaDB volume (`var/mysql`) is empty.

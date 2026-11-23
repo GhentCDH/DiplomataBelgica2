@@ -1,5 +1,5 @@
 ARG NODE_VERSION=22
-ARG PHP_VERSION=8.2
+ARG PHP_VERSION=8.3
 # ----------------------------------------------------------
 # NODE
 # ----------------------------------------------------------
@@ -54,6 +54,10 @@ CMD pnpm install; pnpm run dev
 FROM webdevops/php-dev:${PHP_VERSION} AS symfony-base
 
 WORKDIR "/app"
+
+# the ionCube loader (enabled by default in webdevops images) makes PHP 8.3 segfault at shutdown
+# after Symfony 6.4 cache warmup; it is only needed to run ionCube-encoded code, which this project has none of
+RUN rm -f /usr/local/etc/php/conf.d/00-ioncube.ini
 
 RUN set -eux && \
     apt-get update -qq && \
@@ -120,6 +124,9 @@ RUN --mount=type=ssh \
 
 FROM webdevops/php-apache:${PHP_VERSION} AS prod
 # USER application
+
+# disable the ionCube loader, see symfony-base
+RUN rm -f /usr/local/etc/php/conf.d/00-ioncube.ini
 
 # todo: add tmux?
 

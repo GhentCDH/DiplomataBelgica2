@@ -4,29 +4,23 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class DefaultController extends AbstractController
 {
-    /**
-     * @Route("/", name="default", methods={"GET"})
-     */
+    #[Route(path: '/', name: 'default', methods: ['GET'])]
     public function index(Request $request): Response
     {
         return $this->redirectToRoute("colophon");
     }
 
-    /**
-     * @Route("/{_locale}/", name="default_locale", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/', name: 'default_locale', methods: ['GET'])]
     public function index_locale(Request $request): Response
     {
         return $this->redirectToRoute("colophon");
     }
 
-    /**
-     * @Route("/{_locale}/about", name="about", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/about', name: 'about', methods: ['GET'])]
     public function about(Request $request): Response
     {
         $locale = $request->getLocale();
@@ -34,9 +28,7 @@ class DefaultController extends AbstractController
             "pages/about/about.$locale.html.twig");
     }
 
-    /**
-     * @Route("/{_locale}/copyright", name="copyright", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/copyright', name: 'copyright', methods: ['GET'])]
     public function copyright(Request $request): Response
     {
         $locale = $request->getLocale();
@@ -44,9 +36,7 @@ class DefaultController extends AbstractController
             "pages/copyright/copyright.$locale.html.twig");
     }
 
-    /**
-     * @Route("/{_locale}/contact", name="contact", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/contact', name: 'contact', methods: ['GET'])]
     public function contact(Request $request): Response
     {
         $locale = $request->getLocale();
@@ -54,9 +44,7 @@ class DefaultController extends AbstractController
             "pages/contact/contact.$locale.html.twig");
     }
 
-    /**
-     * @Route("/{_locale}/colophon", name="colophon", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/colophon', name: 'colophon', methods: ['GET'])]
     public function colophon(Request $request): Response
     {
         $locale = $request->getLocale();

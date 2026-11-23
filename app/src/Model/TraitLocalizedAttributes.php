@@ -48,7 +48,7 @@ trait TraitLocalizedAttributes {
     /**
      * Add translation support to eloquent getAttribute
      */
-    public function getAttribute($attr)
+    public function getAttribute($attr): mixed
     {
         if ( !$this->isLocalizedAttribute($attr) ) {
             return parent::getAttribute($attr);
@@ -58,7 +58,7 @@ trait TraitLocalizedAttributes {
     }
 
     // override attribute mutator, prevent localizedAttributes from being mutated
-    protected function mutateAttribute($key, $value)
+    protected function mutateAttribute($key, $value): mixed
     {
         // don't mutate localized attributes
 

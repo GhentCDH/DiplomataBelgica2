@@ -3,13 +3,12 @@
 namespace App\Controller;
 
 use App\Service\ElasticSearch\Search\TraditionSearchService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 class TraditionController extends BaseController
 {
@@ -20,17 +19,13 @@ class TraditionController extends BaseController
         $this->searchService = $searchService;
     }
 
-    /**
-     * @Route("/{_locale}/tradition", name="charter", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/tradition', name: 'charter', methods: ['GET'])]
     public function index(Request $request): RedirectResponse
     {
         return $this->redirectToRoute('tradition_search', ['request' =>  $request], 301);
     }
 
-    /**
-     * @Route("/{_locale}/tradition/search", name="tradition_search", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/tradition/search', name: 'tradition_search', methods: ['GET'])]
     public function search(Request $request): Response {
         return $this->_search(
             $request,
@@ -44,17 +39,13 @@ class TraditionController extends BaseController
         );
     }
 
-    /**
-     * @Route("/{_locale}/tradition/search_api", name="tradition_search_api", methods={"GET"})
-     */
+    #[Route(path: '/{_locale}/tradition/search_api', name: 'tradition_search_api', methods: ['GET'])]
     public function searchAPI(Request $request): Response {
         return $this->_searchAPI($request);
     }
 
-    /**
-     * @Route("/{_locale}/tradition/paginate", name="tradition_paginate", methods={"GET"})
-     * @Route("/tradition/paginate", name="tradition_paginate_legacy", methods={"GET"}, defaults={"_locale": "en"})
-     */
+    #[Route(path: '/{_locale}/tradition/paginate', name: 'tradition_paginate', methods: ['GET'])]
+    #[Route(path: '/tradition/paginate', name: 'tradition_paginate_legacy', methods: ['GET'], defaults: ['_locale' => 'en'])]
     public function paginate(Request $request): Response {
         return $this->_paginate($request);
     }
@@ -68,10 +59,8 @@ class TraditionController extends BaseController
         return TraditionSearchService::resultKey($item);
     }
 
-    /**
-     * @Route("/{_locale}/tradition/{tradition_type}/{id}", name="tradition_get_single", methods={"GET"})
-     */
-    public function getSingle(string $id, string $tradition_type, Request $request, ContainerInterface $container): Response
+    #[Route(path: '/{_locale}/tradition/{tradition_type}/{id}', name: 'tradition_get_single', methods: ['GET'])]
+    public function getSingle(string $id, string $tradition_type, Request $request): Response
     {
         $resource_id = $tradition_type.':'.$id;
 
