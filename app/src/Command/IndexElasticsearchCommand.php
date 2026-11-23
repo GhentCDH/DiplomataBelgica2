@@ -15,6 +15,7 @@ use App\Service\ElasticSearch\Base\AbstractIndexService;
 use App\Service\ElasticSearch\Index\CharterIndexService;
 use App\Service\ElasticSearch\Index\TraditionIndexService;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -23,11 +24,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(name: 'app:elasticsearch:index', description: 'Drops the old elasticsearch index and recreates it.')]
 class IndexElasticsearchCommand extends Command
 {
-    protected static $defaultName = 'app:elasticsearch:index';
-    protected static $defaultDescription = 'Drops the old elasticsearch index and recreates it.';
-
     /**
      * Tradition repositories, indexed in this order
      * @var RepositoryInterface[] name => repository
@@ -54,7 +53,6 @@ class IndexElasticsearchCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
             ->addOption('locale', 'l', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Locale(s) to index (default: all index locales)')

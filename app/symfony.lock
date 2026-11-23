@@ -2,20 +2,14 @@
     "ajcastro/eager-load-pivot-relations": {
         "version": "v0.2.2"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.1"
-    },
-    "doctrine/annotations": {
-        "version": "2.0",
+    "doctrine/deprecations": {
+        "version": "1.1",
         "recipe": {
             "repo": "github.com/symfony/recipes",
             "branch": "main",
             "version": "1.0",
-            "ref": "a2759dd6123694c8d901d0ec80006e044c2e6457"
-        },
-        "files": [
-            "config/routes/annotations.yaml"
-        ]
+            "ref": "fdd756167454623e21f1d769c5b814b243782a67"
+        }
     },
     "doctrine/inflector": {
         "version": "2.0.3"
@@ -34,9 +28,6 @@
     },
     "ezimuel/ringphp": {
         "version": "1.1.2"
-    },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.3"
     },
     "illuminate/bus": {
         "version": "v8.40.0"
@@ -79,12 +70,6 @@
     },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
-    },
-    "kirschbaum-development/eloquent-power-joins": {
-        "version": "2.5.1"
-    },
-    "laminas/laminas-code": {
-        "version": "4.2.1"
     },
     "laminas/laminas-eventmanager": {
         "version": "3.3.1"
@@ -391,9 +376,6 @@
     "symfony/property-info": {
         "version": "v5.2.7"
     },
-    "symfony/proxy-manager-bridge": {
-        "version": "v5.2.4"
-    },
     "symfony/routing": {
         "version": "5.1",
         "recipe": {
@@ -408,28 +390,7 @@
             "config/routes.yaml"
         ]
     },
-    "symfony/security-bundle": {
-        "version": "5.1",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "5.1",
-            "ref": "0a4bae19389d3b9cba1ca0102e3b2bccea724603"
-        },
-        "files": [
-            "config/packages/security.yaml"
-        ]
-    },
-    "symfony/security-core": {
-        "version": "v5.2.7"
-    },
     "symfony/security-csrf": {
-        "version": "v5.2.7"
-    },
-    "symfony/security-guard": {
-        "version": "v5.2.4"
-    },
-    "symfony/security-http": {
         "version": "v5.2.7"
     },
     "symfony/serializer": {
