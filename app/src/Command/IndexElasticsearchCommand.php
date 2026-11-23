@@ -5,6 +5,9 @@ namespace App\Command;
 use App\Model\AbstractModel;
 use App\Model\AbstractPivot;
 use App\Repository\CharterRepository;
+use App\Repository\CodexRepository;
+use App\Repository\CopyRepository;
+use App\Repository\OriginalRepository;
 use App\Repository\RepositoryInterface;
 use App\Resource\ElasticSearch\ElasticCharterResource;
 use App\Resource\ElasticSearch\ElasticTraditionResource;
@@ -19,19 +22,32 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class IndexElasticsearchCommand extends Command
 {
     protected static $defaultName = 'app:elasticsearch:index';
     protected static $defaultDescription = 'Drops the old elasticsearch index and recreates it.';
 
-    protected $container = [];
-    protected $di = [];
+    /**
+     * Tradition repositories, indexed in this order
+     * @var RepositoryInterface[] name => repository
+     */
+    private array $traditionRepositories;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(
+        private CharterRepository $charterRepository,
+        OriginalRepository $originalRepository,
+        CopyRepository $copyRepository,
+        CodexRepository $codexRepository,
+        private CharterIndexService $charterIndexService,
+        private TraditionIndexService $traditionIndexService,
+    )
     {
-        $this->container = $container;
+        $this->traditionRepositories = [
+            'original_repository' => $originalRepository,
+            'copy_repository' => $copyRepository,
+            'codex_repository' => $codexRepository,
+        ];
         parent::__construct();
     }
 
@@ -61,18 +77,17 @@ class IndexElasticsearchCommand extends Command
                      * - add 'type' property for each resource type
                      */
 
-                    /** @var $service TraditionIndexService */
-                    $service = $this->container->get('tradition_index_service');
+                    $service = $this->traditionIndexService;
                     $services = $this->localeServices($service, $input->getOption('locale'));
                     $indexNames = $this->createNewIndices($services);
 
                     $total = 0;
-                    $repositories = ['original_repository', 'copy_repository', 'codex_repository' ];
+                    $repositories = array_keys($this->traditionRepositories);
 //                    $repositories = ['codex_repository' ];
 
                     /*** @var $repository RepositoryInterface */
                     foreach( $repositories as $repository_name ) {
-                        $repository = $this->container->get($repository_name);
+                        $repository = $this->traditionRepositories[$repository_name];
                         $total += $repository->indexQuery()->count();
                     }
 
@@ -83,7 +98,7 @@ class IndexElasticsearchCommand extends Command
                     /*** @var $repository RepositoryInterface */
                     $this->indexOrCleanUp($services, $indexNames, function () use ($repositories, $chunkSize, $services, &$count, $progressBar, $maxItems) {
                         foreach( $repositories as $repository_name ) {
-                            $repository = $this->container->get($repository_name);
+                            $repository = $this->traditionRepositories[$repository_name];
                             $repository->indexQuery()->chunk($chunkSize,
                                 function($traditions) use ($services, &$count, $progressBar, $maxItems) {
                                     if ( $maxItems && $count >= $maxItems ) {
@@ -109,11 +124,8 @@ class IndexElasticsearchCommand extends Command
                     break;
 
                 case 'charter':
-                    /** @var $repository CharterRepository */
-                    $repository = $this->container->get('charter_repository' );
-
-                    /** @var $service CharterIndexService */
-                    $service = $this->container->get('charter_index_service');
+                    $repository = $this->charterRepository;
+                    $service = $this->charterIndexService;
                     $services = $this->localeServices($service, $input->getOption('locale'));
                     $indexNames = $this->createNewIndices($services);
 

@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Service\ElasticSearch\Search\TraditionSearchService;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -71,7 +70,7 @@ class TraditionController extends BaseController
     /**
      * @Route("/{_locale}/tradition/{tradition_type}/{id}", name="tradition_get_single", methods={"GET"})
      */
-    public function getSingle(string $id, string $tradition_type, Request $request, ContainerInterface $container): Response
+    public function getSingle(string $id, string $tradition_type, Request $request): Response
     {
         $resource_id = $tradition_type.':'.$id;
 
