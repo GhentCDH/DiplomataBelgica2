@@ -8,7 +8,7 @@ Live site: https://www.diplomata-belgica.be/ — GitHub: `GhentCDH/DiplomataBelg
 
 | Layer      | Technology                                                                                         |
 |------------|----------------------------------------------------------------------------------------------------|
-| Backend    | PHP 8.3, Symfony 6.4, **Eloquent ORM** 9 (`wouterj/eloquent-bundle`, *not* Doctrine)               |
+| Backend    | PHP 8.3, Symfony 6.4, **Eloquent ORM** 10 (`wouterj/eloquent-bundle`, *not* Doctrine)              |
 | Database   | MariaDB 10.11 (schema + data loaded from `initdb/` on first start)                                 |
 | Search     | Elasticsearch 7 (via `ruflin/elastica`), xpack security on                                         |
 | Frontend   | Vue 3.5 + TypeScript/JS, Vite 6 (`vite-plugin-symfony` / `pentatrion/vite-bundle`), Bootstrap 5    |
