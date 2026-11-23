@@ -10,8 +10,8 @@
         "ext-iconv": "*",
         "ext-json": "*",
         "ajcastro/eager-load-pivot-relations": "^0.2.2",
-        "illuminate/database": "^9.52",
-        "illuminate/http": "^9.52",
+        "illuminate/database": "^10.48",
+        "illuminate/http": "^10.48",
         "pentatrion/vite-bundle": "^7.1",
         "phpdocumentor/reflection-docblock": "^5.2",
         "ramsey/uuid": "^4.7",
@@ -43,7 +43,7 @@
         "symfony/yaml": "6.4.*",
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/twig": "^2.12|^3.0",
-        "wouterj/eloquent-bundle": "^2.0"
+        "wouterj/eloquent-bundle": "^2.8"
     },
     "require-dev": {
         "rector/rector": "^2.0",
