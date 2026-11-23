@@ -10,6 +10,9 @@ return RectorConfig::configure()
     ->withPaths([
         __DIR__ . '/src',
     ])
+    ->withSymfonyContainerXml(__DIR__ . '/var/cache/dev/App_KernelDevDebugContainer.xml')
+    // Symfony upgrade sets, picked from the installed symfony/* versions
+    ->withComposerBased(symfony: true)
     // @Route annotations -> #[Route] attributes
     ->withAttributesSets(symfony: true)
     ->withRules([

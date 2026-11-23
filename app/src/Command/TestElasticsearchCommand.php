@@ -21,7 +21,7 @@ class TestElasticsearchCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addArgument('id', InputArgument::OPTIONAL, 'Charter id', 1)
