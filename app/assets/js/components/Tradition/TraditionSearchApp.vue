@@ -52,6 +52,7 @@
                         :sort-by="tableState.orderBy"
                         :sort-ascending="tableState.orderAsc"
                         :selected-ids="selectedIds"
+                        id-key="key"
                         @update:sort-by="(value) => updateTableState({orderBy: value})"
                         @update:sort-ascending="(value) => updateTableState({orderAsc: value})"
                         @add-selected="addSelectedIds"
@@ -63,8 +64,8 @@
                         </template>
                         <template #summary="props">
                             <div>
-                                <b-link target="_blank" :href="getContextualDetailUrl(props.row.id, props.index)"
-                                   @navigate="saveResultContext(props.row.id, props.index)"
+                                <b-link target="_blank" :href="getContextualDetailUrl(props.row.key, props.index)"
+                                   @navigate="saveResultContext(props.row.key, props.index)"
                                 >
                                     {{ formatRepositoryReference(props.row.repository, props.row.repository_reference_number) }}
                                 </b-link>
@@ -91,6 +92,7 @@
 
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
+import {parseTraditionKey} from "@/composables/useTraditionKey";
 import {formatRepositoryReference} from "@/components/Charter/Formatters.ts";
 
 import {
@@ -161,7 +163,11 @@ const {
     saveSelectionContext,
 } = useSearchApp({
     searchApiUrl: getRoute('tradition_search_api'),
-    detailUrl: (id) => createTraditionUrl('original', id),
+    // results are identified by "type:id" keys (ids overlap between originals, copies and manuscripts)
+    detailUrl: (key) => {
+        const {type, id} = parseTraditionKey(key)
+        return createTraditionUrl(type, id)
+    },
     defaultFilterModel: {},
     defaultTableState: {
         orderBy: 'id',

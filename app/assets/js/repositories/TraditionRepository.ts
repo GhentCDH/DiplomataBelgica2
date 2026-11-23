@@ -3,19 +3,10 @@ import type {AxiosResponse} from "axios";
 
 class TraditionRepository extends BaseRepository {
 
-    public async get(id: string): Promise<AxiosResponse> {
+    public async get(type: string, id: string | number): Promise<AxiosResponse> {
         const locale = this.getLocale();
         const config = this.getRequestConfig();
-        return await this.axiosInstance.get(`/${locale}/tradition/original/${id}`, config);
-    }
-
-    public async search(query: object): Promise<AxiosResponse> {
-        const locale = this.getLocale();
-        const config = this.getRequestConfig();
-        return await this.axiosInstance.get(`/${locale}/traditions/search`, {
-            ...config,
-            params: query,
-        });
+        return await this.axiosInstance.get(`/${locale}/tradition/${type}/${id}`, config);
     }
 }
 

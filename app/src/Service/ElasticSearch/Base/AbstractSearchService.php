@@ -3,6 +3,8 @@
 namespace App\Service\ElasticSearch\Base;
 
 use Elastica\Aggregation;
+use Elastica\Exception\NotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Elastica\Query;
 use Elastica\Query\AbstractQuery;
 
@@ -74,7 +76,11 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
 
     public function getSingle(string $id): array
     {
-        return $this->getIndex()->getDocument($id)->getData();
+        try {
+            return $this->getIndex()->getDocument($id)->getData();
+        } catch (NotFoundException $e) {
+            throw new NotFoundHttpException("Document '$id' not found", $e);
+        }
     }
 
     protected function sanitizeSearchParameters(array $params, bool $merge_defaults = true): array
