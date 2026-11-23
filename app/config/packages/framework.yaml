@@ -2,7 +2,8 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
-    # set explicitly: the default changes to true in Symfony 8
+    # opt in to the Symfony 8 default now (7.x defaults to false; not setting it is deprecated since 7.3).
+    # No effect today: the app doesn't use the serializer or PropertyInfo.
     property_info:
         with_constructor_extractor: true
 
