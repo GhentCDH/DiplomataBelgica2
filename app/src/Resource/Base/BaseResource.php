@@ -26,12 +26,21 @@ class BaseResource extends JsonResource implements ResourceInterface
     /**
      * Transform the resource into a JSON array.
      *
-     * @param  Request  $request
+     * Same as JsonResource::toArray(), but without the Request: resources are serialized for the search
+     * index, outside an HTTP request (JsonResource::toArray() requires a Request since illuminate 10).
+     *
+     * @param  Request|null  $request
      * @return array|Arrayable|JsonSerializable
      */
     public function toArray($request = null)
     {
-        return parent::toArray($request);
+        if (is_null($this->resource)) {
+            return [];
+        }
+
+        return is_array($this->resource)
+            ? $this->resource
+            : $this->resource->toArray();
     }
 
     /**
