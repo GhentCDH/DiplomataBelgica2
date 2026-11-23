@@ -24,7 +24,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'app:elasticsearch:index', description: 'Drops the old elasticsearch index and recreates it.')]
+#[AsCommand(name: 'app:elasticsearch:index', description: 'Drops the old elasticsearch index and recreates it.', help: <<<'TXT'
+This command allows you to reindex elasticsearch. Each locale has its own index ({prefix}_{index}_{locale}).
+TXT)]
 class IndexElasticsearchCommand extends Command
 {
     /**
@@ -55,8 +57,7 @@ class IndexElasticsearchCommand extends Command
         $this
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
-            ->addOption('locale', 'l', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Locale(s) to index (default: all index locales)')
-            ->setHelp('This command allows you to reindex elasticsearch. Each locale has its own index ({prefix}_{index}_{locale}).');
+            ->addOption('locale', 'l', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Locale(s) to index (default: all index locales)');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
