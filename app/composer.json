@@ -4,7 +4,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": ">=8.0",
+        "php": ">=8.3",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-iconv": "*",
@@ -69,6 +69,9 @@
         "allow-plugins": {
             "symfony/flex": true,
             "symfony/runtime": true
+        },
+        "platform": {
+            "php": "8.3"
         }
     },
     "autoload": {
