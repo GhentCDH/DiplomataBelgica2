@@ -57,15 +57,15 @@ trait TraitLocalizedAttributes {
         return $this->getLocalizedAttribute($attr, static::$locale);
     }
 
-    // override attribute mutator, prevent localizedAttributes from being mutated
+    // override attribute mutator: localized attributes are resolved from their <attr>_<locale> columns,
+    // all other attributes go through their regular accessor
     protected function mutateAttribute($key, $value): mixed
     {
-        // don't mutate localized attributes
-
-        if ( !$this->isLocalizedAttribute($key) ) {
-            parent::mutateAttribute($key, $value);
+        if ($this->isLocalizedAttribute($key)) {
+            return $this->getLocalizedAttribute($key);
         }
-        return $this->getLocalizedAttribute($key);
+
+        return parent::mutateAttribute($key, $value);
     }
 
     /**
