@@ -133,7 +133,8 @@ class IndexElasticsearchCommand extends Command
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $this->indexOrCleanUp($services, $indexNames, fn() =>
+                    // a closure, not an arrow function: fn() captures $count by value, so the total would stay 0
+                    $this->indexOrCleanUp($services, $indexNames, function () use ($repository, $services, &$count, $progressBar, $maxItems) {
                         $repository->indexQuery()->chunk(100,
                             function($charters) use ($services, &$count, $progressBar, $maxItems): bool {
                                 if ( $maxItems && $count >= $maxItems ) {
@@ -150,8 +151,8 @@ class IndexElasticsearchCommand extends Command
                                 // update progress bar
                                 $progressBar->advance($charters->count());
                                 return true;
-                            })
-                    );
+                            });
+                    });
 
                     $this->switchToNewIndices($services, $indexNames);
 
