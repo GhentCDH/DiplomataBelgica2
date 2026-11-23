@@ -100,7 +100,7 @@ class BaseController extends AbstractController
                 $data = $callback($data);
             }
             // debug?
-            if ($request->query->getBoolean('debug', false)) {
+            if ($this->isDebugRequest($request)) {
                 return $this->render('pages/default/index.html.twig', [
                     'page_title' => 'debug',
                     'controller_name' => 'TestController',
@@ -110,7 +110,7 @@ class BaseController extends AbstractController
             return new JsonResponse($data);
         } catch (\Throwable $e) {
             // debug?
-            if ($request->query->getBoolean('debug', false)) {
+            if ($this->isDebugRequest($request)) {
                 dump($e);
                 return $this->render('pages/default/index.html.twig', [
                     'page_title' => 'debug',
@@ -120,6 +120,17 @@ class BaseController extends AbstractController
             // return json error response
             return new JsonResponse(['error' => $e->getMessage(), 'type' => get_class($e) ], 400);
         }
+    }
+
+    /**
+     * ?debug=1 renders an HTML page instead of JSON, so the search dumps show up in the web profiler.
+     * Only in debug mode: without the debug bundle, dump() writes straight into the response, which would expose
+     * the exception (including the Elasticsearch client config) to anyone.
+     */
+    private function isDebugRequest(Request $request): bool
+    {
+        return $this->getParameter('kernel.debug')
+            && filter_var($request->query->get('debug'), FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) === true;
     }
 
     protected function _search(Request $request, array $props = [], array $extraRoutes = []): Response {
