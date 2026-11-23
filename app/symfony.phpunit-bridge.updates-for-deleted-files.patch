@@ -1,0 +1,11 @@
+diff --git a/app/.gitignore b/app/.gitignore
+index 4871054..3a4991b 100644
+--- a/app/.gitignore
++++ b/app/.gitignore
+@@ -1,6 +1,5 @@
+ 
+ ###> symfony/phpunit-bridge ###
+-.phpunit
+ .phpunit.result.cache
+ /phpunit.xml
+ ###< symfony/phpunit-bridge ###
