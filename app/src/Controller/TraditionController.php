@@ -25,7 +25,8 @@ class TraditionController extends BaseController
      */
     public function index(Request $request): RedirectResponse
     {
-        return $this->redirectToRoute('tradition_search', ['request' =>  $request], 301);
+        // forward the query string; passing the Request itself serialized all its headers (cookies included) into the url
+        return $this->redirectToRoute('tradition_search', $request->query->all(), 301);
     }
 
     /**
