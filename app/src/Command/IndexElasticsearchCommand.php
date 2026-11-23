@@ -5,6 +5,9 @@ namespace App\Command;
 use App\Model\AbstractModel;
 use App\Model\AbstractPivot;
 use App\Repository\CharterRepository;
+use App\Repository\CodexRepository;
+use App\Repository\CopyRepository;
+use App\Repository\OriginalRepository;
 use App\Repository\RepositoryInterface;
 use App\Resource\ElasticSearch\ElasticCharterResource;
 use App\Resource\ElasticSearch\ElasticTraditionResource;
@@ -12,6 +15,7 @@ use App\Service\ElasticSearch\Base\AbstractIndexService;
 use App\Service\ElasticSearch\Index\CharterIndexService;
 use App\Service\ElasticSearch\Index\TraditionIndexService;
 use InvalidArgumentException;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputArgument;
@@ -19,26 +23,36 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
+#[AsCommand(name: 'app:elasticsearch:index', description: 'Drops the old elasticsearch index and recreates it.')]
 class IndexElasticsearchCommand extends Command
 {
-    protected static $defaultName = 'app:elasticsearch:index';
-    protected static $defaultDescription = 'Drops the old elasticsearch index and recreates it.';
+    /**
+     * Tradition repositories, indexed in this order
+     * @var RepositoryInterface[] name => repository
+     */
+    private array $traditionRepositories;
 
-    protected $container = [];
-    protected $di = [];
-
-    public function __construct(ContainerInterface $container)
+    public function __construct(
+        private CharterRepository $charterRepository,
+        OriginalRepository $originalRepository,
+        CopyRepository $copyRepository,
+        CodexRepository $codexRepository,
+        private CharterIndexService $charterIndexService,
+        private TraditionIndexService $traditionIndexService,
+    )
     {
-        $this->container = $container;
+        $this->traditionRepositories = [
+            'original_repository' => $originalRepository,
+            'copy_repository' => $copyRepository,
+            'codex_repository' => $codexRepository,
+        ];
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setDescription(self::$defaultDescription)
             ->addArgument('index', InputArgument::REQUIRED, 'Which index should be reindexed?')
             ->addArgument('maxItems', InputArgument::OPTIONAL, 'Max number of items to index')
             ->addOption('locale', 'l', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Locale(s) to index (default: all index locales)')
@@ -61,18 +75,17 @@ class IndexElasticsearchCommand extends Command
                      * - add 'type' property for each resource type
                      */
 
-                    /** @var $service TraditionIndexService */
-                    $service = $this->container->get('tradition_index_service');
+                    $service = $this->traditionIndexService;
                     $services = $this->localeServices($service, $input->getOption('locale'));
                     $indexNames = $this->createNewIndices($services);
 
                     $total = 0;
-                    $repositories = ['original_repository', 'copy_repository', 'codex_repository' ];
+                    $repositories = array_keys($this->traditionRepositories);
 //                    $repositories = ['codex_repository' ];
 
                     /*** @var $repository RepositoryInterface */
                     foreach( $repositories as $repository_name ) {
-                        $repository = $this->container->get($repository_name);
+                        $repository = $this->traditionRepositories[$repository_name];
                         $total += $repository->indexQuery()->count();
                     }
 
@@ -83,7 +96,7 @@ class IndexElasticsearchCommand extends Command
                     /*** @var $repository RepositoryInterface */
                     $this->indexOrCleanUp($services, $indexNames, function () use ($repositories, $chunkSize, $services, &$count, $progressBar, $maxItems) {
                         foreach( $repositories as $repository_name ) {
-                            $repository = $this->container->get($repository_name);
+                            $repository = $this->traditionRepositories[$repository_name];
                             $repository->indexQuery()->chunk($chunkSize,
                                 function($traditions) use ($services, &$count, $progressBar, $maxItems) {
                                     if ( $maxItems && $count >= $maxItems ) {
@@ -109,11 +122,8 @@ class IndexElasticsearchCommand extends Command
                     break;
 
                 case 'charter':
-                    /** @var $repository CharterRepository */
-                    $repository = $this->container->get('charter_repository' );
-
-                    /** @var $service CharterIndexService */
-                    $service = $this->container->get('charter_index_service');
+                    $repository = $this->charterRepository;
+                    $service = $this->charterIndexService;
                     $services = $this->localeServices($service, $input->getOption('locale'));
                     $indexNames = $this->createNewIndices($services);
 
@@ -123,7 +133,8 @@ class IndexElasticsearchCommand extends Command
                     $progressBar = new ProgressBar($output, $total);
                     $progressBar->start();
 
-                    $this->indexOrCleanUp($services, $indexNames, fn() =>
+                    // a closure, not an arrow function: fn() captures $count by value, so the total would stay 0
+                    $this->indexOrCleanUp($services, $indexNames, function () use ($repository, $services, &$count, $progressBar, $maxItems) {
                         $repository->indexQuery()->chunk(100,
                             function($charters) use ($services, &$count, $progressBar, $maxItems): bool {
                                 if ( $maxItems && $count >= $maxItems ) {
@@ -140,8 +151,8 @@ class IndexElasticsearchCommand extends Command
                                 // update progress bar
                                 $progressBar->advance($charters->count());
                                 return true;
-                            })
-                    );
+                            });
+                    });
 
                     $this->switchToNewIndices($services, $indexNames);
 

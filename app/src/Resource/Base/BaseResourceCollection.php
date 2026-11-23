@@ -12,12 +12,14 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
     /**
      * Transform the resource into a JSON array.
      *
-     * @param  Request  $request
+     * Same as ResourceCollection::toArray(), but without the Request (see BaseResource::toArray()).
+     *
+     * @param  Request|null  $request
      * @return array|Arrayable|JsonSerializable
      */
     public function toArray($request = null)
     {
-        return parent::toArray($request);
+        return $this->collection->map->toArray($request)->all();
     }
 
     /**
@@ -25,7 +27,7 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->resolve(null);
     }
