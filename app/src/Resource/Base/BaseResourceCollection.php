@@ -25,7 +25,7 @@ class BaseResourceCollection extends \Illuminate\Http\Resources\Json\AnonymousRe
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->resolve(null);
     }
