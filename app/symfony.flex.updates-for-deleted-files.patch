@@ -1,0 +1,12 @@
+diff --git a/app/.env b/app/.env
+index 7d391a9..caf3356 100644
+--- a/app/.env
++++ b/app/.env
+@@ -9,6 +9,7 @@
+ # Real environment variables win over .env files.
+ #
+ # DO NOT DEFINE PRODUCTION SECRETS IN THIS FILE NOR IN ANY OTHER COMMITTED FILES.
++# https://symfony.com/doc/current/configuration/secrets.html
+ #
+ # Run "composer dump-env prod" to compile .env files for production use (requires symfony/flex >=1.2).
+ # https://symfony.com/doc/current/best_practices.html#use-environment-variables-for-infrastructure-configuration
