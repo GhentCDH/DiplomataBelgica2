@@ -6,10 +6,12 @@
 # Writes to <outdir>:
 #   routes.json            route names, paths, defaults, requirements (debug:router)
 #   es/<index>.jsonl       every document of a fresh sample index, one sorted JSON line per doc
-#   http/<name>.txt        status code + normalized body of the main pages and API endpoints
+#   http/<name>.txt        status code, redirect target and body of the main pages and API endpoints
+#                          (JSON normalized; HTML requested as XHR so the web debug toolbar is not injected)
 #
 # The sample index uses its own prefix (SNAPSHOT_PREFIX, default dibe_snap), so the dev indexes are untouched.
-# HTTP checks run against the dev indexes. Compare two snapshots with: diff -r <before> <after>
+# HTTP checks run against the dev indexes. Set SKIP_ES=1 to skip the (slow) index part.
+# Compare two snapshots with: diff -r <before> <after>
 set -euo pipefail
 
 out=${1:?usage: upgrade-snapshot.sh <outdir> [charter_max] [tradition_max]}
@@ -21,6 +23,7 @@ prefix=${SNAPSHOT_PREFIX:-dibe_snap}
 mkdir -p "$out/es" "$out/http"
 in_app() { docker exec "$container" sh -c "cd /app && $1"; }
 es() { docker exec "$container" sh -c "curl -s -u \"\$ELASTICSEARCH_USERNAME:\$ELASTICSEARCH_PASSWORD\" -H 'Content-Type: application/json' $1"; }
+es_url=$(docker exec "$container" sh -c 'echo "${ELASTICSEARCH_HOST:-elasticsearch}:${ELASTICSEARCH_PORT:-9200}"')
 
 # 1. routes
 in_app 'bin/console debug:router --format=json' \
@@ -29,34 +32,43 @@ in_app 'bin/console debug:router --format=json' \
   | jq -S 'with_entries(.value |= {path, method, defaults})' > "$out/routes-controllers.json"
 
 # 2. sample indexes (models -> resources -> ES documents)
+if [ -z "${SKIP_ES:-}" ]; then
 in_app "ELASTICSEARCH_INDEX_PREFIX=$prefix bin/console app:elasticsearch:index charter $charter_max -q"
 in_app "ELASTICSEARCH_INDEX_PREFIX=$prefix bin/console app:elasticsearch:index tradition $tradition_max -q"
 for index in charter_en charter_fr tradition_en tradition_fr; do
   file="$out/es/$index.jsonl"
   : > "$file"
-  page=$(es "'elasticsearch:9200/${prefix}_${index}/_search?scroll=2m&size=1000'")
+  page=$(es "'$es_url/${prefix}_${index}/_search?scroll=2m&size=1000'")
+  if [ "$(jq 'has("error") or (.hits.hits | length) == 0' <<<"$page")" = true ]; then
+    echo "no documents in ${prefix}_${index}: $(head -c 300 <<<"$page")" >&2
+    exit 1
+  fi
   while :; do
     n=$(jq '.hits.hits | length' <<<"$page")
     [ "$n" -eq 0 ] && break
     jq -cS '.hits.hits[] | {_id, _source}' <<<"$page" >> "$file"
     scroll_id=$(jq -r '._scroll_id' <<<"$page")
-    page=$(es "-d '{\"scroll\":\"2m\",\"scroll_id\":\"$scroll_id\"}' elasticsearch:9200/_search/scroll")
+    page=$(es "-d '{\"scroll\":\"2m\",\"scroll_id\":\"$scroll_id\"}' $es_url/_search/scroll")
   done
   sort -o "$file" "$file"
   echo "$index: $(wc -l < "$file") documents"
 done
+fi
 
 # 3. HTTP endpoints (status + body; JSON bodies normalized)
 http() {
   local name=$1 url=$2 accept=${3:-text/html}
-  local body status
-  body=$(docker exec "$container" curl -s -H "Accept: $accept" -w '\n%{http_code}' "http://localhost:8000$url")
-  status=${body##*$'\n'}
+  local body meta
+  body=$(docker exec "$container" curl -s -H "Accept: $accept" -H 'X-Requested-With: XMLHttpRequest' \
+    -w '\n%{http_code} %{redirect_url}' "http://localhost:8000$url")
+  meta=${body##*$'\n'}
   body=${body%$'\n'*}
   {
-    echo "GET $url ($accept) -> $status"
+    echo "GET $url ($accept) -> $meta"
     if [ "$accept" = application/json ]; then
       jq -S 'del(.. | .took?, .debug?)' <<<"$body" 2>/dev/null || echo "$body"
+    else
+      echo "$body"
     fi
   } > "$out/http/$name.txt"
 }

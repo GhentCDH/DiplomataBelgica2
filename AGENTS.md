@@ -116,6 +116,6 @@ docker compose up --build            # app on http://localhost:${APP_EXTERNAL_PO
   Secrets go in `.env.local` / environment (gitignored).
 - The webdevops PHP images enable the ionCube loader by default; it makes PHP 8.3 segfault after the Symfony
   cache warmup, so the `Dockerfile` removes `00-ioncube.ini`.
-- `composer recipes:update` needs git, which the symfony container does not have (only `app/` is mounted): run it
-  in a one-off `docker compose run` container that mounts the whole repository.
+- `composer recipes:update` needs the repository's `.git`, which the symfony container cannot see (only `app/` is
+  mounted): run it in a one-off `docker compose run` container that mounts the whole repository.
 - `initdb/` scripts only run when the MariaDB volume (`var/mysql`) is empty.
