@@ -1,7 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import {ref} from 'vue';
 
-import {useTextMarker, termsFromPlainQuery} from '@/composables/useTextMarker';
+import {useTextMarker, termsFromPlainQuery, withLatinSpellings} from '@/composables/useTextMarker';
 
 const mark = (text: string, terms: string[]) => useTextMarker(ref(text), terms, 'hl').markedText.value;
 
@@ -45,5 +45,16 @@ describe('termsFromPlainQuery', () => {
     it('returns nothing for an empty or missing query', () => {
         expect(termsFromPlainQuery('')).toEqual([]);
         expect(termsFromPlainQuery(undefined)).toEqual([]);
+    });
+});
+
+describe('withLatinSpellings', () => {
+    it('adds the u/i spelling of terms with v or j, as the index does', () => {
+        expect(withLatinSpellings(['Vniversis', 'Jacobus', 'abbas'])).toEqual(['Vniversis', 'Jacobus', 'abbas', 'Uniuersis', 'Iacobus']);
+    });
+
+    it('marks the normalized Latin text for a v/j query', () => {
+        expect(mark('Notum sit uniuersis', withLatinSpellings(['vniversis'])))
+            .toBe('Notum sit <mark class="hl">uniuersis</mark>');
     });
 });

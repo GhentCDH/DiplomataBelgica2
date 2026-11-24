@@ -28,6 +28,17 @@ export function termsFromPlainQuery(query: string | null | undefined): string[] 
 }
 
 /**
+ * Add the u/i spelling of every term that has a v or j (v => u, j => i, keeping case), the way the Latin texts
+ * and the search index are normalized, so a query like "vniversis" also marks "uniuersis".
+ */
+export function withLatinSpellings(terms: string[]): string[] {
+    const latin = terms
+        .map((term) => term.replace(/v/g, 'u').replace(/V/g, 'U').replace(/j/g, 'i').replace(/J/g, 'I'))
+        .filter((term, index) => term !== terms[index]);
+    return [...new Set([...terms, ...latin])];
+}
+
+/**
  * Composable to convert a text into a text with <mark> elements around certain words
  * @param textRef ref to the text
  * @param initWords initial terms to mark (will return same text if empty). A term is literal text,

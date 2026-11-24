@@ -194,7 +194,7 @@ import {normaliseRole, roleKey} from '@/components/Charter/roleColours'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository";
-import {termsFromPlainQuery, useTextMarker} from "@/composables/useTextMarker";
+import {termsFromPlainQuery, useTextMarker, withLatinSpellings} from "@/composables/useTextMarker";
 import {useSearchSyntax} from "@/composables/useSearchSyntax";
 
 import {
@@ -368,7 +368,8 @@ if (context.value.validReadContext && !context.value.ids) {
 const { getKeywords } = useSearchSyntax();
 
 // words of the plain full-text search box (filters[q]) are marked in both the summary and the text
-const plainSearchKeywords = termsFromPlainQuery(context.value.params.filters['q'])
+// (with the u/i spelling of words with v/j: the index matches those too)
+const plainSearchKeywords = withLatinSpellings(termsFromPlainQuery(context.value.params.filters['q']))
 
 const fulltextSearchString = context.value.params.filters['fulltext'] ?? "";
 const fulltextSearchKeywords = [...getKeywords(fulltextSearchString), ...plainSearchKeywords]
