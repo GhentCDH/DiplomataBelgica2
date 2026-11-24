@@ -65,5 +65,7 @@ export default defineConfig({
     test: {
         globals: true,
         environment: 'jsdom',
+        // only our own tests: pnpm unpacks git dependencies (vue-search-kit, with its tests) under .pnpm-store/
+        include: ['tests/**/*.test.{ts,js}'],
     }
 });

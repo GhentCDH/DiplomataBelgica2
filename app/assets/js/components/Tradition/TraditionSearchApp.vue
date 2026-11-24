@@ -32,6 +32,7 @@
                             :remove-selected-index="removeSelectedIndex"
                             :get-contextual-detail-url="getContextualDetailUrl"
                             :save-selection-context="saveSelectionContext"
+                            message="selectedItemsBasket.selectedTraditions"
                         />
                     </div>
                 </nav>
