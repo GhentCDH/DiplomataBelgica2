@@ -30,7 +30,10 @@ class ElasticActorResource extends ElasticBaseResource
             $actor?->place?->name ?? null,
             $actor?->name?->name ?? null,
         ]));
-        $ret['name'] = new ElasticBaseResource($actor->name);
+        // without relations: the standardized name (loaded for the full-text search) stays out of the document.
+        // AbstractModel hides the foreign keys of loaded relations, also on this shared name model, so keep the
+        // standardized name id visible as it was before that relation was loaded
+        $ret['name'] = new ElasticBaseResource($actor->name?->withoutRelations()->makeVisible('actor_standardized_name_id'));
         $ret['capacity'] = new ElasticBaseResource($actor->capacity);
         $ret['order'] = new ElasticBaseResource($actor->order);
         $ret['place_institute'] = new ElasticBaseResource($actor->place_institute);

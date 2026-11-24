@@ -92,6 +92,9 @@
           "help": "The summary or 'regesta' is a brief description – as concise and precise as possible – of the juridical and historical content of the document. Since Diplomata Belgica was initially a French database, all summaries are written in French. The summaries are based as much as possible on the summaries of existing charter editions. Queries can be entered using the specific DiBe Search syntax.",
           "label": "Search in summary (in French only)",
           "placeholder": "Search in summary"
+        },
+        "q": {
+          "label": "Search"
         }
       },
       "legend": {
@@ -106,7 +109,26 @@
     "invalidSearchSyntax": "Invalid search syntax",
     "mapWarning": "The map only shows place-date information. Please refine your search to reduce the result set and include actor places.",
     "mapSeveralRoles": "Several roles",
-    "placedateCharters": "Placedate Charters"
+    "placedateCharters": "Placedate Charters",
+    "search": {
+      "box": {
+        "placeholder": "Names, places, words…",
+        "help": "Type ordinary words; all of them must occur. Use \"quotes\" for an exact phrase and a trailing * for words that start with it (e.g. abb*). Accents and the Latin u/v and i/j spellings are ignored."
+      },
+      "highlight": {
+        "full_text": "Text",
+        "actor_names": "Actors",
+        "actor_places": "Actor places",
+        "place_date": "Place date"
+      },
+      "sort": {
+        "label": "Sort by",
+        "relevance": "Relevance",
+        "dateDesc": "Date, newest first",
+        "dateAsc": "Date, oldest first",
+        "id": "DiBe ID"
+      }
+    }
   },
   "form": {
     "allAuthors": "All actors",

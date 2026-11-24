@@ -22,4 +22,11 @@ describe('CharterSearchAppForm', () => {
         expect(byModel['actor_place_diocese_name_3']).toBe('charters.form.field.actor_diocese.placeholder');
         expect(byModel['charter_place_name']).toBe('charters.form.field.place_date.placeholder');
     });
+
+    it('declares a hidden plain search field q, labelled for its filter tag', () => {
+        const q = createSchema({t, onAutocomplete})
+            .groups!.flatMap((group) => group.fields)
+            .find((field) => field.model === 'q');
+        expect(q).toMatchObject({type: 'input', visible: false, label: 'charters.form.field.q.label'});
+    });
 });

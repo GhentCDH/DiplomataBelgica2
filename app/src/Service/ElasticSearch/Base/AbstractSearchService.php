@@ -14,6 +14,7 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     const MAX_AGG = 2147483647;
     const MAX_SEARCH = 10000;
     const SEARCH_RAW_MAX_RESULTS = 500;
+    const SIMPLE_QUERY_MAX_LENGTH = 250;
 
     private SearchConfig $searchConfig;
     private AggregationConfig $aggregationConfig;
@@ -77,7 +78,9 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
     public function getSingle(string $id): array
     {
         try {
-            return $this->getIndex()->getDocument($id)->getData();
+            $excludes = $this->getSourceExcludes();
+            $options = $excludes ? ['_source_excludes' => implode(',', $excludes)] : [];
+            return $this->getIndex()->getDocument($id, $options)->getData();
         } catch (NotFoundException $e) {
             throw new NotFoundHttpException("Document '$id' not found", $e);
         }
@@ -286,6 +289,12 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $ret['value'] = $rangeFilter;
                 }
 
+                break;
+            case self::FILTER_SIMPLE_QUERY:
+                if (!is_string($filterValue)) break;
+                $text = mb_substr(trim($filterValue), 0, static::SIMPLE_QUERY_MAX_LENGTH);
+                if ($text === '') break;
+                $ret['value'] = $text;
                 break;
             case self::FILTER_TEXT:
                 if ($filterValue === null) break;
@@ -585,8 +594,22 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             case self::FILTER_TEXT:
                 $query->addMust(self::constructTextQuery($filterField, $filterValue, $filterConfig));
                 break;
+            case self::FILTER_SIMPLE_QUERY:
+                $fields = [];
+                foreach ($filterConfig['fields'] ?? [] as $field => $fieldConfig) {
+                    $fields[] = $field . '^' . ($fieldConfig['boost'] ?? 1);
+                }
+                $filterQuery = (new Query\SimpleQueryString($filterValue, $fields))
+                    ->setDefaultOperator($filterConfig['operator'] ?? Query\SimpleQueryString::OPERATOR_OR)
+                    ->setParam('flags', $filterConfig['flags'] ?? 'ALL')
+                    ->setParam('lenient', true)
+                    ->setParam('analyze_wildcard', true);
+                // must: the match scores (relevance sort)
+                $query->addMust($filterQuery);
+                break;
             case self::FILTER_QUERYSTRING:
                 $query->addMust((new Query\QueryString($filterValue))->setDefaultField($filterField)->setAnalyzeWildcard());
+                // no break: falls through to the next case (existing behaviour, see the follow-ups)
             case self::FILTER_NUMERIC_RANGE_SLIDER:
                 $floorField = $filterConfig['floorField'] ?? $filterConfig['field'] ?? $filterName;
                 $ceilingField = $filterConfig['ceilingField'] ?? $filterConfig['field'] ?? $filterName;
@@ -913,21 +936,25 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
         }
 
+        // Filters (sanitized by search())
+        $searchFilters = $params['filters'] ?? [];
+
         // Sorting
-        if (isset($searchParams['orderBy'])) {
-            $order = $searchParams['ascending'] ? 'asc' : 'desc';
-            $sort = [];
-            foreach ($searchParams['orderBy'] as $field) {
-                $sort[] = [$field => $order];
-            }
+        $sort = $this->buildSort($searchParams, $searchFilters);
+        if ($sort) {
             $query->setSort($sort);
+        }
+
+        // Leave out fields that are only there to search in
+        $sourceExcludes = $this->getSourceExcludes();
+        if ($sourceExcludes) {
+            $query->setSource(['excludes' => $sourceExcludes]);
         }
 
         // Track total number of hits
         $query->setTrackTotalHits();
 
         // Filtering
-        $searchFilters = $params['filters'] ?? [];
         if (count($searchFilters)) {
             $this->debug && dump($searchFilters);
             $queryFS->setQuery($this->createSearchQuery($searchFilters));
@@ -962,11 +989,17 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     break;
             }
         }
+        $simpleQueryFields = $this->getSimpleQueryFields();
         foreach (($data['hits']['hits'] ?? []) as $result) {
             $part = $result['_source'];
             $part['_score'] = $result['_score'];
             if (isset($result['highlight'])) {
                 foreach ($result['highlight'] as $key => $value) {
+                    // simple query fields: all fragments go to _highlight, the source field is left alone
+                    if (isset($simpleQueryFields[$key])) {
+                        $part['_highlight'][$key] = $value;
+                        continue;
+                    }
                     $part['original_' . $key] = $part[$key];
                     $part[$key] = self::formatHighlight($value[0]);
                 }
@@ -1027,24 +1060,25 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             $query->setFrom(($searchParams['page'] - 1) * $searchParams['limit']);
         }
 
-        // Sorting
-        if (isset($searchParams['orderBy'])) {
-            $order = $searchParams['ascending'] ? 'asc' : 'desc';
-            $sort = [];
-            foreach ($searchParams['orderBy'] as $field) {
-                $sort[] = [$field => $order];
-            }
+        // Filters
+        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
+
+        // Sorting (same as _search, so paginate returns ids in the order of the result list)
+        $sort = $this->buildSort($searchParams, $searchFilters);
+        if ($sort) {
             $query->setSort($sort);
         }
 
         // Set result fields
         // todo: better use fields option?
+        $sourceExcludes = $this->getSourceExcludes();
         if ($fields) {
-            $query->setSource($fields);
+            $query->setSource($sourceExcludes ? ['includes' => $fields, 'excludes' => $sourceExcludes] : $fields);
+        } elseif ($sourceExcludes) {
+            $query->setSource(['excludes' => $sourceExcludes]);
         }
 
         // Filtering
-        $searchFilters = $this->sanitizeSearchFilters($params['filters'] ?? []);
         if (count($searchFilters)) {
             $searchQuery = $this->createSearchQuery($searchFilters);
             $query->setQuery($searchQuery);
@@ -1116,6 +1150,8 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
             'number_of_fragments' => 0,
             'pre_tags' => ['<mark>'],
             'post_tags' => ['</mark>'],
+            // escape the text around the tags (fragments are rendered as html; formatHighlight decodes legacy ones)
+            'encoder' => 'html',
             'fields' => [],
         ];
 
@@ -1129,10 +1165,89 @@ abstract class AbstractSearchService extends AbstractService implements SearchSe
                     $field = $filterValue['field'] ?? $filterName;
                     $highlights['fields'][$filterName] = new \stdClass();
                     break;
+                case self::FILTER_SIMPLE_QUERY:
+                    foreach ($filterConfig[$filterName]['fields'] ?? [] as $field => $fieldConfig) {
+                        $highlights['fields'][$field] = ($fieldConfig['highlight'] ?? []) ?: new \stdClass();
+                    }
+                    break;
             }
         }
 
         return $highlights;
+    }
+
+    /**
+     * Sort clauses for the search parameters. orderBy=_score sorts by relevance (then the relevance
+     * tiebreakers) while a filter with 'relevance' => true is active, otherwise the default orderBy is used.
+     */
+    protected function buildSort(array $searchParams, array $filters): array
+    {
+        if (!isset($searchParams['orderBy'])) {
+            return [];
+        }
+        $orderBy = (array) $searchParams['orderBy'];
+        $order = ($searchParams['ascending'] ?? true) ? 'asc' : 'desc';
+
+        if (in_array('_score', $orderBy, true)) {
+            if ($this->hasActiveRelevanceFilter($filters)) {
+                $sort = [['_score' => 'desc']];
+                foreach ($this->getRelevanceTiebreakers() as $field => $direction) {
+                    $sort[] = [$field => $direction];
+                }
+                return $sort;
+            }
+            $orderBy = (array) ($this->getDefaultSearchParameters()['orderBy'] ?? []);
+        }
+
+        $sort = [];
+        foreach ($orderBy as $field) {
+            $sort[] = [$field => $order];
+        }
+        return $sort;
+    }
+
+    /**
+     * Sort clauses that follow _score in the relevance sort; they keep paging deterministic.
+     */
+    protected function getRelevanceTiebreakers(): array
+    {
+        return ['id' => 'asc'];
+    }
+
+    /**
+     * Source fields that are never returned (e.g. fields that only exist to search in).
+     */
+    protected function getSourceExcludes(): array
+    {
+        return [];
+    }
+
+    private function hasActiveRelevanceFilter(array $filters): bool
+    {
+        foreach ($this->getSearchConfig() as $filterName => $filterConfig) {
+            if (($filterConfig['type'] ?? null) === self::FILTER_SIMPLE_QUERY
+                && ($filterConfig['relevance'] ?? false)
+                && isset($filters[$filterName]['value'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Fields searched (and highlighted) by simple query filters: field => filter name.
+     */
+    private function getSimpleQueryFields(): array
+    {
+        $fields = [];
+        foreach ($this->getSearchConfig() as $filterName => $filterConfig) {
+            if (($filterConfig['type'] ?? null) === self::FILTER_SIMPLE_QUERY) {
+                foreach (array_keys($filterConfig['fields'] ?? []) as $field) {
+                    $fields[$field] = $filterName;
+                }
+            }
+        }
+        return $fields;
     }
 
     private static function formatHighlight(string $highlight): array

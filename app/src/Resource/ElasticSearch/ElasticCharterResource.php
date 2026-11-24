@@ -4,6 +4,7 @@ namespace App\Resource\ElasticSearch;
 
 use App\Helper\DateSort;
 use App\Model\Charter;
+use App\Model\Place;
 use App\Resource\ResourceInterface;
 use Illuminate\Http\Request;
 
@@ -14,6 +15,9 @@ use Illuminate\Http\Request;
  */
 class ElasticCharterResource extends ElasticBaseResource implements ResourceInterface
 {
+    /** locales of the localized name columns (name_nl, name_fr, name_en) */
+    private const NAME_LOCALES = ['nl', 'fr', 'en'];
+
     public function toArray($request = null): array
     {
         /** @var Charter $charter */
@@ -98,7 +102,48 @@ class ElasticCharterResource extends ElasticBaseResource implements ResourceInte
 
         $ret['image_count'] = count($ret['images']);
 
+        $ret['search_text'] = self::searchText($charter);
+
         return $ret;
     }
 
+    /**
+     * Bundle searched by the plain full-text search (filters[q]); never returned to the browser.
+     * Names take every localized spelling, so a name can be found in any language; the summary is the
+     * one of the index locale.
+     */
+    private static function searchText(Charter $charter): array
+    {
+        $text = new SearchTextBuilder();
+        $text->add('summary', $charter->summary);
+        $text->add('full_text', $charter->full_text);
+
+        foreach ($charter->actors as $actor) {
+            $name = $actor->name;
+            if ($name) {
+                $text->add('actor_names', array_map(fn($locale) => $name->getAttributeValue('name_' . $locale), self::NAME_LOCALES));
+                $standardized = $name->standardizedName;
+                if ($standardized) {
+                    $text->add('actor_names', $standardized->actor_standardized_name);
+                    $text->add('actor_names', $standardized->name_variants->pluck('name')->all());
+                }
+            }
+            $text->add('actor_places', self::placeNames($actor->place));
+        }
+
+        $text->add('place_date', self::placeNames($charter->place), $charter->place_found_name);
+
+        return $text->toArray();
+    }
+
+    /**
+     * All spellings of a place: the localized names and the regional one
+     */
+    private static function placeNames(?Place $place): array
+    {
+        if (!$place) {
+            return [];
+        }
+        return array_map(fn($column) => $place->getAttributeValue($column), ['name_nl', 'name_fr', 'name_en', 'name_regio']);
+    }
 }

@@ -12,6 +12,21 @@
                         </template>
                     </b-filter-tags>
                 </div>
+                <!-- plain full-text search (filters[q]) as its own section; the vue-form-generator class gives it
+                     the title and help styling of the form groups below (not collapsible) -->
+                <div class="vue-form-generator mbottom-default">
+                    <fieldset>
+                        <legend>
+                            {{ t('charters.form.field.q.label') }}
+                            <span class="help"><i class="icon"></i><div class="helpText">{{ t('charters.search.box.help') }}</div></span>
+                        </legend>
+                        <SearchBox v-model="filterModel.q"
+                                   :placeholder="t('charters.search.box.placeholder')"
+                                   :label="t('charters.form.field.q.label')"
+                                   :pt="searchBoxPt"
+                                   @search="onFiltersValidated(true)"/>
+                    </fieldset>
+                </div>
                 <VueFormGenerator
                     ref="form"
                     :model="filterModel"
@@ -58,7 +73,10 @@
                                 :total-records="totalRecords"
                                 :per-page-values="tableOptions.pagination.perPageValues"
                                 :per-page-label="t('pagination.perPage')"
+                                :sort-options="sortOptions"
+                                :sort-label="t('charters.search.sort.label')"
                                 @change="updateTableState"
+                                @update:sort="updateTableState"
                             ></search-toolbar>
 
                             <div class="flex-grow-1 scrollable">
@@ -165,6 +183,8 @@ import {
     BRadioList,
     type RadioItem,
     SearchToolbar,
+    SearchBox,
+    type SortOption,
     BLink,
     BFilterTags,
     SelectedItemsBasket,
@@ -284,6 +304,8 @@ const {
         currentPage: 1,
     },
     validators: initialValidators,
+    // order by relevance while the plain search box (filters[q]) is used
+    relevanceSort: {filter: 'q'},
     collapsibleGroupsStorageId: 'charter-search-groups',
     buildFilterSchema: ({updateFieldValues, filterState}) => {
         const onAutocomplete = (fieldName: string) => {
@@ -297,6 +319,17 @@ const {
         return createSchema({t, onAutocomplete, searchSyntaxUrl: getRoute('charter_search_syntax')})
     },
 })
+
+// search box in the sidebar: the size of the other fields, the site's colours
+const searchBoxPt = {group: 'input-group', searchButton: 'btn btn-primary', clearButton: 'btn btn-outline-primary'}
+
+// orders offered next to the pagination; relevance only while the plain search box is used
+const sortOptions = computed<SortOption[]>(() => [
+    ...(filterState.value?.q ? [{label: t('charters.search.sort.relevance'), orderBy: '_score', orderAsc: false}] : []),
+    {label: t('charters.search.sort.dateDesc'), orderBy: 'date_sort', orderAsc: false},
+    {label: t('charters.search.sort.dateAsc'), orderBy: 'date_sort', orderAsc: true},
+    {label: t('charters.search.sort.id'), orderBy: 'id', orderAsc: true},
+])
 
 // --- map: a pure extension on top of the search app ---
 

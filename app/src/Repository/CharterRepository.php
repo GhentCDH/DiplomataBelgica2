@@ -14,7 +14,9 @@ class CharterRepository extends AbstractRepository
     protected $relations = [
         'place', 'place.diocese', 'place.principality',
         'edition_indication', 'edition', 'authenticity',
-        'nature', 'language', 'type', 'udt', 'actors', 'actors.pivot.role', 'codexes',
+        'nature', 'language', 'type', 'udt', 'actors', 'actors.pivot.role',
+        'actors.name.standardizedName', // name variants for the full-text search (ElasticCharterResource)
+        'codexes',
         'edition_indications', 'secondary_literature_indications',
         'copies',
         'originals', 'vidimuses',

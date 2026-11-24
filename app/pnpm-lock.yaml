@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@ghentcdh/vue-search-kit':
         specifier: github:GhentCDH/vue-search-kit
-        version: https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))
+        version: https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/eb1bc9db5db21045f909e75ecbe2880e1574ea7f(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))
       '@intlify/unplugin-vue-i18n':
         specifier: ^6.0.8
         version: 6.0.8(@vue/compiler-dom@3.5.35)(eslint@9.29.0)(rollup@4.32.1)(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))
@@ -392,8 +392,8 @@ packages:
     resolution: {integrity: sha512-Z5kJ+wU3oA7MMIqVR9tyZRtjYPr4OC004Q4Rw7pgOKUOKkJfZ3O24nz3WYfGRpMDNmcOi3TwQOmgm7B7Tpii0w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@ghentcdh/vue-search-kit@https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465':
-    resolution: {tarball: https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465}
+  '@ghentcdh/vue-search-kit@https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/eb1bc9db5db21045f909e75ecbe2880e1574ea7f':
+    resolution: {tarball: https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/eb1bc9db5db21045f909e75ecbe2880e1574ea7f}
     version: 0.1.0
     peerDependencies:
       vue: ^3.5.0
@@ -2364,7 +2364,7 @@ snapshots:
       '@eslint/core': 0.15.2
       levn: 0.4.1
 
-  '@ghentcdh/vue-search-kit@https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/047c353d35a9652c90f5ef4c5f1f64532b7ad465(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))':
+  '@ghentcdh/vue-search-kit@https://codeload.github.com/GhentCDH/vue-search-kit/tar.gz/eb1bc9db5db21045f909e75ecbe2880e1574ea7f(typescript@5.9.3)(vue-i18n@11.4.5(vue@3.5.35(typescript@5.9.3)))(vue@3.5.35(typescript@5.9.3))':
     dependencies:
       '@vueuse/core': 12.8.2(typescript@5.9.3)
       articles: 0.2.2
