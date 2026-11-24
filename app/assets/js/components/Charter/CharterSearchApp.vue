@@ -328,7 +328,8 @@ const sortOptions = computed<SortOption[]>(() => [
     ...(filterState.value?.q ? [{label: t('charters.search.sort.relevance'), orderBy: '_score', orderAsc: false}] : []),
     {label: t('charters.search.sort.dateDesc'), orderBy: 'date_sort', orderAsc: false},
     {label: t('charters.search.sort.dateAsc'), orderBy: 'date_sort', orderAsc: true},
-    {label: t('charters.search.sort.id'), orderBy: 'id', orderAsc: true},
+    {label: t('charters.search.sort.idAsc'), orderBy: 'id', orderAsc: true},
+    {label: t('charters.search.sort.idDesc'), orderBy: 'id', orderAsc: false},
 ])
 
 // --- map: a pure extension on top of the search app ---

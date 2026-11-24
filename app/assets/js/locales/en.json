@@ -126,7 +126,8 @@
         "relevance": "Relevance",
         "dateDesc": "Date, newest first",
         "dateAsc": "Date, oldest first",
-        "id": "DiBe ID"
+        "idAsc": "DiBe ID, ascending",
+        "idDesc": "DiBe ID, descending"
       }
     }
   },
