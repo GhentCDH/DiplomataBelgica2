@@ -28,6 +28,7 @@
                 <SearchBox v-model="filterModel.q"
                            :placeholder="t('charters.search.box.placeholder')"
                            :label="t('charters.form.field.q.label')"
+                           :pt="searchBoxPt"
                            class="mbottom-default"
                            @search="onFiltersValidated(true)">
                     <template #help>{{ t('charters.search.box.help') }}</template>
@@ -311,6 +312,9 @@ const {
         return createSchema({t, onAutocomplete, searchSyntaxUrl: getRoute('charter_search_syntax')})
     },
 })
+
+// search box in the site's colours, at the size of the other fields
+const searchBoxPt = {group: 'input-group', searchButton: 'btn btn-primary', clearButton: 'btn btn-outline-primary'}
 
 // orders offered next to the pagination; relevance only while the plain search box is used
 const sortOptions = computed<SortOption[]>(() => [
