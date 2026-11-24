@@ -1,5 +1,3 @@
-$icon-font-path: "../../fonts/bootstrap/";
-
 // Color system
 $white: #fff;
 $black: #202020;
@@ -10,8 +8,6 @@ $alt-text-color: #2791A7;
 $gray: #ccc;
 $gray-light: #ddd;
 $warning: #fffae5;
-$valid: #198754;
-$invalid: #dc3545;
 $disabled: #b4b4b4;
 $border-color: rgba($primary, 25%);
 $hover-color: #d6dadacc;
@@ -34,13 +30,10 @@ $font-family-belgica: "Raleway", sans-serif;
 $font-family-light: "Verdana", "Lucida Sans Unicode", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $input-font-family: $font-family-light;
 
-
 $font-size-base: calc(14 / 16) * 1rem;
 
 $font-size-sm: calc(10 / 16) * 1rem;
-$font-size-sm-plus: calc(13 / 16) * 1rem;
 $font-size-md: calc(16 / 16) * 1rem;
-$font-size-md-plus: calc(20 / 16) * 1rem;
 $font-size-lg-min: calc(32 / 16) * 1rem;
 $font-size-lg: calc(40 / 16) * 1rem;
 
@@ -56,53 +49,32 @@ $link-decoration: underline;
 $link-hover-color: $primary;
 $link-hover-decoration: underline;
 
-
-
-
-
 $input-font-size: $font-size-base;
-
 
 $line-height-base: 1.4;
 
 $line-height-small: calc(17/17);
 $line-height-medium: calc(25/17);
-$line-height-medium-caps: calc(30/17);
-$line-height-large: calc(40/17);
-
-// Component colors
-$text-color-default: $black;
-$text-color-dark: #646464;
 
 // Navbar
 
 $navbar-dark-color: $white;
 
-// Max-width
-
 // Padding
 
-$padding-xs: 5px;
-$padding-small: 10px;
 $padding-small-mobile: 10px;
 $padding-default: 20px;
 $padding-default-mobile: 20px;
-$padding-medium: 40px;
 $padding-large: 60px;
 $padding-large-mobile: 30px;
 
 // Margin
 
-$margin-default-horizontal: $padding-default;
 $margin-default-vertical: 30px;
 $margin-default-vertical-mobile: 25px;
 $margin-default-vertical-small: 20px;
 $margin-default-vertical-small-mobile: 22px;
 $margin-large: 60px;
-
-// Transition
-$transition-duration-default: .15s;
-$transition-ease-default: ease-in-out;
 
 // Forms
 $input-color: $black;
@@ -121,8 +93,4 @@ $tooltip-opacity: 1;
 $table-striped-bg: $tertiary;
 $nav-pills-border-radius: 0;
 
-
-// // IIIF base link Structure
-// $IIIF-image-link-prefix: 'https://iiif.ghentcdh.ugent.be/iiif/images/dibe:';
-// $IIIF-image-link-suffix: '/full/256,/0/default.jpg';
 // $IIIF-image-link-info: '/info.json';
