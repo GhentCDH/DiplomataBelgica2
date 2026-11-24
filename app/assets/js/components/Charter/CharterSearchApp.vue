@@ -12,20 +12,21 @@
                         </template>
                     </b-filter-tags>
                 </div>
-                <!-- plain full-text search (filters[q]); the vue-form-generator class gives it the label and help
-                     styling of the form fields below -->
-                <div class="vue-form-generator mbottom-default"><div class="form-group field-input">
-                    <label for="charter-search-q" class="form-label">
-                        <span>{{ t('charters.form.field.q.label') }}</span>
-                        <span class="help"><i class="icon"></i><div class="helpText">{{ t('charters.search.box.help') }}</div></span>
-                    </label>
-                    <SearchBox v-model="filterModel.q"
-                               id="charter-search-q"
-                               :placeholder="t('charters.search.box.placeholder')"
-                               :label="t('charters.form.field.q.label')"
-                               :pt="searchBoxPt"
-                               @search="onFiltersValidated(true)"/>
-                </div></div>
+                <!-- plain full-text search (filters[q]) as its own section; the vue-form-generator class gives it
+                     the title and help styling of the form groups below (not collapsible) -->
+                <div class="vue-form-generator mbottom-default">
+                    <fieldset>
+                        <legend>
+                            {{ t('charters.form.field.q.label') }}
+                            <span class="help"><i class="icon"></i><div class="helpText">{{ t('charters.search.box.help') }}</div></span>
+                        </legend>
+                        <SearchBox v-model="filterModel.q"
+                                   :placeholder="t('charters.search.box.placeholder')"
+                                   :label="t('charters.form.field.q.label')"
+                                   :pt="searchBoxPt"
+                                   @search="onFiltersValidated(true)"/>
+                    </fieldset>
+                </div>
                 <VueFormGenerator
                     ref="form"
                     :model="filterModel"
