@@ -23,6 +23,6 @@ class LocalizedIdNameModel extends AbstractModel implements LocalizedIdNameInter
 
     public function getName(string $_lang = null): string
     {
-        return $this->getLocalizedAttribute('name', $_lang);
+        return $this->localizedValue('name', $_lang);
     }
 }

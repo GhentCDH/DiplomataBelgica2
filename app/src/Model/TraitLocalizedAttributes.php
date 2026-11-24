@@ -12,7 +12,6 @@ trait TraitLocalizedAttributes {
     public function initLocalizedAttributes(): void
     {
         foreach ($this->localizedAttributes as $attr) {
-            $attributes[$attr] = $this->getLocalizedAttribute($attr);
             foreach(self::$locales as $locale) {
                 $this->makeHidden($attr . "_" . $locale);
                 // hack to add localized attributes
@@ -54,7 +53,7 @@ trait TraitLocalizedAttributes {
             return parent::getAttribute($attr);
         }
 
-        return $this->getLocalizedAttribute($attr, static::$locale);
+        return $this->localizedValue($attr, static::$locale);
     }
 
     // override attribute mutator: localized attributes are resolved from their <attr>_<locale> columns,
@@ -62,7 +61,7 @@ trait TraitLocalizedAttributes {
     protected function mutateAttribute($key, $value): mixed
     {
         if ($this->isLocalizedAttribute($key)) {
-            return $this->getLocalizedAttribute($key);
+            return $this->localizedValue($key);
         }
 
         return parent::mutateAttribute($key, $value);
@@ -75,7 +74,7 @@ trait TraitLocalizedAttributes {
      * @param string|null $locale
      * @return mixed
      */
-    protected function getLocalizedAttribute(string $attr, string $locale = null)
+    protected function localizedValue(string $attr, ?string $locale = null): mixed
     {
         $locale = $locale ?? static::$locale;
         $locale = in_array($locale, static::$locales, true ) ? $locale : static::$defaultLocale;
