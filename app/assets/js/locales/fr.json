@@ -112,7 +112,7 @@
     "placedateCharters": "Chartes datées de ce lieu",
     "search": {
       "box": {
-        "placeholder": "Rechercher noms, lieux, mots du résumé ou du texte",
+        "placeholder": "Noms, lieux, mots…",
         "help": "Tapez des mots ordinaires ; tous doivent figurer. Utilisez des « guillemets » droits (\"...\") pour une expression exacte et un * final pour les mots qui commencent ainsi (ex. abb*). Les accents et les graphies latines u/v et i/j sont ignorés."
       },
       "highlight": {

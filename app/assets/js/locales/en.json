@@ -112,7 +112,7 @@
     "placedateCharters": "Placedate Charters",
     "search": {
       "box": {
-        "placeholder": "Search names, places, words in the summary or the text",
+        "placeholder": "Names, places, words…",
         "help": "Type ordinary words; all of them must occur. Use \"quotes\" for an exact phrase and a trailing * for words that start with it (e.g. abb*). Accents and the Latin u/v and i/j spellings are ignored."
       },
       "highlight": {

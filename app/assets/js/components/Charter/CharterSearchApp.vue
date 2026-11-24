@@ -12,6 +12,20 @@
                         </template>
                     </b-filter-tags>
                 </div>
+                <!-- plain full-text search (filters[q]); the vue-form-generator class gives it the label and help
+                     styling of the form fields below -->
+                <div class="vue-form-generator mbottom-default"><div class="form-group field-input">
+                    <label for="charter-search-q" class="form-label">
+                        <span>{{ t('charters.form.field.q.label') }}</span>
+                        <span class="help"><i class="icon"></i><div class="helpText">{{ t('charters.search.box.help') }}</div></span>
+                    </label>
+                    <SearchBox v-model="filterModel.q"
+                               id="charter-search-q"
+                               :placeholder="t('charters.search.box.placeholder')"
+                               :label="t('charters.form.field.q.label')"
+                               :pt="searchBoxPt"
+                               @search="onFiltersValidated(true)"/>
+                </div></div>
                 <VueFormGenerator
                     ref="form"
                     :model="filterModel"
@@ -25,14 +39,6 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
-                <SearchBox v-model="filterModel.q"
-                           :placeholder="t('charters.search.box.placeholder')"
-                           :label="t('charters.form.field.q.label')"
-                           :pt="searchBoxPt"
-                           class="mbottom-default"
-                           @search="onFiltersValidated(true)">
-                    <template #help>{{ t('charters.search.box.help') }}</template>
-                </SearchBox>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
@@ -313,7 +319,7 @@ const {
     },
 })
 
-// search box in the site's colours, at the size of the other fields
+// search box in the sidebar: the size of the other fields, the site's colours
 const searchBoxPt = {group: 'input-group', searchButton: 'btn btn-primary', clearButton: 'btn btn-outline-primary'}
 
 // orders offered next to the pagination; relevance only while the plain search box is used
