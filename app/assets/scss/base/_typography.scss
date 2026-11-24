@@ -1,4 +1,7 @@
-h1, .h1,
+h1, .h1 {
+    color: $heading-color;
+}
+
 h5, .h5,
 h6, .h6 {
     color: $primary;
@@ -6,21 +9,33 @@ h6, .h6 {
 
 h1 {
     font-weight: 600;
-    &.logo {
-        font-family: $font-family-belgica;
-        color: $black;
-        font-weight: 100;
-        & b {
-            font-family: $font-family-rosarivo;
-            font-weight: 600;
-        }
-    }
 }
 
 h2, .h2 {
     font-weight: 500;
-    color: $secondary;
+    color: $primary;
     margin-bottom: 20px;
+}
+
+// Logo: "Diplomata Belgica" in Rosarivo, "Belgica" in the accent colour (navbar and footer)
+.logo {
+    font-family: $font-family-rosarivo;
+    font-weight: 400;
+    color: $black;
+}
+
+.logo--diplomata,
+.logo--belgica {
+    font-family: $font-family-rosarivo;
+    font-weight: 400;
+}
+
+.logo--belgica {
+    color: $primary;
+}
+
+h1.logo .logo--belgica {
+    margin-left: .25em;
 }
 
 h3, .h3 {
@@ -31,7 +46,7 @@ h3, .h3 {
 
 
 h4, .h4 {
-    color: $alt-text-color;
+    color: $primary;
 }
 
 // Reading text on the charter page: 16px, because Rosarivo (full text) has a smaller x-height than Open Sans
@@ -53,22 +68,22 @@ h4, .h4 {
     line-height: $line-height-medium;
     a {
         &:hover {
-            color: $secondary;
+            color: $heading-color;
         }
     }
 }
 
 a {
-    color: $black;
-    text-decoration-color: $secondary;
+    color: $text-link-color;
+    text-decoration-color: rgba($text-link-color, .45);
     text-decoration-style: dotted;
     text-decoration-line: underline;
     text-decoration-thickness: .1em;
     text-underline-offset: 2.5px;
 
     &:hover {
-        color: $black;
+        color: $heading-color;
         text-decoration-style: solid;
-        text-decoration-color: $secondary;
+        text-decoration-color: $text-link-color;
     }
 }

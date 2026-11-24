@@ -1,35 +1,118 @@
+// Navigation bar: seal + logo on the left (seal fills the bar height), menu and language switch share the logo's baseline
 .pageheader {
-    .navbar-brand {
-      font-size: $font-size-lg-min;
+    padding-bottom: 40px;
+
+    .navbar {
+      padding-top: 0;
+      padding-bottom: 0;
+      background-color: $white;
+      border-bottom: 1px solid $rule-color;
     }
+
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0;
+      font-size: 24px;
+    }
+
+    // seal from the old site, with its silk cords (decorative; referenced from scss so Vite serves and fingerprints it)
+    .navbar-brand__seal {
+      flex: none;
+      width: 40px;
+      height: 64px;
+      background: url('/assets/images/seal.png') center / contain no-repeat;
+    }
+
+    // Rosarivo's lowercase sits above the middle of its line box: nudge the text down to the seal's centre
+    .navbar-brand .logo {
+      position: relative;
+      top: 5px;
+    }
+
     .nav-item {
       font-size: $font-size-md;
       position: relative;
       display: inline-block;
     }
+
+    .nav-link {
+      color: $black;
+      font-weight: 500;
+
+      &:hover,
+      &:focus {
+        color: $primary;
+      }
+
+      &.active {
+        color: $primary;
+      }
+    }
+
+    // environment label (dev, qas), right of the language switch
+    .navbar-env {
+      align-self: center;
+      padding: 2px 8px;
+      font-size: $font-size-md;
+      font-weight: 500;
+      line-height: 1.4;
+      color: $secondary;
+      border: 1px solid $secondary;
+      border-radius: 4px;
+    }
+
     .navbar-toggler {
-      font-size: calc(30 / 16) * 1rem;
+      font-size: calc(24 / 16) * 1rem;
       .fa-bars {
         padding-top: 3px;
       }
     }
-    .navbar {
-      padding-top: 25px;
-    }
-    @include media-breakpoint-up(lg) {
-      .nav-item {
-        padding-bottom: 0px;
-        padding-top: 5px;
+
+    // phones: no inner padding, so the logo and the menu button fit on one row
+    @include media-breakpoint-down(lg) {
+      .navbar > .container-fluid {
+        padding-left: 0;
+        padding-right: 0;
       }
     }
 
-    .logo--belgica {
-      font-weight: 100;
-      font-family: $font-family-belgica;
-    }
+    @include media-breakpoint-up(lg) {
+      .navbar > .container-fluid {
+        align-items: stretch;
+      }
 
-    .logo--diplomata {
-      font-family: $font-family-rosarivo;
-      letter-spacing: -0.08em;
+      .navbar-brand {
+        gap: 12px;
+        margin-right: 40px;
+        font-size: 30px;
+      }
+
+      .navbar-brand__seal {
+        width: 51px;
+        height: 82px;
+      }
+
+      .nav-link.active {
+        box-shadow: inset 0 -2px 0 rgba($primary, .45);
+      }
+
+      .navbar-nav {
+        align-self: center;
+        position: relative;
+        top: 5px; // same baseline as the logo
+      }
+
+      .nav-item {
+        padding-bottom: 0;
+        padding-top: 5px;
+      }
+
+      .navbar-env {
+        position: relative;
+        top: 7px;
+        margin-left: 16px;
+      }
     }
   }

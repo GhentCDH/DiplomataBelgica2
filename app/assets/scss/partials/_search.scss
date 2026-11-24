@@ -18,3 +18,23 @@ mark,
   white-space: nowrap;
   min-width: 100px;
 }
+
+/* search results */
+.charter__search-summary {
+  h6 {
+    margin-top: 14px;
+    margin-bottom: 3px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: $label-color;
+  }
+
+  h6:first-child {
+    margin-top: 2px;
+  }
+}
+
+td > a.btn-tertiary.btn-sm {
+  font-size: 12px;
+}

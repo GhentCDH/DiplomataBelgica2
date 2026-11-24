@@ -42,7 +42,7 @@
               </div>
         </article>
         <aside class="d-flex col-sm-4 overflow-hidden">
-            <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100 border-top-dibe">
+            <div class="padding-default bg-tertiary scrollable scrollable--vertical w-100">
                 <Widget v-if="validContextAndResultSet()" :title="t('label.search')" :collapsed="false">
                     <div class="row mbottom-default">
                         <div class="form-group">

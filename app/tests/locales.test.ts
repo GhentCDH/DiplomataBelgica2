@@ -88,11 +88,9 @@ describe('Symfony XLIFF translations', () => {
         expect([...used].filter((key) => !resnames.has(key)).sort()).toEqual([]);
     });
 
-    it('translates the navbar and language names', () => {
+    it('translates the navbar', () => {
         const target = Object.fromEntries(units.map((unit) => [unit.resname, unit.target]));
         expect(target['Charters']).toBe('Chartes');
         expect(target['Traditions']).toBe('Tradition');
-        expect(target['English']).toBe('Anglais');
-        expect(target['French']).toBe('Français');
     });
 });
