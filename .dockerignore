@@ -5,3 +5,4 @@
 **/var
 **/node_modules
 **/vendor
+app/src/Controller/TestController.php
