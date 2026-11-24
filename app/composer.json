@@ -1,8 +1,10 @@
 {
+    "name": "ghentcdh/diplomatabelgica",
     "type": "project",
-    "license": "proprietary",
+    "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "version": "0.97.0",
     "require": {
         "php": ">=8.3",
         "ext-ctype": "*",
