@@ -194,7 +194,7 @@ import {normaliseRole, roleKey} from '@/components/Charter/roleColours'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository";
-import {termsFromPlainQuery, useTextMarker, withLatinSpellings} from "@/composables/useTextMarker";
+import {termsFromDibeKeywords, termsFromPlainQuery, useTextMarker, withLatinSpellings} from "@/composables/useTextMarker";
 import {useSearchSyntax} from "@/composables/useSearchSyntax";
 
 import {
@@ -372,10 +372,10 @@ const { getKeywords } = useSearchSyntax();
 const plainSearchKeywords = withLatinSpellings(termsFromPlainQuery(context.value.params.filters['q']))
 
 const fulltextSearchString = context.value.params.filters['fulltext'] ?? "";
-const fulltextSearchKeywords = [...getKeywords(fulltextSearchString), ...plainSearchKeywords]
+const fulltextSearchKeywords = [...termsFromDibeKeywords(getKeywords(fulltextSearchString)), ...plainSearchKeywords]
 
 const summarySearchString = context.value.params.filters['summary'] ?? "";
-const summarySearchKeywords = [...getKeywords(summarySearchString), ...plainSearchKeywords]
+const summarySearchKeywords = [...termsFromDibeKeywords(getKeywords(summarySearchString)), ...plainSearchKeywords]
 
 const charterFulltext = computed(() => {
     return data.value.charter.full_text ? data.value.charter.full_text : "";

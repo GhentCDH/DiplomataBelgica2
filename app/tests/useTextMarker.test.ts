@@ -1,7 +1,7 @@
 import {describe, it, expect} from 'vitest';
 import {ref} from 'vue';
 
-import {useTextMarker, termsFromPlainQuery, withLatinSpellings} from '@/composables/useTextMarker';
+import {useTextMarker, termsFromPlainQuery, termsFromDibeKeywords, withLatinSpellings} from '@/composables/useTextMarker';
 
 const mark = (text: string, terms: string[]) => useTextMarker(ref(text), terms, 'hl').markedText.value;
 
@@ -56,5 +56,13 @@ describe('withLatinSpellings', () => {
     it('marks the normalized Latin text for a v/j query', () => {
         expect(mark('Notum sit uniuersis', withLatinSpellings(['vniversis'])))
             .toBe('Notum sit <mark class="hl">uniuersis</mark>');
+    });
+});
+
+describe('termsFromDibeKeywords', () => {
+    it('turns the DiBe one-letter wildcard . into ?, which marks exactly one letter', () => {
+        expect(termsFromDibeKeywords(['g.nterus', 'abb*'])).toEqual(['g?nterus', 'abb*']);
+        expect(mark('Gunterus, gonterus and gnterus', termsFromDibeKeywords(['g.nterus'])))
+            .toBe('<mark class="hl">Gunterus</mark>, <mark class="hl">gonterus</mark> and gnterus');
     });
 });

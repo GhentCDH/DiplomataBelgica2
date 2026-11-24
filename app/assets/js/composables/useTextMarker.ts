@@ -8,9 +8,20 @@ const WORD_END = '(?![\\p{L}\\p{N}])';
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * Regex source for one term: everything is literal, except `*`, which matches any letters.
+ * Regex source for one term: everything is literal, except `*`, which matches any letters, and `?`, which
+ * matches one letter.
  */
-const termPattern = (term: string) => term.split('*').map(escapeRegExp).join('\\p{L}*');
+const termPattern = (term: string) => term
+    .split('*')
+    .map((part) => part.split('?').map(escapeRegExp).join('\\p{L}'))
+    .join('\\p{L}*');
+
+/**
+ * Turn keywords of the DiBe search syntax into terms to mark: its one-letter wildcard `.` becomes `?`.
+ */
+export function termsFromDibeKeywords(keywords: string[]): string[] {
+    return keywords.map((keyword) => keyword.replace(/\./g, '?'));
+}
 
 /**
  * Turn a plain full-text query (no search syntax) into terms to mark: split on whitespace, drop quotes
@@ -42,7 +53,7 @@ export function withLatinSpellings(terms: string[]): string[] {
  * Composable to convert a text into a text with <mark> elements around certain words
  * @param textRef ref to the text
  * @param initWords initial terms to mark (will return same text if empty). A term is literal text,
- *                  except `*`, which matches any letters (e.g. `abb*`).
+ *                  except `*`, which matches any letters (e.g. `abb*`), and `?`, which matches one letter.
  * @param colorClass optional css class for the <mark> elements
  */
 export function useTextMarker(textRef: Ref<string>, initWords: string[] = [], colorClass: string = ""){
