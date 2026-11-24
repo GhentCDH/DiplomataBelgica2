@@ -8,7 +8,7 @@ Live site: https://www.diplomata-belgica.be/ — GitHub: `GhentCDH/DiplomataBelg
 
 | Layer      | Technology                                                                                         |
 |------------|----------------------------------------------------------------------------------------------------|
-| Backend    | PHP 8.3, Symfony 6.4, **Eloquent ORM** 10 (`wouterj/eloquent-bundle`, *not* Doctrine)              |
+| Backend    | PHP 8.3, Symfony 7.4 LTS, **Eloquent ORM** 12 (`wouterj/eloquent-bundle`, *not* Doctrine)          |
 | Database   | MariaDB 10.11 (schema + data loaded from `initdb/` on first start)                                 |
 | Search     | Elasticsearch 7 (via `ruflin/elastica`), xpack security on                                         |
 | Frontend   | Vue 3.5 + TypeScript/JS, Vite 6 (`vite-plugin-symfony` / `pentatrion/vite-bundle`), Bootstrap 5    |
@@ -114,6 +114,8 @@ docker compose up --build            # app on http://localhost:${APP_EXTERNAL_PO
 
 - README refers to `example.env`, which does not exist; the committed root `.env` holds dev defaults.
   Secrets go in `.env.local` / environment (gitignored).
+- Laravel (illuminate) and Symfony versions are coupled: illuminate 11+ requires Symfony 7, and
+  `wouterj/eloquent-bundle` 2.8 stops at illuminate 12 / Symfony 7. Laravel 13 / Symfony 8 need a newer bundle release.
 - The webdevops PHP images enable the ionCube loader by default; it makes PHP 8.3 segfault after the Symfony
   cache warmup, so the `Dockerfile` removes `00-ioncube.ini`.
 - `composer recipes:update` needs the repository's `.git`, which the symfony container cannot see (only `app/` is

@@ -1,9 +1,11 @@
 # see https://symfony.com/doc/current/reference/configuration/framework.html
 framework:
     secret: '%env(APP_SECRET)%'
-    annotations: false
-    http_method_override: false
-    handle_all_throwables: true
+
+    # opt in to the Symfony 8 default now (7.x defaults to false; not setting it is deprecated since 7.3).
+    # No effect today: the app doesn't use the serializer or PropertyInfo.
+    property_info:
+        with_constructor_extractor: true
 
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.
@@ -15,8 +17,6 @@ framework:
 
     #esi: true
     #fragments: true
-    php_errors:
-        log: true
 
 #    assets:
 #        version_strategy: 'Pentatrion\ViteBundle\Asset\ViteAssetVersionStrategy'
