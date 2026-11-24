@@ -44,3 +44,13 @@
     }
   }
 }
+
+// Bibliographic references (editions, secondary literature): long multi-line entries need air between them.
+.list--references {
+  padding-left: 1.25rem;
+  line-height: 1.5;
+
+  > li + li {
+    margin-top: .5rem;
+  }
+}

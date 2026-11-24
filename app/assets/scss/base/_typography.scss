@@ -34,10 +34,18 @@ h4, .h4 {
     color: $alt-text-color;
 }
 
+// Reading text on the charter page: 16px, because Rosarivo (full text) has a smaller x-height than Open Sans
+// and the summary is the main text of the page.
+.charter-summary {
+    font-size: $font-size-md;
+    line-height: 1.5;
+}
+
 .charter-full-text {
     font-family: $font-family-rosarivo;
+    font-size: $font-size-md;
     text-indent: 15px;
-    line-height: 25px;
+    line-height: 28px;
 }
 
 .rosarivo {

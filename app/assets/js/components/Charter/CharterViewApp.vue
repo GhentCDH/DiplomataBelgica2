@@ -7,7 +7,7 @@
 
                 <h2>{{ t('label.summaryAndDescription') }}</h2>
 
-                <div v-if="markedCharterSummary" class="mbottom-default" v-html="markedCharterSummary"></div>
+                <div v-if="markedCharterSummary" class="charter-summary mbottom-default" v-html="markedCharterSummary"></div>
 
                 <div class="mbottom-default">
                     <LabelValue :label="t('label.language')" :value="charter.language" type="id_name"
@@ -36,7 +36,7 @@
                 <div v-if="editionsFormatted.length" class="mbottom-small">
                     <h3>{{ t('label.edition', editionsFormatted.length) }}</h3>
 
-                    <ul class="_list-unstyled">
+                    <ul class="list--references">
                         <li v-for="edition in editionsFormatted" :key="edition.id">
                             {{ edition.text }}
                             <InlineLinkList :linklist="edition.links"></InlineLinkList>
@@ -47,7 +47,7 @@
                 <div v-if="secondaryLiteratureFormatted.length" class="mbottom-small">
                     <h3>{{ t('label.secondaryLiterature') }}</h3>
 
-                    <ul class="_list-unstyled">
+                    <ul class="list--references">
                         <li v-for="edition in secondaryLiteratureFormatted" :key="edition.id">
                             {{ edition.text }}
                             <InlineLinkList :linklist="edition.links"></InlineLinkList>
