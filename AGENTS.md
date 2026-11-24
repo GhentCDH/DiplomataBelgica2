@@ -91,8 +91,11 @@ docker compose up --build            # app on http://localhost:${APP_EXTERNAL_PO
 - Full reindex: `docker exec dibe-dev-symfony-1 bin/console app:elasticsearch:index charter` (and `tradition`),
   optionally with a max item count; or `app/scripts/reindex.sh [n]` inside the container. A full charter index
   takes a while.
-- Frontend (inside `app/` or the node container): `pnpm dev`, `pnpm build`, `pnpm test` (vitest; currently no
-  test files). The `analyze` script is stale (still calls Encore).
+- Frontend (inside `app/` or the node container): `pnpm dev`, `pnpm build`, `pnpm test` (vitest, watch mode; `*.test.ts` in
+  `app/tests/`). The `analyze` script is stale (still calls Encore).
+- PHP tests (PHPUnit 12, `app/phpunit.xml.dist`, files named `*Test.php` in `app/tests/`): run
+  `docker exec -u application dibe-dev-symfony-1 bin/phpunit`. Use the `application` user (owner of the bind-mounted
+  files): PHPUnit writes `.phpunit.cache` into the app root. Unit tests do not boot the kernel.
 - Console: `docker exec dibe-dev-symfony-1 bin/console ...`. DB and ES ports are not exposed to the host; use
   `docker exec` into `dibe-dev-mariadb-1` / `dibe-dev-elasticsearch-1`.
 - Changes to vue-search-kit must be made in `GhentCDH/vue-search-kit`, not in `node_modules`.
