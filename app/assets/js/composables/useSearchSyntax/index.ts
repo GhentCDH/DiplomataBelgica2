@@ -46,6 +46,11 @@ export const useSearchSyntax = () => {
 
     // get the keywords for the current search, optionally exclude keywords that are excluded by the NOT operator
     const getKeywords = (input: string): string[] => {
+        // an empty query has no keywords (and is not a syntax error, see validate)
+        if (input.trim() === "") {
+            return [];
+        }
+
         try {
             const cst = parse(input);
             keywordVisitor.reset();
