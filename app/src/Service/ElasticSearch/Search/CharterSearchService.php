@@ -72,7 +72,23 @@ class CharterSearchService extends AbstractSearchService
                 'type' => self::FILTER_QUERYSTRING,
                 'aggregationFilter' => false, // filter can be applied before aggregations
                 'field' => 'summary'
-            ]
+            ],
+
+            // plain full-text search box: words (no DiBe syntax) over the search_text bundle, ordered by relevance
+            'q' => [
+                'type' => self::FILTER_SIMPLE_QUERY,
+                'aggregationFilter' => false, // filter can be applied before aggregations
+                'operator' => 'and',
+                'flags' => 'PHRASE|PREFIX|WHITESPACE', // "quotes" = phrase, trailing * = prefix, the rest is literal
+                'relevance' => true,
+                'fields' => [
+                    'search_text.summary' => ['boost' => 3, 'highlight' => ['number_of_fragments' => 0]],
+                    'search_text.actor_names' => ['boost' => 2, 'highlight' => ['number_of_fragments' => 0]],
+                    'search_text.place_date' => ['boost' => 2, 'highlight' => ['number_of_fragments' => 0]],
+                    'search_text.actor_places' => ['boost' => 1.5, 'highlight' => ['number_of_fragments' => 0]],
+                    'search_text.full_text' => ['boost' => 1, 'highlight' => ['fragment_size' => 160, 'number_of_fragments' => 2]],
+                ],
+            ],
         ];
 
         // actor filters
@@ -407,9 +423,19 @@ class CharterSearchService extends AbstractSearchService
         ];
     }
 
+    protected function getRelevanceTiebreakers(): array
+    {
+        return ['date_sort' => 'asc', 'id' => 'asc'];
+    }
+
+    protected function getSourceExcludes(): array
+    {
+        return ['search_text'];
+    }
+
     protected function sanitizeSearchResult(array $result): array
     {
-        $returnProps = ['id', 'published', 'summary', 'actors','datations', 'date_sort'];
+        $returnProps = ['id', 'published', 'summary', 'actors','datations', 'date_sort', '_highlight', '_score'];
 
         $result = array_intersect_key($result, array_flip($returnProps));
 
@@ -423,6 +449,7 @@ class CharterSearchService extends AbstractSearchService
             switch ($params['orderBy']) {
                 case 'id':
                 case 'date_sort':
+                case '_score': // relevance, while filters[q] is set (see buildSort)
                     $params['orderBy'] = [ $params['orderBy'] ];
                     break;
                 default:

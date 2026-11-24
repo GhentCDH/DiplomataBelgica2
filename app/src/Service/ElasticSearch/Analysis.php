@@ -101,4 +101,29 @@ class Analysis
             ],
         ],
     ];
+
+    /**
+     * Analysis settings for a full-text search bundle (search_text.* sub-fields): a char filter that maps
+     * spelling variants ($charMappings, e.g. ['v => u']), the standard tokenizer and icu_folding (lowercase,
+     * no diacritics). No stemming. Merge the result into the index 'analysis' settings.
+     */
+    public static function searchTextAnalysis(array $charMappings, string $analyzer = 'search_text', string $charFilter = 'search_text_chars'): array
+    {
+        return [
+            'char_filter' => [
+                $charFilter => [
+                    'type' => 'mapping',
+                    'mappings' => $charMappings,
+                ],
+            ],
+            'analyzer' => [
+                $analyzer => [
+                    'type' => 'custom',
+                    'char_filter' => [$charFilter],
+                    'tokenizer' => 'standard',
+                    'filter' => ['icu_folding'],
+                ],
+            ],
+        ];
+    }
 }

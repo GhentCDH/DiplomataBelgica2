@@ -30,7 +30,8 @@ class ElasticActorResource extends ElasticBaseResource
             $actor?->place?->name ?? null,
             $actor?->name?->name ?? null,
         ]));
-        $ret['name'] = new ElasticBaseResource($actor->name);
+        // without relations: the standardized name (loaded for the full-text search) stays out of the document
+        $ret['name'] = new ElasticBaseResource($actor->name?->withoutRelations());
         $ret['capacity'] = new ElasticBaseResource($actor->capacity);
         $ret['order'] = new ElasticBaseResource($actor->order);
         $ret['place_institute'] = new ElasticBaseResource($actor->place_institute);
