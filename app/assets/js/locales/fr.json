@@ -92,6 +92,9 @@
           "help": "L'analyse ou régeste consiste en une brève description, aussi concise et précise que possible, du contenu juridique et historique de l'acte. Diplomata Belgica  étant à l'origine une base de données développée en français, toutes les analyses sont rédigées uniquement dans cette langue. Les analyses suivent autant que possible celles données par les éditions de textes. Les requêtes peuvent être formulées en employant la syntaxe de recherche spécifique à Diplomata Belgica.",
           "label": "Recherche dans le résumé de l'acte",
           "placeholder": "Recherche dans le résumé"
+        },
+        "q": {
+          "label": "Recherche"
         }
       },
       "legend": {
@@ -106,7 +109,26 @@
     "invalidSearchSyntax": "Syntaxe de recherche invalide",
     "mapWarning": "La carte n'affiche que les dates de lieu. Affinez votre recherche pour réduire le nombre de résultats et afficher aussi les lieux des acteurs.",
     "mapSeveralRoles": "Plusieurs rôles",
-    "placedateCharters": "Chartes datées de ce lieu"
+    "placedateCharters": "Chartes datées de ce lieu",
+    "search": {
+      "box": {
+        "placeholder": "Rechercher des chartes : noms, lieux, mots du résumé ou du texte",
+        "help": "Tapez des mots ordinaires ; tous doivent figurer. Utilisez des « guillemets » droits (\"...\") pour une expression exacte et un * final pour les mots qui commencent ainsi (ex. abb*). Les accents et les graphies latines u/v et i/j sont ignorés."
+      },
+      "highlight": {
+        "full_text": "Texte",
+        "actor_names": "Acteurs",
+        "actor_places": "Lieux des acteurs",
+        "place_date": "Date de lieu"
+      },
+      "sort": {
+        "label": "Trier par",
+        "relevance": "Pertinence",
+        "dateDesc": "Date, la plus récente d'abord",
+        "dateAsc": "Date, la plus ancienne d'abord",
+        "id": "ID DiBe"
+      }
+    }
   },
   "form": {
     "allAuthors": "Tous les acteurs",

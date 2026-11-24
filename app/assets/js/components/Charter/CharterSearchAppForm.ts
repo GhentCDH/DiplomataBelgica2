@@ -157,6 +157,15 @@ export const createSchema = (schemaOptions: SchemaOptions): Schema => {
                 styleClasses: 'collapsible collapsed',
                 legend: t('charters.form.legend.analysis'),
                 fields: [
+                    // plain full-text search: edited in the search box above the results, kept here so it takes part
+                    // in the URL, history and filter tags
+                    {
+                        type: 'input',
+                        inputType: 'text',
+                        model: 'q',
+                        label: t('charters.form.field.q.label'),
+                        visible: false,
+                    },
                     {
                         type: 'input',
                         inputType: 'text',

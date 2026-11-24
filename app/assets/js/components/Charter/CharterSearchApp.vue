@@ -25,6 +25,13 @@
         <article class="col-sm-9 d-flex flex-column h-100 search-app__results">
             <header>
                 <h1 v-if="title" class="mbottom-default">{{ title }}</h1>
+                <SearchBox v-model="filterModel.q"
+                           :placeholder="t('charters.search.box.placeholder')"
+                           :label="t('charters.form.field.q.label')"
+                           class="mbottom-default"
+                           @search="onFiltersValidated(true)">
+                    <template #help>{{ t('charters.search.box.help') }}</template>
+                </SearchBox>
                 <nav class="mbottom-default">
                     <div class="nav nav-pills" id="nav-tab" role="tablist">
                         <button class="nav-link active" id="nav-results-tab" data-bs-toggle="tab"
@@ -58,7 +65,10 @@
                                 :total-records="totalRecords"
                                 :per-page-values="tableOptions.pagination.perPageValues"
                                 :per-page-label="t('pagination.perPage')"
+                                :sort-options="sortOptions"
+                                :sort-label="t('charters.search.sort.label')"
                                 @change="updateTableState"
+                                @update:sort="updateTableState"
                             ></search-toolbar>
 
                             <div class="flex-grow-1 scrollable">
@@ -165,6 +175,8 @@ import {
     BRadioList,
     type RadioItem,
     SearchToolbar,
+    SearchBox,
+    type SortOption,
     BLink,
     BFilterTags,
     SelectedItemsBasket,
@@ -284,6 +296,8 @@ const {
         currentPage: 1,
     },
     validators: initialValidators,
+    // order by relevance while the plain search box (filters[q]) is used
+    relevanceSort: {filter: 'q'},
     collapsibleGroupsStorageId: 'charter-search-groups',
     buildFilterSchema: ({updateFieldValues, filterState}) => {
         const onAutocomplete = (fieldName: string) => {
@@ -297,6 +311,14 @@ const {
         return createSchema({t, onAutocomplete, searchSyntaxUrl: getRoute('charter_search_syntax')})
     },
 })
+
+// orders offered next to the pagination; relevance only while the plain search box is used
+const sortOptions = computed<SortOption[]>(() => [
+    ...(filterState.value?.q ? [{label: t('charters.search.sort.relevance'), orderBy: '_score', orderAsc: false}] : []),
+    {label: t('charters.search.sort.dateDesc'), orderBy: 'date_sort', orderAsc: false},
+    {label: t('charters.search.sort.dateAsc'), orderBy: 'date_sort', orderAsc: true},
+    {label: t('charters.search.sort.id'), orderBy: 'id', orderAsc: true},
+])
 
 // --- map: a pure extension on top of the search app ---
 
