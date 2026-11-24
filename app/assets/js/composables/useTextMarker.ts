@@ -1,27 +1,56 @@
 import type {Ref} from "vue";
-import {computed, toRef} from "vue";
+import {computed, ref} from "vue";
+
+// a term starts/ends where no letter or digit touches it (unicode aware, unlike \b)
+const WORD_START = '(?<![\\p{L}\\p{N}])';
+const WORD_END = '(?![\\p{L}\\p{N}])';
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * Regex source for one term: everything is literal, except `*`, which matches any letters.
+ */
+const termPattern = (term: string) => term.split('*').map(escapeRegExp).join('\\p{L}*');
+
+/**
+ * Turn a plain full-text query (no search syntax) into terms to mark: split on whitespace, drop quotes
+ * and other punctuation around each word, keep a trailing `*` (prefix search).
+ */
+export function termsFromPlainQuery(query: string | null | undefined): string[] {
+    return (query ?? '')
+        .split(/\s+/)
+        .map((word) => {
+            const prefix = /\*$/.test(word);
+            const core = word.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+            return core && prefix ? core + '*' : core;
+        })
+        .filter((word) => word !== '');
+}
 
 /**
  * Composable to convert a text into a text with <mark> elements around certain words
  * @param textRef ref to the text
- * @param initWords initial words to mark (will return same text if empty)
+ * @param initWords initial terms to mark (will return same text if empty). A term is literal text,
+ *                  except `*`, which matches any letters (e.g. `abb*`).
  * @param colorClass optional css class for the <mark> elements
  */
 export function useTextMarker(textRef: Ref<string>, initWords: string[] = [], colorClass: string = ""){
     const text: Ref<string> = textRef;
-    const words: Ref<string[]> = toRef(initWords);
+    const words: Ref<string[]> = ref([...initWords]);
 
     const setWords = (newWords: string[]) => {
-        words.value = newWords;
+        words.value = [...newWords];
     }
 
     /**
      * Computed value returning the marked text
      */
     const markedText = computed (()=> {
-        if (words.value.length === 0) return text.value
-        words.value.sort((a, b) => b.length - a.length)
-        const regex = new RegExp(`\\b(${words.value.join('|')})\\b`, 'gi')
+        const terms = words.value.filter((word) => word !== '');
+        if (terms.length === 0) return text.value
+        // longest first, so the longest matching term wins
+        const patterns = [...terms].sort((a, b) => b.length - a.length).map(termPattern)
+        const regex = new RegExp(`${WORD_START}(${patterns.join('|')})${WORD_END}`, 'giu')
         return text.value.replace(regex, `<mark class="${colorClass}">$1</mark>`)
     });
 

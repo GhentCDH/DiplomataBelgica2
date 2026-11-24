@@ -194,7 +194,7 @@ import {normaliseRole, roleKey} from '@/components/Charter/roleColours'
 import ActorDetailsFlat from '@/components/Actor/ActorDetailsFlat.vue'
 import * as qs from "qs";
 import charterRepository from "@/repositories/CharterRepository";
-import {useTextMarker} from "@/composables/useTextMarker";
+import {termsFromPlainQuery, useTextMarker} from "@/composables/useTextMarker";
 import {useSearchSyntax} from "@/composables/useSearchSyntax";
 
 import {
@@ -367,11 +367,14 @@ if (context.value.validReadContext && !context.value.ids) {
 
 const { getKeywords } = useSearchSyntax();
 
+// words of the plain full-text search box (filters[q]) are marked in both the summary and the text
+const plainSearchKeywords = termsFromPlainQuery(context.value.params.filters['q'])
+
 const fulltextSearchString = context.value.params.filters['fulltext'] ?? "";
-const fulltextSearchKeywords = getKeywords(fulltextSearchString).map(m => m.replace(/\*/g, '[A-Za-z]*'))
+const fulltextSearchKeywords = [...getKeywords(fulltextSearchString), ...plainSearchKeywords]
 
 const summarySearchString = context.value.params.filters['summary'] ?? "";
-const summarySearchKeywords = getKeywords(summarySearchString).map(m => m.replace(/\*/g, '[A-Za-z]*'))
+const summarySearchKeywords = [...getKeywords(summarySearchString), ...plainSearchKeywords]
 
 const charterFulltext = computed(() => {
     return data.value.charter.full_text ? data.value.charter.full_text : "";
