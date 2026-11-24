@@ -56,8 +56,10 @@ FROM webdevops/php-dev:${PHP_VERSION} AS symfony-base
 WORKDIR "/app"
 
 # the ionCube loader (enabled by default in webdevops images) makes PHP 8.3 segfault at shutdown
-# after Symfony 6.4 cache warmup; it is only needed to run ionCube-encoded code, which this project has none of
-RUN rm -f /usr/local/etc/php/conf.d/00-ioncube.ini
+# after Symfony 6.4 cache warmup; it is only needed to run ionCube-encoded code, which this project has none of;
+# the guard fails the build if the loader is enabled from somewhere else
+RUN find /usr/local/etc/php/conf.d -iname '*ioncube*' -delete \
+ && ! php -m | grep -qi ioncube
 
 RUN set -eux && \
     apt-get update -qq && \
@@ -125,8 +127,9 @@ RUN --mount=type=ssh \
 FROM webdevops/php-apache:${PHP_VERSION} AS prod
 # USER application
 
-# disable the ionCube loader, see symfony-base
-RUN rm -f /usr/local/etc/php/conf.d/00-ioncube.ini
+# disable the ionCube loader and fail the build if it is still loaded, see symfony-base
+RUN find /usr/local/etc/php/conf.d -iname '*ioncube*' -delete \
+ && ! php -m | grep -qi ioncube
 
 # todo: add tmux?
 

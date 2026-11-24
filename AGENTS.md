@@ -117,7 +117,7 @@ docker compose up --build            # app on http://localhost:${APP_EXTERNAL_PO
 - Laravel (illuminate) and Symfony versions are coupled: illuminate 11+ requires Symfony 7, and
   `wouterj/eloquent-bundle` 2.8 stops at illuminate 12 / Symfony 7. Laravel 13 / Symfony 8 need a newer bundle release.
 - The webdevops PHP images enable the ionCube loader by default; it makes PHP 8.3 segfault after the Symfony
-  cache warmup, so the `Dockerfile` removes `00-ioncube.ini`.
+  cache warmup, so the `Dockerfile` removes every `*ioncube*` ini and fails the build if the loader is still loaded.
 - `composer recipes:update` needs the repository's `.git`, which the symfony container cannot see (only `app/` is
   mounted): run it in a one-off `docker compose run` container that mounts the whole repository.
 - `initdb/` scripts only run when the MariaDB volume (`var/mysql`) is empty.
