@@ -1,10 +1,8 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-tertiary">
+<nav class="navbar navbar-expand-lg navbar-light">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ path('default') }}">
+            <span class="navbar-brand__seal" aria-hidden="true"></span>
             <span class="logo logo--diplomata">Diplomata</span><span class="logo logo--belgica">Belgica</span>
-            {% if app.environment != 'prod' %}
-                <span class="text-danger">[{{ app.environment }}]</span>
-            {% endif %}
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,19 +58,22 @@
             <ul class="ms-auto navbar-nav mb-2 mb-lg-0">
                 <li class="nav-item">
                     <a href="{{ path(locale_route, locale_route_params | merge(app.request.query.all) | merge({'_locale': 'en'})) }}"
-                       data-locale-switch="en"
+                       data-locale-switch="en" hreflang="en" lang="en" title="English"
                        class="nav-link {{ app.request.locale == 'en' ? 'active' }}">
-                        {{  'English'|trans }}
+                        EN
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ path(locale_route, locale_route_params | merge(app.request.query.all) | merge({'_locale': 'fr'})) }}"
-                       data-locale-switch="fr"
+                       data-locale-switch="fr" hreflang="fr" lang="fr" title="Français"
                        class="nav-link {{ app.request.locale == 'fr' ? 'active' }}">
-                        {{ 'French'|trans }}
+                        FR
                     </a>
                 </li>
             </ul>
+            {% if app.environment != 'prod' %}
+                <span class="navbar-env">{{ app.environment }}</span>
+            {% endif %}
         </div>
     </div>
 </nav>

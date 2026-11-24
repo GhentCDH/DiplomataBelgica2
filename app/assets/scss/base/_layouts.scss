@@ -19,44 +19,12 @@
 
 /*
 COMPACT LAYOUT
-- compact header
 - hidden footer
 */
 
 body.layout--compact {
-
-    @include media-breakpoint-up(sm) {
-        .pageheader .spacer {
-            min-height: 60px;
-            }
-        
-            .pageheader .branding-container {
-            position: absolute;
-            top: 22px;
-        
-            h1 {
-                font-size: 28px
-            }
-            }
-        
-            .pageheader .page-logo img {
-            margin: 10px 0 0;
-            height: 50px;
-            }
-        
-            .pageheader .navbar-default .nav-primary {
-            padding: 10px 0 10px 0;
-            }
-    }
-
     .page__footer {
         display: none;
-    }
-}
-
-body.layout--wide {
-    & > .container-xl {
-        max-width: 1800px;
     }
 }
 

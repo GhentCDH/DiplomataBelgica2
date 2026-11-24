@@ -45,19 +45,14 @@
 // Utilities
 @import "bootstrap/scss/utilities/api";
 
-// external
-// @import 'font-awesome/scss/font-awesome';
-
 // maplibre
 @import 'maplibre-gl/dist/maplibre-gl.css';
 
 // Custom
-// @import "base/elements";
 @import "base/layouts";
 @import "base/typography";
 
 @import "partials/layout";
-@import "partials/scrollable";
 @import "partials/breadcrumb";
 @import "partials/colophon";
 @import "partials/fonts";

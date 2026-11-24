@@ -41,14 +41,6 @@
         <source>Contact</source>
         <target>Contact</target>
       </trans-unit>
-      <trans-unit id="uhGL9.y" resname="English">
-        <source>English</source>
-        <target>Anglais</target>
-      </trans-unit>
-      <trans-unit id="dFgZn_l" resname="French">
-        <source>French</source>
-        <target>Français</target>
-      </trans-unit>
       <trans-unit id="Srch5yn" resname="Search syntax">
         <source>Search syntax</source>
         <target>Syntaxe de recherche</target>

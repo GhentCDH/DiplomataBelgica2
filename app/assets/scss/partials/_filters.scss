@@ -13,16 +13,17 @@
     padding-top: 10px;
   }
 
+  // actor groups 1-3 keep distinct colours, so the groups can be told apart
   .actor-1 {
-    border-color: red;
+    border-color: $primary;
   }
 
   .actor-2 {
-    border-color: seagreen;
+    border-color: #6b8f71;
   }
 
   .actor-3 {
-    border-color: skyblue;
+    border-color: #b08d57;
   }
 
 }
