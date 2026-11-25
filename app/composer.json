@@ -4,7 +4,7 @@
     "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
-    "version": "0.98.0",
+    "version": "1.0.0",
     "require": {
         "php": ">=8.3",
         "ext-ctype": "*",
