@@ -20,8 +20,8 @@
                             <!-- <span aria-hidden="true">&times;</span> -->
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="row g-3">
+                    <div class="modal-body image-zoom__body">
+                        <div class="row gx-3 gy-3 gy-lg-0 image-zoom__row">
                             <div :class="showTextPane ? 'col-lg-7' : 'col-12'">
                                 <open-seadragon
                                     id="openseadragon-zoom-viewer"
@@ -54,7 +54,8 @@ export default {
         return {
             zoomImage : null,
             showText: true,
-            viewerHeight: '70vh',
+            // the viewer fills the modal body (see .image-zoom__row)
+            viewerHeight: '100%',
         }
     },
 
@@ -104,6 +105,28 @@ export default {
 
 <style scoped lang="scss">
 .image-zoom__dialog {
-    max-width: min(95vw, 1600px);
+    width: 95vw;
+    max-width: 95vw;
+    height: 95vh;
+    margin: 2.5vh auto;
+
+    .modal-content {
+        height: 100%;
+    }
+}
+
+// the body takes the height left under the header; the image (and the text pane next to it) fill it
+.image-zoom__body {
+    min-height: 0;
+    overflow-y: auto;
+}
+
+// below lg the text pane stacks under the image, each as high as the body: the body scrolls to the text
+.image-zoom__row {
+    height: 100%;
+
+    > * {
+        height: 100%;
+    }
 }
 </style>
