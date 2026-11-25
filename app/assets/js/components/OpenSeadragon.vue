@@ -55,8 +55,12 @@ export default {
 
             this.viewer = OpenSeadragon({
                 id: this.id,
-                prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@2.4/build/openseadragon/images/',
+                // the 6.1 default buttons are still PNGs (6.2 draws them as SVG and no longer needs prefixUrl)
+                prefixUrl: 'https://cdn.jsdelivr.net/npm/openseadragon@6.1.1/build/openseadragon/images/',
                 tileSources: this.IIIFImageUrl,
+                // load tiles with CORS (the IIIF server allows any origin): the default WebGL drawer
+                // cannot use cross-origin tiles otherwise ("Error creating texture in WebGL")
+                crossOriginPolicy: 'Anonymous',
                 maxZoomLevel: 5,
             })
         },
