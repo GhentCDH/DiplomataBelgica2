@@ -73,8 +73,8 @@ importers:
         specifier: ^8.11.1
         version: 8.11.1
       openseadragon:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^6.1.1
+        version: 6.1.1
       qs:
         specifier: ^6.15.2
         version: 6.15.2
@@ -1663,8 +1663,8 @@ packages:
     resolution: {integrity: sha512-nK28WOo+QIjBkDduTINE4JkF/UJJKyf2EJxvJKfblDpyg0Q+pkOHNTL0Qwy6NP6FhE/EnzV73BxxqcJaXY9anw==}
     engines: {node: '>= 0.4'}
 
-  openseadragon@3.1.0:
-    resolution: {integrity: sha512-0zCbRIWUbCto7xm1tv2ZLEiSl84cDU659W/sfs2zqqTqVRa4CRHzhy7i9nsv6dHA1DryFR8IzjStjmWOqRs9Rg==}
+  openseadragon@6.1.1:
+    resolution: {integrity: sha512-g4iKe2q8B642SaBT3+x4ZF3/8b1TxPPydyjmtrOLgDrlYWMKd9ZXM+1Cb/xa9DVySkvs/7l6HR1nHKfD5F3Tsw==}
 
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
@@ -3745,7 +3745,7 @@ snapshots:
       has-symbols: 1.1.0
       object-keys: 1.1.1
 
-  openseadragon@3.1.0: {}
+  openseadragon@6.1.1: {}
 
   optionator@0.9.4:
     dependencies:
