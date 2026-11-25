@@ -7,7 +7,11 @@
                 </div>
             </template>
         </masonry-wall>
-        <div v-if="zoomImage != null" id="zoomWindow" class="modal fade" :class="{'show': zoomImage}" tabindex="-1" style="display: block" aria-hidden="true">
+        <!-- a click outside the dialog closes it, like a Bootstrap modal; only when the press started there too
+             (a drag in the image released outside the dialog also fires its click on the modal) -->
+        <div v-if="zoomImage != null" id="zoomWindow" class="modal fade" :class="{'show': zoomImage}" tabindex="-1" style="display: block" aria-hidden="true"
+             @pointerdown.capture="pressedOutside = $event.target === $event.currentTarget"
+             @click.self="pressedOutside && closeZoomedImage()">
             <div class="modal-dialog modal-xl image-zoom__dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -37,6 +41,7 @@
                 </div>
             </div>
         </div>
+        <div v-if="zoomImage != null" class="modal-backdrop fade show"></div>
     </div>
 </template>
 
@@ -54,6 +59,7 @@ export default {
         return {
             zoomImage : null,
             showText: true,
+            pressedOutside: false,
             // the viewer fills the modal body (see .image-zoom__row)
             viewerHeight: '100%',
         }
@@ -88,6 +94,7 @@ export default {
     methods: {
         showZoomedImage (item) {
             this.zoomImage = item.replace('/full/256,/0/default.jpg', '/info.json')
+            this.pressedOutside = false
             document.addEventListener('keydown', this.onKeydown)
         },
         closeZoomedImage () {

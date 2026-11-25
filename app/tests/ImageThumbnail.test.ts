@@ -79,6 +79,35 @@ describe('ImageThumbnail zoom', () => {
         expect((textPane() as HTMLElement | null)?.style.height).toBe('100%');
     });
 
+    it('shows a backdrop while the modal is open', async () => {
+        await openZoom({thumbnailUrls: [thumbnail]});
+        expect(el.querySelector('.modal-backdrop.show')).not.toBeNull();
+        el.querySelector<HTMLButtonElement>('.btn-close')!.click();
+        await nextTick();
+        expect(el.querySelector('.modal-backdrop')).toBeNull();
+    });
+
+    it('closes on a click outside the dialog, not inside it', async () => {
+        await openZoom({thumbnailUrls: [thumbnail]});
+        el.querySelector<HTMLElement>('.modal-body')!.click();
+        await nextTick();
+        expect(el.querySelector('.modal')).not.toBeNull();
+        const modal = el.querySelector<HTMLElement>('.modal')!;
+        modal.dispatchEvent(new Event('pointerdown', {bubbles: true}));
+        modal.click();
+        await nextTick();
+        expect(el.querySelector('.modal')).toBeNull();
+    });
+
+    it('stays open when a drag starts in the image and ends outside the dialog', async () => {
+        await openZoom({thumbnailUrls: [thumbnail]});
+        el.querySelector<HTMLElement>('.osd-stub')!.dispatchEvent(new Event('pointerdown', {bubbles: true}));
+        // the browser fires the click on the common ancestor of press and release: the modal
+        el.querySelector<HTMLElement>('.modal')!.click();
+        await nextTick();
+        expect(el.querySelector('.modal')).not.toBeNull();
+    });
+
     it('closes on Escape', async () => {
         await openZoom({thumbnailUrls: [thumbnail]});
         document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape'}));
