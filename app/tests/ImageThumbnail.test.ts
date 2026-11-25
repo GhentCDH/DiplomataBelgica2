@@ -73,9 +73,10 @@ describe('ImageThumbnail zoom', () => {
         expect(el.querySelector('.osd-stub')).not.toBeNull();
     });
 
-    it('gives the viewer a fixed height', async () => {
+    it('lets the viewer and the text pane fill the modal body', async () => {
         await openZoom({thumbnailUrls: [thumbnail], text});
-        expect(el.querySelector('.osd-stub')?.getAttribute('data-height')).toBe('70vh');
+        expect(el.querySelector('.osd-stub')?.getAttribute('data-height')).toBe('100%');
+        expect((textPane() as HTMLElement | null)?.style.height).toBe('100%');
     });
 
     it('closes on Escape', async () => {
